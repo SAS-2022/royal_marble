@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "420263984039",
+    "project_id": "royal-marble",
+    "storage_bucket": "royal-marble.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:420263984039:android:e1d59c2119bc3f52535482",
+        "android_client_info": {
+          "package_name": "com.royalmarble.tracking"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "420263984039-uaqf9f1lenuvvmoe1hj41of0k7s5p3g2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjs6d1WlAoSMN1K2vJevKGZ2nPUo65rHE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "420263984039-uaqf9f1lenuvvmoe1hj41of0k7s5p3g2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
