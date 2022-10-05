@@ -1,8 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:royal_marble/auth/sign_in.dart';
 import 'package:royal_marble/services/database.dart';
 
 import 'home.dart';
+import 'models/user_model.dart';
 
 class Wrapper extends StatefulWidget {
   const Wrapper({Key key}) : super(key: key);
@@ -24,7 +27,12 @@ class _WrapperState extends State<Wrapper> {
 
   @override
   Widget build(BuildContext context) {
-    return const HomeScreen();
+    var userData = Provider.of<UserData>(context);
+    if (userData == null) {
+      return const SignInScreen();
+    } else {
+      return const HomeScreen();
+    }
   }
 
   Future<void> _checkIfUserVerified() async {

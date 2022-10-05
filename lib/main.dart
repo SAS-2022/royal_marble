@@ -4,7 +4,11 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:royal_marble/services/auth.dart';
 import 'package:royal_marble/wrapper.dart';
+
+import 'models/user_model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,11 +22,19 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      debugShowCheckedModeBanner: false,
-      routes: <String, WidgetBuilder>{'/home': (context) => const Wrapper()},
-      home: const SplashScreen(),
+    return MultiProvider(
+      providers: [
+        StreamProvider<UserData>.value(
+            value: AuthService().user,
+            initialData: UserData(),
+            catchError: (context, err) => UserData(error: err.toString())),
+      ],
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        debugShowCheckedModeBanner: false,
+        routes: <String, WidgetBuilder>{'/home': (context) => const Wrapper()},
+        home: const SplashScreen(),
+      ),
     );
   }
 }
@@ -64,6 +76,7 @@ class _SplashScreenState extends State<SplashScreen> {
       }
     } on PlatformException {
       print('Failed to get platform version');
+      return null;
     }
   }
 
@@ -83,17 +96,15 @@ class _SplashScreenState extends State<SplashScreen> {
             children: <Widget>[
               Expanded(
                 flex: 2,
-                child: Container(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(),
-                      Container(),
-                      Padding(
-                        padding: EdgeInsets.only(top: 10.0),
-                      ),
-                    ],
-                  ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(),
+                    Container(),
+                    const Padding(
+                      padding: EdgeInsets.only(top: 10.0),
+                    ),
+                  ],
                 ),
               ),
             ],

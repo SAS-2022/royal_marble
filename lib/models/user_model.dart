@@ -6,6 +6,8 @@ class UserData {
   String phoneNumber;
   Map<String, dynamic> homeAddress;
   List<dynamic> roles;
+  bool isActive;
+  String error;
 
   UserData({
     this.uid,
@@ -15,5 +17,7 @@ class UserData {
     this.phoneNumber,
     this.homeAddress,
     this.roles,
+    this.isActive,
+    this.error,
   });
 }

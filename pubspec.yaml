@@ -21,6 +21,9 @@ dependencies:
   google_maps_flutter: ^2.2.1
   device_info_plus: ^4.0.0
   sentry_flutter: 6.9.0
+  provider: ^5.0.0
+  country_picker: ^2.0.10
+  email_validator: ^2.0.1
   cupertino_icons: ^1.0.2
 
 dev_dependencies:

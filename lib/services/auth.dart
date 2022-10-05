@@ -38,7 +38,6 @@ class AuthService {
       var result = await _auth.signInWithEmailAndPassword(
           email: email.trim(), password: password);
       var user = result.user.uid;
-      print('the user id: $user');
       if (user != null) {
         return user;
       } else {
@@ -57,7 +56,6 @@ class AuthService {
       if (user.uid != null) {
         return user.uid;
       } else {
-        print('failed to retreive user id');
         return null;
       }
     } catch (e, stackTrace) {

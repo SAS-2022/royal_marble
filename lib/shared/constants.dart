@@ -1,0 +1,33 @@
+import 'package:flutter/material.dart';
+
+const textInputDecoration = InputDecoration(
+  fillColor: Colors.white12,
+  filled: true,
+  enabledBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: Colors.grey, width: 2.0)),
+  focusedBorder: OutlineInputBorder(
+    borderSide: BorderSide(color: Colors.green, width: 2.0),
+  ),
+);
+
+const textStyle5 = TextStyle(
+  fontSize: 16,
+  fontFamily: 'San Fransisco',
+  color: Colors.black,
+);
+
+const textStyle6 = TextStyle(
+    fontSize: 14,
+    fontFamily: 'San Fransisco',
+    color: Colors.black,
+    fontStyle: FontStyle.italic);
+
+const textStyle7 =
+    TextStyle(fontSize: 14.0, fontFamily: 'San Francisco', color: Colors.blue);
+const textStyle8 = TextStyle(
+    fontSize: 16.0,
+    fontFamily: 'San Francisco',
+    color: Color.fromARGB(255, 103, 48, 11));
+
+const buttonStyle =
+    TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold, color: Colors.white);
