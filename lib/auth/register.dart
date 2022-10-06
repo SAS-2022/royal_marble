@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import '../services/auth.dart';
 import '../shared/constants.dart';
 import '../shared/country_picker.dart';
+import '../shared/loading.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key key}) : super(key: key);
@@ -25,6 +26,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String confirmEmail = '';
   String phoneNumber = '';
   String password = '';
+  String nationality = '';
   String error = '';
   Size size;
 
@@ -34,9 +36,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Register User'),
-        backgroundColor: const Color.fromARGB(255, 169, 157, 16),
+        backgroundColor: const Color.fromARGB(255, 191, 180, 66),
       ),
-      body: _buildRegisterBody(),
+      body: loading ? const Center(child: Loading()) : _buildRegisterBody(),
     );
   }
 
@@ -81,7 +83,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           val.isEmpty ? 'First name cannot be empty' : null,
                       onChanged: (val) {
                         setState(() {
-                          firstName = val;
+                          firstName = val.trim();
                         });
                       },
                     ),
@@ -115,7 +117,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           val.isEmpty ? 'Last Name cannot be empty' : null,
                       onChanged: (val) {
                         setState(() {
-                          lastName = val;
+                          lastName = val.trim();
                         });
                       },
                     ),
@@ -262,7 +264,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       },
                       onChanged: (val) {
                         setState(() {
-                          email = val;
+                          email = val.trim();
                         });
                       },
                     ),
@@ -338,7 +340,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       },
                       onChanged: (val) {
                         setState(() {
-                          password = val;
+                          password = val.trim();
                         });
                       },
                     ),
@@ -386,12 +388,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           lastName: lastName.trim(),
                           company: company.trim(),
                           phoneNumber: phoneNumber,
+                          nationality: nationality,
                           isActive: false,
                         );
 
                         setState(() {
                           loading = false;
                         });
+                        await Navigator.pushNamedAndRemoveUntil(
+                            context, '/home', (route) => false);
                       }
                     }),
               )

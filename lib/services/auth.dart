@@ -73,7 +73,7 @@ class AuthService {
       String company,
       bool isActive,
       String phoneNumber,
-      String cityOfResidence,
+      String nationality,
       List<String> roles}) async {
     try {
       var result = await _auth.createUserWithEmailAndPassword(
@@ -82,7 +82,7 @@ class AuthService {
       var user = result.user;
       if (user != null) {
         await db
-            .setUserData(
+            .updateUser(
                 uid: user.uid,
                 firstName: firstName,
                 lastName: lastName,
@@ -90,7 +90,7 @@ class AuthService {
                 phoneNumber: phoneNumber,
                 isActive: false,
                 emailAddress: email,
-                cityOfResidence: cityOfResidence ?? '',
+                nationality: nationality ?? '',
                 roles: roles)
             .then((value) {
           return value;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:royal_marble/auth/forgotPass.dart';
+import 'package:royal_marble/auth/forgot_pass.dart';
 import 'package:royal_marble/auth/register.dart';
 import 'package:royal_marble/services/auth.dart';
 
@@ -23,12 +23,14 @@ class _SignInState extends State<SignInScreen> {
   dynamic result;
   String error;
   bool _isLoading = false;
+  Size size;
   @override
   Widget build(BuildContext context) {
+    size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sign In'),
-        backgroundColor: const Color.fromARGB(255, 169, 157, 16),
+        backgroundColor: const Color.fromARGB(255, 191, 180, 66),
       ),
       body: _buildSignInBody(),
     );
@@ -44,7 +46,13 @@ class _SignInState extends State<SignInScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               //We will add the logo on top
-
+              Image.asset(
+                'assets/images/logo_2.jpg',
+                height: size.height / 3,
+              ),
+              const SizedBox(
+                height: 25.0,
+              ),
               TextFormField(
                 decoration: InputDecoration(
                   hintText: 'example@royalMarble.com',
