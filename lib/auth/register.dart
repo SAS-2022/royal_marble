@@ -382,15 +382,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         });
 
                         await _auth.registerWithEmailandPassword(
-                          email: email.trim(),
-                          password: password.trim(),
-                          firstName: firstName.trim(),
-                          lastName: lastName.trim(),
-                          company: company.trim(),
-                          phoneNumber: phoneNumber,
-                          nationality: nationality,
-                          isActive: false,
-                        );
+                            email: email.trim(),
+                            password: password.trim(),
+                            firstName: firstName.trim(),
+                            lastName: lastName.trim(),
+                            company: company.trim(),
+                            phoneNumber: phoneNumber,
+                            nationality: nationality,
+                            isActive: false,
+                            roles: ['isNormalUser']);
 
                         setState(() {
                           loading = false;

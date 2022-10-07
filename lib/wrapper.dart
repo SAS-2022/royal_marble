@@ -31,7 +31,12 @@ class _WrapperState extends State<Wrapper> {
     if (userData == null) {
       return const SignInScreen();
     } else {
-      return const HomeScreen();
+      return StreamProvider<UserData>.value(
+        value: db.getUserPerId(uid: userData.uid),
+        initialData: UserData(),
+        catchError: (context, err) => UserData(error: err),
+        child: const HomeScreen(),
+      );
     }
   }
 

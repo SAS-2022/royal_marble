@@ -7,6 +7,7 @@ class UserData {
   Map<String, dynamic> homeAddress;
   List<dynamic> roles;
   String nationality;
+  String company;
   bool isActive;
   String error;
 
@@ -19,6 +20,7 @@ class UserData {
     this.homeAddress,
     this.roles,
     this.nationality,
+    this.company,
     this.isActive,
     this.error,
   });

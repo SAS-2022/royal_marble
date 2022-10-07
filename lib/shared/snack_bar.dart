@@ -10,7 +10,7 @@ class SnackBarWidget {
           content,
           style: const TextStyle(color: Colors.yellowAccent),
         ),
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 4),
         elevation: 15,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.only(bottom: 8, left: 5, right: 5),

@@ -56,11 +56,26 @@ class DatabaseService {
     }
   }
 
-  //read the users data through futures and streams
+  //activate or deactivate a user
+  Future<String> activateDeactivateUser({String uid, bool active}) async {
+    try {
+      return await userCollection
+          .doc(uid)
+          .update({'isActive': active}).then((value) => 'Completed');
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return 'Error: $e';
+    }
+  }
 
+  //read the users data through futures and streams
   //stream user data
   Stream<UserData> getUserPerId({String uid}) {
     return userCollection.doc(uid).snapshots().map(_singleUserDataFromSnapshot);
+  }
+
+  Stream<List<UserData>> getAllUsers() {
+    return userCollection.snapshots().map(_allUserDataFromSnapshot);
   }
 
   //User data from snapshot
@@ -75,7 +90,26 @@ class DatabaseService {
       nationality: data['nationality'],
       isActive: data['isActive'] ?? false,
       roles: data['roles'],
+      company: data['company'],
       homeAddress: data['homeAddress'],
     );
+  }
+
+  List<UserData> _allUserDataFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.map((snapshot) {
+      var data = snapshot.data() as Map<String, dynamic>;
+      return UserData(
+        uid: snapshot.id,
+        emailAddress: data['emailAddress'],
+        firstName: data['firstName'],
+        lastName: data['lastName'],
+        phoneNumber: data['phoneNumber'],
+        nationality: data['nationality'],
+        isActive: data['isActive'] ?? false,
+        roles: data['roles'],
+        company: data['company'],
+        homeAddress: data['homeAddress'],
+      );
+    }).toList();
   }
 }

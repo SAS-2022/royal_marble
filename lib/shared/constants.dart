@@ -10,6 +10,24 @@ const textInputDecoration = InputDecoration(
   ),
 );
 
+const textStyle2 = TextStyle(
+  fontSize: 20,
+  fontFamily: 'San Fransisco',
+  color: Colors.white,
+);
+
+const textStyle3 = TextStyle(
+    fontSize: 16,
+    fontFamily: 'San Fransisco',
+    color: Colors.black,
+    fontWeight: FontWeight.bold);
+
+const textStyle4 = TextStyle(
+  fontSize: 20,
+  fontFamily: 'San Fransisco',
+  color: Colors.black,
+);
+
 const textStyle5 = TextStyle(
   fontSize: 16,
   fontFamily: 'San Fransisco',
