@@ -4,6 +4,8 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:royal_marble/services/auth.dart';
 import 'package:royal_marble/wrapper.dart';
@@ -55,6 +57,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     _getDeviceInfo();
+    _getLocationAccess();
     Timer(
       const Duration(seconds: 5),
       () => Navigator.pushAndRemoveUntil(
@@ -62,6 +65,19 @@ class _SplashScreenState extends State<SplashScreen> {
           MaterialPageRoute(builder: (context) => const Wrapper()),
           ModalRoute.withName('/home')),
     );
+  }
+
+  //Check if location is enabled
+  Future<void> _getLocationAccess() async {
+    if (await Permission.location.serviceStatus.isEnabled) {
+      await Geolocator.requestPermission();
+    } else {
+      var status = await Permission.location.status;
+      if (status.isGranted) {
+      } else {
+        var status = await [Permission.location].request();
+      }
+    }
   }
 
   //Get device info

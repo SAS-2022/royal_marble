@@ -1,5 +1,9 @@
+import 'dart:io';
+
+import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:royal_marble/location/google_map_navigation.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/shared/constants.dart';
@@ -22,24 +26,19 @@ class _UserDetailsState extends State<UserDetails> {
   DatabaseService db = DatabaseService();
   SnackBarWidget _snackBarWidget = SnackBarWidget();
   final _formKey = GlobalKey<FormState>();
-  String firstName;
-  String lastName;
-  String phoneNumber;
-  String companyName;
-  String nationality;
-  Map<String, dynamic> homeAddress;
+  UserData newUserData = UserData();
 
   @override
   void initState() {
     super.initState();
     _snackBarWidget.context = context;
     if (widget.currentUser != null) {
-      firstName = widget.currentUser.firstName;
-      lastName = widget.currentUser.lastName;
-      phoneNumber = widget.currentUser.phoneNumber;
-      companyName = widget.currentUser.company;
-      nationality = widget.currentUser.nationality;
-      homeAddress = widget.currentUser.homeAddress;
+      newUserData.firstName = widget.currentUser.firstName;
+      newUserData.lastName = widget.currentUser.lastName;
+      newUserData.phoneNumber = widget.currentUser.phoneNumber;
+      newUserData.company = widget.currentUser.company;
+      newUserData.nationality = widget.currentUser.nationality;
+      newUserData.homeAddress = widget.currentUser.homeAddress;
     }
   }
 
@@ -132,7 +131,7 @@ class _UserDetailsState extends State<UserDetails> {
                 style: textStyle5,
               ),
               Text(
-                widget.currentUser.nationality,
+                widget.currentUser.nationality['countryName'],
                 style: textStyle3,
               )
             ],
@@ -161,12 +160,18 @@ class _UserDetailsState extends State<UserDetails> {
                 'Home Address: ',
                 style: textStyle5,
               ),
-              Text(
-                widget.currentUser.homeAddress != null
-                    ? widget.currentUser.homeAddress['name']
-                    : 'address not assigned',
-                style: textStyle3,
-              )
+              widget.currentUser.homeAddress != null &&
+                      widget.currentUser.homeAddress.isNotEmpty
+                  ? Text(
+                      widget.currentUser.homeAddress != null
+                          ? widget.currentUser.homeAddress['name']
+                          : 'address not assigned',
+                      style: textStyle3,
+                    )
+                  : GestureDetector(
+                      onTap: () async {},
+                      child: const Text('Add Address', style: textStyle3),
+                    )
             ],
           ),
           const SizedBox(
@@ -269,20 +274,23 @@ class _UserDetailsState extends State<UserDetails> {
         padding: const EdgeInsets.only(top: 35, left: 25, right: 10),
         child: SizedBox(
           width: _size.width - 10,
-          height: _size.height - 20,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  const Text(
-                    'First Name: ',
-                    style: textStyle5,
+                  const Expanded(
+                    flex: 1,
+                    child: Text(
+                      'First Name: ',
+                      style: textStyle5,
+                    ),
                   ),
                   Expanded(
+                    flex: 2,
                     child: TextFormField(
-                      initialValue: firstName,
+                      initialValue: newUserData.firstName,
                       style: textStyle3,
                       decoration: InputDecoration(
                         filled: true,
@@ -301,7 +309,7 @@ class _UserDetailsState extends State<UserDetails> {
                       },
                       onChanged: (val) {
                         if (val.isNotEmpty) {
-                          firstName = val.trim();
+                          newUserData.firstName = val.trim();
                         }
                       },
                     ),
@@ -313,13 +321,17 @@ class _UserDetailsState extends State<UserDetails> {
               ),
               Row(
                 children: [
-                  const Text(
-                    'Last Name: ',
-                    style: textStyle5,
+                  const Expanded(
+                    flex: 1,
+                    child: Text(
+                      'Last Name: ',
+                      style: textStyle5,
+                    ),
                   ),
                   Expanded(
+                    flex: 2,
                     child: TextFormField(
-                      initialValue: lastName,
+                      initialValue: newUserData.lastName,
                       style: textStyle3,
                       decoration: InputDecoration(
                         filled: true,
@@ -338,7 +350,7 @@ class _UserDetailsState extends State<UserDetails> {
                       },
                       onChanged: (val) {
                         if (val.isNotEmpty) {
-                          lastName = val.trim();
+                          newUserData.lastName = val.trim();
                         }
                       },
                     ),
@@ -350,13 +362,17 @@ class _UserDetailsState extends State<UserDetails> {
               ),
               Row(
                 children: [
-                  const Text(
-                    'Phone Number: ',
-                    style: textStyle5,
+                  const Expanded(
+                    flex: 1,
+                    child: Text(
+                      'Phone Number: ',
+                      style: textStyle5,
+                    ),
                   ),
                   Expanded(
+                    flex: 2,
                     child: TextFormField(
-                      initialValue: phoneNumber,
+                      initialValue: newUserData.phoneNumber,
                       style: textStyle3,
                       keyboardType: TextInputType.number,
                       inputFormatters: <TextInputFormatter>[
@@ -388,7 +404,7 @@ class _UserDetailsState extends State<UserDetails> {
                       },
                       onChanged: (val) {
                         if (val.isNotEmpty) {
-                          phoneNumber = val.trim();
+                          newUserData.phoneNumber = val.trim();
                         }
                       },
                     ),
@@ -400,13 +416,19 @@ class _UserDetailsState extends State<UserDetails> {
               ),
               Row(
                 children: [
-                  const Text(
-                    'Email Address: ',
-                    style: textStyle5,
+                  const Expanded(
+                    flex: 1,
+                    child: Text(
+                      'Email Address: ',
+                      style: textStyle5,
+                    ),
                   ),
-                  Text(
-                    widget.currentUser.emailAddress,
-                    style: textStyle3,
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      widget.currentUser.emailAddress,
+                      style: textStyle3,
+                    ),
                   )
                 ],
               ),
@@ -415,12 +437,15 @@ class _UserDetailsState extends State<UserDetails> {
               ),
               Row(
                 children: [
-                  const Text(
-                    'Nationality: ',
-                    style: textStyle5,
+                  const Expanded(
+                    flex: 1,
+                    child: Text(
+                      'Nationality: ',
+                      style: textStyle5,
+                    ),
                   ),
                   Expanded(
-                    flex: 3,
+                    flex: 2,
                     child: Container(
                         decoration: BoxDecoration(
                           border: Border.all(
@@ -429,7 +454,10 @@ class _UserDetailsState extends State<UserDetails> {
                           color: Colors.grey[100],
                           borderRadius: BorderRadius.circular(15.0),
                         ),
-                        child: CountryDropDownPicker()),
+                        child: CountryDropDownPicker(
+                          selectCountry: selectCountry,
+                          countryOfResidence: newUserData.nationality,
+                        )),
                   )
                 ],
               ),
@@ -438,13 +466,17 @@ class _UserDetailsState extends State<UserDetails> {
               ),
               Row(
                 children: [
-                  const Text(
-                    'Company: ',
-                    style: textStyle5,
+                  const Expanded(
+                    flex: 1,
+                    child: Text(
+                      'Company: ',
+                      style: textStyle5,
+                    ),
                   ),
                   Expanded(
+                    flex: 2,
                     child: TextFormField(
-                      initialValue: companyName,
+                      initialValue: newUserData.company,
                       style: textStyle3,
                       decoration: InputDecoration(
                         filled: true,
@@ -463,7 +495,7 @@ class _UserDetailsState extends State<UserDetails> {
                       onChanged: (val) {
                         if (val.isNotEmpty) {
                           setState(() {
-                            companyName = val.trim();
+                            newUserData.company = val.trim();
                           });
                         }
                       },
@@ -476,22 +508,78 @@ class _UserDetailsState extends State<UserDetails> {
               ),
               Row(
                 children: [
-                  const Text(
-                    'Home Address: ',
-                    style: textStyle5,
+                  const Expanded(
+                    flex: 1,
+                    child: Text(
+                      'Home Address: ',
+                      style: textStyle5,
+                    ),
                   ),
-                  Text(
-                    widget.currentUser.homeAddress != null
-                        ? widget.currentUser.homeAddress['name']
-                        : 'address not assigned',
-                    style: textStyle3,
+                  Expanded(
+                    flex: 2,
+                    child: widget.currentUser.homeAddress != null
+                        ? Text(
+                            widget.currentUser.homeAddress != null
+                                ? widget.currentUser.homeAddress['name']
+                                : 'address not assigned',
+                            style: textStyle3,
+                          )
+                        : GestureDetector(
+                            onTap: () async {
+                              if (Platform.isIOS) {
+                              } else {
+                                await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) => GoogleMapNavigation()));
+                              }
+                            },
+                            child: const Text(
+                              'Add Address',
+                              style: textStyle5,
+                            ),
+                          ),
                   )
                 ],
               ),
+              const SizedBox(
+                height: 25,
+              ),
+              //Add and update button in order to monitor update
+              Center(
+                child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        primary: widget.currentUser.isActive
+                            ? Colors.red[400]
+                            : Colors.green[400],
+                        fixedSize: Size(_size.width / 2, 45),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25))),
+                    onPressed: () async {
+                      var result = await db.updateCurrentUser(
+                          uid: widget.currentUser.uid, newUsers: newUserData);
+                      if (result == 'Completed') {
+                        Navigator.pop(context);
+                      } else {
+                        _snackBarWidget.content =
+                            'failed to update account, please contact developer';
+                        _snackBarWidget.showSnack();
+                      }
+                    },
+                    child: const Text(
+                      'Update',
+                      style: textStyle2,
+                    )),
+              )
             ],
           ),
         ),
       ),
     );
+  }
+
+  selectCountry(Map<String, dynamic> country) {
+    print('the country: $country');
+    newUserData.nationality = country;
   }
 }

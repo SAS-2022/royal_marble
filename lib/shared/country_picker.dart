@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:royal_marble/shared/constants.dart';
 
 class CountryDropDownPicker extends StatefulWidget {
-  const CountryDropDownPicker({Key key, this.countryOfResidence})
+  const CountryDropDownPicker(
+      {Key key, this.countryOfResidence, this.selectCountry})
       : super(key: key);
-  final String countryOfResidence;
+  final Map<String, dynamic> countryOfResidence;
+  final Function selectCountry;
 
   @override
   _CountryDropDownPickerState createState() => _CountryDropDownPickerState();
@@ -13,30 +15,47 @@ class CountryDropDownPicker extends StatefulWidget {
 
 class _CountryDropDownPickerState extends State<CountryDropDownPicker> {
   String newCountryOfResidence;
-  Country selectedCountry;
+  Map<String, dynamic> selectedCountry;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.countryOfResidence != null) {
+      selectedCountry = widget.countryOfResidence;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    print('the country of residence: ${widget.countryOfResidence}');
     return SizedBox(
       height: 50,
       child: InkWell(
-          onTap: () => showCountryPicker(
-              context: context,
-              onSelect: (Country country) {
+        onTap: () => showCountryPicker(
+            context: context,
+            onSelect: (Country country) {
+              setState(() {
+                selectedCountry = {
+                  'countryCode': country.countryCode,
+                  'countryName': country.displayNameNoCountryCode
+                };
                 setState(() {
-                  selectedCountry = country;
+                  widget.selectCountry(selectedCountry);
                 });
-              }),
-          child: Center(
-              child: selectedCountry != null
-                  ? Text(
-                      selectedCountry.displayName,
-                      style: textStyle5,
-                    )
-                  : const Text(
-                      'Select Country',
-                      style: textStyle5,
-                    ))),
+              });
+            }),
+        child: Center(
+          child: selectedCountry != null
+              ? Text(
+                  selectedCountry['countryName'],
+                  style: textStyle5,
+                )
+              : const Text(
+                  'Select Country',
+                  style: textStyle5,
+                ),
+        ),
+      ),
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'package:country_picker/country_picker.dart';
+
 class UserData {
   String uid;
   String firstName;
@@ -6,7 +8,7 @@ class UserData {
   String phoneNumber;
   Map<String, dynamic> homeAddress;
   List<dynamic> roles;
-  String nationality;
+  Map<String, dynamic> nationality;
   String company;
   bool isActive;
   String error;

@@ -26,7 +26,12 @@ dependencies:
   email_validator: ^2.0.1
   cupertino_icons: ^1.0.2
   flutter_spinkit: ^5.1.0
- #getwidget: ^3.0.1
+  dio: ^4.0.5
+  flutter_polyline_points: ^1.0.0
+  url_launcher: ^6.1.1
+  geolocator: ^9.0.2
+  permission_handler: ^10.0.0
+  # google_maps_place_picker: 2.1.0-nullsafety.3
 
 dev_dependencies:
   flutter_test:

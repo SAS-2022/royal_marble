@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:country_picker/country_picker.dart';
 import 'package:sentry/sentry.dart' as sentry;
 
 import '../models/user_model.dart';
@@ -63,6 +64,27 @@ class DatabaseService {
           .doc(uid)
           .update({'isActive': active}).then((value) => 'Completed');
     } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return 'Error: $e';
+    }
+  }
+
+  //update current user
+  Future<String> updateCurrentUser({String uid, UserData newUsers}) async {
+    try {
+      return await userCollection.doc(uid).update({
+        'firstName': newUsers.firstName,
+        'lastName': newUsers.lastName,
+        'company': newUsers.company,
+        'phoneNumber': newUsers.phoneNumber,
+        'nationality': {
+          'contryCode': newUsers.nationality['countryCode'],
+          'countryName': newUsers.nationality['countryName']
+        },
+        'homeAddress': newUsers.homeAddress,
+      }).then((value) => 'Completed');
+    } catch (e, stackTrace) {
+      print('the error: $e');
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
       return 'Error: $e';
     }

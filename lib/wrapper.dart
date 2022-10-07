@@ -34,7 +34,10 @@ class _WrapperState extends State<Wrapper> {
       return StreamProvider<UserData>.value(
         value: db.getUserPerId(uid: userData.uid),
         initialData: UserData(),
-        catchError: (context, err) => UserData(error: err),
+        catchError: (context, err) {
+          print('the error: $err');
+          return UserData(error: err);
+        },
         child: const HomeScreen(),
       );
     }
