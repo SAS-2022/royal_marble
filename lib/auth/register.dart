@@ -172,9 +172,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 BorderRadius.all(Radius.circular(15.0)),
                             borderSide: BorderSide(color: Colors.blue)),
                       ),
+                      validator: (val) =>
+                          val.isEmpty ? 'Company cannot be empty' : null,
                       onChanged: (val) {
                         setState(() {
-                          company = val;
+                          company = val.toString();
                         });
                       },
                     ),

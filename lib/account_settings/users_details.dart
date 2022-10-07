@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/shared/constants.dart';
 import 'package:royal_marble/shared/snack_bar.dart';
+
+import '../shared/country_picker.dart';
 
 class UserDetails extends StatefulWidget {
   const UserDetails({Key key, this.currentUser, this.myAccount})
@@ -18,11 +21,26 @@ class _UserDetailsState extends State<UserDetails> {
   Size _size;
   DatabaseService db = DatabaseService();
   SnackBarWidget _snackBarWidget = SnackBarWidget();
+  final _formKey = GlobalKey<FormState>();
+  String firstName;
+  String lastName;
+  String phoneNumber;
+  String companyName;
+  String nationality;
+  Map<String, dynamic> homeAddress;
 
   @override
   void initState() {
     super.initState();
     _snackBarWidget.context = context;
+    if (widget.currentUser != null) {
+      firstName = widget.currentUser.firstName;
+      lastName = widget.currentUser.lastName;
+      phoneNumber = widget.currentUser.phoneNumber;
+      companyName = widget.currentUser.company;
+      nationality = widget.currentUser.nationality;
+      homeAddress = widget.currentUser.homeAddress;
+    }
   }
 
   @override
@@ -245,6 +263,235 @@ class _UserDetailsState extends State<UserDetails> {
   }
 
   Widget _buildMyUserDetails() {
-    return Column();
+    return Form(
+      key: _formKey,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 35, left: 25, right: 10),
+        child: SizedBox(
+          width: _size.width - 10,
+          height: _size.height - 20,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Text(
+                    'First Name: ',
+                    style: textStyle5,
+                  ),
+                  Expanded(
+                    child: TextFormField(
+                      initialValue: firstName,
+                      style: textStyle3,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        enabledBorder: const OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(15.0)),
+                            borderSide: BorderSide(color: Colors.grey)),
+                        focusedBorder: const OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(15.0)),
+                            borderSide: BorderSide(color: Colors.blue)),
+                      ),
+                      validator: (val) {
+                        return val.isEmpty ? 'Last Name cannot be empty' : null;
+                      },
+                      onChanged: (val) {
+                        if (val.isNotEmpty) {
+                          firstName = val.trim();
+                        }
+                      },
+                    ),
+                  )
+                ],
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              Row(
+                children: [
+                  const Text(
+                    'Last Name: ',
+                    style: textStyle5,
+                  ),
+                  Expanded(
+                    child: TextFormField(
+                      initialValue: lastName,
+                      style: textStyle3,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        enabledBorder: const OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(15.0)),
+                            borderSide: BorderSide(color: Colors.grey)),
+                        focusedBorder: const OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(15.0)),
+                            borderSide: BorderSide(color: Colors.blue)),
+                      ),
+                      validator: (val) {
+                        return val.isEmpty ? 'Last Name cannot be empty' : null;
+                      },
+                      onChanged: (val) {
+                        if (val.isNotEmpty) {
+                          lastName = val.trim();
+                        }
+                      },
+                    ),
+                  )
+                ],
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              Row(
+                children: [
+                  const Text(
+                    'Phone Number: ',
+                    style: textStyle5,
+                  ),
+                  Expanded(
+                    child: TextFormField(
+                      initialValue: phoneNumber,
+                      style: textStyle3,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: <TextInputFormatter>[
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        enabledBorder: const OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(15.0)),
+                            borderSide: BorderSide(color: Colors.grey)),
+                        focusedBorder: const OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(15.0)),
+                            borderSide: BorderSide(color: Colors.blue)),
+                      ),
+                      validator: (val) {
+                        Pattern pattern = r'^(?:[05]8)?[0-9]{10}$';
+                        var regexp = RegExp(pattern.toString());
+                        if (val.isEmpty) {
+                          return 'Phone cannot be empty';
+                        }
+                        if (!regexp.hasMatch(val)) {
+                          return 'Phone number does not match a UAE number';
+                        } else {
+                          return null;
+                        }
+                      },
+                      onChanged: (val) {
+                        if (val.isNotEmpty) {
+                          phoneNumber = val.trim();
+                        }
+                      },
+                    ),
+                  )
+                ],
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              Row(
+                children: [
+                  const Text(
+                    'Email Address: ',
+                    style: textStyle5,
+                  ),
+                  Text(
+                    widget.currentUser.emailAddress,
+                    style: textStyle3,
+                  )
+                ],
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              Row(
+                children: [
+                  const Text(
+                    'Nationality: ',
+                    style: textStyle5,
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.grey,
+                          ),
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        child: CountryDropDownPicker()),
+                  )
+                ],
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              Row(
+                children: [
+                  const Text(
+                    'Company: ',
+                    style: textStyle5,
+                  ),
+                  Expanded(
+                    child: TextFormField(
+                      initialValue: companyName,
+                      style: textStyle3,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        enabledBorder: const OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(15.0)),
+                            borderSide: BorderSide(color: Colors.grey)),
+                        focusedBorder: const OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(15.0)),
+                            borderSide: BorderSide(color: Colors.blue)),
+                      ),
+                      validator: (val) =>
+                          val.isEmpty ? 'Company cannot be empty' : null,
+                      onChanged: (val) {
+                        if (val.isNotEmpty) {
+                          setState(() {
+                            companyName = val.trim();
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              Row(
+                children: [
+                  const Text(
+                    'Home Address: ',
+                    style: textStyle5,
+                  ),
+                  Text(
+                    widget.currentUser.homeAddress != null
+                        ? widget.currentUser.homeAddress['name']
+                        : 'address not assigned',
+                    style: textStyle3,
+                  )
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
