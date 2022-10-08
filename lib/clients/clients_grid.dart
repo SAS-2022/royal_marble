@@ -22,11 +22,25 @@ class _ClientGridState extends State<ClientGrid> {
       providers: [
         widget.currentUser.roles.contains('isAdmin')
             ? StreamProvider<List<ClientData>>.value(
-                value: db.getAllClients(), initialData: const [])
+                value: db.getAllClients(),
+                initialData: const [],
+                catchError: (context, err) {
+                  print('Error getting client: $err');
+                  return [];
+                },
+              )
             : StreamProvider<List<ClientData>>.value(
-                value: db.getClientsPerUser(), initialData: const []),
+                value: db.getClientsPerUser(),
+                initialData: const [],
+                catchError: (context, err) {
+                  print('Error getting client: $err');
+                  return [];
+                },
+              ),
       ],
-      child: ClientList(),
+      child: ClientList(
+        currentUser: widget.currentUser,
+      ),
     );
   }
 }

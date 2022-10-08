@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:royal_marble/account_settings/users_details.dart';
 import 'package:royal_marble/account_settings/users_grid.dart';
+import 'package:royal_marble/clients/clients_form.dart';
 import 'package:royal_marble/clients/clients_grid.dart';
 import 'package:royal_marble/models/user_model.dart';
 
@@ -79,7 +80,16 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                             leading: const Icon(Icons.add_business),
                             title: const Text('Add New Client'),
                             enabled: true,
-                            onTap: () async {},
+                            onTap: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => ClientForm(
+                                          isNewClient: true,
+                                          currentUser: widget.currentUser,
+                                        )),
+                              );
+                            },
                           ),
                           ListTile(
                             leading: const Icon(Icons.business_center_rounded),

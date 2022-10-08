@@ -224,6 +224,7 @@ class DatabaseService {
     return ClientData(
         uid: snapshot.id,
         clientName: data['clientName'],
+        contactPerson: data['contactPerson'],
         clientAddress: data['clientAddress'],
         emailAddress: data['emailAddress'],
         phoneNumber: data['phoneNumber'],
@@ -236,6 +237,7 @@ class DatabaseService {
       return ClientData(
           uid: snapshot.id,
           clientName: data['clientName'],
+          contactPerson: data['contactPerson'],
           clientAddress: data['clientAddress'],
           emailAddress: data['emailAddress'],
           phoneNumber: data['phoneNumber'],

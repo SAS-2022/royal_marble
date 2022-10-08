@@ -563,14 +563,16 @@ class _UserDetailsState extends State<UserDetails> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(25))),
                     onPressed: () async {
-                      var result = await db.updateCurrentUser(
-                          uid: widget.currentUser.uid, newUsers: newUserData);
-                      if (result == 'Completed') {
-                        Navigator.pop(context);
-                      } else {
-                        _snackBarWidget.content =
-                            'failed to update account, please contact developer';
-                        _snackBarWidget.showSnack();
+                      if (_formKey.currentState.validate()) {
+                        var result = await db.updateCurrentUser(
+                            uid: widget.currentUser.uid, newUsers: newUserData);
+                        if (result == 'Completed') {
+                          Navigator.pop(context);
+                        } else {
+                          _snackBarWidget.content =
+                              'failed to update account, please contact developer';
+                          _snackBarWidget.showSnack();
+                        }
                       }
                     },
                     child: const Text(
