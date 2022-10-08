@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/screens/profile_drawer.dart';
@@ -14,7 +13,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  AuthService _authService = AuthService();
+  final _authService = AuthService();
   UserData userProvider;
 
   @override

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:royal_marble/account_settings/users_details.dart';
 import 'package:royal_marble/account_settings/users_grid.dart';
+import 'package:royal_marble/clients/clients_grid.dart';
 import 'package:royal_marble/models/user_model.dart';
 
 class ProfileDrawer extends StatefulWidget {
@@ -66,6 +67,60 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                         },
                       )
                     : const SizedBox.shrink(),
+                widget.currentUser.roles.contains('isAdmin') ||
+                        widget.currentUser.roles.contains('isSales')
+                    ? ExpansionTile(
+                        leading: const Icon(
+                          Icons.business,
+                        ),
+                        title: const Text('Clients'),
+                        children: [
+                          ListTile(
+                            leading: const Icon(Icons.add_business),
+                            title: const Text('Add New Client'),
+                            enabled: true,
+                            onTap: () async {},
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.business_center_rounded),
+                            title: const Text('View Client'),
+                            enabled: true,
+                            onTap: () async {
+                              await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => ClientGrid(
+                                            currentUser: widget.currentUser,
+                                          )));
+                            },
+                          ),
+                        ],
+                      )
+                    : const SizedBox.shrink(),
+
+                widget.currentUser.roles.contains('isAdmin') ||
+                        widget.currentUser.roles.contains('isSales')
+                    ? ExpansionTile(
+                        leading: const Icon(
+                          Icons.account_tree,
+                        ),
+                        title: const Text('Sales Pipeline'),
+                        children: [
+                          ListTile(
+                            leading: const Icon(Icons.app_registration),
+                            title: const Text('New Visit'),
+                            enabled: true,
+                            onTap: () async {},
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.apps_outage_outlined),
+                            title: const Text('View Visits'),
+                            enabled: true,
+                            onTap: () async {},
+                          ),
+                        ],
+                      )
+                    : const SizedBox.shrink()
               ],
             ),
           ),

@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:royal_marble/location/google_map_navigation.dart';
@@ -24,7 +22,7 @@ class UserDetails extends StatefulWidget {
 class _UserDetailsState extends State<UserDetails> {
   Size _size;
   DatabaseService db = DatabaseService();
-  SnackBarWidget _snackBarWidget = SnackBarWidget();
+  final _snackBarWidget = SnackBarWidget();
   final _formKey = GlobalKey<FormState>();
   UserData newUserData = UserData();
 
@@ -160,18 +158,12 @@ class _UserDetailsState extends State<UserDetails> {
                 'Home Address: ',
                 style: textStyle5,
               ),
-              widget.currentUser.homeAddress != null &&
-                      widget.currentUser.homeAddress.isNotEmpty
-                  ? Text(
-                      widget.currentUser.homeAddress != null
-                          ? widget.currentUser.homeAddress['name']
-                          : 'address not assigned',
-                      style: textStyle3,
-                    )
-                  : GestureDetector(
-                      onTap: () async {},
-                      child: const Text('Add Address', style: textStyle3),
-                    )
+              Text(
+                widget.currentUser.homeAddress != null
+                    ? widget.currentUser.homeAddress['name']
+                    : 'Address not found',
+                style: textStyle3,
+              )
             ],
           ),
           const SizedBox(
@@ -518,25 +510,40 @@ class _UserDetailsState extends State<UserDetails> {
                   Expanded(
                     flex: 2,
                     child: widget.currentUser.homeAddress != null
-                        ? Text(
-                            widget.currentUser.homeAddress != null
-                                ? widget.currentUser.homeAddress['name']
-                                : 'address not assigned',
-                            style: textStyle3,
+                        ? Container(
+                            decoration: BoxDecoration(
+                                border: Border.all(),
+                                borderRadius: BorderRadius.circular(25)),
+                            height: 50,
+                            child: Text(
+                              widget.currentUser.homeAddress != null
+                                  ? widget.currentUser.homeAddress['name']
+                                  : 'address not assigned',
+                              style: textStyle3,
+                            ),
                           )
-                        : GestureDetector(
-                            onTap: () async {
-                              if (Platform.isIOS) {
-                              } else {
-                                await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (_) => GoogleMapNavigation()));
-                              }
-                            },
-                            child: const Text(
-                              'Add Address',
-                              style: textStyle5,
+                        : Container(
+                            decoration: BoxDecoration(
+                                border: Border.all(),
+                                borderRadius: BorderRadius.circular(25)),
+                            height: 50,
+                            child: Center(
+                              child: GestureDetector(
+                                onTap: () async {
+                                  if (Platform.isIOS) {
+                                  } else {
+                                    await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (_) =>
+                                                const GoogleMapNavigation()));
+                                  }
+                                },
+                                child: const Text(
+                                  'Add Address',
+                                  style: textStyle5,
+                                ),
+                              ),
                             ),
                           ),
                   )
@@ -579,7 +586,6 @@ class _UserDetailsState extends State<UserDetails> {
   }
 
   selectCountry(Map<String, dynamic> country) {
-    print('the country: $country');
     newUserData.nationality = country;
   }
 }

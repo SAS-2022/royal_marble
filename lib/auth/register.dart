@@ -135,14 +135,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Expanded(
                     flex: 3,
                     child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.grey,
-                          ),
-                          color: Colors.grey[100],
-                          borderRadius: BorderRadius.circular(15.0),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.grey,
                         ),
-                        child: CountryDropDownPicker()),
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      child: const CountryDropDownPicker(),
+                    ),
                   )
                 ],
               ),
