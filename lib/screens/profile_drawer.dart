@@ -4,6 +4,8 @@ import 'package:royal_marble/account_settings/users_grid.dart';
 import 'package:royal_marble/clients/clients_form.dart';
 import 'package:royal_marble/clients/clients_grid.dart';
 import 'package:royal_marble/models/user_model.dart';
+import 'package:royal_marble/sales_pipeline/visit_forms.dart/visit_form_one.dart';
+import 'package:royal_marble/sales_pipeline/visit_forms.dart/visit_form_streams.dart';
 
 class ProfileDrawer extends StatefulWidget {
   const ProfileDrawer({Key key, this.currentUser}) : super(key: key);
@@ -120,7 +122,16 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                             leading: const Icon(Icons.app_registration),
                             title: const Text('New Visit'),
                             enabled: true,
-                            onTap: () async {},
+                            onTap: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => VisitFormStreams(
+                                    currentUser: widget.currentUser,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                           ListTile(
                             leading: const Icon(Icons.apps_outage_outlined),
