@@ -8,6 +8,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:royal_marble/services/auth.dart';
+import 'package:royal_marble/shared/constants.dart';
+import 'package:royal_marble/shared/loading.dart';
 import 'package:royal_marble/wrapper.dart';
 
 import 'models/user_model.dart';
@@ -52,6 +54,7 @@ class _SplashScreenState extends State<SplashScreen> {
   //Device info generator
   final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
   String identifier;
+  Size _size;
 
   @override
   void initState() {
@@ -98,13 +101,14 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    _size = MediaQuery.of(context).size;
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
         children: <Widget>[
           Container(
-            decoration: BoxDecoration(
-              color: Colors.purpleAccent[100],
+            decoration: const BoxDecoration(
+              color: Color.fromARGB(255, 105, 96, 15),
             ),
           ),
           Column(
@@ -115,10 +119,26 @@ class _SplashScreenState extends State<SplashScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(),
-                    Container(),
+                    SizedBox(
+                      height: _size.height / 4,
+                      width: 2 * _size.width / 3,
+                      child: Image.asset('assets/images/logo_2.jpg'),
+                    ),
                     const Padding(
-                      padding: EdgeInsets.only(top: 10.0),
+                      padding: EdgeInsets.only(
+                        top: 35.0,
+                      ),
+                      child: Center(
+                          child: Text(
+                        'Please wait...',
+                        style: textStyle2,
+                      )),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(
+                        top: 35.0,
+                      ),
+                      child: Center(child: Loading()),
                     ),
                   ],
                 ),

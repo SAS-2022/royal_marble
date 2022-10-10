@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:royal_marble/location/google_map_navigation.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/services/database.dart';
@@ -25,6 +26,7 @@ class _UserDetailsState extends State<UserDetails> {
   final _snackBarWidget = SnackBarWidget();
   final _formKey = GlobalKey<FormState>();
   UserData newUserData = UserData();
+  Map<String, dynamic> _myLocation = {};
 
   @override
   void initState() {
@@ -37,6 +39,9 @@ class _UserDetailsState extends State<UserDetails> {
       newUserData.company = widget.currentUser.company;
       newUserData.nationality = widget.currentUser.nationality;
       newUserData.homeAddress = widget.currentUser.homeAddress;
+      if (newUserData.homeAddress != null) {
+        _myLocation = newUserData.homeAddress;
+      }
     }
   }
 
@@ -509,43 +514,44 @@ class _UserDetailsState extends State<UserDetails> {
                   ),
                   Expanded(
                     flex: 2,
-                    child: widget.currentUser.homeAddress != null
-                        ? Container(
-                            decoration: BoxDecoration(
-                                border: Border.all(),
-                                borderRadius: BorderRadius.circular(25)),
-                            height: 50,
-                            child: Text(
-                              widget.currentUser.homeAddress != null
-                                  ? widget.currentUser.homeAddress['name']
-                                  : 'address not assigned',
-                              style: textStyle3,
-                            ),
-                          )
-                        : Container(
-                            decoration: BoxDecoration(
-                                border: Border.all(),
-                                borderRadius: BorderRadius.circular(25)),
-                            height: 50,
-                            child: Center(
-                              child: GestureDetector(
-                                onTap: () async {
-                                  if (Platform.isIOS) {
-                                  } else {
-                                    await Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (_) =>
-                                                const GoogleMapNavigation()));
-                                  }
-                                },
-                                child: const Text(
+                    child: GestureDetector(
+                      onTap: () async {
+                        if (Platform.isIOS) {
+                        } else {
+                          print('the lat: ${_myLocation['Lat']}');
+                          await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => GoogleMapNavigation(
+                                        lat: _myLocation['Lat'],
+                                        lng: _myLocation['Lng'],
+                                        getLocation: selecteMapLocation,
+                                      )));
+                        }
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                            border: Border.all(),
+                            borderRadius: BorderRadius.circular(15)),
+                        height: 60,
+                        child: Center(
+                          child: _myLocation.isEmpty
+                              ? const Text(
                                   'Add Address',
                                   style: textStyle5,
+                                )
+                              : Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 5),
+                                  child: Text(
+                                    _myLocation['addressName'],
+                                    style: textStyle9,
+                                    softWrap: true,
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ),
+                        ),
+                      ),
+                    ),
                   )
                 ],
               ),
@@ -563,7 +569,8 @@ class _UserDetailsState extends State<UserDetails> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(25))),
                     onPressed: () async {
-                      if (_formKey.currentState.validate()) {
+                      if (_formKey.currentState.validate() &&
+                          _myLocation.isNotEmpty) {
                         var result = await db.updateCurrentUser(
                             uid: widget.currentUser.uid, newUsers: newUserData);
                         if (result == 'Completed') {
@@ -585,6 +592,19 @@ class _UserDetailsState extends State<UserDetails> {
         ),
       ),
     );
+  }
+
+  Future selecteMapLocation(
+      {String locationName, LatLng locationAddress}) async {
+    if (locationAddress != null && locationName != null) {
+      _myLocation = {
+        'addressName': locationName,
+        'Lat': locationAddress.latitude,
+        'Lng': locationAddress.longitude,
+      };
+      newUserData.homeAddress = _myLocation;
+      setState(() {});
+    }
   }
 
   selectCountry(Map<String, dynamic> country) {
