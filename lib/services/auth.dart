@@ -125,7 +125,7 @@ class AuthService {
       return await _auth.sendPasswordResetEmail(email: email);
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
-      return '${this.runtimeType} Reset email error: $e';
+      return 'Reset email error: $e';
     }
   }
 }

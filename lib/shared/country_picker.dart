@@ -27,7 +27,6 @@ class _CountryDropDownPickerState extends State<CountryDropDownPicker> {
 
   @override
   Widget build(BuildContext context) {
-    print('the country of residence: ${widget.countryOfResidence}');
     return SizedBox(
       height: 50,
       child: InkWell(

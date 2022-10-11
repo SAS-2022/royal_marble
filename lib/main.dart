@@ -72,13 +72,14 @@ class _SplashScreenState extends State<SplashScreen> {
 
   //Check if location is enabled
   Future<void> _getLocationAccess() async {
+    var status;
     if (await Permission.location.serviceStatus.isEnabled) {
       await Geolocator.requestPermission();
     } else {
-      var status = await Permission.location.status;
+      status = await Permission.location.status;
       if (status.isGranted) {
       } else {
-        var status = await [Permission.location].request();
+        status = await [Permission.location].request();
       }
     }
   }
@@ -94,7 +95,6 @@ class _SplashScreenState extends State<SplashScreen> {
         identifier = data.identifierForVendor;
       }
     } on PlatformException {
-      print('Failed to get platform version');
       return null;
     }
   }

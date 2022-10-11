@@ -160,7 +160,7 @@ class _VisitFormOneState extends State<VisitFormOne> {
                                   itemBuilder: (context, suggestion) {
                                     return ListTile(
                                       title: suggestion == null
-                                          ? Text(' ')
+                                          ? const Text(' ')
                                           : Text(suggestion.toString()),
                                     );
                                   },

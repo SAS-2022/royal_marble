@@ -38,8 +38,8 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
   ];
   Future _addAllMarkers;
   Future currentPosition;
-  double _cameraZoom = 11.5;
-  SnackBarWidget _snackBarWidget = SnackBarWidget();
+  final _cameraZoom = 11.5;
+  final _snackBarWidget = SnackBarWidget();
   Future addMarker;
   Size _size;
 
@@ -64,7 +64,6 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
       body: FutureBuilder<dynamic>(
           future: currentPosition,
           builder: (context, snapshot) {
-            print('the snapshot data: ${snapshot.data.runtimeType}');
             if (snapshot.hasData) {
               return widget.lat == null && widget.lng == null
                   ? _openGoogleMap(
@@ -203,8 +202,6 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(25))),
                               onPressed: () async {
-                                print(
-                                    'the location: $_selecteLocation - $_selectedLatLng');
                                 if (_selecteLocation != null &&
                                     _selectedLatLng != null) {
                                   widget.getLocation(
@@ -309,8 +306,6 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
       position: LatLng(currentLat, currentLng),
     );
-
-    print('the current location: $_myLocation');
 
     setState(() {
       _loading = false;

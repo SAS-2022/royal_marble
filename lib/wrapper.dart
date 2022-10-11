@@ -35,7 +35,6 @@ class _WrapperState extends State<Wrapper> {
         value: db.getUserPerId(uid: userData.uid),
         initialData: UserData(),
         catchError: (context, err) {
-          print('the error: $err');
           return UserData(error: err);
         },
         child: const HomeScreen(),

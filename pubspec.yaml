@@ -34,6 +34,7 @@ dependencies:
   flutter_typeahead: ^3.2.5
   geocoding: ^2.0.4
   image: ^3.1.1
+  location: ^4.4.0
   # google_maps_place_picker: 2.1.0-nullsafety.3
 
 dev_dependencies:

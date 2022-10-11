@@ -25,7 +25,7 @@ class ShowMap extends StatefulWidget {
 class _ShowMapState extends State<ShowMap> {
   Directions _info;
   var lat = 0.0, long = 0.0;
-  var _getMyCurrentLocation;
+  // var _getMyCurrentLocation;
 
   var db = DatabaseService();
   // PickResult selectedPlace;
@@ -49,8 +49,8 @@ class _ShowMapState extends State<ShowMap> {
   Size _size;
   // var markerId = MarkerId('one');
   Marker marker1 = Marker(
-      markerId: MarkerId('No clients were loaded'),
-      position: LatLng(26.3650133, 50.19190929999999),
+      markerId: const MarkerId('No clients were loaded'),
+      position: const LatLng(26.3650133, 50.19190929999999),
       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow));
 
   //Types of map
@@ -72,7 +72,7 @@ class _ShowMapState extends State<ShowMap> {
     _identifyMapMarkers();
     _getApiKey();
     noMarkers.add(marker1);
-    _getMyCurrentLocation = _determinePosition();
+    // _getMyCurrentLocation = _determinePosition();
   }
 
   Future<void> _identifyMapMarkers() async {
@@ -186,19 +186,19 @@ class _ShowMapState extends State<ShowMap> {
               clientName,
               textAlign: TextAlign.center,
             ),
-            content: Container(
+            content: SizedBox(
               height: _size.height * 0.6,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Container(
-                    padding: EdgeInsets.all(12.0),
+                    padding: const EdgeInsets.all(12.0),
                     child: Text(
                       'Visit List: ${visitList.length}',
                       style: textStyle4,
                     ),
                   ),
-                  Container(
+                  SizedBox(
                     height: _size.height * 0.2,
                     width: _size.width * 0.6,
                     child: ListView.builder(
@@ -306,7 +306,7 @@ class _ShowMapState extends State<ShowMap> {
                   polylines: {
                     if (_info != null)
                       Polyline(
-                        polylineId: PolylineId('overview_polyline'),
+                        polylineId: const PolylineId('overview_polyline'),
                         color: Colors.red,
                         width: 5,
                         points: _info.polylinePoints
@@ -326,12 +326,12 @@ class _ShowMapState extends State<ShowMap> {
                     bottom: 20,
                     left: 30,
                     child: Container(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 6, horizontal: 12),
                       decoration: BoxDecoration(
                         color: Colors.yellowAccent,
                         borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
+                        boxShadow: const [
                           BoxShadow(
                             color: Colors.black26,
                             offset: Offset(0, 2),
@@ -341,7 +341,7 @@ class _ShowMapState extends State<ShowMap> {
                       ),
                       child: Text(
                         '${_info.totalDistance}, ${_info.totalDuration}',
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 18.0, fontWeight: FontWeight.w600),
                       ),
                     ),
@@ -363,7 +363,7 @@ class _ShowMapState extends State<ShowMap> {
                       child: Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: Row(children: [
-                          Text(
+                          const Text(
                             'Clients: ',
                             style: textStyle4,
                           ),
@@ -373,16 +373,16 @@ class _ShowMapState extends State<ShowMap> {
                           ),
                           LayoutBuilder(
                             builder: (context, constraints) {
-                              return Container(
+                              return SizedBox(
                                 height: constraints.maxHeight - 1,
-                                child: VerticalDivider(
+                                child: const VerticalDivider(
                                   color: Colors.black,
                                   thickness: 1.0,
                                 ),
                               );
                             },
                           ),
-                          Text('${clientSector ?? 'All'}', style: textStyle4),
+                          Text(clientSector ?? 'All', style: textStyle4),
                         ]),
                       ),
                     ),
@@ -390,21 +390,17 @@ class _ShowMapState extends State<ShowMap> {
                 ),
               ]);
             } else {
-              return Center(
+              return const Center(
                 child: CircularProgressIndicator(),
               );
             }
           } else if (snapshot.hasError) {
             return Center(
-              child: Container(
-                child: Text('${snapshot.error}'),
-              ),
+              child: Text('${snapshot.error}'),
             );
           } else {
-            return Center(
-              child: Container(
-                child: Loading(),
-              ),
+            return const Center(
+              child: Loading(),
             );
           }
         },
