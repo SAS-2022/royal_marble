@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:sentry/sentry.dart' as sentry;
 
@@ -137,6 +138,32 @@ class DatabaseService {
     }).toList();
   }
 
+  //Future to read current users
+  Future<List<UserData>> getUsersFuture() async {
+    try {
+      return await userCollection.get().then((value) {
+        return value.docs.map((e) {
+          var data = e.data() as Map<String, dynamic>;
+          return UserData(
+            uid: e.id,
+            emailAddress: data['emailAddress'],
+            firstName: data['firstName'],
+            lastName: data['lastName'],
+            phoneNumber: data['phoneNumber'],
+            nationality: data['nationality'],
+            isActive: data['isActive'] ?? false,
+            roles: data['roles'],
+            company: data['company'],
+            homeAddress: data['homeAddress'],
+          );
+        }).toList();
+      });
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return [];
+    }
+  }
+
   //The below section will allow us to handle clients changes
   //adding clients
   Future<String> addNewClients({ClientData client}) async {
@@ -243,5 +270,51 @@ class DatabaseService {
           phoneNumber: data['phoneNumber'],
           clientVisits: data['clientVisits']);
     }).toList();
+  }
+
+  //Future to read current Clients
+  Future<List<ClientData>> getClientFuture() async {
+    try {
+      return await clientCollection.get().then((value) {
+        return value.docs.map((e) {
+          var data = e.data() as Map<String, dynamic>;
+          return ClientData(
+              uid: e.id,
+              clientName: data['clientName'],
+              contactPerson: data['contactPerson'],
+              clientAddress: data['clientAddress'],
+              emailAddress: data['emailAddress'],
+              phoneNumber: data['phoneNumber'],
+              clientVisits: data['clientVisits']);
+        }).toList();
+      });
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return [];
+    }
+  }
+
+  Future<List<ClientData>> getSalesUserClientFuture({String userId}) async {
+    try {
+      return await clientCollection
+          .where('salesInCharge', isEqualTo: userId)
+          .get()
+          .then((value) {
+        return value.docs.map((e) {
+          var data = e.data() as Map<String, dynamic>;
+          return ClientData(
+              uid: e.id,
+              clientName: data['clientName'],
+              contactPerson: data['contactPerson'],
+              clientAddress: data['clientAddress'],
+              emailAddress: data['emailAddress'],
+              phoneNumber: data['phoneNumber'],
+              clientVisits: data['clientVisits']);
+        }).toList();
+      });
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return [];
+    }
   }
 }

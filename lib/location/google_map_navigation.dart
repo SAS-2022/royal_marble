@@ -135,31 +135,19 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
                                 await placemarkFromCoordinates(
                                     _cameraPosition.target.latitude,
                                     _cameraPosition.target.longitude);
-                            setState(() {
-                              _selectedLatLng = LatLng(
-                                  _cameraPosition.target.latitude,
-                                  _cameraPosition.target.longitude);
+                            if (mounted) {
+                              setState(() {
+                                _selectedLatLng = LatLng(
+                                    _cameraPosition.target.latitude,
+                                    _cameraPosition.target.longitude);
 
-                              _selecteLocation = placeMarks
-                                      .first.administrativeArea
-                                      .toString() +
-                                  ' ' +
-                                  placeMarks.first.street.toString();
-                            });
-
-                            // List<Placemark> placeMarks =
-                            //     await placemarkFromCoordinates(
-                            //         widget.lat, widget.lng);
-                            // setState(() {
-                            //   _selectedLatLng =
-                            //       LatLng(widget.lat, widget.lng);
-
-                            //   _selecteLocation = placeMarks
-                            //           .first.administrativeArea
-                            //           .toString() +
-                            //       ' ' +
-                            //       placeMarks.first.street.toString();
-                            // });
+                                _selecteLocation = placeMarks
+                                        .first.administrativeArea
+                                        .toString() +
+                                    ' ' +
+                                    placeMarks.first.street.toString();
+                              });
+                            }
                           },
                           initialCameraPosition: CameraPosition(
                               target: LatLng(lat, lng), zoom: _cameraZoom),
@@ -215,6 +203,8 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(25))),
                               onPressed: () async {
+                                print(
+                                    'the location: $_selecteLocation - $_selectedLatLng');
                                 if (_selecteLocation != null &&
                                     _selectedLatLng != null) {
                                   widget.getLocation(

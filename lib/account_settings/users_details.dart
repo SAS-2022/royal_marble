@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:royal_marble/location/google_map_navigation.dart';
+import 'package:royal_marble/location/show_map.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/shared/constants.dart';
@@ -163,11 +164,14 @@ class _UserDetailsState extends State<UserDetails> {
                 'Home Address: ',
                 style: textStyle5,
               ),
-              Text(
-                widget.currentUser.homeAddress != null
-                    ? widget.currentUser.homeAddress['name']
-                    : 'Address not found',
-                style: textStyle3,
+              SizedBox(
+                width: (_size.width / 2),
+                child: Text(
+                  widget.currentUser.homeAddress != null
+                      ? widget.currentUser.homeAddress['addressName']
+                      : 'Address not found',
+                  style: textStyle3,
+                ),
               )
             ],
           ),
@@ -518,7 +522,6 @@ class _UserDetailsState extends State<UserDetails> {
                       onTap: () async {
                         if (Platform.isIOS) {
                         } else {
-                          print('the lat: ${_myLocation['Lat']}');
                           await Navigator.push(
                               context,
                               MaterialPageRoute(

@@ -3,6 +3,7 @@ import 'package:royal_marble/account_settings/users_details.dart';
 import 'package:royal_marble/account_settings/users_grid.dart';
 import 'package:royal_marble/clients/clients_form.dart';
 import 'package:royal_marble/clients/clients_grid.dart';
+import 'package:royal_marble/location/show_map.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/sales_pipeline/visit_forms.dart/visit_form_one.dart';
 import 'package:royal_marble/sales_pipeline/visit_forms.dart/visit_form_streams.dart';
@@ -136,6 +137,37 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                           ListTile(
                             leading: const Icon(Icons.apps_outage_outlined),
                             title: const Text('View Visits'),
+                            enabled: true,
+                            onTap: () async {},
+                          ),
+                        ],
+                      )
+                    : const SizedBox.shrink(),
+                widget.currentUser.roles.contains('isAdmin')
+                    ? ExpansionTile(
+                        leading: const Icon(
+                          Icons.account_tree,
+                        ),
+                        title: const Text('Map'),
+                        children: [
+                          ListTile(
+                            leading: const Icon(Icons.maps_home_work),
+                            title: const Text('User Map'),
+                            enabled: true,
+                            onTap: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => ShowMap(
+                                          currentUser: widget.currentUser,
+                                          listOfMarkers: 'users',
+                                        )),
+                              );
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.map_outlined),
+                            title: const Text('Client Map'),
                             enabled: true,
                             onTap: () async {},
                           ),

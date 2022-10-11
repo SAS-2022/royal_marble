@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/shared/constants.dart';
@@ -28,6 +29,7 @@ class _ClientFormState extends State<ClientForm> {
   final _snackBarWidget = SnackBarWidget();
   ClientData newClient = ClientData();
   bool _editContent = false;
+  Map<String, dynamic> _myLocation = {};
   Size _size;
 
   @override
@@ -37,6 +39,13 @@ class _ClientFormState extends State<ClientForm> {
     newClient.userId = widget.currentUser.uid;
     if (widget.client != null) {
       newClient = widget.client;
+    }
+    if (widget.client.clientAddress != null) {
+      _myLocation = {
+        'addressName': newClient.clientAddress['addressName'],
+        'Lat': newClient.clientAddress['Lat'],
+        'Lng': newClient.clientAddress['Lng'],
+      };
     }
   }
 
@@ -226,11 +235,15 @@ class _ClientFormState extends State<ClientForm> {
                           await Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (_) => const GoogleMapNavigation()));
+                                  builder: (_) => GoogleMapNavigation(
+                                        getLocation: selecteMapLocation,
+                                      )));
                         }
                       },
-                      child: const Text(
-                        'Add Address',
+                      child: Text(
+                        _myLocation.isNotEmpty
+                            ? 'Change Address'
+                            : 'Add Address',
                         style: textStyle5,
                       ),
                     ),
@@ -241,7 +254,10 @@ class _ClientFormState extends State<ClientForm> {
                 ),
                 SizedBox(
                   height: 40,
-                  child: Center(child: Text('${newClient.clientAddress}')),
+                  child: Center(child: Text('${_myLocation['addressName']}')),
+                ),
+                const SizedBox(
+                  height: 15,
                 ),
                 //Submit button will allow you add the entered data into the database
                 Center(
@@ -499,25 +515,28 @@ class _ClientFormState extends State<ClientForm> {
                 height: 15,
               ),
               _editContent
-                  ? Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(),
-                          borderRadius: BorderRadius.circular(15)),
-                      height: 50,
-                      child: Center(
-                        child: GestureDetector(
-                          onTap: () async {
-                            if (Platform.isIOS) {
-                            } else {
-                              await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) =>
-                                          const GoogleMapNavigation()));
-                            }
-                          },
-                          child: const Text(
-                            'Add Address',
+                  ? GestureDetector(
+                      onTap: () async {
+                        if (Platform.isIOS) {
+                        } else {
+                          await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => GoogleMapNavigation(
+                                        getLocation: selecteMapLocation,
+                                      )));
+                        }
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                            border: Border.all(),
+                            borderRadius: BorderRadius.circular(15)),
+                        height: 50,
+                        child: Center(
+                          child: Text(
+                            _myLocation.isNotEmpty
+                                ? 'Change Address'
+                                : 'Add Address',
                             style: textStyle5,
                           ),
                         ),
@@ -534,7 +553,7 @@ class _ClientFormState extends State<ClientForm> {
                       Expanded(
                         flex: 2,
                         child: Text(
-                          widget.client.clientAddress.toString(),
+                          _myLocation['addressName'].toString(),
                           style: textStyle3,
                         ),
                       )
@@ -542,10 +561,10 @@ class _ClientFormState extends State<ClientForm> {
               const SizedBox(
                 height: 15,
               ),
-              SizedBox(
-                height: 40,
-                child: Center(child: Text('${newClient.clientAddress}')),
-              ),
+              // SizedBox(
+              //   height: 40,
+              //   child: Center(child: Text('${_myLocation['addressName']}')),
+              // ),
               //Submit button will allow you add the entered data into the database
               _editContent
                   ? Center(
@@ -579,5 +598,18 @@ class _ClientFormState extends State<ClientForm> {
         ),
       ),
     );
+  }
+
+  Future selecteMapLocation(
+      {String locationName, LatLng locationAddress}) async {
+    if (locationAddress != null && locationName != null) {
+      _myLocation = {
+        'addressName': locationName,
+        'Lat': locationAddress.latitude,
+        'Lng': locationAddress.longitude,
+      };
+
+      setState(() {});
+    }
   }
 }
