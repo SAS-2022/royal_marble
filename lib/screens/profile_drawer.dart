@@ -168,7 +168,16 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                             leading: const Icon(Icons.map_outlined),
                             title: const Text('Client Map'),
                             enabled: true,
-                            onTap: () async {},
+                            onTap: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => ShowMap(
+                                          currentUser: widget.currentUser,
+                                          listOfMarkers: 'clients',
+                                        )),
+                              );
+                            },
                           ),
                         ],
                       )

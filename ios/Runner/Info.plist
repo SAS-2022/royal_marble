@@ -43,5 +43,15 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+
+	<!-- Permission options-->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Need Location when in use</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Always and when in use</string>
+	<key>NSLocationUsageDescription</key>
+	<string>Older device need location</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Can I have location always?</string>
 </dict>
 </plist>

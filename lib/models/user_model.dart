@@ -5,6 +5,7 @@ class UserData {
   String emailAddress;
   String phoneNumber;
   Map<String, dynamic> homeAddress;
+  Map<String, dynamic> currentLocation;
   List<dynamic> roles;
   Map<String, dynamic> nationality;
   String company;
@@ -18,6 +19,7 @@ class UserData {
     this.emailAddress,
     this.phoneNumber,
     this.homeAddress,
+    this.currentLocation,
     this.roles,
     this.nationality,
     this.company,

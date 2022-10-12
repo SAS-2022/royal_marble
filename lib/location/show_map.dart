@@ -25,7 +25,7 @@ class ShowMap extends StatefulWidget {
 class _ShowMapState extends State<ShowMap> {
   Directions _info;
   var lat = 0.0, long = 0.0;
-  // var _getMyCurrentLocation;
+  var _getMyCurrentLocation;
 
   var db = DatabaseService();
   // PickResult selectedPlace;
@@ -72,7 +72,7 @@ class _ShowMapState extends State<ShowMap> {
     _identifyMapMarkers();
     _getApiKey();
     noMarkers.add(marker1);
-    // _getMyCurrentLocation = _determinePosition();
+    _getMyCurrentLocation = _determinePosition();
   }
 
   Future<void> _identifyMapMarkers() async {
@@ -81,7 +81,7 @@ class _ShowMapState extends State<ShowMap> {
         assignedMarkers = _getUserMarker();
         break;
       case 'clients':
-        await _getClientMarker();
+        assignedMarkers = _getClientMarker();
         break;
 
       case 'projects':
@@ -296,6 +296,7 @@ class _ShowMapState extends State<ShowMap> {
         future: assignedMarkers,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
+            print('the snapshot: $snapshot - $_center');
             if (snapshot.connectionState == ConnectionState.done &&
                 _center != null) {
               return Stack(children: [

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:location/location.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:sentry/sentry.dart' as sentry;
 
@@ -41,6 +42,23 @@ class DatabaseService {
       }).then((value) {
         return 'your data has been updated successfully';
       });
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return ' $e';
+    }
+  }
+
+  //update the user's live location
+  Future<String> updateUserLiveLocation(
+      {String uid, LocationData currentLocation}) async {
+    try {
+      Map<String, dynamic> newLoc = {
+        'Lat': currentLocation.latitude,
+        'Lng': currentLocation.longitude,
+      };
+      return await userCollection
+          .doc(uid)
+          .update({'currentLocation': newLoc}).then((value) => 'Completed');
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
       return ' $e';

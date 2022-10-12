@@ -19,7 +19,7 @@ class VisitFormStreams extends StatelessWidget {
           value: db.getClientsPerUser(userId: currentUser.uid),
           initialData: const [],
           catchError: (context, err) {
-            print('Error getting clients: $err');
+            //print('Error getting clients: $err');
             return [];
           },
         )

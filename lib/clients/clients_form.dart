@@ -39,13 +39,14 @@ class _ClientFormState extends State<ClientForm> {
     newClient.userId = widget.currentUser.uid;
     if (widget.client != null) {
       newClient = widget.client;
-    }
-    if (widget.client.clientAddress != null) {
-      _myLocation = {
-        'addressName': newClient.clientAddress['addressName'],
-        'Lat': newClient.clientAddress['Lat'],
-        'Lng': newClient.clientAddress['Lng'],
-      };
+
+      if (widget.client.clientAddress != null) {
+        _myLocation = {
+          'addressName': newClient.clientAddress['addressName'],
+          'Lat': newClient.clientAddress['Lat'],
+          'Lng': newClient.clientAddress['Lng'],
+        };
+      }
     }
   }
 
@@ -608,6 +609,7 @@ class _ClientFormState extends State<ClientForm> {
         'Lat': locationAddress.latitude,
         'Lng': locationAddress.longitude,
       };
+      newClient.clientAddress = _myLocation;
 
       setState(() {});
     }

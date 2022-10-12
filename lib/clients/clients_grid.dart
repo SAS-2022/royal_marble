@@ -25,7 +25,7 @@ class _ClientGridState extends State<ClientGrid> {
                 value: db.getAllClients(),
                 initialData: const [],
                 catchError: (context, err) {
-                  print('Error getting client: $err');
+                 // print('Error getting client: $err');
                   return [];
                 },
               )
@@ -33,7 +33,7 @@ class _ClientGridState extends State<ClientGrid> {
                 value: db.getClientsPerUser(),
                 initialData: const [],
                 catchError: (context, err) {
-                  print('Error getting client: $err');
+                 // print('Error getting client: $err');
                   return [];
                 },
               ),

@@ -79,7 +79,8 @@ class _SplashScreenState extends State<SplashScreen> {
       status = await Permission.location.status;
       if (status.isGranted) {
       } else {
-        status = await [Permission.location].request();
+        status =
+            await [Permission.location, Permission.locationAlways].request();
       }
     }
   }
