@@ -11,6 +11,29 @@ import 'package:royal_marble/screens/profile_drawer.dart';
 import 'package:royal_marble/services/auth.dart';
 import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/shared/constants.dart';
+import 'package:workmanager/workmanager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+const fetchBackGround = 'fetchBackground';
+
+void callbackDispatcher() async {
+  Workmanager().executeTask((taskName, inputData) async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId');
+    if (userId != null) {
+      switch (taskName) {
+        case fetchBackGround:
+          geo.Position userLocation = await geo.Geolocator.getCurrentPosition(
+              desiredAccuracy: geo.LocationAccuracy.high);
+          print('the current Location: $userLocation- $userId');
+
+          break;
+      }
+    }
+
+    return Future.value(true);
+  });
+}
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key key}) : super(key: key);
@@ -22,6 +45,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final _authService = AuthService();
   final db = DatabaseService();
+
   UserData userProvider;
   final Completer<GoogleMapController> _googleMapController = Completer();
   LocationData currentLocation;
@@ -35,10 +59,14 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _getUserPosition();
+    _getLocationPermission();
     _locationCurrent.onLocationChanged.listen((event) {
       getCurrentLocation();
     });
+
+    Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+    Workmanager().registerPeriodicTask('1', fetchBackGround,
+        frequency: const Duration(seconds: 5));
   }
 
   @override
@@ -75,7 +103,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 );
               } else {
-                print('no data');
                 return const SizedBox.shrink();
               }
             }),
@@ -103,18 +130,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<void> _grantPermissionAlways() async {
-    await [Permission.location, Permission.locationAlways].request();
-  }
-
-  Future<void> _getUserPosition() async {
+  Future<void> _getLocationPermission() async {
     if (await Permission.location.serviceStatus.isEnabled) {
       var status = await Permission.location.status;
       if (status.isGranted) {
-        print('the permission: ${Permission.location}');
         if (Permission.location == Permission.locationWhenInUse ||
             Permission.location == Permission.location) {
-          _grantPermissionAlways();
+          await [Permission.location, Permission.locationAlways].request();
         }
       } else if (status.isDenied) {
         await openAppSettings();
@@ -130,7 +152,11 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  //fetch location while running in background
+
   Future<LocationData> getCurrentLocation() async {
+    final _sharePref = await SharedPreferences.getInstance();
+
     _locationCurrent.getLocation().then((location) {
       startLocation ??= location;
 
@@ -154,6 +180,11 @@ class _HomeScreenState extends State<HomeScreen> {
           currentLng: currentLocation.longitude);
 
       distanceCrossed *= (1000).floor();
+    }
+
+    //set the user id in the shared pref
+    if (userProvider != null) {
+      await _sharePref.setString('userId', userProvider.uid);
     }
 
     setState(() {});
