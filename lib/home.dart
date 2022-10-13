@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart' as geo;
@@ -6,6 +7,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:royal_marble/location/background_location_tracking.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/screens/profile_drawer.dart';
 import 'package:royal_marble/services/auth.dart';
@@ -13,27 +15,30 @@ import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/shared/constants.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
+    as bg;
 
-const fetchBackGround = 'fetchBackground';
+JsonEncoder encoder = new JsonEncoder.withIndent("     ");
+// const fetchBackGround = 'fetchBackground';
 
-void callbackDispatcher() async {
-  Workmanager().executeTask((taskName, inputData) async {
-    final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getString('userId');
-    if (userId != null) {
-      switch (taskName) {
-        case fetchBackGround:
-          geo.Position userLocation = await geo.Geolocator.getCurrentPosition(
-              desiredAccuracy: geo.LocationAccuracy.high);
-          print('the current Location: $userLocation- $userId');
+// void callbackDispatcher() async {
+//   Workmanager().executeTask((taskName, inputData) async {
+//     final prefs = await SharedPreferences.getInstance();
+//     final userId = prefs.getString('userId');
+//     if (userId != null) {
+//       switch (taskName) {
+//         case fetchBackGround:
+//           geo.Position userLocation = await geo.Geolocator.getCurrentPosition(
+//               desiredAccuracy: geo.LocationAccuracy.high);
+//           print('the current Location: $userLocation- $userId');
 
-          break;
-      }
-    }
+//           break;
+//       }
+//     }
 
-    return Future.value(true);
-  });
-}
+//     return Future.value(true);
+//   });
+// }
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key key}) : super(key: key);
@@ -45,7 +50,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final _authService = AuthService();
   final db = DatabaseService();
-
+  BackGroundDetector _backGroundDetector = BackGroundDetector();
   UserData userProvider;
   final Completer<GoogleMapController> _googleMapController = Completer();
   LocationData currentLocation;
@@ -55,18 +60,31 @@ class _HomeScreenState extends State<HomeScreen> {
   double distanceCrossed = 0.0;
   double distanceToUpdate = 10;
   geo.Position position;
+  double lat, lng;
+
+  bool _isMoving;
+  bool _enabled;
+  String _motionActivity;
+  String _odometer;
+  String _content;
 
   @override
   void initState() {
     super.initState();
+    _isMoving = false;
+    _enabled = true;
+    _content = '';
+    _motionActivity = 'UNKNOWN';
+    _odometer = '0';
     _getLocationPermission();
-    _locationCurrent.onLocationChanged.listen((event) {
-      getCurrentLocation();
-    });
+    // _locationCurrent.onLocationChanged.listen((event) {
+    //   getCurrentLocation();
+    // });
+    detectMotion();
 
-    Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
-    Workmanager().registerPeriodicTask('1', fetchBackGround,
-        frequency: const Duration(seconds: 5));
+    // Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+    // Workmanager().registerPeriodicTask('1', fetchBackGround,
+    //     frequency: const Duration(seconds: 5));
   }
 
   @override
@@ -74,9 +92,11 @@ class _HomeScreenState extends State<HomeScreen> {
     userProvider = Provider.of<UserData>(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Main Page'),
-        backgroundColor: const Color.fromARGB(255, 191, 180, 66),
-      ),
+          title: const Text('Main Page'),
+          backgroundColor: const Color.fromARGB(255, 191, 180, 66),
+          actions: <Widget>[
+            Switch(value: _enabled, onChanged: _onClickEnable),
+          ]),
       drawer: ProfileDrawer(currentUser: userProvider),
       body: _buildHomeScreen(),
     );
@@ -87,25 +107,42 @@ class _HomeScreenState extends State<HomeScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         //will display the location of the user
-        FutureBuilder(
-            future: getCurrentLocation(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 30, horizontal: 25),
-                  child: Column(
-                    children: [
-                      Text('The Longitude: ${currentLocation.longitude}'),
-                      Text('The Latitdue: ${currentLocation.latitude}'),
-                      Text('Distance: $distanceCrossed'),
-                    ],
-                  ),
-                );
-              } else {
-                return const SizedBox.shrink();
-              }
-            }),
+        // FutureBuilder(
+        //     future: getCurrentLocation(),
+        //     builder: (context, snapshot) {
+        //       if (snapshot.hasData) {
+        //         return Padding(
+        //           padding:
+        //               const EdgeInsets.symmetric(vertical: 30, horizontal: 25),
+        //           child: Column(
+        //             children: [
+        //               Text('The Longitude: ${currentLocation.longitude}'),
+        //               Text('The Latitdue: ${currentLocation.latitude}'),
+        //               Text('Distance: $distanceCrossed'),
+        //               const SizedBox(
+        //                 height: 20,
+        //               ),
+
+        //             ],
+        //           ),
+        //         );
+        //       } else {
+        //         return const SizedBox.shrink();
+        //       }
+        //     }),
+        IconButton(
+          icon: Icon(Icons.gps_fixed),
+          onPressed: _onClickGetCurrentPosition,
+        ),
+        Text('Lat: $lat'),
+        Text('Lng: $lng'),
+        Text('$_motionActivity · $_odometer km'),
+        MaterialButton(
+            minWidth: 50.0,
+            child: Icon((_isMoving) ? Icons.pause : Icons.play_arrow,
+                color: Colors.white),
+            color: (_isMoving) ? Colors.red : Colors.green,
+            onPressed: _onClickChangePace),
 
         userProvider.isActive != null && userProvider.isActive
             ? Center(
@@ -155,7 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
   //fetch location while running in background
 
   Future<LocationData> getCurrentLocation() async {
-    final _sharePref = await SharedPreferences.getInstance();
+    //final _sharePref = await SharedPreferences.getInstance();
 
     _locationCurrent.getLocation().then((location) {
       startLocation ??= location;
@@ -182,10 +219,10 @@ class _HomeScreenState extends State<HomeScreen> {
       distanceCrossed *= (1000).floor();
     }
 
-    //set the user id in the shared pref
-    if (userProvider != null) {
-      await _sharePref.setString('userId', userProvider.uid);
-    }
+    // //set the user id in the shared pref
+    // if (userProvider != null && _sharePref != null) {
+    //   await _sharePref.setString('userId', userProvider.uid);
+    // }
 
     setState(() {});
     return currentLocation;
@@ -204,5 +241,115 @@ class _HomeScreenState extends State<HomeScreen> {
             (1 - cos((currentLng - startLng) * p)) /
             2;
     return 12742 * asin(sqrt(a));
+  }
+
+  void detectMotion() async {
+    bg.BackgroundGeolocation.onLocation(_onLocation);
+    bg.BackgroundGeolocation.onMotionChange(_onMotionChange);
+    bg.BackgroundGeolocation.onActivityChange(_onActivityChange);
+    bg.BackgroundGeolocation.onConnectivityChange(_onConnectivityChange);
+
+    bg.BackgroundGeolocation.ready(bg.Config(
+            desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
+            distanceFilter: 2.0,
+            stopOnTerminate: false,
+            startOnBoot: true,
+            debug: true,
+            logLevel: bg.Config.LOG_LEVEL_VERBOSE,
+            enableHeadless: true,
+            reset: true))
+        .then((bg.State state) {
+      setState(() {
+        _enabled = state.enabled;
+        _isMoving = state.isMoving;
+      });
+    });
+  }
+
+  void _onClickEnable(enabled) {
+    if (enabled) {
+      bg.BackgroundGeolocation.start().then((bg.State state) {
+        print('[start] success $state');
+        setState(() {
+          _enabled = state.enabled;
+          _isMoving = state.isMoving;
+        });
+      });
+    } else {
+      bg.BackgroundGeolocation.stop().then((bg.State state) {
+        print('[stop] success: $state');
+        // Reset odometer.
+        bg.BackgroundGeolocation.setOdometer(0.0);
+
+        setState(() {
+          _odometer = '0.0';
+          _enabled = state.enabled;
+          _isMoving = state.isMoving;
+        });
+      });
+    }
+  }
+
+  void _onClickGetCurrentPosition() {
+    bg.BackgroundGeolocation.getCurrentPosition(
+            persist: false, // <-- do not persist this location
+            desiredAccuracy: 0, // <-- desire best possible accuracy
+            timeout: 30000, // <-- wait 30s before giving up.
+            samples: 3 // <-- sample 3 location before selecting best.
+            )
+        .then((bg.Location location) {
+      print('[getCurrentPosition] - $location');
+    }).catchError((error) {
+      print('[getCurrentPosition] ERROR: $error');
+    });
+  }
+
+  void _onClickChangePace() {
+    setState(() {
+      _isMoving = !_isMoving;
+    });
+    print("[onClickChangePace] -> $_isMoving");
+
+    bg.BackgroundGeolocation.changePace(_isMoving).then((bool isMoving) {
+      print('[changePace] success $isMoving');
+    }).catchError((e) {
+      print('[changePace] ERROR: ' + e.code.toString());
+    });
+  }
+
+  void _onLocation(bg.Location location) {
+    String odometerKM = (location.odometer / 1000.0).toStringAsFixed(1);
+    String odometerME = (location.odometer).toStringAsFixed(2);
+    print('The distance Meter: $odometerME');
+
+    setState(() {
+      _content = encoder.convert(location.toMap());
+      _odometer = odometerKM;
+      lat = location.coords.longitude;
+      lng = location.coords.latitude;
+    });
+    //_onClickGetCurrentPosition();
+  }
+
+  void _onMotionChange(bg.Location location) {
+    String odometerKM = (location.odometer / 1000.0).toStringAsFixed(1);
+    String odometerME = (location.odometer).toStringAsFixed(2);
+    print('The distance Motion: $odometerME');
+    setState(() {
+      _odometer = odometerKM;
+      lat = location.coords.longitude;
+      lng = location.coords.latitude;
+    });
+  }
+
+  void _onActivityChange(bg.ActivityChangeEvent event) {
+    print('[activitychange] - $event');
+    setState(() {
+      _motionActivity = event.activity;
+    });
+  }
+
+  void _onConnectivityChange(bg.ConnectivityChangeEvent event) {
+    print('$event');
   }
 }
