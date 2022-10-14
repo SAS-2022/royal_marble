@@ -73,7 +73,8 @@ class AuthService {
       String company,
       bool isActive,
       String phoneNumber,
-      String nationality,
+      Map<String, dynamic> nationality,
+      Map<String, dynamic> homeAddress,
       List<String> roles}) async {
     try {
       var result = await _auth.createUserWithEmailAndPassword(
@@ -90,7 +91,8 @@ class AuthService {
                 phoneNumber: phoneNumber,
                 isActive: false,
                 emailAddress: email,
-                nationality: nationality ?? '',
+                nationality: nationality,
+                homeAddress: homeAddress,
                 roles: roles)
             .then((value) {
           return value;
@@ -101,10 +103,12 @@ class AuthService {
           await user.sendEmailVerification();
           return user.uid;
         } catch (e, stackTrace) {
+          print('Error sending verification email: $e');
           await sentry.Sentry.captureException(e, stackTrace: stackTrace);
         }
       }
     } catch (e, stackTrace) {
+      print('Error creating user: $e');
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
       return e.toString();
     }

@@ -1,7 +1,12 @@
+import 'dart:io';
+
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:royal_marble/shared/snack_bar.dart';
 
+import '../location/google_map_navigation.dart';
 import '../services/auth.dart';
 import '../shared/constants.dart';
 import '../shared/country_picker.dart';
@@ -26,9 +31,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String confirmEmail = '';
   String phoneNumber = '';
   String password = '';
-  String nationality = '';
+  Map<String, dynamic> nationality = {};
   String error = '';
+  Map<String, dynamic> myLocation = {};
   Size size;
+  SnackBarWidget _snackBarWidget = SnackBarWidget();
+
+  @override
+  void initState() {
+    super.initState();
+    _snackBarWidget.context = context;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -142,9 +155,64 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         color: Colors.grey[100],
                         borderRadius: BorderRadius.circular(15.0),
                       ),
-                      child: const CountryDropDownPicker(),
+                      child: CountryDropDownPicker(
+                        selectCountry: selectCountry,
+                      ),
                     ),
                   )
+                ],
+              ),
+              const SizedBox(height: 15.0),
+              //Home Address
+              Row(
+                children: [
+                  const Expanded(
+                    flex: 1,
+                    child: Text('Home Address'),
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: Column(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                              border: Border.all(),
+                              borderRadius: BorderRadius.circular(15)),
+                          height: 50,
+                          child: Center(
+                            child: GestureDetector(
+                              onTap: () async {
+                                if (Platform.isIOS) {
+                                } else {
+                                  await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) => GoogleMapNavigation(
+                                                getLocation: selecteMapLocation,
+                                              )));
+                                }
+                              },
+                              child: Text(
+                                myLocation.isNotEmpty
+                                    ? 'Change Address'
+                                    : 'Add Address',
+                                style: textStyle5,
+                              ),
+                            ),
+                          ),
+                        ),
+                        myLocation.isNotEmpty
+                            ? Padding(
+                                padding: const EdgeInsets.all(20.0),
+                                child: Text(
+                                  myLocation['addressName'],
+                                  style: textStyle5,
+                                ),
+                              )
+                            : const SizedBox.shrink(),
+                      ],
+                    ),
+                  ),
                 ],
               ),
               const Divider(
@@ -380,6 +448,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     onPressed: () async {
                       if (_formKey.currentState.validate()) {
+                        if (myLocation.isEmpty) {
+                          _snackBarWidget.content =
+                              'Home address needs to be assigned';
+                          _snackBarWidget.showSnack();
+                          return;
+                        }
                         setState(() {
                           loading = true;
                         });
@@ -392,6 +466,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             company: company.trim(),
                             phoneNumber: phoneNumber,
                             nationality: nationality,
+                            homeAddress: myLocation,
                             isActive: false,
                             roles: ['isNormalUser']);
 
@@ -408,5 +483,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
+  }
+
+  Future selecteMapLocation(
+      {String locationName, LatLng locationAddress}) async {
+    if (locationAddress != null && locationName != null) {
+      myLocation = {
+        'addressName': locationName,
+        'Lat': locationAddress.latitude,
+        'Lng': locationAddress.longitude,
+      };
+      print('my location: $myLocation');
+      setState(() {});
+    }
+  }
+
+  selectCountry(Map<String, dynamic> country) {
+    nationality = country;
   }
 }

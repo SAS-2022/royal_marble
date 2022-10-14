@@ -25,7 +25,7 @@ class DatabaseService {
     String phoneNumber,
     String emailAddress,
     List<dynamic> roles,
-    String nationality,
+    Map<String, dynamic> nationality,
     Map<String, dynamic> homeAddress,
   }) async {
     try {

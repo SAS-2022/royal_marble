@@ -78,7 +78,7 @@ class _UserListState extends State<UserList> {
                                   title: Text(
                                       '${listOfUsers[index].firstName} ${listOfUsers[index].lastName}'),
                                   subtitle: SizedBox(
-                                      height: 40,
+                                      height: 60,
                                       child: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,

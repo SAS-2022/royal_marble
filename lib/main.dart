@@ -13,19 +13,32 @@ import 'package:royal_marble/shared/loading.dart';
 import 'package:royal_marble/wrapper.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'location/.env.dart';
 import 'models/user_model.dart';
+import 'package:background_fetch/background_fetch.dart';
 
-void headlessTask(bg.HeadlessEvent headlessEvent) async {
+void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
   print('[BackgroundGeolocation HeadlessTask]: $headlessEvent');
   // Implement a 'case' for only those events you're interested in.
   switch (headlessEvent.name) {
+    case bg.Event.BOOT:
+      bg.State state = await bg.BackgroundGeolocation.state;
+      print("didDeviceReboot: ${state.didDeviceReboot}");
+      break;
     case bg.Event.TERMINATE:
-      bg.State state = headlessEvent.event;
-      print('- State: $state');
+      try {
+        bg.Location location =
+            await bg.BackgroundGeolocation.getCurrentPosition(
+                samples: 1, extras: {"event": "terminate", "headless": true});
+        print("[getCurrentPosition] Headless: $location");
+      } catch (error) {
+        print("[getCurrentPosition] Headless ERROR: $error");
+      }
       break;
     case bg.Event.HEARTBEAT:
-      bg.HeartbeatEvent event = headlessEvent.event;
-      print('- HeartbeatEvent: $event');
+      // bg.HeartbeatEvent event = headlessEvent.event;
+      // print('- HeartbeatEvent: $event');
       break;
     case bg.Event.LOCATION:
       bg.Location location = headlessEvent.event;
@@ -67,14 +80,59 @@ void headlessTask(bg.HeadlessEvent headlessEvent) async {
       bool enabled = headlessEvent.event;
       print('EnabledChangeEvent: $enabled');
       break;
+    case bg.Event.AUTHORIZATION:
+      bg.AuthorizationEvent event = headlessEvent.event;
+      print(event);
+      bg.BackgroundGeolocation.setConfig(
+          bg.Config(url: "${ENV.TRACKER_HOST}/api/locations"));
+      break;
   }
+}
+
+//Receive information in backgroundFetch in headless state
+void backgroundFetchHeadlessTask(HeadlessTask task) async {
+  String taskId = task.taskId;
+
+  //if background fetch timeout event? finish and bail out
+  if (task.timeout) {
+    print('[BackgroundFetch] - Headless Task Timeout: $taskId');
+    BackgroundFetch.finish(taskId);
+    return;
+  }
+
+  print('[BackgroundFetch] - Headless TaskId: $taskId');
+
+  try {
+    var location =
+        await bg.BackgroundGeolocation.getCurrentPosition(samples: 1, extras: {
+      'event': 'background-fetch',
+      'headless': true,
+    });
+    print('[Location] - $location');
+  } catch (e) {
+    print('[Location] Error - $e');
+  }
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  int count = 0;
+  if (prefs.get('fetch-count') != null) {
+    count = prefs.getInt('fetch-count');
+  }
+  prefs.setInt('fetch-count', ++count);
+  print('[BackgroundFetch] - count: $count');
+
+  BackgroundFetch.finish(taskId);
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
   runApp(const MyApp());
-  bg.BackgroundGeolocation.registerHeadlessTask(headlessTask);
+  bg.BackgroundGeolocation.registerHeadlessTask(
+      backgroundGeolocationHeadlessTask);
+
+  BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
 }
 
 class MyApp extends StatelessWidget {
@@ -165,7 +223,7 @@ class _SplashScreenState extends State<SplashScreen> {
         fit: StackFit.expand,
         children: <Widget>[
           Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: Color.fromARGB(255, 105, 96, 15),
             ),
           ),

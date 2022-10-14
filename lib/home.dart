@@ -7,7 +7,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import 'package:royal_marble/location/background_location_tracking.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/screens/profile_drawer.dart';
 import 'package:royal_marble/services/auth.dart';
@@ -50,7 +49,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final _authService = AuthService();
   final db = DatabaseService();
-  BackGroundDetector _backGroundDetector = BackGroundDetector();
   UserData userProvider;
   final Completer<GoogleMapController> _googleMapController = Completer();
   LocationData currentLocation;
@@ -67,6 +65,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String _motionActivity;
   String _odometer;
   String _content;
+  String _distanceLocation;
+  String _distanceMotion;
 
   @override
   void initState() {
@@ -80,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // _locationCurrent.onLocationChanged.listen((event) {
     //   getCurrentLocation();
     // });
-    detectMotion();
+    Future.delayed(const Duration(seconds: 10), () => detectMotion());
 
     // Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
     // Workmanager().registerPeriodicTask('1', fetchBackGround,
@@ -136,7 +136,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         Text('Lat: $lat'),
         Text('Lng: $lng'),
-        Text('$_motionActivity · $_odometer km'),
+        Text('Distance Location: $_distanceLocation m'),
+        Text('Distance Motion: $_motionActivity · $_distanceMotion m'),
         MaterialButton(
             minWidth: 50.0,
             child: Icon((_isMoving) ? Icons.pause : Icons.play_arrow,
@@ -145,16 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: _onClickChangePace),
 
         userProvider.isActive != null && userProvider.isActive
-            ? Center(
-                child: ElevatedButton(
-                  onPressed: () async {
-                    await _authService.signOut();
-                    Navigator.pushNamedAndRemoveUntil(
-                        context, '/home', (route) => false);
-                  },
-                  child: const Text('Sign Out'),
-                ),
-              )
+            ? const SizedBox.shrink()
             : const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 40),
                 child: Center(
@@ -163,6 +155,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: textStyle4,
                 )),
               ),
+        Center(
+          child: ElevatedButton(
+            onPressed: () async {
+              await _authService.signOut();
+              Navigator.pushNamedAndRemoveUntil(
+                  context, '/home', (route) => false);
+            },
+            child: const Text('Sign Out'),
+          ),
+        )
       ],
     );
   }
@@ -184,9 +186,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     geo.Position userLocation = await geo.Geolocator.getCurrentPosition(
         desiredAccuracy: geo.LocationAccuracy.high);
-    setState(() {
-      position = userLocation;
-    });
+    if (mounted) {
+      setState(() {
+        position = userLocation;
+      });
+    }
   }
 
   //fetch location while running in background
@@ -246,23 +250,26 @@ class _HomeScreenState extends State<HomeScreen> {
   void detectMotion() async {
     bg.BackgroundGeolocation.onLocation(_onLocation);
     bg.BackgroundGeolocation.onMotionChange(_onMotionChange);
-    bg.BackgroundGeolocation.onActivityChange(_onActivityChange);
-    bg.BackgroundGeolocation.onConnectivityChange(_onConnectivityChange);
-
     bg.BackgroundGeolocation.ready(bg.Config(
             desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
             distanceFilter: 2.0,
             stopOnTerminate: false,
             startOnBoot: true,
-            debug: true,
+            debug: false,
             logLevel: bg.Config.LOG_LEVEL_VERBOSE,
+            notification: bg.Notification(
+              priority: bg.Config.NOTIFICATION_PRIORITY_LOW,
+              sticky: false,
+            ),
             enableHeadless: true,
             reset: true))
         .then((bg.State state) {
-      setState(() {
-        _enabled = state.enabled;
-        _isMoving = state.isMoving;
-      });
+      if (mounted) {
+        setState(() {
+          _enabled = state.enabled;
+          _isMoving = state.isMoving;
+        });
+      }
     });
   }
 
@@ -321,35 +328,32 @@ class _HomeScreenState extends State<HomeScreen> {
     String odometerKM = (location.odometer / 1000.0).toStringAsFixed(1);
     String odometerME = (location.odometer).toStringAsFixed(2);
     print('The distance Meter: $odometerME');
+    if (mounted) {
+      setState(() {
+        _content = encoder.convert(location.toMap());
+        _odometer = odometerKM;
+        _distanceLocation = odometerME;
+        lat = location.coords.longitude;
+        lng = location.coords.latitude;
+      });
+    }
 
-    setState(() {
-      _content = encoder.convert(location.toMap());
-      _odometer = odometerKM;
-      lat = location.coords.longitude;
-      lng = location.coords.latitude;
-    });
     //_onClickGetCurrentPosition();
   }
 
   void _onMotionChange(bg.Location location) {
     String odometerKM = (location.odometer / 1000.0).toStringAsFixed(1);
+    double odometerMEd = location.odometer;
     String odometerME = (location.odometer).toStringAsFixed(2);
     print('The distance Motion: $odometerME');
-    setState(() {
-      _odometer = odometerKM;
-      lat = location.coords.longitude;
-      lng = location.coords.latitude;
-    });
-  }
-
-  void _onActivityChange(bg.ActivityChangeEvent event) {
-    print('[activitychange] - $event');
-    setState(() {
-      _motionActivity = event.activity;
-    });
-  }
-
-  void _onConnectivityChange(bg.ConnectivityChangeEvent event) {
-    print('$event');
+    if (mounted) {
+      setState(() {
+        _odometer = odometerKM;
+        _distanceMotion = odometerME;
+        lat = location.coords.longitude;
+        lng = location.coords.latitude;
+      });
+    }
+    if (odometerMEd > 50.0) {}
   }
 }
