@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -15,6 +14,7 @@ import 'package:royal_marble/shared/constants.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
 import 'package:royal_marble/shared/snack_bar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 JsonEncoder encoder = new JsonEncoder.withIndent("     ");
 
@@ -29,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final _authService = AuthService();
   final db = DatabaseService();
   SnackBarWidget _snackBarWidget = SnackBarWidget();
+  SharedPreferences _pref;
   UserData userProvider;
   final Completer<GoogleMapController> _googleMapController = Completer();
   LatLng currentLocation;
@@ -61,6 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _getLocationPermission();
 
     Future.delayed(const Duration(seconds: 10), () => detectMotion());
+    Future.delayed(const Duration(seconds: 5), () => _setUserId());
   }
 
   @override
@@ -284,5 +286,16 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
     if (odometerMEd > 50.0) {}
+  }
+
+  //set user id
+  void _setUserId() async {
+    _pref = await SharedPreferences.getInstance();
+    String userId = _pref.getString('userId');
+    if (userId == null) {
+      if (userProvider != null) {
+        _pref.setString('userId', userProvider.uid);
+      }
+    }
   }
 }

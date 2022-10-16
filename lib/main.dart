@@ -5,9 +5,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:royal_marble/services/auth.dart';
+import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/shared/constants.dart';
 import 'package:royal_marble/shared/loading.dart';
 import 'package:royal_marble/wrapper.dart';
@@ -19,6 +21,7 @@ import 'models/user_model.dart';
 import 'package:background_fetch/background_fetch.dart';
 
 void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
+  final db = DatabaseService();
   print('[BackgroundGeolocation HeadlessTask]: $headlessEvent');
   // Implement a 'case' for only those events you're interested in.
   switch (headlessEvent.name) {
@@ -36,13 +39,24 @@ void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
         print("[getCurrentPosition] Headless ERROR: $error");
       }
       break;
-    case bg.Event.HEARTBEAT:
-      // bg.HeartbeatEvent event = headlessEvent.event;
-      // print('- HeartbeatEvent: $event');
-      break;
     case bg.Event.LOCATION:
       bg.Location location = headlessEvent.event;
-      print('- Location: $location');
+      SharedPreferences _pref = await SharedPreferences.getInstance();
+      if (_pref.getString('userId') != null) {
+        var userId = _pref.getString('userId');
+        var currentLocation =
+            LatLng(location.coords.latitude, location.coords.longitude);
+        await db
+            .updateUserLiveLocation(
+                uid: userId, currentLocation: currentLocation)
+            .then((value) {
+          print('the location was updated: $value');
+        }).catchError((err) async {
+          if (err) {
+            //await Sentry.captureException(err);
+          }
+        });
+      }
       break;
     case bg.Event.MOTIONCHANGE:
       bg.Location location = headlessEvent.event;
@@ -56,35 +70,9 @@ void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
       bg.GeofencesChangeEvent event = headlessEvent.event;
       print('- GeofencesChangeEvent: $event');
       break;
-    case bg.Event.SCHEDULE:
-      bg.State state = headlessEvent.event;
-      print('- State: $state');
-      break;
-    case bg.Event.ACTIVITYCHANGE:
-      bg.ActivityChangeEvent event = headlessEvent.event;
-      print('ActivityChangeEvent: $event');
-      break;
-    case bg.Event.HTTP:
-      bg.HttpEvent response = headlessEvent.event;
-      print('HttpEvent: $response');
-      break;
     case bg.Event.POWERSAVECHANGE:
       bool enabled = headlessEvent.event;
       print('ProviderChangeEvent: $enabled');
-      break;
-    case bg.Event.CONNECTIVITYCHANGE:
-      bg.ConnectivityChangeEvent event = headlessEvent.event;
-      print('ConnectivityChangeEvent: $event');
-      break;
-    case bg.Event.ENABLEDCHANGE:
-      bool enabled = headlessEvent.event;
-      print('EnabledChangeEvent: $enabled');
-      break;
-    case bg.Event.AUTHORIZATION:
-      bg.AuthorizationEvent event = headlessEvent.event;
-      print(event);
-      bg.BackgroundGeolocation.setConfig(
-          bg.Config(url: "${ENV.TRACKER_HOST}/api/locations"));
       break;
   }
 }
