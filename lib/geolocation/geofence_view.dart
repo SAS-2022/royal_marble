@@ -34,15 +34,18 @@ class _GeofenceViewState extends State<GeofenceView> {
     bg.BackgroundGeolocation.addGeofence(bg.Geofence(
         identifier: _identifier,
         radius: _radius,
-        latitude: center.latitude,
-        longitude: center.longitude,
+        latitude: widget.center.latitude,
+        longitude: widget.center.longitude,
         notifyOnEntry: _notifyOnEntry,
         notifyOnExit: _notifyOnExit,
         notifyOnDwell: _notifyOnDwell,
         loiteringDelay: _loiteringDelay,
         extras: {
           'radius': _radius,
-          'center': {'latitude': center.latitude, 'longitude': center.longitude}
+          'center': {
+            'latitude': widget.center.latitude,
+            'longitude': widget.center.longitude
+          }
         } // meta-data for tracker.transistorsoft.com
         )).then((bool success) {
       bg.BackgroundGeolocation.playSound(

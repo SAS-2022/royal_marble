@@ -12,32 +12,11 @@ import 'package:royal_marble/screens/profile_drawer.dart';
 import 'package:royal_marble/services/auth.dart';
 import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/shared/constants.dart';
-import 'package:workmanager/workmanager.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
+import 'package:royal_marble/shared/snack_bar.dart';
 
 JsonEncoder encoder = new JsonEncoder.withIndent("     ");
-// const fetchBackGround = 'fetchBackground';
-
-// void callbackDispatcher() async {
-//   Workmanager().executeTask((taskName, inputData) async {
-//     final prefs = await SharedPreferences.getInstance();
-//     final userId = prefs.getString('userId');
-//     if (userId != null) {
-//       switch (taskName) {
-//         case fetchBackGround:
-//           geo.Position userLocation = await geo.Geolocator.getCurrentPosition(
-//               desiredAccuracy: geo.LocationAccuracy.high);
-//           print('the current Location: $userLocation- $userId');
-
-//           break;
-//       }
-//     }
-
-//     return Future.value(true);
-//   });
-// }
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key key}) : super(key: key);
@@ -49,9 +28,10 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final _authService = AuthService();
   final db = DatabaseService();
+  SnackBarWidget _snackBarWidget = SnackBarWidget();
   UserData userProvider;
   final Completer<GoogleMapController> _googleMapController = Completer();
-  LocationData currentLocation;
+  LatLng currentLocation;
   LocationData startLocation;
   Location _locationCurrent = Location();
   Location _locationStart = Location();
@@ -59,6 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
   double distanceToUpdate = 10;
   geo.Position position;
   double lat, lng;
+  int tempCounter = 0;
 
   bool _isMoving;
   bool _enabled;
@@ -71,20 +52,15 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _snackBarWidget.context = context;
     _isMoving = false;
     _enabled = true;
     _content = '';
     _motionActivity = 'UNKNOWN';
     _odometer = '0';
     _getLocationPermission();
-    // _locationCurrent.onLocationChanged.listen((event) {
-    //   getCurrentLocation();
-    // });
-    Future.delayed(const Duration(seconds: 10), () => detectMotion());
 
-    // Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
-    // Workmanager().registerPeriodicTask('1', fetchBackGround,
-    //     frequency: const Duration(seconds: 5));
+    Future.delayed(const Duration(seconds: 10), () => detectMotion());
   }
 
   @override
@@ -106,36 +82,20 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        //will display the location of the user
-        // FutureBuilder(
-        //     future: getCurrentLocation(),
-        //     builder: (context, snapshot) {
-        //       if (snapshot.hasData) {
-        //         return Padding(
-        //           padding:
-        //               const EdgeInsets.symmetric(vertical: 30, horizontal: 25),
-        //           child: Column(
-        //             children: [
-        //               Text('The Longitude: ${currentLocation.longitude}'),
-        //               Text('The Latitdue: ${currentLocation.latitude}'),
-        //               Text('Distance: $distanceCrossed'),
-        //               const SizedBox(
-        //                 height: 20,
-        //               ),
-
-        //             ],
-        //           ),
-        //         );
-        //       } else {
-        //         return const SizedBox.shrink();
-        //       }
-        //     }),
+        Text('Times Updated: $tempCounter'),
+        const SizedBox(
+          height: 20,
+        ),
         IconButton(
           icon: Icon(Icons.gps_fixed),
           onPressed: _onClickGetCurrentPosition,
         ),
-        Text('Lat: $lat'),
-        Text('Lng: $lng'),
+        userProvider.currentLocation != null
+            ? Text('Lat: ${userProvider.currentLocation['Lat']}')
+            : const Text(''),
+        userProvider.currentLocation != null
+            ? Text('Lng: ${userProvider.currentLocation['Lng']}')
+            : const Text(''),
         Text('Distance Location: $_distanceLocation m'),
         Text('Distance Motion: $_motionActivity · $_distanceMotion m'),
         MaterialButton(
@@ -144,7 +104,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: Colors.white),
             color: (_isMoving) ? Colors.red : Colors.green,
             onPressed: _onClickChangePace),
-
         userProvider.isActive != null && userProvider.isActive
             ? const SizedBox.shrink()
             : const Padding(
@@ -183,7 +142,11 @@ class _HomeScreenState extends State<HomeScreen> {
         print('$status');
       }
     }
+    getCurrentLocation();
+  }
 
+  //fetch location while running in background
+  Future<void> getCurrentLocation() async {
     geo.Position userLocation = await geo.Geolocator.getCurrentPosition(
         desiredAccuracy: geo.LocationAccuracy.high);
     if (mounted) {
@@ -191,60 +154,22 @@ class _HomeScreenState extends State<HomeScreen> {
         position = userLocation;
       });
     }
-  }
-
-  //fetch location while running in background
-
-  Future<LocationData> getCurrentLocation() async {
-    //final _sharePref = await SharedPreferences.getInstance();
-
-    _locationCurrent.getLocation().then((location) {
-      startLocation ??= location;
-
-      if (startLocation != location) {
-        currentLocation = location;
-      }
-      if (distanceCrossed > distanceToUpdate) {
-        //will update the database
-        db.updateUserLiveLocation(
-            uid: userProvider.uid, currentLocation: currentLocation);
-
-        distanceToUpdate += 10;
-      }
-    });
-
-    if (startLocation != null && currentLocation != null) {
-      distanceCrossed = _calculateDistanceTraveled(
-          startLat: startLocation.latitude,
-          startLng: startLocation.longitude,
-          currentLat: currentLocation.latitude,
-          currentLng: currentLocation.longitude);
-
-      distanceCrossed *= (1000).floor();
+    if (position != null) {
+      currentLocation = LatLng(position.latitude, position.longitude);
+      db
+          .updateUserLiveLocation(
+              uid: userProvider.uid, currentLocation: currentLocation)
+          .then((value) {
+        setState(() {
+          tempCounter++;
+        });
+      }).catchError((err) {
+        if (err) {
+          _snackBarWidget.content = 'Error getting location: $err';
+          _snackBarWidget.showSnack();
+        }
+      });
     }
-
-    // //set the user id in the shared pref
-    // if (userProvider != null && _sharePref != null) {
-    //   await _sharePref.setString('userId', userProvider.uid);
-    // }
-
-    setState(() {});
-    return currentLocation;
-  }
-
-  double _calculateDistanceTraveled(
-      {double startLat,
-      double startLng,
-      double currentLat,
-      double currentLng}) {
-    var p = 0.017453292519943295;
-    var a = 0.5 -
-        cos((currentLat - startLat) * p) / 2 +
-        cos(startLat * p) *
-            cos(currentLat * p) *
-            (1 - cos((currentLng - startLng) * p)) /
-            2;
-    return 12742 * asin(sqrt(a));
   }
 
   void detectMotion() async {
@@ -270,6 +195,8 @@ class _HomeScreenState extends State<HomeScreen> {
           _isMoving = state.isMoving;
         });
       }
+
+      print('the state: Enabled: $_enabled - Moving: $_isMoving');
     });
   }
 
@@ -326,19 +253,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onLocation(bg.Location location) {
     String odometerKM = (location.odometer / 1000.0).toStringAsFixed(1);
-    String odometerME = (location.odometer).toStringAsFixed(2);
+    double odometerME = (location.odometer);
     print('The distance Meter: $odometerME');
     if (mounted) {
       setState(() {
         _content = encoder.convert(location.toMap());
         _odometer = odometerKM;
-        _distanceLocation = odometerME;
+        _distanceLocation = odometerME.toStringAsFixed(2);
         lat = location.coords.longitude;
         lng = location.coords.latitude;
       });
     }
-
-    //_onClickGetCurrentPosition();
+    if (odometerME > 50) {
+      //update the database with the new coordinated
+      getCurrentLocation();
+    }
   }
 
   void _onMotionChange(bg.Location location) {

@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -23,10 +24,11 @@ class ShowMap extends StatefulWidget {
 }
 
 class _ShowMapState extends State<ShowMap> {
+  final _circleFormKey = GlobalKey<FormState>();
   Directions _info;
   var lat = 0.0, long = 0.0;
   var _getMyCurrentLocation;
-
+  Set<Circle> _circules = HashSet<Circle>();
   var db = DatabaseService();
   // PickResult selectedPlace;
   String apiKey;
@@ -47,6 +49,9 @@ class _ShowMapState extends State<ShowMap> {
   String clientSector;
   Future assignedMarkers;
   Size _size;
+  int _circleIdCounter = 0;
+  double radius = 1200;
+  LatLng _selectedLocation;
   // var markerId = MarkerId('one');
   Marker marker1 = Marker(
       markerId: const MarkerId('No clients were loaded'),
@@ -173,6 +178,174 @@ class _ShowMapState extends State<ShowMap> {
     });
   }
 
+  //create a circle to assign on the map
+  void _setCirclesLocations(LatLng point, String locationName,
+      String locationDetails, double locationRadius) {
+    final String circleIdVal = 'circle_id_$_circleIdCounter';
+    String circleName;
+    String contentDetails;
+    _circleIdCounter++;
+
+    _circules.add(Circle(
+        onTap: () {
+          _showDialog(title: circleName, content: contentDetails);
+        },
+        circleId: CircleId(circleIdVal),
+        center: point,
+        radius: radius,
+        fillColor: Colors.redAccent.withOpacity(0.3),
+        strokeWidth: 3,
+        strokeColor: Colors.redAccent));
+  }
+
+  //Will open a small dialog to assign details for a certain location
+  void _assignCircleLocation(LatLng coordinates) {
+    String projectName;
+    String projectDetails;
+    double radius;
+    List<double> availableRadius = [100, 200, 400, 600, 1000];
+    showDialog(
+        context: context,
+        builder: (_) {
+          return AlertDialog(
+            title: const Text('Set Location Details'),
+            content: Form(
+              key: _circleFormKey,
+              child: SizedBox(
+                height: _size.height / 2,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    TextFormField(
+                      initialValue: '',
+                      style: textStyle3,
+                      decoration: InputDecoration(
+                        label: const Text('Project Name'),
+                        hintText: 'Ex: Mr. X Villa',
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        enabledBorder: const OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(15.0)),
+                            borderSide: BorderSide(color: Colors.grey)),
+                        focusedBorder: const OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(15.0)),
+                            borderSide: BorderSide(color: Colors.blue)),
+                      ),
+                      validator: (val) =>
+                          val.isEmpty ? 'Project name cannot be empty' : null,
+                      onChanged: (val) {
+                        if (val.isNotEmpty) {
+                          setState(() {
+                            projectName = val.trim();
+                          });
+                        }
+                      },
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    TextFormField(
+                      initialValue: '',
+                      style: textStyle3,
+                      maxLines: 4,
+                      decoration: InputDecoration(
+                        label: const Text('Project Details'),
+                        hintText:
+                            'Ex: What is the project about and what will people be doing?',
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        enabledBorder: const OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(15.0)),
+                            borderSide: BorderSide(color: Colors.grey)),
+                        focusedBorder: const OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(15.0)),
+                            borderSide: BorderSide(color: Colors.blue)),
+                      ),
+                      validator: (val) => val.isEmpty
+                          ? 'Project details cannot be empty'
+                          : null,
+                      onChanged: (val) {
+                        if (val.isNotEmpty) {
+                          setState(() {
+                            projectDetails = val.trim();
+                          });
+                        }
+                      },
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Container(
+                      alignment: Alignment.center,
+                      height: 50.0,
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.grey,
+                        ),
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButtonFormField<double>(
+                          decoration:
+                              const InputDecoration.collapsed(hintText: ''),
+                          isExpanded: true,
+                          value: radius,
+                          hint: const Center(child: Text(' Project Radius')),
+                          onChanged: (val) {
+                            setState(() {
+                              FocusScope.of(context).requestFocus(FocusNode());
+                              radius = val;
+                            });
+                          },
+                          validator: (val) =>
+                              val == null ? 'Please select a radius' : null,
+                          selectedItemBuilder: (BuildContext context) {
+                            return availableRadius.map<Widget>((double rad) {
+                              return Center(
+                                child: Text(
+                                  rad.toString(),
+                                  style: textStyle4,
+                                ),
+                              );
+                            }).toList();
+                          },
+                          items: availableRadius.map((double item) {
+                            return DropdownMenuItem<double>(
+                              value: item,
+                              child: Text(item.toString()),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  if (_circleFormKey.currentState.validate()) {}
+                },
+                child: const Text('Assign'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Cancel'),
+              ),
+            ],
+          );
+        });
+  }
+
   //Client details dialog
   // ignore: missing_return
   Widget _openDetailsDialog(
@@ -220,6 +393,17 @@ class _ShowMapState extends State<ShowMap> {
                 ],
               ),
             ),
+          );
+        });
+  }
+
+  void _showDialog({String title, String content}) {
+    showDialog(
+        context: context,
+        builder: (_) {
+          return AlertDialog(
+            title: Text(title),
+            content: Text(content),
           );
         });
   }
@@ -296,11 +480,21 @@ class _ShowMapState extends State<ShowMap> {
         future: assignedMarkers,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            print('the snapshot: $snapshot - $_center');
             if (snapshot.connectionState == ConnectionState.done &&
                 _center != null) {
               return Stack(children: [
                 GoogleMap(
+                  onLongPress: (coordinates) {
+                    //assing circule
+                    if (coordinates != null) {
+                      _assignCircleLocation(coordinates);
+                      setState(() {});
+                    }
+                  },
+                  onTap: (coordinates) {
+                    _selectedLocation = coordinates;
+                  },
+                  circles: _circules,
                   mapToolbarEnabled: true,
                   myLocationButtonEnabled: true,
                   myLocationEnabled: true,

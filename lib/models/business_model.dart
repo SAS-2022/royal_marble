@@ -29,17 +29,20 @@ class ProjectData {
   String emailAddress;
   List<dynamic> projectVisits;
   String userId;
-  ProjectData({
-    this.uid,
-    this.projectName,
-    this.projectAddress,
-    this.contactorCompany,
-    this.contactPerson,
-    this.phoneNumber,
-    this.emailAddress,
-    this.projectVisits,
-    this.userId,
-  });
+  Map<String, dynamic> projectLocation;
+  List<String> assignedUsers;
+  ProjectData(
+      {this.uid,
+      this.projectName,
+      this.projectAddress,
+      this.contactorCompany,
+      this.contactPerson,
+      this.phoneNumber,
+      this.emailAddress,
+      this.projectVisits,
+      this.userId,
+      this.projectLocation,
+      this.assignedUsers});
 }
 
 class VisitDetails {

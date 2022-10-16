@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
+import 'package:provider/provider.dart';
 import 'package:royal_marble/location/.env.dart';
 import 'package:royal_marble/models/user_model.dart';
+import 'package:royal_marble/services/database.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:background_fetch/background_fetch.dart';
 import 'package:http/http.dart' as http;
@@ -28,7 +30,7 @@ class _LiveViewState extends State<LiveView>
     with TickerProviderStateMixin<LiveView>, WidgetsBindingObserver {
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   TabController _tabController;
-
+  final db = DatabaseService();
   bool _isMoving;
   bool _enabled;
   String _motionActivity;
@@ -185,32 +187,38 @@ class _LiveViewState extends State<LiveView>
 
   void _onLocation(bg.Location location) {
     print('[${bg.Event.LOCATION}] - $location');
-
-    setState(() {
-      events.insert(0,
-          Event(bg.Event.LOCATION, location, location.toString(compact: true)));
-      _odometer = (location.odometer / 1000.0).toStringAsFixed(1);
-    });
+    if (mounted) {
+      setState(() {
+        events.insert(
+            0,
+            Event(
+                bg.Event.LOCATION, location, location.toString(compact: true)));
+        _odometer = (location.odometer / 1000.0).toStringAsFixed(1);
+      });
+    }
   }
 
   void _onLocationError(bg.LocationError error) {
     print('[${bg.Event.LOCATION}] ERROR - $error');
-    setState(() {
-      events.insert(
-          0, Event(bg.Event.LOCATION + " error", error, error.toString()));
-    });
+    if (mounted) {
+      setState(() {
+        events.insert(
+            0, Event(bg.Event.LOCATION + " error", error, error.toString()));
+      });
+    }
   }
 
   void _onMotionChange(bg.Location location) {
     print('[${bg.Event.MOTIONCHANGE}] - $location');
-
-    setState(() {
-      events.insert(
-          0,
-          Event(bg.Event.MOTIONCHANGE, location,
-              location.toString(compact: true)));
-      _isMoving = location.isMoving;
-    });
+    if (mounted) {
+      setState(() {
+        events.insert(
+            0,
+            Event(bg.Event.MOTIONCHANGE, location,
+                location.toString(compact: true)));
+        _isMoving = location.isMoving;
+      });
+    }
   }
 
   void _onGeofence(bg.GeofenceEvent event) async {
@@ -231,11 +239,12 @@ class _LiveViewState extends State<LiveView>
         bg.BackgroundGeolocation.stopBackgroundTask(taskId);
       });
     });
-
-    setState(() {
-      events.insert(
-          0, Event(bg.Event.GEOFENCE, event, event.toString(compact: false)));
-    });
+    if (mounted) {
+      setState(() {
+        events.insert(
+            0, Event(bg.Event.GEOFENCE, event, event.toString(compact: false)));
+      });
+    }
   }
 
   void _onClickTestMode() {
@@ -244,7 +253,7 @@ class _LiveViewState extends State<LiveView>
     if (_testModeTimer != null) {
       _testModeTimer.cancel();
     }
-    _testModeTimer = new Timer(Duration(seconds: 2), () {
+    _testModeTimer = Timer(const Duration(seconds: 2), () {
       _testModeClicks = 0;
     });
   }
@@ -283,17 +292,21 @@ class _LiveViewState extends State<LiveView>
         ),
       ),
       //body: body,
-      body: SharedEvents(
-          events: events,
-          child: TabBarView(
-              controller: _tabController,
-              children: [
-                MapView(
-                  currentUser: widget.userData,
-                ),
-                EventList()
-              ],
-              physics: const NeverScrollableScrollPhysics())),
+      body: StreamProvider<List<UserData>>.value(
+        initialData: [],
+        value: db.getAllUsers(),
+        child: SharedEvents(
+            events: events,
+            child: TabBarView(
+                controller: _tabController,
+                children: [
+                  MapView(
+                    currentUser: widget.userData,
+                  ),
+                  EventList()
+                ],
+                physics: const NeverScrollableScrollPhysics())),
+      ),
       bottomNavigationBar: BottomAppBar(
           child: Container(
               padding: const EdgeInsets.only(left: 5.0, right: 5.0),

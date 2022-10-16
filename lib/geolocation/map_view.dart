@@ -3,6 +3,7 @@ import 'package:flutter_background_geolocation/flutter_background_geolocation.da
     as bg;
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart' as api;
+import 'package:provider/provider.dart';
 import '../models/user_model.dart';
 import 'util/dialog.dart' as util;
 import 'geofence_view.dart';
@@ -10,8 +11,9 @@ import 'package:latlong2/latlong.dart';
 import 'util/geospatial.dart';
 
 class MapView extends StatefulWidget {
-  const MapView({Key key, this.currentUser}) : super(key: key);
+  const MapView({Key key, this.currentUser, this.allUsers}) : super(key: key);
   final UserData currentUser;
+  final List<UserData> allUsers;
 
   @override
   State createState() => MapViewState();
@@ -26,6 +28,7 @@ class MapViewState extends State<MapView>
 
   bg.Location _stationaryLocation;
 
+  List<Widget> _userPosition = [];
   List<CircleMarker> _currentPosition = [];
   List<LatLng> _polyline = [];
   List<CircleMarker> _locations = [];
@@ -42,13 +45,14 @@ class MapViewState extends State<MapView>
   LatLng _center;
   MapController _mapController;
   MapOptions _mapOptions;
+  List<UserData> userProvider;
 
   @override
   void initState() {
     super.initState();
     if (widget.currentUser != null) {
-      _center = LatLng(widget.currentUser.homeAddress['Lat'],
-          widget.currentUser.homeAddress['Lng']);
+      _center = LatLng(widget.currentUser.currentLocation['Lat'],
+          widget.currentUser.currentLocation['Lng']);
       _mapOptions = MapOptions(
           onPositionChanged: _onPositionChanged,
           center: _center,
@@ -57,11 +61,14 @@ class MapViewState extends State<MapView>
 
       _mapController = MapController();
 
-      bg.BackgroundGeolocation.onLocation(_onLocation);
-      bg.BackgroundGeolocation.onMotionChange(_onMotionChange);
+      // bg.BackgroundGeolocation.onLocation(_onLocation);
+      // bg.BackgroundGeolocation.onMotionChange(_onMotionChange);
       bg.BackgroundGeolocation.onGeofence(_onGeofence);
       bg.BackgroundGeolocation.onGeofencesChange(_onGeofencesChange);
-      bg.BackgroundGeolocation.onEnabledChange(_onEnabledChange);
+      //bg.BackgroundGeolocation.onEnabledChange(_onEnabledChange);
+
+      Future.delayed(Duration(seconds: 5),
+          (() => _updateCurrentPositionMarkers(userProvider)));
     }
   }
 
@@ -81,7 +88,7 @@ class MapViewState extends State<MapView>
 
   void _onMotionChange(bg.Location location) async {
     LatLng ll = LatLng(location.coords.latitude, location.coords.longitude);
-
+    print('there is motion: $ll');
     _updateCurrentPositionMarker(ll);
 
     _mapController.move(ll, _mapController.zoom);
@@ -228,6 +235,38 @@ class MapViewState extends State<MapView>
         .add(CircleMarker(point: ll, color: Colors.blue, radius: 7));
   }
 
+  void _updateCurrentPositionMarkers(List<UserData> usersData) {
+    if (usersData != null && usersData.isNotEmpty) {
+      for (var userLocation in usersData) {
+        // White background
+        print(
+            'the usersData: ${userLocation.firstName} - ${userLocation.currentLocation}');
+        if (userLocation.currentLocation != null) {
+          _currentPosition.add(CircleMarker(
+              point: LatLng(userLocation.currentLocation['Lat'],
+                  userLocation.currentLocation['Lng']),
+              color: Colors.white,
+              radius: 10));
+          // Blue foreground
+          _currentPosition.add(CircleMarker(
+              point: LatLng(userLocation.currentLocation['Lat'],
+                  userLocation.currentLocation['Lng']),
+              color: Colors.blue,
+              radius: 7));
+
+          _userPosition.add(GestureDetector(
+            onTap: () {
+              print(
+                  'the user: ${userLocation.firstName} ${userLocation.lastName}');
+            },
+            child: CircleLayer(circles: _currentPosition),
+          ));
+        }
+        print('the current Position: $_currentPosition');
+      }
+    }
+  }
+
   CircleMarker _buildStationaryCircleMarker(
       bg.Location location, bg.State state) {
     return CircleMarker(
@@ -257,7 +296,6 @@ class MapViewState extends State<MapView>
   void _onAddGeofence(dynamic tap, LatLng latLng) {
     bg.BackgroundGeolocation.playSound(
         util.Dialog.getSoundId("LONG_PRESS_ACTIVATE"));
-
     Navigator.of(context).push(MaterialPageRoute<Null>(
         fullscreenDialog: true,
         builder: (BuildContext context) {
@@ -271,6 +309,8 @@ class MapViewState extends State<MapView>
 
   @override
   Widget build(BuildContext context) {
+    userProvider = Provider.of<List<UserData>>(context);
+
     super.build(context);
     return FlutterMap(
       mapController: _mapController,
@@ -291,16 +331,16 @@ class MapViewState extends State<MapView>
         // Active geofence circles
         CircleLayer(circles: _geofences),
         // Big red stationary radius while in stationary state.
-        CircleLayer(circles: _stationaryMarker),
+        //CircleLayer(circles: _stationaryMarker),
         // Polyline joining last stationary location to motionchange:true location.
-        PolylineLayer(polylines: _motionChangePolylines),
+        //PolylineLayer(polylines: _motionChangePolylines),
         // Recorded locations.
-        CircleLayer(circles: _locations),
+        // CircleLayer(circles: _locations),
         // Small, red circles showing where motionchange:false events fired.
-        CircleLayer(circles: _stopLocations),
+        // CircleLayer(circles: _stopLocations),
         // Geofence events (edge marker, event location and polyline joining the two)
-        CircleLayer(circles: _geofenceEvents),
-        PolylineLayer(polylines: _geofenceEventPolylines),
+        //CircleLayer(circles: _geofenceEvents),
+        //PolylineLayer(polylines: _geofenceEventPolylines),
         CircleLayer(circles: _geofenceEventLocations),
         CircleLayer(circles: _geofenceEventEdges),
         CircleLayer(circles: _currentPosition),

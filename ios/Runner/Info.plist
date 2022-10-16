@@ -2,14 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>com.transistorsoft.fetch</string>
 	</array>
-	<key>NSMotionUsageDescription</key>
-	<string>Motion usage description</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
 	<string>Royal Marble</string>
 	<key>CFBundleExecutable</key>
@@ -30,18 +28,21 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>Privacy - Location Always and When In Use Description</key>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Always and when in use</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Can I have location always?</string>
+	<string>We need location always</string>
 	<key>NSLocationUsageDescription</key>
 	<string>Older device need location</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Need Location when in use</string>
+	<string>Need location when in use</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Motion usage description</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
 		<string>location</string>
+		<string>processing</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>

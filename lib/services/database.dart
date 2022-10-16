@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:sentry/sentry.dart' as sentry;
@@ -14,6 +15,9 @@ class DatabaseService {
 
   final CollectionReference clientCollection =
       FirebaseFirestore.instance.collection('clients');
+
+  final CollectionReference projectCollection =
+      FirebaseFirestore.instance.collection('projects');
 
   //Update the user data
   Future<String> updateUser({
@@ -50,7 +54,7 @@ class DatabaseService {
 
   //update the user's live location
   Future<String> updateUserLiveLocation(
-      {String uid, LocationData currentLocation}) async {
+      {String uid, LatLng currentLocation}) async {
     try {
       Map<String, dynamic> newLoc = {
         'Lat': currentLocation.latitude,
@@ -134,6 +138,7 @@ class DatabaseService {
       roles: data['roles'],
       company: data['company'],
       homeAddress: data['homeAddress'],
+      currentLocation: data['currentLocation'],
     );
   }
 
@@ -151,6 +156,7 @@ class DatabaseService {
         roles: data['roles'],
         company: data['company'],
         homeAddress: data['homeAddress'],
+        currentLocation: data['currentLocation'],
       );
     }).toList();
   }
@@ -334,4 +340,7 @@ class DatabaseService {
       return [];
     }
   }
+
+  //create a project with location
+
 }

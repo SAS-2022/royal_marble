@@ -36,7 +36,7 @@ dependencies:
   image: ^3.1.1
   location: ^4.4.0
   flutter_background: ^1.1.0
-  workmanager: ^0.5.0
+  flutter_speed_dial: ^6.0.0
   shared_preferences: ^2.0.15
   flutter_background_geolocation: ^4.8.0
   latlong2: ^0.8.1
