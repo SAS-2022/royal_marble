@@ -22,27 +22,31 @@ class ClientData {
 class ProjectData {
   String uid;
   String projectName;
+  String projectDetails;
   Map<String, dynamic> projectAddress;
+  double radius;
   String contactorCompany;
   String contactPerson;
   String phoneNumber;
   String emailAddress;
   List<dynamic> projectVisits;
   String userId;
-  Map<String, dynamic> projectLocation;
-  List<String> assignedUsers;
+  List<String> assignedWorkers;
+  String error;
   ProjectData(
       {this.uid,
       this.projectName,
+      this.projectDetails,
       this.projectAddress,
+      this.radius,
       this.contactorCompany,
       this.contactPerson,
       this.phoneNumber,
       this.emailAddress,
       this.projectVisits,
       this.userId,
-      this.projectLocation,
-      this.assignedUsers});
+      this.assignedWorkers,
+      this.error});
 }
 
 class VisitDetails {

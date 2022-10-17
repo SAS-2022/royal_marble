@@ -168,17 +168,17 @@ class DatabaseService {
         return value.docs.map((e) {
           var data = e.data() as Map<String, dynamic>;
           return UserData(
-            uid: e.id,
-            emailAddress: data['emailAddress'],
-            firstName: data['firstName'],
-            lastName: data['lastName'],
-            phoneNumber: data['phoneNumber'],
-            nationality: data['nationality'],
-            isActive: data['isActive'] ?? false,
-            roles: data['roles'],
-            company: data['company'],
-            homeAddress: data['homeAddress'],
-          );
+              uid: e.id,
+              emailAddress: data['emailAddress'],
+              firstName: data['firstName'],
+              lastName: data['lastName'],
+              phoneNumber: data['phoneNumber'],
+              nationality: data['nationality'],
+              isActive: data['isActive'] ?? false,
+              roles: data['roles'],
+              company: data['company'],
+              homeAddress: data['homeAddress'],
+              currentLocation: data['currentLocation']);
         }).toList();
       });
     } catch (e, stackTrace) {
@@ -342,5 +342,78 @@ class DatabaseService {
   }
 
   //create a project with location
+  Future<String> addNewProject({ProjectData project}) async {
+    try {
+      return await projectCollection.add({
+        'projectName': project.projectName,
+        'projectDetails': project.projectDetails,
+        'selectedAddress': project.projectAddress,
+        'radius': project.radius,
+        'contractor': project.contactorCompany,
+        'contactPerson': project.contactPerson,
+        'phoneNumber': project.phoneNumber,
+        'emailAddress': project.emailAddress,
+        'salesInCharge': project.userId,
+        'assignedWorkers': project.assignedWorkers,
+      }).then((value) => 'Completed');
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return 'Error: $e';
+    }
+  }
 
+  //updating clients
+  Future<String> updateProjectData({ProjectData project}) async {
+    try {
+      return await projectCollection.doc(project.uid).update({
+        'projectName': project.projectName,
+        'projectDetails': project.projectDetails,
+        'selectedAddress': project.projectAddress,
+        'radius': project.radius,
+        'contractor': project.contactorCompany,
+        'contactPerson': project.contactPerson,
+        'phoneNumber': project.phoneNumber,
+        'emailAddress': project.emailAddress,
+        'salesInCharge': project.userId,
+        'assignedWorkers': project.assignedWorkers,
+      }).then((value) => 'Completed');
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return 'Error: $e';
+    }
+  }
+
+  Stream<List<ProjectData>> getAllProjects() {
+    return projectCollection.snapshots().map(_listProjectDataFromSnapshot);
+  }
+
+  List<ProjectData> _listProjectDataFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.map((snapshot) {
+      var data = snapshot.data() as Map<String, dynamic>;
+      return ProjectData(
+          uid: snapshot.id,
+          projectName: data['projectName'],
+          projectDetails: data['projectDetails'],
+          projectAddress: data['selectedAddress'],
+          radius: data['radius'],
+          contactorCompany: data['contractor'],
+          contactPerson: data['contactPerson'],
+          emailAddress: data['emailAddress'],
+          phoneNumber: data['phoneNumber'],
+          userId: data['salesInCharge'],
+          assignedWorkers: data['assignedWorkers']);
+    }).toList();
+  }
+
+  Future<String> deleteProject({String projectId}) async {
+    try {
+      return await projectCollection
+          .doc(projectId)
+          .delete()
+          .then((value) => 'Deleted');
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return 'Error Deleting: $e';
+    }
+  }
 }
