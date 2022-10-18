@@ -175,7 +175,9 @@ class _ShowMapState extends State<ShowMap> {
           consumeTapEvents: true,
           onTap: () {
             _showDialog(
-                title: project.projectName, content: project.projectDetails);
+                title: project.projectName,
+                content: project.projectDetails,
+                projectData: project);
           },
           circleId: CircleId(project.uid),
           center: LatLng(
@@ -427,13 +429,36 @@ class _ShowMapState extends State<ShowMap> {
         });
   }
 
-  void _showDialog({String title, String content}) {
+  void _showDialog({String title, String content, ProjectData projectData}) {
     showDialog(
         context: context,
         builder: (_) {
           return AlertDialog(
             title: Text(title),
             content: Text(content),
+            actions: [
+              //Delete the project
+              projectData != null
+                  ? Center(
+                      child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(255, 56, 52, 11),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25.0),
+                            ),
+                          ),
+                          onPressed: () async {
+                            if (projectData.uid != null) {
+                              await db.deleteProject(
+                                  projectId: projectData.uid);
+                              Navigator.pop(context);
+                            }
+                          },
+                          child: const Text('Delete')),
+                    )
+                  : const SizedBox.shrink()
+            ],
           );
         });
   }
@@ -484,7 +509,9 @@ class _ShowMapState extends State<ShowMap> {
     if (projectProvider != null && projectProvider.isNotEmpty) {
       _setCirclesLocations();
     }
-    if (userProvider != null && userProvider.isNotEmpty) {
+    if (widget.listOfMarkers == 'users' &&
+        userProvider != null &&
+        userProvider.isNotEmpty) {
       _getUserMarker();
     }
     return WillPopScope(

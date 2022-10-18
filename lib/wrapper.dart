@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:royal_marble/auth/sign_in.dart';
+import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/services/database.dart';
 
 import 'home.dart';
@@ -31,13 +32,25 @@ class _WrapperState extends State<Wrapper> {
     if (userData == null) {
       return const SignInScreen();
     } else {
-      return StreamProvider<UserData>.value(
-        value: db.getUserPerId(uid: userData.uid),
-        initialData: UserData(),
-        catchError: (context, err) {
-          print('the error: $err');
-          return UserData();
-        },
+      return MultiProvider(
+        providers: [
+          StreamProvider<UserData>.value(
+            value: db.getUserPerId(uid: userData.uid),
+            initialData: UserData(),
+            catchError: (context, err) {
+              print('the error: $err');
+              return UserData();
+            },
+          ),
+          StreamProvider<List<ProjectData>>.value(
+            value: db.getAllProjects(),
+            initialData: [],
+            catchError: (context, err) {
+              print('the error: $err');
+              return [ProjectData(error: err)];
+            },
+          ),
+        ],
         child: const HomeScreen(),
       );
     }

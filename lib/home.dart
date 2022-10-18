@@ -6,6 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/screens/profile_drawer.dart';
 import 'package:royal_marble/services/auth.dart';
@@ -13,6 +14,7 @@ import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/shared/constants.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
+import 'package:royal_marble/shared/loading.dart';
 import 'package:royal_marble/shared/snack_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -31,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   SnackBarWidget _snackBarWidget = SnackBarWidget();
   SharedPreferences _pref;
   UserData userProvider;
+  List<ProjectData> allProjectProvider = [];
   final Completer<GoogleMapController> _googleMapController = Completer();
   LatLng currentLocation;
   LocationData startLocation;
@@ -41,6 +44,9 @@ class _HomeScreenState extends State<HomeScreen> {
   geo.Position position;
   double lat, lng;
   int tempCounter = 0;
+  Size _size;
+  List<ProjectData> assignedProject = [];
+  List<dynamic> messages = [];
 
   bool _isMoving;
   bool _enabled;
@@ -68,44 +74,133 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     userProvider = Provider.of<UserData>(context);
+    allProjectProvider = Provider.of<List<ProjectData>>(context);
+    _size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-          title: const Text('Main Page'),
-          backgroundColor: const Color.fromARGB(255, 191, 180, 66),
-          actions: <Widget>[
-            Switch(value: _enabled, onChanged: _onClickEnable),
-          ]),
+        title: const Text('Main Page'),
+        backgroundColor: const Color.fromARGB(255, 191, 180, 66),
+      ),
       drawer: ProfileDrawer(currentUser: userProvider),
-      body: _buildHomeScreen(),
+      body: _selectView(),
     );
   }
 
-  Widget _buildHomeScreen() {
+  Widget _selectView() {
+    var role;
+    if (userProvider != null && userProvider.roles != null) {
+      if (userProvider.roles.contains('isAdmin')) {
+        role = 'admin';
+      } else if (userProvider.roles.contains('isSales')) {
+        role = 'sales';
+      } else {
+        role = 'worker';
+      }
+
+      if (role != null) {
+        switch (role) {
+          case 'admin':
+            return _buildAdminHomeScreen();
+
+          case 'sales':
+            return _buildSalesHomeScreen();
+
+          case 'worker':
+            return _buildWorkerHomeScreen();
+        }
+      } else {
+        return const Center(child: Loading());
+      }
+    }
+
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildAdminHomeScreen() {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Text('Times Updated: $tempCounter'),
-        const SizedBox(
+        //Project Section Adding and viewing project
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 15),
+          child: SizedBox(
+            height: _size.height / 3,
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+              const Text(
+                'Current projects and the team working in each on of them',
+                style: textStyle6,
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              SizedBox(
+                height: _size.height / 4,
+                width: _size.width - 20,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: allProjectProvider.length,
+                  itemBuilder: ((context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: GestureDetector(
+                        onTap: () {
+                          //once tapped shall navigate to a page that will show assigned workers
+                        },
+                        onLongPress: () {
+                          //if long pressed it will show a dialog that will allow you to edit or delete project
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          height: 80,
+                          width: _size.width / 2,
+                          decoration: BoxDecoration(
+                              border: Border.all(),
+                              borderRadius: BorderRadius.circular(10)),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Name: ${allProjectProvider[index].projectName.toUpperCase()}',
+                                style: textStyle5,
+                              ),
+                              Text(
+                                'Details: ${allProjectProvider[index].projectDetails}',
+                                style: textStyle5,
+                              ),
+                              Text(
+                                'Contactor: ${allProjectProvider[index].contactorCompany}',
+                                style: textStyle5,
+                              ),
+                              Text(
+                                'Phone: ${allProjectProvider[index].phoneNumber}',
+                                style: textStyle5,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: Center(
+                  child: Text(
+                      'Total Projects: ${allProjectProvider.length} project'),
+                ),
+              )
+            ]),
+          ),
+        ),
+        const Divider(
           height: 20,
+          thickness: 3,
         ),
-        IconButton(
-          icon: Icon(Icons.gps_fixed),
-          onPressed: _onClickGetCurrentPosition,
-        ),
-        userProvider.currentLocation != null
-            ? Text('Lat: ${userProvider.currentLocation['Lat']}')
-            : const Text(''),
-        userProvider.currentLocation != null
-            ? Text('Lng: ${userProvider.currentLocation['Lng']}')
-            : const Text(''),
-        Text('Distance Location: $_distanceLocation m'),
-        Text('Distance Motion: $_motionActivity · $_distanceMotion m'),
-        MaterialButton(
-            minWidth: 50.0,
-            child: Icon((_isMoving) ? Icons.pause : Icons.play_arrow,
-                color: Colors.white),
-            color: (_isMoving) ? Colors.red : Colors.green,
-            onPressed: _onClickChangePace),
+        //Sales team section
+
         userProvider.isActive != null && userProvider.isActive
             ? const SizedBox.shrink()
             : const Padding(
@@ -116,19 +211,87 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: textStyle4,
                 )),
               ),
-        Center(
-          child: ElevatedButton(
-            onPressed: () async {
-              await _authService.signOut();
-              Navigator.pushNamedAndRemoveUntil(
-                  context, '/home', (route) => false);
-            },
-            child: const Text('Sign Out'),
-          ),
-        )
       ],
     );
   }
+
+  Widget _buildWorkerHomeScreen() {
+    return userProvider.isActive != null && userProvider.isActive
+        ? SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 25, left: 15),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  //List of projects assigned two
+                  assignedProject.isEmpty
+                      ? SizedBox(
+                          height: (_size.height / 2) - 50,
+                          child: ListView.builder(
+                              itemCount: assignedProject.length,
+                              itemBuilder: ((context, index) {
+                                return const ListTile(
+                                  title: Text('Project Name'),
+                                  subtitle: Text('Project Details'),
+                                );
+                              })),
+                        )
+                      : const Center(
+                          child: Text(
+                            'You have not been assigned to any project',
+                            style: textStyle3,
+                          ),
+                        ),
+                  const Divider(
+                    height: 25,
+                    thickness: 3,
+                  ),
+                  //Messages from Admin
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20, left: 15),
+                    child: Column(children: [
+                      const Text(
+                        'Please note this section is dedicated for messages from your manager',
+                        style: textStyle6,
+                      ),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      messages.isEmpty
+                          ? SizedBox(
+                              height: (_size.height / 2) - 50,
+                              child: ListView.builder(
+                                  itemCount: messages.length,
+                                  itemBuilder: (context, index) {
+                                    return const ListTile(
+                                      title: Text('Message Title'),
+                                      subtitle: Text('Message Details'),
+                                    );
+                                  }),
+                            )
+                          : const Center(
+                              child: Text(
+                                'Currently you have no message',
+                                style: textStyle3,
+                              ),
+                            )
+                    ]),
+                  )
+                ],
+              ),
+            ),
+          )
+        : const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 40),
+            child: Center(
+                child: Text(
+              'Current User is still not active, please contact your admin to activate your account!',
+              style: textStyle4,
+            )),
+          );
+  }
+
+  Widget _buildSalesHomeScreen() {}
 
   Future<void> _getLocationPermission() async {
     if (await Permission.location.serviceStatus.isEnabled) {
@@ -256,7 +419,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onLocation(bg.Location location) {
     String odometerKM = (location.odometer / 1000.0).toStringAsFixed(1);
     double odometerME = (location.odometer);
-    print('The distance Meter: $odometerME');
     if (mounted) {
       setState(() {
         _content = encoder.convert(location.toMap());
@@ -266,9 +428,10 @@ class _HomeScreenState extends State<HomeScreen> {
         lng = location.coords.latitude;
       });
     }
-    if (odometerME > 50) {
+    if (odometerME > 150) {
       //update the database with the new coordinated
       getCurrentLocation();
+      odometerME = 0.0;
     }
   }
 
@@ -276,7 +439,7 @@ class _HomeScreenState extends State<HomeScreen> {
     String odometerKM = (location.odometer / 1000.0).toStringAsFixed(1);
     double odometerMEd = location.odometer;
     String odometerME = (location.odometer).toStringAsFixed(2);
-    print('The distance Motion: $odometerME');
+
     if (mounted) {
       setState(() {
         _odometer = odometerKM;
@@ -285,7 +448,9 @@ class _HomeScreenState extends State<HomeScreen> {
         lng = location.coords.latitude;
       });
     }
-    if (odometerMEd > 50.0) {}
+    if (odometerMEd > 50.0) {
+      odometerMEd = 0;
+    }
   }
 
   //set user id

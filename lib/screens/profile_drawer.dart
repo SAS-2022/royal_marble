@@ -10,6 +10,7 @@ import 'package:royal_marble/location/show_map.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/sales_pipeline/visit_forms.dart/visit_form_streams.dart';
+import 'package:royal_marble/services/auth.dart';
 import 'package:royal_marble/services/database.dart';
 
 class ProfileDrawer extends StatefulWidget {
@@ -23,6 +24,7 @@ class ProfileDrawer extends StatefulWidget {
 class _ProfileDrawerState extends State<ProfileDrawer> {
   Size size;
   final db = DatabaseService();
+  final _auth = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -192,23 +194,33 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                                     );
                                   },
                                 ),
-                                ListTile(
-                                  leading: const Icon(Icons.map_outlined),
-                                  title: const Text('Live Map'),
-                                  enabled: true,
-                                  onTap: () async {
-                                    await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (_) => LiveView(
-                                                userData: widget.currentUser,
-                                              )),
-                                    );
-                                  },
-                                ),
                               ],
                             )
-                          : const SizedBox.shrink()
+                          : const SizedBox.shrink(),
+                      const SizedBox(
+                        height: 35,
+                      ),
+                      Center(
+                        child: SizedBox(
+                          width: size.width / 2,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 56, 52, 11),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25.0),
+                              ),
+                            ),
+                            onPressed: () async {
+                              await _auth.signOut();
+                              Navigator.pushNamedAndRemoveUntil(
+                                  context, '/home', (route) => false);
+                            },
+                            child: const Text('Sign Out'),
+                          ),
+                        ),
+                      )
+                      // : const SizedBox.shrink()
                     ],
                   ),
                 ),
