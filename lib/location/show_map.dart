@@ -1,7 +1,9 @@
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:royal_marble/location/.env.dart';
@@ -49,6 +51,7 @@ class _ShowMapState extends State<ShowMap> {
   int _circleIdCounter = 0;
   double radius = 1200;
   LatLng _selectedLocation;
+  String locationName;
 
   // var markerId = MarkerId('one');
   Marker marker1 = Marker(
@@ -189,14 +192,26 @@ class _ShowMapState extends State<ShowMap> {
     }
   }
 
+  void _getLocationName(coordinates) async {
+    await placemarkFromCoordinates(coordinates.latitude, coordinates.longitude)
+        .catchError((err) {
+      print('Error obtaining location name: $err');
+    }).then((value) {
+      locationName = '${value[4]}';
+    });
+  }
+
   //Will open a small dialog to assign details for a certain location
-  void _assignCircleLocation(LatLng coordinates) {
+  void _assignCircleLocation(LatLng coordinates) async {
     ProjectData _projectData = ProjectData();
     double radius;
     List<double> availableRadius = [100, 200, 400, 600, 1000];
+
     showDialog(
         context: context,
         builder: (_) {
+          _getLocationName(coordinates);
+
           return AlertDialog(
             title: const Text('Set Location Details'),
             content: Form(
@@ -287,7 +302,7 @@ class _ShowMapState extends State<ShowMap> {
                                 const InputDecoration.collapsed(hintText: ''),
                             isExpanded: true,
                             value: radius,
-                            hint: const Center(child: Text(' Project Radius')),
+                            hint: const Center(child: Text('Project Radius')),
                             onChanged: (val) {
                               setState(() {
                                 FocusScope.of(context)
@@ -341,6 +356,7 @@ class _ShowMapState extends State<ShowMap> {
                           //add a project marker with project details
                           if (_projectData != null) {
                             _projectData.projectAddress = {
+                              'addressName': locationName,
                               'Lat': coordinates.latitude,
                               'Lng': coordinates.longitude,
                             };

@@ -114,6 +114,27 @@ class DatabaseService {
     }
   }
 
+  //assign user to a project
+  Future<String> assignUsersToProject(
+      {List<UserData> userIds, ProjectData project}) async {
+    try {
+      for (UserData user in userIds) {
+        Map<String, dynamic> projectDetails = {
+          'projectId': project.uid,
+          'Lat': project.projectAddress['Lat'],
+          'Lng': project.projectAddress['Lng'],
+          'radius': project.radius,
+        };
+        await userCollection
+            .doc(user.uid)
+            .update({'assignedProject': projectDetails});
+      }
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return 'Error: $e';
+    }
+  }
+
   //read the users data through futures and streams
   //stream user data
   Stream<UserData> getUserPerId({String uid}) {
@@ -387,6 +408,13 @@ class DatabaseService {
     return projectCollection.snapshots().map(_listProjectDataFromSnapshot);
   }
 
+  Stream<ProjectData> getProjectById({String projectId}) {
+    return projectCollection
+        .doc(projectId)
+        .snapshots()
+        .map(_projectDataFromSnapshot);
+  }
+
   List<ProjectData> _listProjectDataFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((snapshot) {
       var data = snapshot.data() as Map<String, dynamic>;
@@ -403,6 +431,23 @@ class DatabaseService {
           userId: data['salesInCharge'],
           assignedWorkers: data['assignedWorkers']);
     }).toList();
+  }
+
+  ProjectData _projectDataFromSnapshot(DocumentSnapshot snapshot) {
+    var data = snapshot.data() as Map<String, dynamic>;
+    return ProjectData(
+      uid: snapshot.id,
+      projectName: data['projectName'],
+      projectDetails: data['projectDetails'],
+      projectAddress: data['selectedAddress'],
+      radius: data['radius'],
+      contactorCompany: data['contractor'],
+      contactPerson: data['contactPerson'],
+      emailAddress: data['emailAddress'],
+      phoneNumber: data['phoneNumber'],
+      userId: data['salesInCharge'],
+      assignedWorkers: data['assignedWorkers'],
+    );
   }
 
   Future<String> deleteProject({String projectId}) async {

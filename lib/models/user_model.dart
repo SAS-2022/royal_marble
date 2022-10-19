@@ -8,6 +8,7 @@ class UserData {
   Map<String, dynamic> currentLocation;
   List<dynamic> roles;
   Map<String, dynamic> nationality;
+  Map<String, dynamic> assignedProject;
   String company;
   bool isActive;
   String error;
@@ -24,6 +25,7 @@ class UserData {
     this.nationality,
     this.company,
     this.isActive,
+    this.assignedProject,
     this.error,
   });
 }

@@ -8,6 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/models/user_model.dart';
+import 'package:royal_marble/projects/project_grid.dart';
 import 'package:royal_marble/screens/profile_drawer.dart';
 import 'package:royal_marble/services/auth.dart';
 import 'package:royal_marble/services/database.dart';
@@ -144,8 +145,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: GestureDetector(
-                        onTap: () {
+                        onTap: () async {
                           //once tapped shall navigate to a page that will show assigned workers
+                          //will present a dialog on the things that could be done
+                          await _showProjectDialog(
+                              projectData: allProjectProvider[index]);
                         },
                         onLongPress: () {
                           //if long pressed it will show a dialog that will allow you to edit or delete project
@@ -360,8 +364,6 @@ class _HomeScreenState extends State<HomeScreen> {
           _isMoving = state.isMoving;
         });
       }
-
-      print('the state: Enabled: $_enabled - Moving: $_isMoving');
     });
   }
 
@@ -462,5 +464,72 @@ class _HomeScreenState extends State<HomeScreen> {
         _pref.setString('userId', userProvider.uid);
       }
     }
+  }
+
+  Future<void> _showProjectDialog({ProjectData projectData}) async {
+    await showDialog(
+        context: context,
+        builder: (_) {
+          return AlertDialog(
+            title: const Text('Project Options'),
+            content: SizedBox(
+              height: _size.height / 4,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 15),
+                    child: Text(
+                      'The following options will allow you to assgin and remove workers from a project',
+                      style: textStyle6,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 15),
+                    child: SizedBox(
+                      width: _size.width / 2,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              const Color.fromARGB(255, 56, 52, 11),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25.0),
+                          ),
+                        ),
+                        onPressed: () async {
+                          //Navigate to a page to assign workers
+                          await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => ProjectGrid(
+                                        selectedProject: projectData,
+                                        currentUser: userProvider,
+                                      )));
+                        },
+                        child: const Text('Assign Workers'),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: _size.width / 2,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red[400],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25.0),
+                        ),
+                      ),
+                      onPressed: () async {
+                        //Navigate to a page to assign workers
+                      },
+                      child: const Text('Remove Workers'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
   }
 }
