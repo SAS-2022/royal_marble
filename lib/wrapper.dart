@@ -47,7 +47,7 @@ class _WrapperState extends State<Wrapper> {
             initialData: [],
             catchError: (context, err) {
               print('the error: $err');
-              return [ProjectData(error: err)];
+              return [];
             },
           ),
         ],

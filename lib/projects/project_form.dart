@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,14 +8,17 @@ import 'package:royal_marble/shared/constants.dart';
 import 'package:royal_marble/shared/loading.dart';
 
 import '../location/google_map_navigation.dart';
+import '../models/user_model.dart';
 import '../services/database.dart';
 import '../shared/snack_bar.dart';
 
 class ProjectForm extends StatefulWidget {
-  const ProjectForm({Key key, this.selectedProject, this.isNewProject})
+  const ProjectForm(
+      {Key key, this.selectedProject, this.isNewProject, this.allWorkers})
       : super(key: key);
   final ProjectData selectedProject;
   final bool isNewProject;
+  final List<UserData> allWorkers;
 
   @override
   State<ProjectForm> createState() => _ProjectFormState();
@@ -30,18 +32,24 @@ class _ProjectFormState extends State<ProjectForm> {
   ProjectData newProject = ProjectData();
   final db = DatabaseService();
   final _snackBarWidget = SnackBarWidget();
+  UserData selectedUser;
+  List<UserData> addedUsers = [];
 
   @override
   void initState() {
     super.initState();
     _snackBarWidget.context = context;
+    newProject = widget.selectedProject;
+
+    if (widget.allWorkers != null && widget.allWorkers.isNotEmpty) {
+      selectedUser = widget.allWorkers[0];
+      print('the selected user: ${selectedUser.firstName}');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     _size = MediaQuery.of(context).size;
-    print(
-        'the project name: ${widget.selectedProject.uid} - ${widget.selectedProject.projectName}');
     return Scaffold(
       appBar: AppBar(
         title: const Text('Project Form'),
@@ -65,6 +73,9 @@ class _ProjectFormState extends State<ProjectForm> {
 
   //will allow to build a current project
   Widget _buildProjectBody() {
+    if (widget.allWorkers.isNotEmpty) {
+      selectedUser = widget.allWorkers[0];
+    }
     return widget.selectedProject.uid != null
         ? Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 35),
@@ -404,6 +415,131 @@ class _ProjectFormState extends State<ProjectForm> {
                                   if (_formKey.currentState.validate()) {
                                     var result = await db.addNewProject(
                                         project: newProject);
+                                    if (result == 'Completed') {
+                                      Navigator.pop(context);
+                                    } else {
+                                      _snackBarWidget.content =
+                                          'failed to update account, please contact developer';
+                                      _snackBarWidget.showSnack();
+                                    }
+                                  }
+                                },
+                                child: const Text(
+                                  'Submit',
+                                  style: textStyle2,
+                                )),
+                          )
+                        : const SizedBox.shrink(),
+
+                    !_editContent
+                        ? Container(
+                            alignment: AlignmentDirectional.centerStart,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.all(
+                                Radius.circular(15.0),
+                              ),
+                              border:
+                                  Border.all(width: 1.0, color: Colors.grey),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButtonFormField<UserData>(
+                                decoration: const InputDecoration.collapsed(
+                                    hintText: ''),
+                                isExpanded: true,
+                                value: selectedUser,
+                                hint: const Center(
+                                  child: Text(
+                                    'Select User',
+                                  ),
+                                ),
+                                onChanged: (UserData val) {
+                                  if (val != null) {
+                                    setState(() {
+                                      selectedUser = val;
+                                      if (!addedUsers.contains(val)) {
+                                        addedUsers.add(val);
+                                      }
+                                    });
+                                  }
+                                },
+                                selectedItemBuilder: (BuildContext context) {
+                                  return widget.allWorkers
+                                      .map<Widget>(
+                                        (item) => Center(
+                                          child: Text(
+                                            '${item.firstName} ${item.lastName}',
+                                            style: textStyle5,
+                                          ),
+                                        ),
+                                      )
+                                      .toList();
+                                },
+                                validator: (val) =>
+                                    val == null ? 'Please select User' : null,
+                                items: widget.allWorkers
+                                    .map((item) => DropdownMenuItem<UserData>(
+                                          value: item,
+                                          child: Center(
+                                              child: Text(
+                                            '${item.firstName} ${item.lastName}',
+                                            style: textStyle5,
+                                          )),
+                                        ))
+                                    .toList(),
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                    !_editContent
+                        ? SizedBox(
+                            height: _size.height / 4,
+                            width: _size.width / 2,
+                            child: ListView.builder(
+                              itemCount: addedUsers.length,
+                              itemBuilder: ((context, index) => Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10, horizontal: 20),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          border: Border.all(),
+                                          borderRadius:
+                                              BorderRadius.circular(20)),
+                                      padding: const EdgeInsets.all(12),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          addedUsers.removeAt(index);
+                                          setState(() {});
+                                        },
+                                        child: Text(
+                                            '${addedUsers[index].firstName} ${addedUsers[index].lastName}'),
+                                      ),
+                                    ),
+                                  )),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                    !_editContent && addedUsers.isNotEmpty
+                        ? Center(
+                            child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        const Color.fromARGB(255, 191, 180, 66),
+                                    fixedSize: Size(_size.width / 2, 45),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(25))),
+                                onPressed: () async {
+                                  if (addedUsers.isNotEmpty) {
+                                    List<String> userIds = [];
+                                    for (var element in addedUsers) {
+                                      userIds.add(element.uid);
+                                    }
+
+                                    var result =
+                                        await db.updateProjectWithWorkers(
+                                            project: widget.selectedProject,
+                                            selectedUserIds: userIds);
                                     if (result == 'Completed') {
                                       Navigator.pop(context);
                                     } else {

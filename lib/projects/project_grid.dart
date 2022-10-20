@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:royal_marble/models/business_model.dart';
@@ -33,7 +34,12 @@ class ProjectGrid extends StatelessWidget {
                   print('Error getting Project: $err');
                   return ProjectData(error: err);
                 },
-              )
+              ),
+        StreamProvider<List<UserData>>.value(
+          value: db.getAllWorkers(),
+          initialData: [],
+          catchError: (context, error) => [UserData(error: error)],
+        )
       ],
       child: ProjectList(
         currentUser: currentUser,

@@ -18,15 +18,18 @@ class ProjectList extends StatefulWidget {
 
 class _ProjectListState extends State<ProjectList> {
   var projectProvider;
+  List<UserData> allWorkers;
   Size size;
   @override
   Widget build(BuildContext context) {
     size = MediaQuery.of(context).size;
     if (widget.singleProject != null) {
       projectProvider = Provider.of<ProjectData>(context);
+      allWorkers = Provider.of<List<UserData>>(context);
       return ProjectForm(
         selectedProject: projectProvider,
         isNewProject: false,
+        allWorkers: allWorkers,
       );
     } else {
       projectProvider = Provider.of<List<ProjectData>>(context);
@@ -55,16 +58,20 @@ class _ProjectListState extends State<ProjectList> {
                         border: Border.all(),
                         borderRadius: BorderRadius.circular(15)),
                     child: GestureDetector(
-                      onTap: () async {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => ProjectForm(
-                                    selectedProject: projectProvider[index],
-                                    isNewProject: false,
-                                  )),
-                        );
-                      },
+                      onTap: allWorkers != null && allWorkers.isNotEmpty
+                          ? () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => ProjectForm(
+                                          selectedProject:
+                                              projectProvider[index],
+                                          isNewProject: false,
+                                          allWorkers: allWorkers,
+                                        )),
+                              );
+                            }
+                          : null,
                       child: ListTile(
                         title: Text(
                           projectProvider[index].projectName.toUpperCase(),

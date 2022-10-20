@@ -31,7 +31,7 @@ class ProjectData {
   String emailAddress;
   List<dynamic> projectVisits;
   String userId;
-  List<Map<String, dynamic>> assignedWorkers;
+  List<dynamic> assignedWorkers;
   String error;
   ProjectData(
       {this.uid,

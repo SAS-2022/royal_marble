@@ -74,6 +74,10 @@ void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
       bool enabled = headlessEvent.event;
       print('ProviderChangeEvent: $enabled');
       break;
+    case bg.Event.ACTIVITYCHANGE:
+      bg.ActivityChangeEvent activity = headlessEvent.event;
+      print('Activity Changed: $activity');
+      break;
   }
 }
 

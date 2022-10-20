@@ -145,6 +145,14 @@ class DatabaseService {
     return userCollection.snapshots().map(_allUserDataFromSnapshot);
   }
 
+  Stream<List<UserData>> getAllWorkers() {
+    return userCollection
+        .where('roles', arrayContains: 'isNormalUser')
+        .orderBy('firstName', descending: false)
+        .snapshots()
+        .map(_allUserDataFromSnapshot);
+  }
+
   //User data from snapshot
   UserData _singleUserDataFromSnapshot(DocumentSnapshot snapshot) {
     var data = snapshot.data() as Map<String, dynamic>;
@@ -398,6 +406,50 @@ class DatabaseService {
         'salesInCharge': project.userId,
         'assignedWorkers': project.assignedWorkers,
       }).then((value) => 'Completed');
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return 'Error: $e';
+    }
+  }
+
+  //update project with assigned users
+  //we will update the project with a list of users ids
+  //we will update each user with the assigned project and its coordinates
+  Future<String> updateProjectWithWorkers(
+      {ProjectData project, List<String> selectedUserIds}) async {
+    try {
+      //update the project data first
+      var result = await projectCollection
+          .doc(project.uid)
+          .update({
+            'assignedWorkers': selectedUserIds,
+          })
+          .then((value) => 'Completed')
+          .catchError((err) => 'Error: $err');
+
+      if (result == 'Completed') {
+        var userResult;
+        for (var user in selectedUserIds) {
+          userResult = await userCollection
+              .doc(user)
+              .update({
+                'assignedProject': {
+                  'id': project.uid,
+                  'name': project.projectName,
+                  'projectAddress': project.projectAddress,
+                  'radius': project.radius,
+                }
+              })
+              .then((value) => 'Completed')
+              .catchError((err) {
+                print('Error updating users: $err');
+                return err;
+              });
+        }
+        return userResult;
+      } else {
+        return '[Failed]: $result';
+      }
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
       return 'Error: $e';
