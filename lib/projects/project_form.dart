@@ -34,17 +34,15 @@ class _ProjectFormState extends State<ProjectForm> {
   final _snackBarWidget = SnackBarWidget();
   UserData selectedUser;
   List<UserData> addedUsers = [];
+  Future _checkAssignedWorkers;
+  List<UserData> workerOnThisProject = [];
 
   @override
   void initState() {
     super.initState();
     _snackBarWidget.context = context;
     newProject = widget.selectedProject;
-
-    if (widget.allWorkers != null && widget.allWorkers.isNotEmpty) {
-      selectedUser = widget.allWorkers[0];
-      print('the selected user: ${selectedUser.firstName}');
-    }
+    _checkAssignedWorkers = checkProjectWorkers();
   }
 
   @override
@@ -69,6 +67,26 @@ class _ProjectFormState extends State<ProjectForm> {
       ),
       body: !widget.isNewProject ? _buildProjectBody() : _buildNewProjectForm(),
     );
+  }
+
+  Future<List<UserData>> checkProjectWorkers() async {
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (widget.allWorkers != null && widget.allWorkers.isNotEmpty) {
+        for (var worker in widget.allWorkers) {
+          //print('A worker: ${worker.toString()}');
+          if (worker.assignedProject != null &&
+              worker.assignedProject['id'] == widget.selectedProject.uid) {
+            workerOnThisProject.add(worker);
+          }
+
+          setState(() {});
+        }
+
+        return workerOnThisProject;
+      }
+    });
+
+    return workerOnThisProject;
   }
 
   //will allow to build a current project
@@ -405,7 +423,7 @@ class _ProjectFormState extends State<ProjectForm> {
                         ? Center(
                             child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                    primary:
+                                    backgroundColor:
                                         const Color.fromARGB(255, 191, 180, 66),
                                     fixedSize: Size(_size.width / 2, 45),
                                     shape: RoundedRectangleBorder(
@@ -492,32 +510,69 @@ class _ProjectFormState extends State<ProjectForm> {
                           )
                         : const SizedBox.shrink(),
                     !_editContent
-                        ? SizedBox(
-                            height: _size.height / 4,
-                            width: _size.width / 2,
-                            child: ListView.builder(
-                              itemCount: addedUsers.length,
-                              itemBuilder: ((context, index) => Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 10, horizontal: 20),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          border: Border.all(),
-                                          borderRadius:
-                                              BorderRadius.circular(20)),
-                                      padding: const EdgeInsets.all(12),
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          addedUsers.removeAt(index);
-                                          setState(() {});
-                                        },
-                                        child: Text(
-                                            '${addedUsers[index].firstName} ${addedUsers[index].lastName}'),
-                                      ),
-                                    ),
-                                  )),
-                            ),
-                          )
+                        ? FutureBuilder(
+                            future: _checkAssignedWorkers,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                print(
+                                    'what is happening here - ${snapshot.data}');
+                                addedUsers = snapshot.data;
+                                print('the added users: $addedUsers');
+                                return SizedBox(
+                                  height: _size.height / 4,
+                                  width: _size.width / 2,
+                                  child: ListView.builder(
+                                    itemCount: addedUsers.length,
+                                    itemBuilder: ((context, index) => Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 10, horizontal: 20),
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                                border: Border.all(),
+                                                borderRadius:
+                                                    BorderRadius.circular(20)),
+                                            padding: const EdgeInsets.all(12),
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                addedUsers.removeAt(index);
+                                                setState(() {});
+                                              },
+                                              child: Text(
+                                                  '${addedUsers[index].firstName} ${addedUsers[index].lastName}'),
+                                            ),
+                                          ),
+                                        )),
+                                  ),
+                                );
+                              } else {
+                                return SizedBox(
+                                  height: _size.height / 4,
+                                  width: _size.width / 2,
+                                  child: ListView.builder(
+                                    itemCount: addedUsers.length,
+                                    itemBuilder: ((context, index) => Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 10, horizontal: 20),
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                                border: Border.all(),
+                                                borderRadius:
+                                                    BorderRadius.circular(20)),
+                                            padding: const EdgeInsets.all(12),
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                addedUsers.removeAt(index);
+                                                setState(() {});
+                                              },
+                                              child: Text(
+                                                  '${addedUsers[index].firstName} ${addedUsers[index].lastName}'),
+                                            ),
+                                          ),
+                                        )),
+                                  ),
+                                );
+                              }
+                            })
                         : const SizedBox.shrink(),
                     !_editContent && addedUsers.isNotEmpty
                         ? Center(

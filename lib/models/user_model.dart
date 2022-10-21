@@ -28,4 +28,9 @@ class UserData {
     this.assignedProject,
     this.error,
   });
+
+  @override
+  String toString() {
+    return 'UserData(uid: $uid, firstName: $firstName, lastName: $lastName, emailAddress: $emailAddress, phoneNumber: $phoneNumber, homeAddress: $homeAddress, currentLocation: $currentLocation, roles: $roles, nationality: $nationality, assignedProject: $assignedProject, company: $company, isActive: $isActive, error: $error)';
+  }
 }

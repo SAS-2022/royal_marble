@@ -167,6 +167,7 @@ class DatabaseService {
       roles: data['roles'],
       company: data['company'],
       homeAddress: data['homeAddress'],
+      assignedProject: data['assignedProject'],
       currentLocation: data['currentLocation'],
     );
   }
@@ -185,6 +186,7 @@ class DatabaseService {
         roles: data['roles'],
         company: data['company'],
         homeAddress: data['homeAddress'],
+        assignedProject: data['assignedProject'],
         currentLocation: data['currentLocation'],
       );
     }).toList();

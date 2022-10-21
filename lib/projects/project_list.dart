@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/projects/project_form.dart';
+import 'package:royal_marble/shared/loading.dart';
 
 import '../shared/constants.dart';
 
@@ -26,11 +27,13 @@ class _ProjectListState extends State<ProjectList> {
     if (widget.singleProject != null) {
       projectProvider = Provider.of<ProjectData>(context);
       allWorkers = Provider.of<List<UserData>>(context);
-      return ProjectForm(
-        selectedProject: projectProvider,
-        isNewProject: false,
-        allWorkers: allWorkers,
-      );
+      return allWorkers.isNotEmpty
+          ? ProjectForm(
+              selectedProject: projectProvider,
+              isNewProject: false,
+              allWorkers: allWorkers,
+            )
+          : const Loading();
     } else {
       projectProvider = Provider.of<List<ProjectData>>(context);
       return Scaffold(
