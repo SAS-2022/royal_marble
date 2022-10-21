@@ -158,6 +158,58 @@ class _ProjectFormState extends State<ProjectForm> {
                     const SizedBox(
                       height: 15,
                     ),
+                    //project details
+                    _editContent
+                        ? TextFormField(
+                            autofocus: false,
+                            initialValue: widget.selectedProject.projectDetails,
+                            style: textStyle5,
+                            textCapitalization: TextCapitalization.sentences,
+                            maxLines: 3,
+                            decoration: InputDecoration(
+                              filled: true,
+                              label: const Text('Project Details'),
+                              hintText: 'Ex: The project is about',
+                              fillColor: Colors.grey[100],
+                              enabledBorder: const OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(15.0)),
+                                  borderSide: BorderSide(color: Colors.grey)),
+                              focusedBorder: const OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(15.0)),
+                                  borderSide: BorderSide(color: Colors.green)),
+                            ),
+                            validator: (val) => val.isEmpty
+                                ? 'Project details cannot be empty'
+                                : null,
+                            onChanged: (val) {
+                              setState(() {
+                                newProject.projectDetails = val.trim();
+                              });
+                            },
+                          )
+                        : Row(children: [
+                            const Expanded(
+                              flex: 1,
+                              child: Text(
+                                'Project Details',
+                                style: textStyle5,
+                              ),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Text(
+                                widget.selectedProject.projectDetails,
+                                style: textStyle3,
+                              ),
+                            )
+                          ]),
+                    const SizedBox(
+                      height: 15,
+                    ),
+
+                    //project contractor
                     _editContent
                         ? TextFormField(
                             autofocus: false,
@@ -514,10 +566,8 @@ class _ProjectFormState extends State<ProjectForm> {
                             future: _checkAssignedWorkers,
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
-                                print(
-                                    'what is happening here - ${snapshot.data}');
                                 addedUsers = snapshot.data;
-                                print('the added users: $addedUsers');
+
                                 return SizedBox(
                                   height: _size.height / 4,
                                   width: _size.width / 2,

@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/projects/project_grid.dart';
+import 'package:royal_marble/projects/worker_current_state.dart';
 import 'package:royal_marble/screens/profile_drawer.dart';
 import 'package:royal_marble/services/auth.dart';
 import 'package:royal_marble/services/database.dart';
@@ -159,27 +160,91 @@ class _HomeScreenState extends State<HomeScreen> {
                           height: 80,
                           width: _size.width / 2,
                           decoration: BoxDecoration(
-                              border: Border.all(),
+                              color: const Color.fromARGB(255, 186, 186, 130),
+                              boxShadow: [
+                                BoxShadow(
+                                    color: Colors.grey[500],
+                                    offset: const Offset(-4, 4),
+                                    spreadRadius: 1)
+                              ],
+                              border: Border.all(width: 2),
                               borderRadius: BorderRadius.circular(10)),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'Name: ${allProjectProvider[index].projectName.toUpperCase()}',
-                                style: textStyle5,
+                              Row(
+                                children: [
+                                  const Text(
+                                    'Name: ',
+                                    style: textStyle3,
+                                  ),
+                                  Text(
+                                    allProjectProvider[index]
+                                        .projectName
+                                        .toUpperCase(),
+                                    style: textStyle5,
+                                  ),
+                                ],
                               ),
-                              Text(
-                                'Details: ${allProjectProvider[index].projectDetails}',
-                                style: textStyle5,
+                              Row(
+                                children: [
+                                  const Text(
+                                    'Details: ',
+                                    style: textStyle3,
+                                  ),
+                                  Expanded(
+                                    child: allProjectProvider[index]
+                                                .projectDetails
+                                                .length >
+                                            30
+                                        ? Text(
+                                            '${allProjectProvider[index].projectDetails.characters.take(30)}...',
+                                            style: textStyle5,
+                                          )
+                                        : Text(allProjectProvider[index]
+                                            .projectDetails),
+                                  ),
+                                ],
                               ),
-                              Text(
-                                'Contactor: ${allProjectProvider[index].contactorCompany}',
-                                style: textStyle5,
+                              Row(
+                                children: [
+                                  const Text(
+                                    'Contactor: ',
+                                    style: textStyle3,
+                                  ),
+                                  Text(
+                                    allProjectProvider[index].contactorCompany,
+                                    style: textStyle5,
+                                  ),
+                                ],
                               ),
-                              Text(
-                                'Phone: ${allProjectProvider[index].phoneNumber}',
-                                style: textStyle5,
+                              Row(
+                                children: [
+                                  const Text(
+                                    'Phone: ',
+                                    style: textStyle3,
+                                  ),
+                                  Text(
+                                    allProjectProvider[index].phoneNumber,
+                                    style: textStyle5,
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  const Text(
+                                    'Workers: ',
+                                    style: textStyle3,
+                                  ),
+                                  Text(
+                                    allProjectProvider[index]
+                                        .assignedWorkers
+                                        .length
+                                        .toString(),
+                                    style: textStyle5,
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -522,8 +587,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       onPressed: () async {
                         //Navigate to a page to assign workers
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => WorkerCurrentStream(
+                              selectedProject: projectData,
+                            ),
+                          ),
+                        );
                       },
-                      child: const Text('Remove Workers'),
+                      child: const Text('View Workers State'),
                     ),
                   ),
                 ],
