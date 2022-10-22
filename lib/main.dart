@@ -55,8 +55,8 @@ void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
           distance = (CalculateDistance().distanceBetweenTwoPoints(
                       currentLocation.latitude,
                       currentLocation.longitude,
-                      userDetails.assignedProject['Lat'],
-                      userDetails.assignedProject['Lng'])) *
+                      userDetails.assignedProject['projectAddress']['Lat'],
+                      userDetails.assignedProject['projectAddress']['Lng'])) *
                   1000 -
               userDetails.assignedProject['radius'];
 

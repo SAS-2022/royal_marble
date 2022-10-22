@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -37,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
   SharedPreferences _pref;
   UserData userProvider;
   List<ProjectData> allProjectProvider = [];
+  Future assignedProject;
   final Completer<GoogleMapController> _googleMapController = Completer();
   LatLng currentLocation;
   LocationData startLocation;
@@ -48,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
   double lat, lng;
   int tempCounter = 0;
   Size _size;
-  List<ProjectData> assignedProject = [];
+  // List<ProjectData> assignedProject = [];
   List<dynamic> messages = [];
 
   bool _isMoving;
@@ -288,68 +290,206 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildWorkerHomeScreen() {
     return userProvider.isActive != null && userProvider.isActive
         ? SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 25, left: 15),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  //List of projects assigned two
-                  assignedProject.isEmpty
-                      ? SizedBox(
-                          height: (_size.height / 2) - 50,
-                          child: ListView.builder(
-                              itemCount: assignedProject.length,
-                              itemBuilder: ((context, index) {
-                                return const ListTile(
-                                  title: Text('Project Name'),
-                                  subtitle: Text('Project Details'),
-                                );
-                              })),
-                        )
-                      : const Center(
-                          child: Text(
-                            'You have not been assigned to any project',
-                            style: textStyle3,
-                          ),
+            child: FutureBuilder(
+                future: getUserAssignedProject(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    if (snapshot.connectionState == ConnectionState.waiting ||
+                        snapshot.connectionState == ConnectionState.none) {
+                      return const Center(
+                        child: Loading(),
+                      );
+                    } else {
+                      return Padding(
+                        padding: const EdgeInsets.all(25),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            //List of projects assigned two
+                            userProvider.assignedProject['id'] != null
+                                ? SizedBox(
+                                    width: _size.width - 100,
+                                    height: (_size.height / 2) - 100,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 15, vertical: 15),
+                                      child: GestureDetector(
+                                        onTap: () async {
+                                          //once tapped shall navigate to a page that will show assigned workers
+                                          //will present a dialog on the things that could be done
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.all(12),
+                                          height: 80,
+                                          width: _size.width / 2,
+                                          decoration: BoxDecoration(
+                                              color: userProvider
+                                                          .distanceToProject <=
+                                                      userProvider
+                                                              .assignedProject[
+                                                          'radius']
+                                                  ? Colors.green
+                                                  : Colors.yellowAccent,
+                                              boxShadow: [
+                                                BoxShadow(
+                                                    color: Colors.grey[500],
+                                                    offset: const Offset(-4, 4),
+                                                    spreadRadius: 1)
+                                              ],
+                                              border: Border.all(width: 2),
+                                              borderRadius:
+                                                  BorderRadius.circular(55)),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  const Expanded(
+                                                    flex: 1,
+                                                    child: Text(
+                                                      'Name: ',
+                                                      style: textStyle3,
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Text(
+                                                      snapshot.data.projectName
+                                                          .toUpperCase(),
+                                                      style: textStyle5,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  const Expanded(
+                                                    flex: 1,
+                                                    child: Text(
+                                                      'Details: ',
+                                                      style: textStyle3,
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: snapshot
+                                                                .data
+                                                                .projectDetails
+                                                                .length >
+                                                            60
+                                                        ? Text(
+                                                            '${snapshot.data.projectDetails.toString().characters.take(60)}...',
+                                                            style: textStyle5,
+                                                          )
+                                                        : Text(snapshot.data
+                                                            .projectDetails),
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  const Expanded(
+                                                    flex: 1,
+                                                    child: Text(
+                                                      'On Site: ',
+                                                      style: textStyle3,
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Text(
+                                                      userProvider.distanceToProject <=
+                                                              userProvider
+                                                                      .assignedProject[
+                                                                  'radius']
+                                                          ? 'Yes'
+                                                          : 'No',
+                                                      style: textStyle5,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  const Expanded(
+                                                    flex: 1,
+                                                    child: Text(
+                                                      'Assigned Workers: ',
+                                                      style: textStyle3,
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Text(
+                                                      '${snapshot.data.assignedWorkers.length} workers',
+                                                      style: textStyle5,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ))
+                                : const Center(
+                                    child: Text(
+                                      'You have not been assigned to any project',
+                                      style: textStyle3,
+                                    ),
+                                  ),
+                            const Divider(
+                              height: 25,
+                              thickness: 3,
+                            ),
+                            //Messages from Admin
+                            Padding(
+                              padding: const EdgeInsets.only(top: 20, left: 15),
+                              child: Column(children: [
+                                const Text(
+                                  'Please note this section is dedicated for messages from your manager',
+                                  style: textStyle6,
+                                ),
+                                const SizedBox(
+                                  height: 15,
+                                ),
+                                messages.isEmpty
+                                    ? SizedBox(
+                                        height: (_size.height / 2) - 50,
+                                        child: ListView.builder(
+                                            itemCount: messages.length,
+                                            itemBuilder: (context, index) {
+                                              return const ListTile(
+                                                title: Text('Message Title'),
+                                                subtitle:
+                                                    Text('Message Details'),
+                                              );
+                                            }),
+                                      )
+                                    : const Center(
+                                        child: Text(
+                                          'Currently you have no message',
+                                          style: textStyle3,
+                                        ),
+                                      )
+                              ]),
+                            )
+                          ],
                         ),
-                  const Divider(
-                    height: 25,
-                    thickness: 3,
-                  ),
-                  //Messages from Admin
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20, left: 15),
-                    child: Column(children: [
-                      const Text(
-                        'Please note this section is dedicated for messages from your manager',
-                        style: textStyle6,
+                      );
+                    }
+                  } else {
+                    return const Center(
+                      child: Text(
+                        'No Assigned Projects',
+                        style: textStyle2,
                       ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      messages.isEmpty
-                          ? SizedBox(
-                              height: (_size.height / 2) - 50,
-                              child: ListView.builder(
-                                  itemCount: messages.length,
-                                  itemBuilder: (context, index) {
-                                    return const ListTile(
-                                      title: Text('Message Title'),
-                                      subtitle: Text('Message Details'),
-                                    );
-                                  }),
-                            )
-                          : const Center(
-                              child: Text(
-                                'Currently you have no message',
-                                style: textStyle3,
-                              ),
-                            )
-                    ]),
-                  )
-                ],
-              ),
-            ),
+                    );
+                  }
+                }),
           )
         : const Padding(
             padding: EdgeInsets.symmetric(horizontal: 40),
@@ -362,6 +502,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildSalesHomeScreen() {}
+
+  Future<ProjectData> getUserAssignedProject() async {
+    if (userProvider != null && userProvider.assignedProject != null) {
+      return await db.getPorjectByIdFuture(
+          projectId: userProvider.assignedProject['id']);
+    }
+
+    return null;
+  }
 
   Future<void> _getLocationPermission() async {
     if (await Permission.location.serviceStatus.isEnabled) {
@@ -392,14 +541,15 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     if (position != null) {
       currentLocation = LatLng(position.latitude, position.longitude);
-
+      print(
+          'the user details ${userProvider.uid} ${userProvider.assignedProject['id']} ${userProvider.assignedProject['projectAddress']['Lat']} ${userProvider.assignedProject['projectAddress']['Lng']}');
       //check if user is assgined to a project
-      if (userProvider.assignedProject != null) {
+      if (userProvider.assignedProject != null && currentLocation != null) {
         distance = (CalculateDistance().distanceBetweenTwoPoints(
                     currentLocation.latitude,
                     currentLocation.longitude,
-                    userProvider.assignedProject['Lat'],
-                    userProvider.assignedProject['Lng'])) *
+                    userProvider.assignedProject['projectAddress']['Lat'],
+                    userProvider.assignedProject['projectAddress']['Lng'])) *
                 1000 -
             userProvider.assignedProject['radius'];
 
@@ -456,30 +606,6 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     });
-  }
-
-  void _onClickEnable(enabled) {
-    if (enabled) {
-      bg.BackgroundGeolocation.start().then((bg.State state) {
-        print('[start] success $state');
-        setState(() {
-          _enabled = state.enabled;
-          _isMoving = state.isMoving;
-        });
-      });
-    } else {
-      bg.BackgroundGeolocation.stop().then((bg.State state) {
-        print('[stop] success: $state');
-        // Reset odometer.
-        bg.BackgroundGeolocation.setOdometer(0.0);
-
-        setState(() {
-          _odometer = '0.0';
-          _enabled = state.enabled;
-          _isMoving = state.isMoving;
-        });
-      });
-    }
   }
 
   void _onLocation(bg.Location location) {

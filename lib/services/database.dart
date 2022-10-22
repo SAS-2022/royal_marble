@@ -485,6 +485,8 @@ class DatabaseService {
     }
   }
 
+  //Get projects through streams and Futures
+
   Stream<List<ProjectData>> getAllProjects() {
     return projectCollection.snapshots().map(_listProjectDataFromSnapshot);
   }
@@ -494,6 +496,32 @@ class DatabaseService {
         .doc(projectId)
         .snapshots()
         .map(_projectDataFromSnapshot);
+  }
+
+  Future<ProjectData> getPorjectByIdFuture({String projectId}) async {
+    try {
+      var result = await projectCollection.doc(projectId).get().then((data) {
+        var result = ProjectData(
+            uid: data.id,
+            projectName: data['projectName'],
+            projectDetails: data['projectDetails'],
+            projectAddress: data['selectedAddress'],
+            radius: data['radius'],
+            contactorCompany: data['contractor'],
+            contactPerson: data['contactPerson'],
+            emailAddress: data['emailAddress'],
+            phoneNumber: data['phoneNumber'],
+            userId: data['salesInCharge'],
+            assignedWorkers: data['assignedWorkers']);
+        return result;
+      });
+
+      return result;
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      print('An error obtaining project: $e');
+      return ProjectData(error: e);
+    }
   }
 
   List<ProjectData> _listProjectDataFromSnapshot(QuerySnapshot snapshot) {
