@@ -130,57 +130,55 @@ class _WorkerWidgetState extends State<WorkerWidget> {
     _size = MediaQuery.of(context).size;
 
     return SingleChildScrollView(
-        child: ListTile(
-      leading: const Text('User Photo'),
-      title: Text('${_userProvider.firstName} ${_userProvider.lastName}'),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Mobile: ${_userProvider.phoneNumber}'),
-          Text('Arrived To Site: $_arrivedToSite')
-        ],
+      child: ListTile(
+        leading: const Text('User Photo'),
+        title: Text('${_userProvider.firstName} ${_userProvider.lastName}'),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Mobile: ${_userProvider.phoneNumber}'),
+            Text(
+                'Distance To Site: ${_userProvider.distanceToProject.toString()}')
+          ],
+        ),
+        trailing: Container(
+          width: 20,
+          decoration: BoxDecoration(
+              color: _userProvider.distanceToProject != null &&
+                      _userProvider.distanceToProject <=
+                          _userProvider.assignedProject['radius']
+                  ? Colors.green
+                  : Colors.yellow),
+        ),
       ),
-      trailing: StatefulBuilder(
-        builder: (BuildContext context, setState) {
-          Future.delayed(
-              const Duration(milliseconds: 500), (() => _checkUserLocation()));
-          return Container(
-              width: 20,
-              decoration: BoxDecoration(
-                  color: _arrivedToSite ? Colors.green : Colors.yellow));
-        },
-      ),
-    ));
+    );
   }
 
   //the following function will check if user arrived to the location or not yet
-  _checkUserLocation() {
-    double calculateDistance(lat1, lon1, lat2, lon2) {
-      var p = 0.017453292519943295;
-      var c = cos;
-      var a = 0.5 -
-          c((lat2 - lat1) * p) / 2 +
-          c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
-      return 12742 * asin(sqrt(a));
-    }
+  // _checkUserLocation() {
+  //   double calculateDistance(lat1, lon1, lat2, lon2) {
+  //     var p = 0.017453292519943295;
+  //     var c = cos;
+  //     var a = 0.5 -
+  //         c((lat2 - lat1) * p) / 2 +
+  //         c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+  //     return 12742 * asin(sqrt(a));
+  //   }
 
-    if (_userProvider.currentLocation != null) {
-      totalDistance = calculateDistance(
-          _userProvider.currentLocation['Lat'],
-          _userProvider.currentLocation['Lng'],
-          widget.currentProject.projectAddress['Lat'],
-          widget.currentProject.projectAddress['Lng']);
-
-      print(
-          'the total distance: $totalDistance - ${_userProvider.firstName} ${_userProvider.lastName}');
-      if (totalDistance < (widget.currentProject.radius / 1000)) {
-        _arrivedToSite = true;
-        if (mounted) {
-          setState(() {});
-        }
-      } else {
-        _arrivedToSite = false;
-      }
-    }
-  }
+  //   if (_userProvider.currentLocation != null) {
+  //     totalDistance = calculateDistance(
+  //         _userProvider.currentLocation['Lat'],
+  //         _userProvider.currentLocation['Lng'],
+  //         widget.currentProject.projectAddress['Lat'],
+  //         widget.currentProject.projectAddress['Lng']);
+  //     if (totalDistance < (widget.currentProject.radius / 1000)) {
+  //       _arrivedToSite = true;
+  //       if (mounted) {
+  //         setState(() {});
+  //       }
+  //     } else {
+  //       _arrivedToSite = false;
+  //     }
+  //   }
+  // }
 }

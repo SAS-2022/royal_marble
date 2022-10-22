@@ -10,6 +10,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:royal_marble/services/auth.dart';
 import 'package:royal_marble/services/database.dart';
+import 'package:royal_marble/shared/calculate_distance.dart';
 import 'package:royal_marble/shared/constants.dart';
 import 'package:royal_marble/shared/loading.dart';
 import 'package:royal_marble/wrapper.dart';
@@ -44,18 +45,45 @@ void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
       SharedPreferences _pref = await SharedPreferences.getInstance();
       if (_pref.getString('userId') != null) {
         var userId = _pref.getString('userId');
+        double distance = 5000;
+        //get the current location of the user when they are moving
         var currentLocation =
             LatLng(location.coords.latitude, location.coords.longitude);
-        await db
-            .updateUserLiveLocation(
-                uid: userId, currentLocation: currentLocation)
-            .then((value) {
-          print('the location was updated: $value');
-        }).catchError((err) async {
-          if (err) {
-            //await Sentry.captureException(err);
-          }
-        });
+        //check if the user is assigned to a project
+        UserData userDetails = await db.getUserByIdFuture(uid: userId);
+        if (userDetails.assignedProject != null) {
+          distance = (CalculateDistance().distanceBetweenTwoPoints(
+                      currentLocation.latitude,
+                      currentLocation.longitude,
+                      userDetails.assignedProject['Lat'],
+                      userDetails.assignedProject['Lng'])) *
+                  1000 -
+              userDetails.assignedProject['radius'];
+
+          await db
+              .updateUserLiveLocation(
+                  uid: userId,
+                  currentLocation: currentLocation,
+                  distance: distance)
+              .then((value) {
+            print('the location was updated: $value');
+          }).catchError((err) async {
+            if (err) {
+              //await Sentry.captureException(err);
+            }
+          });
+        } else {
+          await db
+              .updateUserLiveLocation(
+                  uid: userId, currentLocation: currentLocation)
+              .then((value) {
+            print('the location was updated: $value');
+          }).catchError((err) async {
+            if (err) {
+              //await Sentry.captureException(err);
+            }
+          });
+        }
       }
       break;
     case bg.Event.MOTIONCHANGE:
@@ -91,8 +119,6 @@ void backgroundFetchHeadlessTask(HeadlessTask task) async {
     BackgroundFetch.finish(taskId);
     return;
   }
-
-  print('[BackgroundFetch] - Headless TaskId: $taskId');
 
   try {
     var location =

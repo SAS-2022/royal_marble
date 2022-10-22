@@ -9,6 +9,7 @@ class UserData {
   List<dynamic> roles;
   Map<String, dynamic> nationality;
   Map<String, dynamic> assignedProject;
+  var distanceToProject;
   String company;
   bool isActive;
   String error;
@@ -26,6 +27,7 @@ class UserData {
     this.company,
     this.isActive,
     this.assignedProject,
+    this.distanceToProject,
     this.error,
   });
 

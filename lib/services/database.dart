@@ -12,10 +12,8 @@ class DatabaseService {
 
   final CollectionReference userCollection =
       FirebaseFirestore.instance.collection('users');
-
   final CollectionReference clientCollection =
       FirebaseFirestore.instance.collection('clients');
-
   final CollectionReference projectCollection =
       FirebaseFirestore.instance.collection('projects');
 
@@ -54,15 +52,16 @@ class DatabaseService {
 
   //update the user's live location
   Future<String> updateUserLiveLocation(
-      {String uid, LatLng currentLocation}) async {
+      {String uid, LatLng currentLocation, double distance}) async {
     try {
       Map<String, dynamic> newLoc = {
         'Lat': currentLocation.latitude,
         'Lng': currentLocation.longitude,
       };
-      return await userCollection
-          .doc(uid)
-          .update({'currentLocation': newLoc}).then((value) => 'Completed');
+      return await userCollection.doc(uid).update({
+        'currentLocation': newLoc,
+        'distanceToProject': distance,
+      }).then((value) => 'Completed');
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
       return ' $e';
@@ -117,6 +116,7 @@ class DatabaseService {
   //assign user to a project
   Future<String> assignUsersToProject(
       {List<UserData> userIds, ProjectData project}) async {
+    String result;
     try {
       for (UserData user in userIds) {
         Map<String, dynamic> projectDetails = {
@@ -125,10 +125,10 @@ class DatabaseService {
           'Lng': project.projectAddress['Lng'],
           'radius': project.radius,
         };
-        await userCollection
-            .doc(user.uid)
-            .update({'assignedProject': projectDetails});
+        result = await userCollection.doc(user.uid).update(
+            {'assignedProject': projectDetails}).then((value) => 'Completed');
       }
+      return result;
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
       return 'Error: $e';
@@ -153,6 +153,30 @@ class DatabaseService {
         .map(_allUserDataFromSnapshot);
   }
 
+  Future<UserData> getUserByIdFuture({String uid}) async {
+    try {
+      return await userCollection.doc(uid).get().then((data) {
+        return UserData(
+          emailAddress: data['emailAddress'],
+          firstName: data['firstName'],
+          lastName: data['lastName'],
+          phoneNumber: data['phoneNumber'],
+          nationality: data['nationality'],
+          isActive: data['isActive'] ?? false,
+          roles: data['roles'],
+          company: data['company'],
+          homeAddress: data['homeAddress'],
+          assignedProject: data['assignedProject'],
+          distanceToProject: data['distanceToProject'],
+          currentLocation: data['currentLocation'],
+        );
+      });
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return UserData(error: e);
+    }
+  }
+
   //User data from snapshot
   UserData _singleUserDataFromSnapshot(DocumentSnapshot snapshot) {
     var data = snapshot.data() as Map<String, dynamic>;
@@ -168,6 +192,7 @@ class DatabaseService {
       company: data['company'],
       homeAddress: data['homeAddress'],
       assignedProject: data['assignedProject'],
+      distanceToProject: data['distanceToProject'],
       currentLocation: data['currentLocation'],
     );
   }
@@ -187,6 +212,7 @@ class DatabaseService {
         company: data['company'],
         homeAddress: data['homeAddress'],
         assignedProject: data['assignedProject'],
+        distanceToProject: data['distanceToProject'],
         currentLocation: data['currentLocation'],
       );
     }).toList();
@@ -209,6 +235,7 @@ class DatabaseService {
               roles: data['roles'],
               company: data['company'],
               homeAddress: data['homeAddress'],
+              distanceToProject: data['distanceToProject'],
               currentLocation: data['currentLocation']);
         }).toList();
       });

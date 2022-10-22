@@ -13,6 +13,7 @@ import 'package:royal_marble/projects/worker_current_state.dart';
 import 'package:royal_marble/screens/profile_drawer.dart';
 import 'package:royal_marble/services/auth.dart';
 import 'package:royal_marble/services/database.dart';
+import 'package:royal_marble/shared/calculate_distance.dart';
 import 'package:royal_marble/shared/constants.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
@@ -381,6 +382,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //fetch location while running in background
   Future<void> getCurrentLocation() async {
+    double distance;
     geo.Position userLocation = await geo.Geolocator.getCurrentPosition(
         desiredAccuracy: geo.LocationAccuracy.high);
     if (mounted) {
@@ -390,19 +392,43 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     if (position != null) {
       currentLocation = LatLng(position.latitude, position.longitude);
-      db
-          .updateUserLiveLocation(
-              uid: userProvider.uid, currentLocation: currentLocation)
-          .then((value) {
-        setState(() {
-          tempCounter++;
+
+      //check if user is assgined to a project
+      if (userProvider.assignedProject != null) {
+        distance = (CalculateDistance().distanceBetweenTwoPoints(
+                    currentLocation.latitude,
+                    currentLocation.longitude,
+                    userProvider.assignedProject['Lat'],
+                    userProvider.assignedProject['Lng'])) *
+                1000 -
+            userProvider.assignedProject['radius'];
+
+        db
+            .updateUserLiveLocation(
+                uid: userProvider.uid,
+                currentLocation: currentLocation,
+                distance: distance)
+            .then((value) {
+          print('Location updated with Distance');
+        }).catchError((err) {
+          if (err) {
+            _snackBarWidget.content = 'Error getting location: $err';
+            _snackBarWidget.showSnack();
+          }
         });
-      }).catchError((err) {
-        if (err) {
-          _snackBarWidget.content = 'Error getting location: $err';
-          _snackBarWidget.showSnack();
-        }
-      });
+      } else {
+        db
+            .updateUserLiveLocation(
+                uid: userProvider.uid, currentLocation: currentLocation)
+            .then((value) {
+          print('Location updated without Distance');
+        }).catchError((err) {
+          if (err) {
+            _snackBarWidget.content = 'Error getting location: $err';
+            _snackBarWidget.showSnack();
+          }
+        });
+      }
     }
   }
 
@@ -454,33 +480,6 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       });
     }
-  }
-
-  void _onClickGetCurrentPosition() {
-    bg.BackgroundGeolocation.getCurrentPosition(
-            persist: false, // <-- do not persist this location
-            desiredAccuracy: 0, // <-- desire best possible accuracy
-            timeout: 30000, // <-- wait 30s before giving up.
-            samples: 3 // <-- sample 3 location before selecting best.
-            )
-        .then((bg.Location location) {
-      print('[getCurrentPosition] - $location');
-    }).catchError((error) {
-      print('[getCurrentPosition] ERROR: $error');
-    });
-  }
-
-  void _onClickChangePace() {
-    setState(() {
-      _isMoving = !_isMoving;
-    });
-    print("[onClickChangePace] -> $_isMoving");
-
-    bg.BackgroundGeolocation.changePace(_isMoving).then((bool isMoving) {
-      print('[changePace] success $isMoving');
-    }).catchError((e) {
-      print('[changePace] ERROR: ' + e.code.toString());
-    });
   }
 
   void _onLocation(bg.Location location) {
