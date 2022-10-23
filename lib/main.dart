@@ -17,7 +17,6 @@ import 'package:royal_marble/wrapper.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'location/.env.dart';
 import 'models/user_model.dart';
 import 'package:background_fetch/background_fetch.dart';
 
@@ -30,78 +29,61 @@ void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
       bg.State state = await bg.BackgroundGeolocation.state;
       print("didDeviceReboot: ${state.didDeviceReboot}");
       break;
-    case bg.Event.TERMINATE:
-      try {
-        bg.Location location =
-            await bg.BackgroundGeolocation.getCurrentPosition(
-                samples: 1, extras: {"event": "terminate", "headless": true});
-        print("[getCurrentPosition] Headless: $location");
-      } catch (error) {
-        print("[getCurrentPosition] Headless ERROR: $error");
-      }
+    case bg.Event.MOTIONCHANGE:
+      bg.Location location = headlessEvent.event;
+      print('the location: ${location.isMoving} - ${location.odometer}');
       break;
     case bg.Event.LOCATION:
       bg.Location location = headlessEvent.event;
       SharedPreferences _pref = await SharedPreferences.getInstance();
       if (_pref.getString('userId') != null) {
         var userId = _pref.getString('userId');
-        double distance = 5000;
+        // double distance = 5000;
         //get the current location of the user when they are moving
         var currentLocation =
             LatLng(location.coords.latitude, location.coords.longitude);
         //check if the user is assigned to a project
-        UserData userDetails = await db.getUserByIdFuture(uid: userId);
-        if (userDetails.assignedProject != null) {
-          distance = (CalculateDistance().distanceBetweenTwoPoints(
-                      currentLocation.latitude,
-                      currentLocation.longitude,
-                      userDetails.assignedProject['projectAddress']['Lat'],
-                      userDetails.assignedProject['projectAddress']['Lng'])) *
-                  1000 -
-              userDetails.assignedProject['radius'];
+        // UserData userDetails = await db.getUserByIdFuture(uid: userId);
+        // if (userDetails.assignedProject != null) {
+        //   distance = (CalculateDistance().distanceBetweenTwoPoints(
+        //               currentLocation.latitude,
+        //               currentLocation.longitude,
+        //               userDetails.assignedProject['projectAddress']['Lat'],
+        //               userDetails.assignedProject['projectAddress']['Lng'])) *
+        //           1000 -
+        //       userDetails.assignedProject['radius'];
 
-          await db
-              .updateUserLiveLocation(
-                  uid: userId,
-                  currentLocation: currentLocation,
-                  distance: distance)
-              .then((value) {
-            print('the location was updated: $value');
-          }).catchError((err) async {
-            if (err) {
-              //await Sentry.captureException(err);
-            }
-          });
-        } else {
-          await db
-              .updateUserLiveLocation(
-                  uid: userId, currentLocation: currentLocation)
-              .then((value) {
-            print('the location was updated: $value');
-          }).catchError((err) async {
-            if (err) {
-              //await Sentry.captureException(err);
-            }
-          });
-        }
+        //   await db
+        //       .updateUserLiveLocation(
+        //           uid: userId,
+        //           currentLocation: currentLocation,
+        //           distance: distance)
+        //       .then((value) {
+        //     print('the location was updated: $value');
+        //   }).catchError((err) async {
+        //     if (err) {}
+        //   });
+        // } else {
+        //   await db
+        //       .updateUserLiveLocation(
+        //           uid: userId, currentLocation: currentLocation)
+        //       .then((value) {
+        //     print('the location was updated: $value');
+        //   }).catchError((err) async {
+        //     if (err) {}
+        //   });
+        // }
+        await db
+            .updateUserLiveLocation(
+                uid: userId, currentLocation: currentLocation)
+            .then((value) {
+          print('the location was updated: $value');
+        }).catchError((err) async {
+          if (err) {}
+        });
       }
       break;
-    case bg.Event.MOTIONCHANGE:
-      bg.Location location = headlessEvent.event;
-      print('- Location: $location');
-      break;
-    case bg.Event.GEOFENCE:
-      bg.GeofenceEvent geofenceEvent = headlessEvent.event;
-      print('- GeofenceEvent: $geofenceEvent');
-      break;
-    case bg.Event.GEOFENCESCHANGE:
-      bg.GeofencesChangeEvent event = headlessEvent.event;
-      print('- GeofencesChangeEvent: $event');
-      break;
-    case bg.Event.POWERSAVECHANGE:
-      bool enabled = headlessEvent.event;
-      print('ProviderChangeEvent: $enabled');
-      break;
+
     case bg.Event.ACTIVITYCHANGE:
       bg.ActivityChangeEvent activity = headlessEvent.event;
       print('Activity Changed: $activity');
@@ -167,7 +149,7 @@ class MyApp extends StatelessWidget {
             catchError: (context, err) => UserData(error: err.toString())),
       ],
       child: MaterialApp(
-        title: 'Flutter Demo',
+        title: 'Royal Marble',
         debugShowCheckedModeBanner: false,
         routes: <String, WidgetBuilder>{'/home': (context) => const Wrapper()},
         home: const SplashScreen(),
@@ -241,7 +223,7 @@ class _SplashScreenState extends State<SplashScreen> {
         fit: StackFit.expand,
         children: <Widget>[
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Color.fromARGB(255, 105, 96, 15),
             ),
           ),

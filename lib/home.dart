@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
@@ -22,7 +23,7 @@ import 'package:royal_marble/shared/loading.dart';
 import 'package:royal_marble/shared/snack_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-JsonEncoder encoder = new JsonEncoder.withIndent("     ");
+JsonEncoder encoder = const JsonEncoder.withIndent("     ");
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key key}) : super(key: key);
@@ -65,12 +66,14 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _snackBarWidget.context = context;
-    _isMoving = false;
+
     _enabled = true;
     _content = '';
     _motionActivity = 'UNKNOWN';
     _odometer = '0';
     _getLocationPermission();
+    _onClickEnable(_enabled);
+    //_onClickChangePace();
 
     Future.delayed(const Duration(seconds: 10), () => detectMotion());
     Future.delayed(const Duration(seconds: 5), () => _setUserId());
@@ -78,6 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     userProvider = Provider.of<UserData>(context);
     allProjectProvider = Provider.of<List<ProjectData>>(context);
     _size = MediaQuery.of(context).size;
@@ -241,10 +245,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                     style: textStyle3,
                                   ),
                                   Text(
-                                    allProjectProvider[index]
-                                        .assignedWorkers
-                                        .length
-                                        .toString(),
+                                    allProjectProvider[index].assignedWorkers !=
+                                            null
+                                        ? allProjectProvider[index]
+                                            .assignedWorkers
+                                            .length
+                                            .toString()
+                                        : 'None',
                                     style: textStyle5,
                                   ),
                                 ],
@@ -272,7 +279,6 @@ class _HomeScreenState extends State<HomeScreen> {
           thickness: 3,
         ),
         //Sales team section
-
         userProvider.isActive != null && userProvider.isActive
             ? const SizedBox.shrink()
             : const Padding(
@@ -463,6 +469,20 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     //Messages from Admin
                     Padding(
+                        padding: const EdgeInsets.only(top: 20, left: 15),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Distance Location: $_distanceLocation',
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                          ],
+                        )),
+
+                    Padding(
                       padding: const EdgeInsets.only(top: 20, left: 15),
                       child: Column(children: [
                         const Text(
@@ -607,7 +627,8 @@ class _HomeScreenState extends State<HomeScreen> {
     bg.BackgroundGeolocation.onMotionChange(_onMotionChange);
     bg.BackgroundGeolocation.ready(bg.Config(
             desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
-            distanceFilter: 2.0,
+            distanceFilter: 20.0,
+            autoSync: true,
             stopOnTerminate: false,
             startOnBoot: true,
             debug: false,
@@ -621,8 +642,8 @@ class _HomeScreenState extends State<HomeScreen> {
         .then((bg.State state) {
       if (mounted) {
         setState(() {
-          _enabled = state.enabled;
-          _isMoving = state.isMoving;
+          //_enabled = state.enabled;
+          //_isMoving = state.isMoving;
         });
       }
     });
@@ -651,7 +672,6 @@ class _HomeScreenState extends State<HomeScreen> {
     String odometerKM = (location.odometer / 1000.0).toStringAsFixed(1);
     double odometerMEd = location.odometer;
     String odometerME = (location.odometer).toStringAsFixed(2);
-
     if (mounted) {
       setState(() {
         _odometer = odometerKM;
@@ -674,6 +694,49 @@ class _HomeScreenState extends State<HomeScreen> {
         _pref.setString('userId', userProvider.uid);
       }
     }
+  }
+
+  void _onClickEnable(enabled) async {
+    if (enabled) {
+      callback(bg.State state) async {
+        print('[start] success: $state');
+        setState(() {
+          _enabled = state.enabled;
+          _isMoving = state.isMoving;
+        });
+      }
+
+      bg.State state = await bg.BackgroundGeolocation.state;
+      if (state.trackingMode == 1) {
+        bg.BackgroundGeolocation.start().then(callback);
+      } else {
+        bg.BackgroundGeolocation.startGeofences().then(callback);
+      }
+    } else {
+      callback(bg.State state) {
+        print('[stop] success: $state');
+        setState(() {
+          _enabled = state.enabled;
+          _isMoving = state.isMoving;
+        });
+      }
+
+      bg.BackgroundGeolocation.stop().then(callback);
+    }
+  }
+
+  // Manually toggle the tracking state:  moving vs stationary
+  void _onClickChangePace() {
+    setState(() {
+      _isMoving = !_isMoving;
+    });
+    print("[onClickChangePace] -> $_isMoving");
+
+    bg.BackgroundGeolocation.changePace(_isMoving).then((bool isMoving) {
+      print('[changePace] success $isMoving');
+    }).catchError((e) {
+      print('[changePace] ERROR: ' + e.code.toString());
+    });
   }
 
   Future<void> _showProjectDialog({ProjectData projectData}) async {

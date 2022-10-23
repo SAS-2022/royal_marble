@@ -1,5 +1,4 @@
 import 'dart:collection';
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -9,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:royal_marble/location/.env.dart';
 import 'package:royal_marble/location/direction_repo.dart';
 import 'package:royal_marble/models/business_model.dart';
+import 'package:royal_marble/projects/project_form.dart';
 import 'package:royal_marble/shared/constants.dart';
 import 'package:royal_marble/shared/snack_bar.dart';
 import '../models/directions.dart';
@@ -192,7 +192,7 @@ class _ShowMapState extends State<ShowMap> {
     }
   }
 
-  void _getLocationName(coordinates) async {
+  Future<void> _getLocationName(coordinates) async {
     await placemarkFromCoordinates(coordinates.latitude, coordinates.longitude)
         .catchError((err) {
       print('Error obtaining location name: $err');
@@ -202,7 +202,7 @@ class _ShowMapState extends State<ShowMap> {
   }
 
   //Will open a small dialog to assign details for a certain location
-  void _assignCircleLocation(LatLng coordinates) async {
+  void assignCircleLocation(LatLng coordinates) async {
     ProjectData _projectData = ProjectData();
     double radius;
     List<double> availableRadius = [100, 200, 400, 600, 1000];
@@ -561,11 +561,30 @@ class _ShowMapState extends State<ShowMap> {
         child: Stack(children: [
           userProvider != null
               ? GoogleMap(
-                  onLongPress: (coordinates) {
+                  onLongPress: (coordinates) async {
                     //assing circule
                     if (coordinates != null) {
-                      _assignCircleLocation(coordinates);
-                      setState(() {});
+                      var betterName = '';
+                      await _getLocationName(coordinates);
+                      locationName.replaceAll(' ', '');
+                      var theName = locationName.split('\n');
+                      for (var i = 0; i < 7; i++) {
+                        betterName += theName[i].trimLeft();
+                      }
+
+                      var projectLocation = {
+                        'Lat': coordinates.latitude,
+                        'Lng': coordinates.longitude,
+                        'addressName': betterName
+                      };
+
+                      await Navigator.push(context,
+                          MaterialPageRoute(builder: (_) {
+                        return ProjectForm(
+                          projectLocation: projectLocation,
+                          isNewProject: true,
+                        );
+                      }));
                     }
                   },
                   onTap: (coordinates) {
@@ -661,30 +680,6 @@ class _ShowMapState extends State<ShowMap> {
               ),
             ),
           ),
-        ])
-
-        // StreamBuilder(
-        //   builder: (context, snapshot) {
-        //     if (snapshot.hasData) {
-        //       if (snapshot.connectionState == ConnectionState.done &&
-        //           _center != null) {
-
-        //       } else {
-        //         return const Center(
-        //           child: CircularProgressIndicator(),
-        //         );
-        //       }
-        //     } else if (snapshot.hasError) {
-        //       return Center(
-        //         child: Text('${snapshot.error}'),
-        //       );
-        //     } else {
-        //       return const Center(
-        //         child: Loading(),
-        //       );
-        //     }
-        //   },
-        //),
-        );
+        ]));
   }
 }

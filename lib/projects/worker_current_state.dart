@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/services/database.dart';
+import 'package:royal_marble/shared/constants.dart';
 import 'package:royal_marble/shared/loading.dart';
 import '../models/user_model.dart';
 
@@ -95,7 +96,10 @@ class _WorkerCurrentStateState extends State<WorkerCurrentState> {
                         );
                       })
                   : const Center(
-                      child: Loading(),
+                      child: Text(
+                        'No Workers were assigned to this project!',
+                        style: textStyle3,
+                      ),
                     ),
             ),
           ),

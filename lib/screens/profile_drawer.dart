@@ -12,6 +12,7 @@ import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/sales_pipeline/visit_forms.dart/visit_form_streams.dart';
 import 'package:royal_marble/services/auth.dart';
 import 'package:royal_marble/services/database.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileDrawer extends StatefulWidget {
   const ProfileDrawer({Key key, this.currentUser}) : super(key: key);
@@ -25,6 +26,7 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
   Size size;
   final db = DatabaseService();
   final _auth = AuthService();
+  SharedPreferences _pref;
 
   @override
   Widget build(BuildContext context) {
@@ -213,6 +215,9 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                             ),
                             onPressed: () async {
                               await _auth.signOut();
+                              //clear sharedpreference data
+                              _pref = await SharedPreferences.getInstance();
+                              _pref.clear();
                               Navigator.pushNamedAndRemoveUntil(
                                   context, '/home', (route) => false);
                             },
