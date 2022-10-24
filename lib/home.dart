@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:background_geolocation_firebase/background_geolocation_firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart' as geo;
@@ -13,7 +13,6 @@ import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/projects/project_grid.dart';
 import 'package:royal_marble/projects/worker_current_state.dart';
 import 'package:royal_marble/screens/profile_drawer.dart';
-import 'package:royal_marble/services/auth.dart';
 import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/shared/calculate_distance.dart';
 import 'package:royal_marble/shared/constants.dart';
@@ -33,7 +32,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final _authService = AuthService();
   final db = DatabaseService();
   SnackBarWidget _snackBarWidget = SnackBarWidget();
   SharedPreferences _pref;
@@ -56,27 +54,92 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool _isMoving;
   bool _enabled;
+  bool _persistEnabled;
   String _motionActivity;
   String _odometer;
   String _content;
   String _distanceLocation;
   String _distanceMotion;
+  String _locationJSON;
 
   @override
   void initState() {
     super.initState();
+
     _snackBarWidget.context = context;
 
     _enabled = true;
+    _persistEnabled = true;
     _content = '';
     _motionActivity = 'UNKNOWN';
     _odometer = '0';
     _getLocationPermission();
     _onClickEnable(_enabled);
     //_onClickChangePace();
-
-    Future.delayed(const Duration(seconds: 10), () => detectMotion());
     Future.delayed(const Duration(seconds: 5), () => _setUserId());
+    Future.delayed(const Duration(seconds: 7), () => detectMotion());
+    Future.delayed(const Duration(seconds: 10), () => initPlatformState());
+  }
+
+  //platform massages are asynchrones so we initialize in an async method
+  Future<void> initPlatformState() async {
+    _pref = await SharedPreferences.getInstance();
+    String userId;
+    if (userProvider == null) {
+      userId = _pref.getString('userId');
+    } else {
+      userId = userProvider.uid;
+    }
+    bg.BackgroundGeolocation.onLocation((bg.Location location) {
+      print('the location: $location');
+      setState(() {
+        _locationJSON = encoder.convert(location.toMap());
+      });
+    });
+    //First confirgure background adapter
+    BackgroundGeolocationFirebase.configure(BackgroundGeolocationFirebaseConfig(
+      locationsCollection: 'users/$userId',
+      // geofencesCollection: 'geofence',
+      updateSingleDocument: true,
+    ));
+
+    bg.BackgroundGeolocation.ready(bg.Config(
+      debug: false,
+      distanceFilter: 20,
+      logLevel: bg.Config.LOG_LEVEL_VERBOSE,
+      stopTimeout: 1,
+      stopOnTerminate: false,
+      startOnBoot: true,
+    )).then((bg.State state) {
+      setState(() {
+        _enabled = state.enabled;
+        print('[Enabled]: $_enabled');
+        if (_enabled) {
+          _persistEnabled = true;
+          bg.BackgroundGeolocation.start();
+          _enablePersistMethod();
+        } else {
+          _persistEnabled = false;
+          bg.BackgroundGeolocation.stop();
+          _enablePersistMethod();
+        }
+      });
+    });
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+  }
+
+  //enable persist
+  void _enablePersistMethod() {
+    if (_persistEnabled) {
+      bg.BackgroundGeolocation.setConfig(
+          bg.Config(persistMode: bg.Config.PERSIST_MODE_ALL));
+    } else {
+      bg.BackgroundGeolocation.setConfig(
+          bg.Config(persistMode: bg.Config.PERSIST_MODE_NONE));
+    }
   }
 
   @override

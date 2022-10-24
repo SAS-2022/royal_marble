@@ -6,6 +6,8 @@ buildscript {
        targetSdkVersion    = 31                // or higher
       appCompatVersion    = "1.1.0"           // or higher
       playServicesLocationVersion = "19.0.1"  // or higher
+      firebaseCoreVersion = "17.4.4"
+      firebaseFirestoreVersion = "21.5.0"
    }
     repositories {
         google()
@@ -26,10 +28,14 @@ allprojects {
         maven {
            // [required] flutter_background_geolocation
           url "${project(':flutter_background_geolocation').projectDir}/libs"
+        
        }
        maven {
            // [required] background_fetch
            url "${project(':background_fetch').projectDir}/libs"
+       }
+       maven {
+          url "${project(':background_geolocation_firebase').projectDir}/libs"
        }
     }
 }
