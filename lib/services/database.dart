@@ -194,6 +194,7 @@ class DatabaseService {
       assignedProject: data['assignedProject'],
       distanceToProject: data['distanceToProject'],
       currentLocation: data['currentLocation'],
+      location: data['location'],
     );
   }
 
@@ -214,6 +215,7 @@ class DatabaseService {
         assignedProject: data['assignedProject'],
         distanceToProject: data['distanceToProject'],
         currentLocation: data['currentLocation'],
+        location: data['location'],
       );
     }).toList();
   }

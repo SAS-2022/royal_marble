@@ -92,9 +92,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     bg.BackgroundGeolocation.onLocation((bg.Location location) {
       print('the location: $location');
-      setState(() {
-        _locationJSON = encoder.convert(location.toMap());
-      });
+      if (mounted) {
+        setState(() {
+          _locationJSON = encoder.convert(location.toMap());
+        });
+      }
     });
     //First confirgure background adapter
     BackgroundGeolocationFirebase.configure(BackgroundGeolocationFirebaseConfig(
@@ -111,19 +113,21 @@ class _HomeScreenState extends State<HomeScreen> {
       stopOnTerminate: false,
       startOnBoot: true,
     )).then((bg.State state) {
-      setState(() {
-        _enabled = state.enabled;
-        print('[Enabled]: $_enabled');
-        if (_enabled) {
-          _persistEnabled = true;
-          bg.BackgroundGeolocation.start();
-          _enablePersistMethod();
-        } else {
-          _persistEnabled = false;
-          bg.BackgroundGeolocation.stop();
-          _enablePersistMethod();
-        }
-      });
+      if (mounted) {
+        setState(() {
+          _enabled = state.enabled;
+          print('[Enabled]: $_enabled');
+          if (_enabled) {
+            _persistEnabled = true;
+            bg.BackgroundGeolocation.start();
+            _enablePersistMethod();
+          } else {
+            _persistEnabled = false;
+            bg.BackgroundGeolocation.stop();
+            _enablePersistMethod();
+          }
+        });
+      }
     });
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling

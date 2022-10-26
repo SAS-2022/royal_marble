@@ -92,12 +92,12 @@ class _ShowMapState extends State<ShowMap> {
     listMarkers.clear();
     if (widget.currentUser.roles.contains('isAdmin')) {
       for (var user in userProvider) {
-        if (user.currentLocation != null) {
+        if (user.location != null) {
           listMarkers.add(
             Marker(
               markerId: MarkerId(user.firstName),
-              position: LatLng(
-                  user.currentLocation['Lat'], user.currentLocation['Lng']),
+              position: LatLng(user.location['coords']['latitude'],
+                  user.location['coords']['longitude']),
               icon: BitmapDescriptor.defaultMarkerWithHue(
                   BitmapDescriptor.hueOrange),
               infoWindow: InfoWindow(
