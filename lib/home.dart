@@ -99,11 +99,16 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     });
     //First confirgure background adapter
-    BackgroundGeolocationFirebase.configure(BackgroundGeolocationFirebaseConfig(
-      locationsCollection: 'users/$userId',
-      // geofencesCollection: 'geofence',
-      updateSingleDocument: true,
-    ));
+    if (userId != null) {
+      BackgroundGeolocationFirebase.configure(
+          BackgroundGeolocationFirebaseConfig(
+        locationsCollection: 'users/$userId/location/current',
+        // geofencesCollection: 'geofence',
+        updateSingleDocument: true,
+      ));
+    }
+
+    print('background location updated: $userId');
 
     bg.BackgroundGeolocation.ready(bg.Config(
       debug: false,

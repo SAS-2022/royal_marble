@@ -174,24 +174,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     flex: 3,
                     child: Column(
                       children: [
-                        Container(
-                          decoration: BoxDecoration(
-                              border: Border.all(),
-                              borderRadius: BorderRadius.circular(15)),
-                          height: 50,
-                          child: Center(
-                            child: GestureDetector(
-                              onTap: () async {
-                                if (Platform.isIOS) {
-                                } else {
-                                  await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (_) => GoogleMapNavigation(
-                                                getLocation: selecteMapLocation,
-                                              )));
-                                }
-                              },
+                        GestureDetector(
+                          onTap: () async {
+                            if (Platform.isIOS) {
+                            } else {
+                              await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => GoogleMapNavigation(
+                                            getLocation: selecteMapLocation,
+                                          )));
+                            }
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                                border: Border.all(),
+                                borderRadius: BorderRadius.circular(15)),
+                            height: 50,
+                            child: Center(
                               child: Text(
                                 myLocation.isNotEmpty
                                     ? 'Change Address'
