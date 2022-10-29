@@ -92,12 +92,15 @@ class _ShowMapState extends State<ShowMap> {
     listMarkers.clear();
     if (widget.currentUser.roles.contains('isAdmin')) {
       for (var user in userProvider) {
-        if (user.location != null) {
+        if (user.currentLocation != null) {
           listMarkers.add(
             Marker(
               markerId: MarkerId(user.firstName),
-              position: LatLng(user.location['coords']['latitude'],
-                  user.location['coords']['longitude']),
+              position: user.location != null
+                  ? LatLng(user.location['coords']['latitude'],
+                      user.location['coords']['longitude'])
+                  : LatLng(
+                      user.currentLocation['Lat'], user.currentLocation['Lng']),
               icon: BitmapDescriptor.defaultMarkerWithHue(
                   BitmapDescriptor.hueOrange),
               infoWindow: InfoWindow(
@@ -109,6 +112,7 @@ class _ShowMapState extends State<ShowMap> {
         }
       }
     }
+
     return listMarkers;
   }
 
@@ -583,6 +587,7 @@ class _ShowMapState extends State<ShowMap> {
                         return ProjectForm(
                           projectLocation: projectLocation,
                           isNewProject: true,
+                          currentUser: widget.currentUser,
                         );
                       }));
                     }

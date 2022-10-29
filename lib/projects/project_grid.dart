@@ -15,7 +15,6 @@ class ProjectGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var db = DatabaseService();
-    print('the selected Project: $selectedProject');
     return MultiProvider(
       providers: [
         selectedProject == null

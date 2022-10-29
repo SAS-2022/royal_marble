@@ -10,6 +10,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/models/user_model.dart';
+import 'package:royal_marble/projects/project_form.dart';
 import 'package:royal_marble/projects/project_grid.dart';
 import 'package:royal_marble/projects/worker_current_state.dart';
 import 'package:royal_marble/screens/profile_drawer.dart';
@@ -67,7 +68,6 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
 
     _snackBarWidget.context = context;
-
     _enabled = true;
     _persistEnabled = true;
     _content = '';
@@ -91,7 +91,6 @@ class _HomeScreenState extends State<HomeScreen> {
       userId = userProvider.uid;
     }
     bg.BackgroundGeolocation.onLocation((bg.Location location) {
-      print('the location: $location');
       if (mounted) {
         setState(() {
           _locationJSON = encoder.convert(location.toMap());
@@ -258,11 +257,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                     'Name: ',
                                     style: textStyle3,
                                   ),
-                                  Text(
-                                    allProjectProvider[index]
-                                        .projectName
-                                        .toUpperCase(),
-                                    style: textStyle5,
+                                  Expanded(
+                                    child: Text(
+                                      allProjectProvider[index]
+                                          .projectName
+                                          .toUpperCase(),
+                                      style: textStyle5,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -396,6 +397,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                       onTap: () async {
                                         //once tapped shall navigate to a page that will show assigned workers
                                         //will present a dialog on the things that could be done
+                                        await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (_) => ProjectGrid(
+                                                      currentUser: userProvider,
+                                                      selectedProject:
+                                                          snapshot.data,
+                                                    )));
                                       },
                                       child: Container(
                                         padding: const EdgeInsets.all(12),

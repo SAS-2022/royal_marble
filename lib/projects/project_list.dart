@@ -32,6 +32,7 @@ class _ProjectListState extends State<ProjectList> {
               selectedProject: projectProvider,
               isNewProject: false,
               allWorkers: allWorkers,
+              currentUser: widget.currentUser,
             )
           : const Loading();
     } else {
@@ -71,6 +72,7 @@ class _ProjectListState extends State<ProjectList> {
                                               projectProvider[index],
                                           isNewProject: false,
                                           allWorkers: allWorkers,
+                                          currentUser: widget.currentUser,
                                         )),
                               );
                             }

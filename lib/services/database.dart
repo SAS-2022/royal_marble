@@ -404,6 +404,7 @@ class DatabaseService {
   //create a project with location
   Future<String> addNewProject({ProjectData project}) async {
     try {
+      print('the project address: ${project.projectAddress}');
       return await projectCollection.add({
         'projectName': project.projectName,
         'projectDetails': project.projectDetails,

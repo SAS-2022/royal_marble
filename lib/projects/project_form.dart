@@ -8,6 +8,7 @@ import 'package:royal_marble/shared/constants.dart';
 import 'package:royal_marble/shared/loading.dart';
 
 import '../location/google_map_navigation.dart';
+import '../location/http_navigation.dart';
 import '../models/user_model.dart';
 import '../services/database.dart';
 import '../shared/snack_bar.dart';
@@ -19,8 +20,10 @@ class ProjectForm extends StatefulWidget {
       this.isNewProject,
       this.allWorkers,
       this.projectLocation,
-      this.assignCirule})
+      this.assignCirule,
+      this.currentUser})
       : super(key: key);
+  final UserData currentUser;
   final ProjectData selectedProject;
   final Map<String, dynamic> projectLocation;
   final bool isNewProject;
@@ -45,6 +48,7 @@ class _ProjectFormState extends State<ProjectForm> {
   List<UserData> workerOnThisProject = [];
   List<double> availableRadius = [100, 200, 400, 600, 1000];
   double radius;
+  HttpNavigation _httpNavigation = HttpNavigation();
 
   @override
   void initState() {
@@ -54,7 +58,14 @@ class _ProjectFormState extends State<ProjectForm> {
       newProject = widget.selectedProject;
       _checkAssignedWorkers = checkProjectWorkers();
     } else {
-      newProject.projectAddress = widget.projectLocation;
+      selectMapLocation(
+          locationAddress: LatLng(
+              widget.projectLocation['Lat'], widget.projectLocation['Lng']),
+          locationName: widget.projectLocation['addressName']
+              .toString()
+              .characters
+              .take(120)
+              .toString());
     }
   }
 
@@ -66,16 +77,18 @@ class _ProjectFormState extends State<ProjectForm> {
         title: const Text('Project Form'),
         backgroundColor: const Color.fromARGB(255, 191, 180, 66),
         actions: [
-          TextButton(
-              onPressed: () {
-                setState(() {
-                  _editContent = !_editContent;
-                });
-              },
-              child: const Text(
-                'Edit',
-                style: buttonStyle,
-              ))
+          widget.currentUser.roles.contains('isAdmin')
+              ? TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _editContent = !_editContent;
+                    });
+                  },
+                  child: const Text(
+                    'Edit',
+                    style: buttonStyle,
+                  ))
+              : const SizedBox.shrink()
         ],
       ),
       body: !widget.isNewProject ? _buildProjectBody() : _buildNewProjectForm(),
@@ -435,50 +448,52 @@ class _ProjectFormState extends State<ProjectForm> {
                     const SizedBox(
                       height: 15,
                     ),
-                    _editContent
-                        ? GestureDetector(
+
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all()),
+                      child: Row(children: [
+                        const Expanded(
+                          flex: 1,
+                          child: Text(
+                            'Location',
+                            style: textStyle5,
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: GestureDetector(
                             onTap: () async {
                               if (Platform.isIOS) {
+                                _httpNavigation.context = context;
+                                _httpNavigation.lat = widget
+                                    .selectedProject.projectAddress['Lat'];
+                                _httpNavigation.lng = widget
+                                    .selectedProject.projectAddress['Lng'];
                               } else {
                                 await Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (_) => GoogleMapNavigation(
-                                              getLocation: selecteMapLocation,
+                                              lat: widget.selectedProject
+                                                  .projectAddress['Lat'],
+                                              lng: widget.selectedProject
+                                                  .projectAddress['Lng'],
                                             )));
                               }
                             },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  border: Border.all(),
-                                  borderRadius: BorderRadius.circular(15)),
-                              height: 50,
-                              child: Center(
-                                child: Text(
-                                  _myLocation.isNotEmpty
-                                      ? 'Change Address'
-                                      : 'Add Address',
-                                  style: textStyle5,
-                                ),
-                              ),
+                            child: Text(
+                              widget
+                                  .selectedProject.projectAddress['addressName']
+                                  .toString(),
+                              style: textStyle3,
                             ),
-                          )
-                        : Row(children: [
-                            const Expanded(
-                              flex: 1,
-                              child: Text(
-                                'Location',
-                                style: textStyle5,
-                              ),
-                            ),
-                            Expanded(
-                              flex: 2,
-                              child: Text(
-                                _myLocation['addressName'].toString(),
-                                style: textStyle3,
-                              ),
-                            )
-                          ]),
+                          ),
+                        )
+                      ]),
+                    ),
                     const SizedBox(
                       height: 15,
                     ),
@@ -513,129 +528,147 @@ class _ProjectFormState extends State<ProjectForm> {
                                 )),
                           )
                         : const SizedBox.shrink(),
-
-                    !_editContent
-                        ? Container(
-                            alignment: AlignmentDirectional.centerStart,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(15.0),
-                              ),
-                              border:
-                                  Border.all(width: 1.0, color: Colors.grey),
-                            ),
-                            child: DropdownButtonHideUnderline(
-                              child: DropdownButtonFormField<UserData>(
-                                decoration: const InputDecoration.collapsed(
-                                    hintText: ''),
-                                isExpanded: true,
-                                value: selectedUser,
-                                hint: const Center(
-                                  child: Text(
-                                    'Select User',
+                    //this feature is only available for admin users
+                    widget.currentUser.roles.contains('isAdmin')
+                        ? !_editContent
+                            ? Container(
+                                alignment: AlignmentDirectional.centerStart,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(15.0),
+                                  ),
+                                  border: Border.all(
+                                      width: 1.0, color: Colors.grey),
+                                ),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButtonFormField<UserData>(
+                                    decoration: const InputDecoration.collapsed(
+                                        hintText: ''),
+                                    isExpanded: true,
+                                    value: selectedUser,
+                                    hint: const Center(
+                                      child: Text(
+                                        'Select User',
+                                      ),
+                                    ),
+                                    onChanged: (UserData val) {
+                                      if (val != null) {
+                                        setState(() {
+                                          selectedUser = val;
+                                          if (!addedUsers.contains(val)) {
+                                            addedUsers.add(val);
+                                          }
+                                        });
+                                      }
+                                    },
+                                    selectedItemBuilder:
+                                        (BuildContext context) {
+                                      return widget.allWorkers
+                                          .map<Widget>(
+                                            (item) => Center(
+                                              child: Text(
+                                                '${item.firstName} ${item.lastName}',
+                                                style: textStyle5,
+                                              ),
+                                            ),
+                                          )
+                                          .toList();
+                                    },
+                                    validator: (val) => val == null
+                                        ? 'Please select User'
+                                        : null,
+                                    items: widget.allWorkers
+                                        .map((item) =>
+                                            DropdownMenuItem<UserData>(
+                                              value: item,
+                                              child: Center(
+                                                  child: Text(
+                                                '${item.firstName} ${item.lastName}',
+                                                style: textStyle5,
+                                              )),
+                                            ))
+                                        .toList(),
                                   ),
                                 ),
-                                onChanged: (UserData val) {
-                                  if (val != null) {
-                                    setState(() {
-                                      selectedUser = val;
-                                      if (!addedUsers.contains(val)) {
-                                        addedUsers.add(val);
-                                      }
-                                    });
-                                  }
-                                },
-                                selectedItemBuilder: (BuildContext context) {
-                                  return widget.allWorkers
-                                      .map<Widget>(
-                                        (item) => Center(
-                                          child: Text(
-                                            '${item.firstName} ${item.lastName}',
-                                            style: textStyle5,
-                                          ),
-                                        ),
-                                      )
-                                      .toList();
-                                },
-                                validator: (val) =>
-                                    val == null ? 'Please select User' : null,
-                                items: widget.allWorkers
-                                    .map((item) => DropdownMenuItem<UserData>(
-                                          value: item,
-                                          child: Center(
-                                              child: Text(
-                                            '${item.firstName} ${item.lastName}',
-                                            style: textStyle5,
-                                          )),
-                                        ))
-                                    .toList(),
-                              ),
-                            ),
-                          )
+                              )
+                            : const SizedBox.shrink()
                         : const SizedBox.shrink(),
-                    !_editContent
-                        ? FutureBuilder(
-                            future: _checkAssignedWorkers,
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                addedUsers = snapshot.data;
+                    //Feature only available for admin user
+                    widget.currentUser.roles.contains('isAdmin')
+                        ? !_editContent
+                            ? FutureBuilder(
+                                future: _checkAssignedWorkers,
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    addedUsers = snapshot.data;
 
-                                return SizedBox(
-                                  height: _size.height / 4,
-                                  width: _size.width / 2,
-                                  child: ListView.builder(
-                                    itemCount: addedUsers.length,
-                                    itemBuilder: ((context, index) => Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 10, horizontal: 20),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                                border: Border.all(),
-                                                borderRadius:
-                                                    BorderRadius.circular(20)),
-                                            padding: const EdgeInsets.all(12),
-                                            child: GestureDetector(
-                                              onTap: () {
-                                                addedUsers.removeAt(index);
-                                                setState(() {});
-                                              },
-                                              child: Text(
-                                                  '${addedUsers[index].firstName} ${addedUsers[index].lastName}'),
-                                            ),
-                                          ),
-                                        )),
-                                  ),
-                                );
-                              } else {
-                                return SizedBox(
-                                  height: _size.height / 4,
-                                  width: _size.width / 2,
-                                  child: ListView.builder(
-                                    itemCount: addedUsers.length,
-                                    itemBuilder: ((context, index) => Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 10, horizontal: 20),
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                                border: Border.all(),
-                                                borderRadius:
-                                                    BorderRadius.circular(20)),
-                                            padding: const EdgeInsets.all(12),
-                                            child: GestureDetector(
-                                              onTap: () {
-                                                addedUsers.removeAt(index);
-                                                setState(() {});
-                                              },
-                                              child: Text(
-                                                  '${addedUsers[index].firstName} ${addedUsers[index].lastName}'),
-                                            ),
-                                          ),
-                                        )),
-                                  ),
-                                );
-                              }
-                            })
+                                    return SizedBox(
+                                      height: _size.height / 4,
+                                      width: _size.width / 2,
+                                      child: ListView.builder(
+                                        itemCount: addedUsers.length,
+                                        itemBuilder: ((context, index) =>
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 10,
+                                                      horizontal: 20),
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                    border: Border.all(),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20)),
+                                                padding:
+                                                    const EdgeInsets.all(12),
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    addedUsers.removeAt(index);
+                                                    setState(() {});
+                                                  },
+                                                  child: Text(
+                                                      '${addedUsers[index].firstName} ${addedUsers[index].lastName}'),
+                                                ),
+                                              ),
+                                            )),
+                                      ),
+                                    );
+                                  } else {
+                                    return SizedBox(
+                                      height: _size.height / 4,
+                                      width: _size.width / 2,
+                                      child: ListView.builder(
+                                        itemCount: addedUsers.length,
+                                        itemBuilder: ((context, index) =>
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 10,
+                                                      horizontal: 20),
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                    border: Border.all(),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20)),
+                                                padding:
+                                                    const EdgeInsets.all(12),
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    addedUsers.removeAt(index);
+                                                    setState(() {});
+                                                  },
+                                                  child: Text(
+                                                      '${addedUsers[index].firstName} ${addedUsers[index].lastName}'),
+                                                ),
+                                              ),
+                                            )),
+                                      ),
+                                    );
+                                  }
+                                })
+                            : const SizedBox.shrink()
                         : const SizedBox.shrink(),
                     !_editContent && addedUsers.isNotEmpty
                         ? Center(
@@ -1004,7 +1037,7 @@ class _ProjectFormState extends State<ProjectForm> {
     );
   }
 
-  Future selecteMapLocation(
+  Future selectMapLocation(
       {String locationName, LatLng locationAddress}) async {
     if (locationAddress != null && locationName != null) {
       _myLocation = {
@@ -1013,7 +1046,7 @@ class _ProjectFormState extends State<ProjectForm> {
         'Lng': locationAddress.longitude,
       };
       newProject.projectAddress = _myLocation;
-
+      print('the new project location: ${newProject.projectAddress}');
       setState(() {});
     }
   }
