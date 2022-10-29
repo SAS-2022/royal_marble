@@ -596,7 +596,7 @@ PODS:
     - abseil/base/base_internal
     - abseil/base/config
     - abseil/meta/type_traits
-  - background_fetch (1.1.1):
+  - background_fetch (1.1.2):
     - Flutter
   - background_geolocation_firebase (1.0.0):
     - Firebase/Core
@@ -725,7 +725,7 @@ PODS:
     - FirebaseCore (~> 9.0)
     - GTMSessionFetcher/Core (< 3.0, >= 1.7)
   - Flutter (1.0.0)
-  - flutter_background_geolocation (4.8.0):
+  - flutter_background_geolocation (4.8.3):
     - CocoaLumberjack (~> 3.7.2)
     - Flutter
   - flutter_keyboard_visibility (0.0.1):
@@ -966,7 +966,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   abseil: ebe5b5529fb05d93a8bdb7951607be08b7fa71bc
-  background_fetch: ef7bc433c96131e4f284d8616d2e0d4e18fa6af4
+  background_fetch: aaf8fc9d1da7f04e5373aabd4bb239704a5be6eb
   background_geolocation_firebase: eed21646887722f6c96e4d70627344887adda0be
   BoringSSL-GRPC: 3175b25143e648463a56daeaaa499c6cb86dad33
   cloud_firestore: 09a9630b3fd8bb78f6e01094d8f52d85f1eba0c8
@@ -991,7 +991,7 @@ SPEC CHECKSUMS:
   FirebaseStorage: 1fead543a1f441c3b434c1c9f12560dd82f8b568
   FirebaseStorageInternal: 81d8a597324ccd06c41a43c5700bc1185a2fc328
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
-  flutter_background_geolocation: 861178ec1a5f766ddd3bf27ad01799919d3fcb39
+  flutter_background_geolocation: 130932de44dd69e45354ea7832691c4b9a6788fc
   flutter_keyboard_visibility: 0339d06371254c3eb25eeb90ba8d17dca8f9c069
   geocoding: 32cfcdb16d38d907caaba65e2e42ad10d38bee58
   geolocator_apple: cc556e6844d508c95df1e87e3ea6fa4e58c50401
