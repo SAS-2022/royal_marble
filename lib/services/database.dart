@@ -93,6 +93,30 @@ class DatabaseService {
     }
   }
 
+  //update current user role
+  Future<String> assignUserRole({String selectedRole, String uid}) async {
+    var roles = '';
+    switch (selectedRole) {
+      case 'Worker':
+        roles = 'isNormalUser';
+        break;
+      case 'Sales':
+        roles = 'isSales';
+        break;
+      case 'Admin':
+        roles = 'isAdmin';
+        break;
+    }
+    try {
+      return await userCollection.doc(uid).update({
+        'roles': [roles]
+      }).then((value) => 'Completed');
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return 'Error: $e';
+    }
+  }
+
   //update current user
   Future<String> updateCurrentUser({String uid, UserData newUsers}) async {
     try {

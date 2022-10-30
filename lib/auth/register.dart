@@ -33,6 +33,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String password = '';
   Map<String, dynamic> nationality = {};
   String error = '';
+  bool _isObsecure = true;
   Map<String, dynamic> myLocation = {};
   Size size;
   SnackBarWidget _snackBarWidget = SnackBarWidget();
@@ -80,6 +81,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Expanded(
                     flex: 3,
                     child: TextFormField(
+                      textCapitalization: TextCapitalization.sentences,
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.grey[100],
@@ -114,6 +116,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Expanded(
                     flex: 3,
                     child: TextFormField(
+                      textCapitalization: TextCapitalization.sentences,
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.grey[100],
@@ -183,6 +186,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   MaterialPageRoute(
                                       builder: (_) => GoogleMapNavigation(
                                             getLocation: selecteMapLocation,
+                                            navigate: false,
                                           )));
                             }
                           },
@@ -229,6 +233,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Expanded(
                     flex: 3,
                     child: TextFormField(
+                      textCapitalization: TextCapitalization.sentences,
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.grey[100],
@@ -386,8 +391,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Expanded(
                     flex: 3,
                     child: TextFormField(
-                      obscureText: true,
+                      obscureText: _isObsecure,
                       decoration: InputDecoration(
+                        suffixIcon: IconButton(
+                          onPressed: () async {
+                            setState(() {
+                              _isObsecure = !_isObsecure;
+                            });
+                          },
+                          icon: Icon(!_isObsecure
+                              ? Icons.visibility
+                              : Icons.visibility_off),
+                        ),
                         filled: true,
                         fillColor: Colors.grey[100],
                         enabledBorder: const OutlineInputBorder(

@@ -238,6 +238,7 @@ class _ClientFormState extends State<ClientForm> {
                               MaterialPageRoute(
                                   builder: (_) => GoogleMapNavigation(
                                         getLocation: selecteMapLocation,
+                                        navigate: false,
                                       )));
                         }
                       },
@@ -525,6 +526,7 @@ class _ClientFormState extends State<ClientForm> {
                               MaterialPageRoute(
                                   builder: (_) => GoogleMapNavigation(
                                         getLocation: selecteMapLocation,
+                                        navigate: false,
                                       )));
                         }
                       },

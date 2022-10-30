@@ -89,14 +89,15 @@ class _SignInState extends State<SignInScreen> {
                       obscureText: _isObsecure,
                       decoration: textInputDecoration.copyWith(
                         suffixIcon: IconButton(
-                            onPressed: () async {
-                              setState(() {
-                                _isObsecure = !_isObsecure;
-                              });
-                            },
-                            icon: Icon(!_isObsecure
-                                ? Icons.visibility
-                                : Icons.visibility_off)),
+                          onPressed: () async {
+                            setState(() {
+                              _isObsecure = !_isObsecure;
+                            });
+                          },
+                          icon: Icon(!_isObsecure
+                              ? Icons.visibility
+                              : Icons.visibility_off),
+                        ),
                         labelText: 'Password',
                         filled: true,
                         fillColor: Colors.grey[100],

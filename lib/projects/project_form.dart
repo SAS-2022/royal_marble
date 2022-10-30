@@ -481,6 +481,7 @@ class _ProjectFormState extends State<ProjectForm> {
                                                   .projectAddress['Lat'],
                                               lng: widget.selectedProject
                                                   .projectAddress['Lng'],
+                                              navigate: true,
                                             )));
                               }
                             },

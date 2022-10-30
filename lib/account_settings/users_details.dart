@@ -27,6 +27,8 @@ class _UserDetailsState extends State<UserDetails> {
   final _formKey = GlobalKey<FormState>();
   UserData newUserData = UserData();
   Map<String, dynamic> _myLocation = {};
+  String selectedRoles;
+  List<dynamic> currentRoles = ['Worker', 'Sales', 'Admin'];
 
   @override
   void initState() {
@@ -191,6 +193,105 @@ class _UserDetailsState extends State<UserDetails> {
           ),
           const Divider(height: 30, thickness: 3),
           //the below code will be functions for the admin to do
+          //Assign user's role
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'The following option will allow you to assign a certain role for this user',
+                style: textStyle6,
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              //drop down list showing current roles available
+              Container(
+                alignment: AlignmentDirectional.centerStart,
+                height: 50,
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(15.0),
+                  ),
+                  border: Border.all(width: 1.0, color: Colors.grey),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButtonFormField<String>(
+                    decoration: const InputDecoration.collapsed(hintText: ''),
+                    isExpanded: true,
+                    value: selectedRoles,
+                    hint: const Center(
+                      child: Text(
+                        'Select User',
+                      ),
+                    ),
+                    onChanged: (String val) {
+                      if (val != null) {
+                        setState(() {
+                          selectedRoles = val;
+                        });
+                      }
+                    },
+                    selectedItemBuilder: (BuildContext context) {
+                      return currentRoles
+                          .map<Widget>(
+                            (item) => Center(
+                              child: Text(
+                                item,
+                                style: textStyle5,
+                              ),
+                            ),
+                          )
+                          .toList();
+                    },
+                    validator: (val) =>
+                        val == null ? 'Please select User Role' : null,
+                    items: currentRoles
+                        .map((item) => DropdownMenuItem<String>(
+                              value: item,
+                              child: Center(
+                                  child: Text(
+                                item,
+                                style: textStyle5,
+                              )),
+                            ))
+                        .toList(),
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green[400],
+                      fixedSize: Size(_size.width / 2, 45),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25))),
+                  onPressed: () async {
+                    var result;
+                    if (selectedRoles != null) {
+                      result = await db.assignUserRole(
+                          selectedRole: selectedRoles,
+                          uid: widget.currentUser.uid);
+                    }
+                    if (result == 'Completed') {
+                      Navigator.pop(context);
+                    } else {
+                      _snackBarWidget.content =
+                          'failed to deactivate account, please contact developer';
+                      _snackBarWidget.showSnack();
+                    }
+                  },
+                  child: const Text(
+                    'Assign',
+                    style: textStyle2,
+                  ))
+            ],
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+
           //Activate or deactivate an account
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -204,7 +305,7 @@ class _UserDetailsState extends State<UserDetails> {
               ),
               ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                      primary: widget.currentUser.isActive
+                      backgroundColor: widget.currentUser.isActive
                           ? Colors.red[400]
                           : Colors.green[400],
                       fixedSize: Size(_size.width / 2, 45),
@@ -249,7 +350,7 @@ class _UserDetailsState extends State<UserDetails> {
               ),
               ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                      primary: widget.currentUser.isActive
+                      backgroundColor: widget.currentUser.isActive
                           ? Colors.grey[300]
                           : Colors.red[400],
                       fixedSize: Size(_size.width / 2, 45),
@@ -528,6 +629,7 @@ class _UserDetailsState extends State<UserDetails> {
                                         lat: _myLocation['Lat'],
                                         lng: _myLocation['Lng'],
                                         getLocation: selecteMapLocation,
+                                        navigate: false,
                                       )));
                         }
                       },

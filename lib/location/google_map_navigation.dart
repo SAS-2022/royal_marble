@@ -11,10 +11,12 @@ import '../shared/loading.dart';
 import 'direction_repo.dart';
 
 class GoogleMapNavigation extends StatefulWidget {
-  const GoogleMapNavigation({Key key, this.lat, this.lng, this.getLocation})
+  const GoogleMapNavigation(
+      {Key key, this.lat, this.lng, this.getLocation, this.navigate})
       : super(key: key);
   final double lat;
   final double lng;
+  final bool navigate;
   final Function getLocation;
 
   @override
@@ -38,7 +40,7 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
   ];
   Future _addAllMarkers;
   Future currentPosition;
-  final _cameraZoom = 11.5;
+  final _cameraZoom = 16.0;
   final _snackBarWidget = SnackBarWidget();
   Future addMarker;
   Size _size;
@@ -82,25 +84,11 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
           children: [
             FloatingActionButton(
               heroTag: 'navigate',
-              backgroundColor: Colors.white,
-              foregroundColor: Colors.black,
-              child: const Icon(Icons.start_rounded),
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+              child: const Icon(Icons.navigate_next_sharp),
               onPressed: () =>
                   _startNaviagtionGoogleMap(lat: widget.lat, lng: widget.lng),
-            ),
-            const SizedBox(
-              width: 10,
-            ),
-            FloatingActionButton(
-              heroTag: 'center',
-              backgroundColor: Colors.white,
-              foregroundColor: Colors.black,
-              child: const Icon(Icons.center_focus_strong_outlined),
-              onPressed: () => _googleMapController.animateCamera(
-                CameraUpdate.newCameraPosition(
-                  CameraPosition(target: _center, zoom: 12.5),
-                ),
-              ),
             ),
           ],
         ),
@@ -114,10 +102,138 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return SafeArea(
-              child: Stack(
-                children: [
-                  lat != null && lng != null
-                      ? GoogleMap(
+              child: !widget.navigate
+                  ? Stack(
+                      children: [
+                        lat != null && lng != null
+                            ? GoogleMap(
+                                zoomGesturesEnabled: true,
+                                zoomControlsEnabled: false,
+                                myLocationButtonEnabled: false,
+                                onMapCreated: (controller) {
+                                  setState(() {
+                                    _googleMapController = controller;
+                                  });
+                                },
+                                onCameraMove: ((CameraPosition cameraPosition) {
+                                  _cameraPosition = cameraPosition;
+                                }),
+                                onCameraIdle: () async {
+                                  List<Placemark> placeMarks =
+                                      await placemarkFromCoordinates(
+                                          _cameraPosition.target.latitude,
+                                          _cameraPosition.target.longitude);
+
+                                  if (mounted) {
+                                    setState(() {
+                                      _selectedLatLng = LatLng(
+                                          _cameraPosition.target.latitude,
+                                          _cameraPosition.target.longitude);
+
+                                      _selecteLocation = placeMarks
+                                              .first.administrativeArea
+                                              .toString() +
+                                          ' ' +
+                                          placeMarks.first.street.toString();
+                                    });
+                                  }
+                                },
+                                initialCameraPosition: CameraPosition(
+                                    target: LatLng(lat, lng),
+                                    zoom: _cameraZoom),
+                                mapType: MapType.normal,
+                              )
+                            : const Loading(),
+                        //Add market to show the location
+                        Center(
+                          child: Image.asset(
+                            'assets/images/location_picker_2.jpg',
+                            height: 35,
+                          ),
+                        ),
+                        _selecteLocation != null
+                            ? Positioned(
+                                top: 20,
+                                left: 30,
+                                right: 30,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 6, horizontal: 12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.yellowAccent,
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Colors.black26,
+                                        offset: Offset(0, 2),
+                                        blurRadius: 6.0,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Text(
+                                    _selecteLocation,
+                                    style: const TextStyle(
+                                        fontSize: 18.0,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                ),
+                              )
+                            : const SizedBox.shrink(),
+                        !widget.navigate
+                            ? _selecteLocation != null
+                                ? Positioned(
+                                    bottom: 30,
+                                    left: 10,
+                                    child: Container(
+                                      width: _size.width / 2,
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 6, horizontal: 12),
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.red[400],
+                                            fixedSize:
+                                                Size(_size.width / 2, 45),
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(25))),
+                                        onPressed: () async {
+                                          if (_selecteLocation != null &&
+                                              _selectedLatLng != null) {
+                                            widget.getLocation(
+                                                locationName: _selecteLocation,
+                                                locationAddress:
+                                                    _selectedLatLng);
+                                          }
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text(
+                                          'Select Position',
+                                          style: buttonStyle,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : const SizedBox.shrink()
+                            : const SizedBox.shrink(),
+                      ],
+                    )
+                  :
+                  //incase we are navigating
+                  Stack(
+                      children: [
+                        GoogleMap(
+                          polylines: {
+                            if (_info != null)
+                              Polyline(
+                                  polylineId:
+                                      const PolylineId('overview_polyline'),
+                                  color: Colors.blue,
+                                  width: 6,
+                                  points: _info.polylinePoints
+                                      .map((e) =>
+                                          LatLng(e.latitude, e.longitude))
+                                      .toList())
+                          },
                           zoomGesturesEnabled: true,
                           zoomControlsEnabled: false,
                           myLocationButtonEnabled: false,
@@ -126,100 +242,12 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
                               _googleMapController = controller;
                             });
                           },
-                          onCameraMove: ((CameraPosition cameraPosition) {
-                            _cameraPosition = cameraPosition;
-                          }),
-                          onCameraIdle: () async {
-                            List<Placemark> placeMarks =
-                                await placemarkFromCoordinates(
-                                    _cameraPosition.target.latitude,
-                                    _cameraPosition.target.longitude);
-                            if (mounted) {
-                              setState(() {
-                                _selectedLatLng = LatLng(
-                                    _cameraPosition.target.latitude,
-                                    _cameraPosition.target.longitude);
-
-                                _selecteLocation = placeMarks
-                                        .first.administrativeArea
-                                        .toString() +
-                                    ' ' +
-                                    placeMarks.first.street.toString();
-                              });
-                            }
-                          },
                           initialCameraPosition: CameraPosition(
                               target: LatLng(lat, lng), zoom: _cameraZoom),
                           mapType: MapType.normal,
                         )
-                      : const Loading(),
-                  //Add market to show the location
-                  Center(
-                    child: Image.asset(
-                      'assets/images/location_picker_2.jpg',
-                      height: 35,
+                      ],
                     ),
-                  ),
-                  _selecteLocation != null
-                      ? Positioned(
-                          top: 20,
-                          left: 30,
-                          right: 30,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 6, horizontal: 12),
-                            decoration: BoxDecoration(
-                              color: Colors.yellowAccent,
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black26,
-                                  offset: Offset(0, 2),
-                                  blurRadius: 6.0,
-                                ),
-                              ],
-                            ),
-                            child: Text(
-                              _selecteLocation,
-                              style: const TextStyle(
-                                  fontSize: 18.0, fontWeight: FontWeight.w600),
-                            ),
-                          ),
-                        )
-                      : const SizedBox.shrink(),
-                  _selecteLocation != null
-                      ? Positioned(
-                          bottom: 30,
-                          left: 10,
-                          child: Container(
-                            width: _size.width / 2,
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 6, horizontal: 12),
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  primary: Colors.red[400],
-                                  fixedSize: Size(_size.width / 2, 45),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(25))),
-                              onPressed: () async {
-                                if (_selecteLocation != null &&
-                                    _selectedLatLng != null) {
-                                  widget.getLocation(
-                                      locationName: _selecteLocation,
-                                      locationAddress: _selectedLatLng);
-                                }
-                                Navigator.pop(context);
-                              },
-                              child: const Text(
-                                'Select Position',
-                                style: buttonStyle,
-                              ),
-                            ),
-                          ),
-                        )
-                      : const SizedBox.shrink(),
-                ],
-              ),
             );
           } else if (snapshot.hasError) {
             return Center(
@@ -292,6 +320,7 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
   Future<Directions> _getDirections({LatLng origin, LatLng destination}) async {
     var result = await DirectionRepository()
         .getDirections(origin: _center, destination: destination);
+
     return result;
   }
 
@@ -310,6 +339,13 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
     setState(() {
       _loading = false;
     });
+    if (widget.navigate) {
+      _info = await _getDirections(
+          origin: LatLng(currentLat, currentLng),
+          destination: LatLng(widget.lat, widget.lng));
+    }
+
+    // print('the info: $_info');
 
     if (_info != null) {
       await _adjustCamera(_info.northE, _info.southW);
