@@ -120,7 +120,6 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) {
         setState(() {
           _enabled = state.enabled;
-          print('[Enabled]: $_enabled');
           if (_enabled) {
             _persistEnabled = true;
             bg.BackgroundGeolocation.start();
@@ -623,7 +622,81 @@ class _HomeScreenState extends State<HomeScreen> {
               ));
   }
 
-  Widget _buildSalesHomeScreen() {}
+  Widget _buildSalesHomeScreen() {
+    return SingleChildScrollView(
+        child: userProvider.isActive != null && userProvider.isActive
+            ? Padding(
+                padding: const EdgeInsets.all(25),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    //List of projects assigned two
+
+                    const Divider(
+                      height: 25,
+                      thickness: 3,
+                    ),
+                    //Messages from Admin
+
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20, left: 15),
+                      child: Column(children: [
+                        const Text(
+                          'Please note this section is dedicated for messages from your manager',
+                          style: textStyle6,
+                        ),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        messages.isEmpty
+                            ? SizedBox(
+                                height: (_size.height / 2) - 50,
+                                child: ListView.builder(
+                                    itemCount: messages.length,
+                                    itemBuilder: (context, index) {
+                                      return const ListTile(
+                                        title: Text('Message Title'),
+                                        subtitle: Text('Message Details'),
+                                      );
+                                    }),
+                              )
+                            : const Center(
+                                child: Text(
+                                  'Currently you have no message',
+                                  style: textStyle3,
+                                ),
+                              )
+                      ]),
+                    )
+                  ],
+                ),
+              )
+            : Padding(
+                padding: const EdgeInsets.only(left: 25, right: 25, top: 150),
+                child: SizedBox(
+                  height: _size.height,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    // crossAxisAlignment: CrossAxisAlignment.center,
+                    children: const [
+                      Text(
+                        'Thank you for creating an account',
+                        style: textStyle1,
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(
+                        height: 40,
+                      ),
+                      Text(
+                        'Your account is still under approval, you should be notified once it has been approved.',
+                        style: textStyle4,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ));
+  }
 
   Future<ProjectData> getUserAssignedProject() async {
     if (userProvider != null && userProvider.assignedProject != null) {
