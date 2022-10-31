@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:background_geolocation_firebase/background_geolocation_firebase.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -31,54 +33,21 @@ void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
       break;
     case bg.Event.MOTIONCHANGE:
       bg.Location location = headlessEvent.event;
-      print('the location: ${location.isMoving} - ${location.odometer}');
+      await FirebaseFunctions.instance.httpsCallable('updateMotion').call();
       break;
     case bg.Event.LOCATION:
       bg.Location location = headlessEvent.event;
       SharedPreferences _pref = await SharedPreferences.getInstance();
       if (_pref.getString('userId') != null) {
         var userId = _pref.getString('userId');
-        // double distance = 5000;
         //get the current location of the user when they are moving
         var currentLocation =
             LatLng(location.coords.latitude, location.coords.longitude);
-        //check if the user is assigned to a project
-        // UserData userDetails = await db.getUserByIdFuture(uid: userId);
-        // if (userDetails.assignedProject != null) {
-        //   distance = (CalculateDistance().distanceBetweenTwoPoints(
-        //               currentLocation.latitude,
-        //               currentLocation.longitude,
-        //               userDetails.assignedProject['projectAddress']['Lat'],
-        //               userDetails.assignedProject['projectAddress']['Lng'])) *
-        //           1000 -
-        //       userDetails.assignedProject['radius'];
-
-        //   await db
-        //       .updateUserLiveLocation(
-        //           uid: userId,
-        //           currentLocation: currentLocation,
-        //           distance: distance)
-        //       .then((value) {
-        //     print('the location was updated: $value');
-        //   }).catchError((err) async {
-        //     if (err) {}
-        //   });
-        // } else {
-        //   await db
-        //       .updateUserLiveLocation(
-        //           uid: userId, currentLocation: currentLocation)
-        //       .then((value) {
-        //     print('the location was updated: $value');
-        //   }).catchError((err) async {
-        //     if (err) {}
-        //   });
-        // }
         await db
             .updateUserLiveLocation(
                 uid: userId, currentLocation: currentLocation)
-            .then((value) {
-          print('the location was updated: $value');
-        }).catchError((err) async {
+            .then((value) {})
+            .catchError((err) async {
           if (err) {}
         });
       }

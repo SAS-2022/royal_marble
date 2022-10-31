@@ -101,13 +101,11 @@ class _HomeScreenState extends State<HomeScreen> {
     if (userId != null) {
       BackgroundGeolocationFirebase.configure(
           BackgroundGeolocationFirebaseConfig(
-        locationsCollection: 'users/$userId/location/current',
+        locationsCollection: 'users/$userId',
         // geofencesCollection: 'geofence',
         updateSingleDocument: true,
       ));
     }
-
-    print('background location updated: $userId');
 
     bg.BackgroundGeolocation.ready(bg.Config(
       debug: false,
