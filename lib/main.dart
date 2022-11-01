@@ -33,7 +33,7 @@ void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
       break;
     case bg.Event.MOTIONCHANGE:
       bg.Location location = headlessEvent.event;
-      await FirebaseFunctions.instance.httpsCallable('updateMotion').call();
+
       break;
     case bg.Event.LOCATION:
       bg.Location location = headlessEvent.event;
@@ -41,14 +41,13 @@ void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
       if (_pref.getString('userId') != null) {
         var userId = _pref.getString('userId');
         //get the current location of the user when they are moving
-        var currentLocation =
-            LatLng(location.coords.latitude, location.coords.longitude);
-        await db
-            .updateUserLiveLocation(
-                uid: userId, currentLocation: currentLocation)
-            .then((value) {})
-            .catchError((err) async {
-          if (err) {}
+        HttpsCallable callable =
+            FirebaseFunctions.instance.httpsCallable('callingFunction');
+        await callable.call(<String, dynamic>{
+          'location': {
+            'lat': location.coords.latitude,
+            'lng': location.coords.longitude,
+          }
         });
       }
       break;

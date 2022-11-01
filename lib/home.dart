@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:background_geolocation_firebase/background_geolocation_firebase.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart' as geo;
@@ -842,7 +843,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _pref = await SharedPreferences.getInstance();
     String userId = _pref.getString('userId');
     if (userId == null) {
-      if (userProvider != null) {
+      if (userProvider != null && _pref != null) {
         _pref.setString('userId', userProvider.uid);
       }
     }
