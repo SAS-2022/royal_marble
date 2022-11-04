@@ -6,10 +6,11 @@ import '../models/business_model.dart';
 import '../models/user_model.dart';
 
 class MapProviders extends StatelessWidget {
-  MapProviders({Key key, this.currentUser, this.listOfMarkers})
+  MapProviders({Key key, this.currentUser, this.listOfMarkers, this.allUsers})
       : super(key: key);
   final UserData currentUser;
   final String listOfMarkers;
+  final List<UserData> allUsers;
   final db = DatabaseService();
   @override
   Widget build(BuildContext context) {
@@ -26,6 +27,15 @@ class MapProviders extends StatelessWidget {
             value: db.getAllUsers(),
             initialData: [],
             catchError: (context, err) => [UserData(error: err)]),
+
+        StreamProvider<Map<String, dynamic>>.value(
+          value: db.getAllUsersLocation(userIds: allUsers),
+          initialData: {},
+          catchError: (context, err) {
+            print('Could not get location: $err');
+            return {};
+          },
+        )
       ],
       child: ShowMap(
         currentUser: currentUser,

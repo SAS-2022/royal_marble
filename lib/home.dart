@@ -35,6 +35,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final db = DatabaseService();
+  List<UserData> allUsers = [];
   SnackBarWidget _snackBarWidget = SnackBarWidget();
   SharedPreferences _pref;
   UserData userProvider;
@@ -153,14 +154,21 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     userProvider = Provider.of<UserData>(context);
+    allUsers = Provider.of<List<UserData>>(context);
     allProjectProvider = Provider.of<List<ProjectData>>(context);
     _size = MediaQuery.of(context).size;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Main Page'),
         backgroundColor: const Color.fromARGB(255, 191, 180, 66),
       ),
-      drawer: ProfileDrawer(currentUser: userProvider),
+      drawer: allUsers != null && allUsers.isNotEmpty
+          ? ProfileDrawer(
+              currentUser: userProvider,
+              allUsers: allUsers,
+            )
+          : const Loading(),
       body: _selectView(),
     );
   }

@@ -31,6 +31,7 @@ class ShowMap extends StatefulWidget {
 class _ShowMapState extends State<ShowMap> {
   final _circleFormKey = GlobalKey<FormState>();
   SnackBarWidget _snackBarWidget = SnackBarWidget();
+  Map<String, dynamic> locationProvider;
   var projectProvider;
   var userProvider;
   Directions _info;
@@ -91,25 +92,23 @@ class _ShowMapState extends State<ShowMap> {
   Future<List<Marker>> _getUserMarker() async {
     listMarkers.clear();
     if (widget.currentUser.roles.contains('isAdmin')) {
-      for (var user in userProvider) {
-        if (user.currentLocation != null) {
-          listMarkers.add(
-            Marker(
-              markerId: MarkerId(user.firstName),
-              position: user.location != null
-                  ? LatLng(user.location['coords']['latitude'],
-                      user.location['coords']['longitude'])
-                  : LatLng(
-                      user.currentLocation['Lat'], user.currentLocation['Lng']),
-              icon: BitmapDescriptor.defaultMarkerWithHue(
-                  BitmapDescriptor.hueOrange),
-              infoWindow: InfoWindow(
-                  title: '${user.firstName} ${user.lastName}',
-                  snippet: user.phoneNumber,
-                  onTap: () {}),
-            ),
-          );
-        }
+      if (locationProvider != null && locationProvider.isNotEmpty) {
+        // for (var user in locationProvider) {
+        //   if (user['uid'] != null) {
+        //     listMarkers.add(
+        //       Marker(
+        //         markerId: MarkerId(user['firstName']),
+        //         position: LatLng(user['Lat'], user['Lng']),
+        //         icon: BitmapDescriptor.defaultMarkerWithHue(
+        //             BitmapDescriptor.hueOrange),
+        //         infoWindow: InfoWindow(
+        //             title: '${user['firstName']} ${user['lastName']}',
+        //             snippet: user['phoneNumber'],
+        //             onTap: () {}),
+        //       ),
+        //     );
+        //   }
+        // }
       }
     }
 
@@ -528,14 +527,16 @@ class _ShowMapState extends State<ShowMap> {
   Widget build(BuildContext context) {
     _size = MediaQuery.of(context).size;
     projectProvider = Provider.of<List<ProjectData>>(context);
-    userProvider = Provider.of<List<UserData>>(context);
+    //userProvider = Provider.of<List<UserData>>(context);
+    locationProvider = Provider.of<Map<String, dynamic>>(context);
+    print('The location Provider: $locationProvider');
     //Assign project proivder to circules
     if (projectProvider != null && projectProvider.isNotEmpty) {
       _setCirclesLocations();
     }
     if (widget.listOfMarkers == 'users' &&
-        userProvider != null &&
-        userProvider.isNotEmpty) {
+        locationProvider != null &&
+        locationProvider.isNotEmpty) {
       _getUserMarker();
     }
     return WillPopScope(

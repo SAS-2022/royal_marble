@@ -50,6 +50,10 @@ class _WrapperState extends State<Wrapper> {
               return [];
             },
           ),
+          StreamProvider<List<UserData>>.value(
+              value: db.getAllUsers(),
+              initialData: [],
+              catchError: (context, err) => [UserData(error: err)]),
         ],
         child: const HomeScreen(),
       );

@@ -11,8 +11,10 @@ import 'package:royal_marble/services/database.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileDrawer extends StatefulWidget {
-  const ProfileDrawer({Key key, this.currentUser}) : super(key: key);
+  const ProfileDrawer({Key key, this.currentUser, this.allUsers})
+      : super(key: key);
   final UserData currentUser;
+  final List<UserData> allUsers;
 
   @override
   State<ProfileDrawer> createState() => _ProfileDrawerState();
@@ -171,6 +173,7 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (_) => MapProviders(
+                                                allUsers: widget.allUsers,
                                                 currentUser: widget.currentUser,
                                                 listOfMarkers: 'users',
                                               )),
@@ -186,6 +189,7 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (_) => MapProviders(
+                                                allUsers: widget.allUsers,
                                                 currentUser: widget.currentUser,
                                                 listOfMarkers: 'clients',
                                               )),
