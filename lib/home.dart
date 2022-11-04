@@ -78,8 +78,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _onClickEnable(_enabled);
     //_onClickChangePace();
     Future.delayed(const Duration(seconds: 5), () => _setUserId());
-    Future.delayed(const Duration(seconds: 7), () => detectMotion());
-    Future.delayed(const Duration(seconds: 10), () => initPlatformState());
   }
 
   //platform massages are asynchrones so we initialize in an async method
@@ -102,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (userId != null) {
       BackgroundGeolocationFirebase.configure(
           BackgroundGeolocationFirebaseConfig(
-        locationsCollection: 'users/$userId',
+        locationsCollection: 'users/$userId/location/current',
         // geofencesCollection: 'geofence',
         updateSingleDocument: true,
       ));
@@ -110,10 +108,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     bg.BackgroundGeolocation.ready(bg.Config(
       debug: false,
-      distanceFilter: 20,
+      distanceFilter: 50,
       logLevel: bg.Config.LOG_LEVEL_VERBOSE,
       stopTimeout: 1,
       stopOnTerminate: false,
+      enableHeadless: true,
       startOnBoot: true,
     )).then((bg.State state) {
       if (mounted) {
@@ -121,11 +120,13 @@ class _HomeScreenState extends State<HomeScreen> {
           _enabled = state.enabled;
           if (_enabled) {
             _persistEnabled = true;
+            print('the geoloation started');
             bg.BackgroundGeolocation.start();
             _enablePersistMethod();
           } else {
             _persistEnabled = false;
             bg.BackgroundGeolocation.stop();
+            print('the geolocation stopped');
             _enablePersistMethod();
           }
         });
@@ -213,7 +214,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 15,
               ),
               SizedBox(
-                height: _size.height / 4,
+                height: _size.height / 4.5,
                 width: _size.width - 20,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
@@ -232,8 +233,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           //if long pressed it will show a dialog that will allow you to edit or delete project
                         },
                         child: Container(
-                          padding: const EdgeInsets.all(12),
-                          height: 80,
+                          padding: const EdgeInsets.all(5),
+                          height: _size.height / 4,
                           width: _size.width / 2,
                           decoration: BoxDecoration(
                               color: const Color.fromARGB(255, 186, 186, 130),
@@ -782,11 +783,21 @@ class _HomeScreenState extends State<HomeScreen> {
             desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
             distanceFilter: 20.0,
             autoSync: true,
+            isMoving: true,
             stopOnTerminate: false,
             startOnBoot: true,
             debug: false,
+            backgroundPermissionRationale: bg.PermissionRationale(
+              title: 'Allow Royal Marble to access location when in background',
+              message:
+                  'This app will monitor your location when it is in the background',
+              positiveAction: 'Change to Background',
+              negativeAction: 'Cancel',
+            ),
             logLevel: bg.Config.LOG_LEVEL_VERBOSE,
             notification: bg.Notification(
+              title: 'Royal Marble',
+              text: 'Location Service',
               priority: bg.Config.NOTIFICATION_PRIORITY_LOW,
               sticky: false,
             ),
@@ -802,7 +813,8 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _onLocation(bg.Location location) {
+  void _onLocation(bg.Location location) async {
+    print('[location] - $location');
     String odometerKM = (location.odometer / 1000.0).toStringAsFixed(1);
     double odometerME = (location.odometer);
     if (mounted) {
@@ -814,7 +826,16 @@ class _HomeScreenState extends State<HomeScreen> {
         lng = location.coords.latitude;
       });
     }
+    print('the odometerME: $odometerME');
     if (odometerME > 150) {
+      HttpsCallable callable =
+          FirebaseFunctions.instance.httpsCallable('callingFunction');
+      await callable.call(<String, dynamic>{
+        'location': {
+          'lat': location.coords.latitude,
+          'lng': location.coords.longitude,
+        }
+      });
       //update the database with the new coordinated
       getCurrentLocation();
       odometerME = 0.0;
@@ -822,6 +843,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onMotionChange(bg.Location location) {
+    print('[motionchange] - $location');
     String odometerKM = (location.odometer / 1000.0).toStringAsFixed(1);
     double odometerMEd = location.odometer;
     String odometerME = (location.odometer).toStringAsFixed(2);
@@ -843,9 +865,14 @@ class _HomeScreenState extends State<HomeScreen> {
     _pref = await SharedPreferences.getInstance();
     String userId = _pref.getString('userId');
     if (userId == null) {
-      if (userProvider != null && _pref != null) {
+      if (userProvider.uid != null && _pref != null) {
         _pref.setString('userId', userProvider.uid);
+        Future.delayed(const Duration(seconds: 7), () => detectMotion());
+        Future.delayed(const Duration(seconds: 10), () => initPlatformState());
       }
+    } else {
+      Future.delayed(const Duration(seconds: 7), () => detectMotion());
+      Future.delayed(const Duration(seconds: 10), () => initPlatformState());
     }
   }
 
@@ -853,10 +880,12 @@ class _HomeScreenState extends State<HomeScreen> {
     if (enabled) {
       callback(bg.State state) async {
         print('[start] success: $state');
-        setState(() {
-          _enabled = state.enabled;
-          _isMoving = state.isMoving;
-        });
+        if (mounted) {
+          setState(() {
+            _enabled = state.enabled;
+            _isMoving = state.isMoving;
+          });
+        }
       }
 
       bg.State state = await bg.BackgroundGeolocation.state;

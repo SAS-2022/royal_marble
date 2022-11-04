@@ -77,17 +77,19 @@ class _ProjectFormState extends State<ProjectForm> {
         title: const Text('Project Form'),
         backgroundColor: const Color.fromARGB(255, 191, 180, 66),
         actions: [
-          widget.currentUser.roles.contains('isAdmin')
-              ? TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _editContent = !_editContent;
-                    });
-                  },
-                  child: const Text(
-                    'Edit',
-                    style: buttonStyle,
-                  ))
+          !widget.isNewProject
+              ? widget.currentUser.roles.contains('isAdmin')
+                  ? TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _editContent = !_editContent;
+                        });
+                      },
+                      child: const Text(
+                        'Edit',
+                        style: buttonStyle,
+                      ))
+                  : const SizedBox.shrink()
               : const SizedBox.shrink()
         ],
       ),

@@ -22,8 +22,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'models/user_model.dart';
 import 'package:background_fetch/background_fetch.dart';
 
+@pragma('vm:entry-point')
 void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
-  final db = DatabaseService();
+  SharedPreferences _pref = await SharedPreferences.getInstance();
   print('[BackgroundGeolocation HeadlessTask]: $headlessEvent');
   // Implement a 'case' for only those events you're interested in.
   switch (headlessEvent.name) {
@@ -33,11 +34,18 @@ void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
       break;
     case bg.Event.MOTIONCHANGE:
       bg.Location location = headlessEvent.event;
-
+      HttpsCallable callable =
+          FirebaseFunctions.instance.httpsCallable('callingFunction');
+      await callable.call(<String, dynamic>{
+        'location': {
+          'lat': location.coords.latitude,
+          'lng': location.coords.longitude,
+        }
+      });
       break;
     case bg.Event.LOCATION:
       bg.Location location = headlessEvent.event;
-      SharedPreferences _pref = await SharedPreferences.getInstance();
+
       if (_pref.getString('userId') != null) {
         var userId = _pref.getString('userId');
         //get the current location of the user when they are moving
@@ -51,6 +59,15 @@ void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
         });
       }
       break;
+    case bg.Event.HEARTBEAT:
+      if (_pref.getString('userId') != null) {
+        var userId = _pref.getString('userId');
+        //get the current location of the user when they are moving
+        HttpsCallable callable =
+            FirebaseFunctions.instance.httpsCallable('textFunction');
+        await callable.call(<String, dynamic>{'text': 'heart beat'});
+      }
+      break;
 
     case bg.Event.ACTIVITYCHANGE:
       bg.ActivityChangeEvent activity = headlessEvent.event;
@@ -60,37 +77,37 @@ void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
 }
 
 //Receive information in backgroundFetch in headless state
-void backgroundFetchHeadlessTask(HeadlessTask task) async {
-  String taskId = task.taskId;
+// void backgroundFetchHeadlessTask(HeadlessTask task) async {
+//   String taskId = task.taskId;
+//   print('the task: $task');
+//   //if background fetch timeout event? finish and bail out
+//   if (task.timeout) {
+//     print('[BackgroundFetch] - Headless Task Timeout: $taskId');
+//     BackgroundFetch.finish(taskId);
+//     return;
+//   }
 
-  //if background fetch timeout event? finish and bail out
-  if (task.timeout) {
-    print('[BackgroundFetch] - Headless Task Timeout: $taskId');
-    BackgroundFetch.finish(taskId);
-    return;
-  }
+//   try {
+//     var location =
+//         await bg.BackgroundGeolocation.getCurrentPosition(samples: 1, extras: {
+//       'event': 'background-fetch',
+//       'headless': true,
+//     });
+//     print('[Location] - $location');
+//   } catch (e) {
+//     print('[Location] Error - $e');
+//   }
 
-  try {
-    var location =
-        await bg.BackgroundGeolocation.getCurrentPosition(samples: 1, extras: {
-      'event': 'background-fetch',
-      'headless': true,
-    });
-    print('[Location] - $location');
-  } catch (e) {
-    print('[Location] Error - $e');
-  }
+//   SharedPreferences prefs = await SharedPreferences.getInstance();
+//   int count = 0;
+//   if (prefs.get('fetch-count') != null) {
+//     count = prefs.getInt('fetch-count');
+//   }
+//   prefs.setInt('fetch-count', ++count);
+//   print('[BackgroundFetch] - count: $count');
 
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  int count = 0;
-  if (prefs.get('fetch-count') != null) {
-    count = prefs.getInt('fetch-count');
-  }
-  prefs.setInt('fetch-count', ++count);
-  print('[BackgroundFetch] - count: $count');
-
-  BackgroundFetch.finish(taskId);
-}
+//   BackgroundFetch.finish(taskId);
+// }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -99,8 +116,6 @@ void main() async {
   runApp(const MyApp());
   bg.BackgroundGeolocation.registerHeadlessTask(
       backgroundGeolocationHeadlessTask);
-
-  BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
 }
 
 class MyApp extends StatelessWidget {

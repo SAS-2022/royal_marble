@@ -286,7 +286,6 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
           'Location persmission are denied forever, we cannot handle permission requests');
     }
     //if permissions are granted
-
     currentLocation =
         await Geolocator.getCurrentPosition().onError((error, stackTrace) {
       return Position(

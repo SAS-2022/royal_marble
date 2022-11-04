@@ -4,6 +4,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:royal_marble/location/http_navigation.dart';
 import 'package:royal_marble/shared/snack_bar.dart';
 
 import '../location/google_map_navigation.dart';
@@ -22,6 +23,7 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final AuthService _auth = AuthService();
   final _formKey = GlobalKey<FormState>();
+  HttpNavigation _httpNavigation = HttpNavigation();
   bool loading = false;
   //text field state
   String firstName = '';
@@ -180,6 +182,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         GestureDetector(
                           onTap: () async {
                             if (Platform.isIOS) {
+                              var myLocation = await selecteMapLocation();
+                              _httpNavigation.context = context;
+                              _httpNavigation.lat = myLocation['Lat'];
+                              _httpNavigation.lng = myLocation['Lng'];
+
+                              await _httpNavigation.startNaviagtionGoogleMap();
                             } else {
                               await Navigator.push(
                                   context,
@@ -511,6 +519,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       print('my location: $myLocation');
       setState(() {});
     }
+    return myLocation;
   }
 
   selectCountry(Map<String, dynamic> country) {

@@ -201,7 +201,11 @@ class _ShowMapState extends State<ShowMap> {
         .catchError((err) {
       print('Error obtaining location name: $err');
     }).then((value) {
-      locationName = '${value[4]}';
+      if (Platform.isIOS) {
+        locationName = '${value[0]}';
+      } else {
+        locationName = '${value[4]}';
+      }
     });
   }
 
@@ -569,9 +573,11 @@ class _ShowMapState extends State<ShowMap> {
                     //assing circule
                     if (coordinates != null) {
                       var betterName = '';
+                      print('the coordinates: $coordinates');
                       await _getLocationName(coordinates);
                       locationName.replaceAll(' ', '');
                       var theName = locationName.split('\n');
+                      print('the name: ${theName.length}');
                       for (var i = 0; i < 7; i++) {
                         betterName += theName[i].trimLeft();
                       }
@@ -611,7 +617,7 @@ class _ShowMapState extends State<ShowMap> {
                       )
                   },
                   initialCameraPosition:
-                      CameraPosition(target: _center, zoom: 12.0),
+                      CameraPosition(target: _center, zoom: 13.0),
                   markers: listMarkers.isNotEmpty
                       ? Set.of(listMarkers)
                       : Set.of(noMarkers),
