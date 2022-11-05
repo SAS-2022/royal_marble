@@ -27,15 +27,6 @@ class MapProviders extends StatelessWidget {
             value: db.getAllUsers(),
             initialData: [],
             catchError: (context, err) => [UserData(error: err)]),
-
-        StreamProvider<Map<String, dynamic>>.value(
-          value: db.getAllUsersLocation(userIds: allUsers),
-          initialData: {},
-          catchError: (context, err) {
-            print('Could not get location: $err');
-            return {};
-          },
-        )
       ],
       child: ShowMap(
         currentUser: currentUser,

@@ -51,3 +51,15 @@ class Directions {
         ));
   }
 }
+
+class CustomMarker {
+  String id;
+  LatLng coord;
+  CustomMarker({
+    this.id,
+    this.coord,
+  });
+
+  @override
+  String toString() => 'CustomMarker(id: $id, coord: $coord)';
+}

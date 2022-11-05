@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:royal_marble/models/business_model.dart';
+import 'package:royal_marble/models/directions.dart';
 import 'package:sentry/sentry.dart' as sentry;
 import '../models/user_model.dart';
 
@@ -168,27 +169,31 @@ class DatabaseService {
     return userCollection.snapshots().map(_allUserDataFromSnapshot);
   }
 
-  Stream<Map<String, dynamic>> getAllUsersLocation({List<UserData> userIds}) {
-    List<Map<String, dynamic>> usersData = [];
-    var result;
-    for (var id in userIds) {
-      result = userCollection
-          .doc(id.uid)
-          .collection('location')
-          .doc('current')
-          .snapshots()
-          .map(_allUserLocationDataFromSnapshot);
-      print('the result: $result');
-      // result = {
-      //   'id': id.uid,
-      //   'firstName': id.firstName,
-      //   'lastName': id.lastName,
-      //   'phoneNumber': id.phoneNumber,
-      // };
-      // print('the result: $result');
-    }
+  Stream<List<CustomMarker>> getAllUsersLocation({String userId}) {
+    return userCollection
+        .doc(userId)
+        .collection('location')
+        .limit(1)
+        .snapshots()
+        .map(_allUserLocationDataFromSnapshot);
+  }
 
-    return result;
+  Future<Map<String, dynamic>> getUserLocationFuture({String usersId}) async {
+    return await userCollection
+        .doc(usersId)
+        .collection('location')
+        .doc('current')
+        .get()
+        .then((value) {
+      if (value.data() != null) {
+        return {
+          'lat': value.data()['location']['coords']['latitude'],
+          'lng': value.data()['location']['coords']['longitude']
+        };
+      } else {
+        return {};
+      }
+    });
   }
 
   Stream<List<UserData>> getAllWorkers() {
@@ -244,13 +249,16 @@ class DatabaseService {
     );
   }
 
-  Map<String, dynamic> _allUserLocationDataFromSnapshot(
-      DocumentSnapshot snapshot) {
-    var data = snapshot.data() as Map<String, dynamic>;
-    return {
-      'Lat': data['location']['coords']['latitude'],
-      'Lng': data['location']['coords']['longitude']
-    };
+  List<CustomMarker> _allUserLocationDataFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.map((snapshot) {
+      var data = snapshot.data() as Map<String, dynamic>;
+      var result = CustomMarker(
+          id: snapshot.id,
+          coord: LatLng(data['location']['coords']['latitude'],
+              data['location']['coords']['longitude']));
+
+      return result;
+    }).toList();
   }
 
   List<UserData> _allUserDataFromSnapshot(QuerySnapshot snapshot) {

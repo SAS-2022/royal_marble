@@ -76,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _motionActivity = 'UNKNOWN';
     _odometer = '0';
     _getLocationPermission();
-    _onClickEnable(_enabled);
+    //_onClickEnable(_enabled);
     //_onClickChangePace();
     Future.delayed(const Duration(seconds: 5), () => _setUserId());
   }
@@ -90,13 +90,13 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       userId = userProvider.uid;
     }
-    bg.BackgroundGeolocation.onLocation((bg.Location location) {
-      if (mounted) {
-        setState(() {
-          _locationJSON = encoder.convert(location.toMap());
-        });
-      }
-    });
+    // bg.BackgroundGeolocation.onLocation((bg.Location location) {
+    //   if (mounted) {
+    //     setState(() {
+    //       _locationJSON = encoder.convert(location.toMap());
+    //     });
+    //   }
+    // });
     //First confirgure background adapter
     if (userId != null) {
       BackgroundGeolocationFirebase.configure(
@@ -107,32 +107,32 @@ class _HomeScreenState extends State<HomeScreen> {
       ));
     }
 
-    bg.BackgroundGeolocation.ready(bg.Config(
-      debug: false,
-      distanceFilter: 50,
-      logLevel: bg.Config.LOG_LEVEL_VERBOSE,
-      stopTimeout: 1,
-      stopOnTerminate: false,
-      enableHeadless: true,
-      startOnBoot: true,
-    )).then((bg.State state) {
-      if (mounted) {
-        setState(() {
-          _enabled = state.enabled;
-          if (_enabled) {
-            _persistEnabled = true;
-            print('the geoloation started');
-            bg.BackgroundGeolocation.start();
-            _enablePersistMethod();
-          } else {
-            _persistEnabled = false;
-            bg.BackgroundGeolocation.stop();
-            print('the geolocation stopped');
-            _enablePersistMethod();
-          }
-        });
-      }
-    });
+    // bg.BackgroundGeolocation.ready(bg.Config(
+    //   debug: false,
+    //   distanceFilter: 50,
+    //   logLevel: bg.Config.LOG_LEVEL_VERBOSE,
+    //   stopTimeout: 1,
+    //   stopOnTerminate: false,
+    //   enableHeadless: true,
+    //   startOnBoot: true,
+    // )).then((bg.State state) {
+    //   if (mounted) {
+    //     setState(() {
+    //       _enabled = state.enabled;
+    //       if (_enabled) {
+    //         _persistEnabled = true;
+    //         print('the geoloation started');
+    //         bg.BackgroundGeolocation.start();
+    //         _enablePersistMethod();
+    //       } else {
+    //         _persistEnabled = false;
+    //         bg.BackgroundGeolocation.stop();
+    //         print('the geolocation stopped');
+    //         _enablePersistMethod();
+    //       }
+    //     });
+    //   }
+    // });
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
     // setState to update our non-existent appearance.
@@ -875,11 +875,11 @@ class _HomeScreenState extends State<HomeScreen> {
     if (userId == null) {
       if (userProvider.uid != null && _pref != null) {
         _pref.setString('userId', userProvider.uid);
-        Future.delayed(const Duration(seconds: 7), () => detectMotion());
+        // Future.delayed(const Duration(seconds: 7), () => detectMotion());
         Future.delayed(const Duration(seconds: 10), () => initPlatformState());
       }
     } else {
-      Future.delayed(const Duration(seconds: 7), () => detectMotion());
+      // Future.delayed(const Duration(seconds: 7), () => detectMotion());
       Future.delayed(const Duration(seconds: 10), () => initPlatformState());
     }
   }
