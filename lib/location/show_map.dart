@@ -1,6 +1,5 @@
 import 'dart:collection';
 import 'dart:io';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
@@ -31,6 +30,7 @@ class ShowMap extends StatefulWidget {
 
 class _ShowMapState extends State<ShowMap> {
   final _circleFormKey = GlobalKey<FormState>();
+  Stream<List<CustomMarker>> streamLocation;
   SnackBarWidget _snackBarWidget = SnackBarWidget();
   Map<String, dynamic> locationProvider;
   var projectProvider;
@@ -46,12 +46,15 @@ class _ShowMapState extends State<ShowMap> {
   LatLng _center;
   final _elevation = 3.0;
   List<Marker> listMarkers = [];
-  List<Marker> noMarkers = [];
+  Set<Marker> noMarkers = {};
   String clientSector;
   Future assignedMarkers;
   Size _size;
   int _circleIdCounter = 0;
   double radius = 1200;
+  Set<Marker> userMarkers;
+  String locationName;
+  LatLng _selectedLocation;
 
   // var markerId = MarkerId('one');
   Marker marker1 = Marker(
@@ -91,7 +94,7 @@ class _ShowMapState extends State<ShowMap> {
   Future<List<Marker>> _getProjectMarker() async {}
 
   //Function will get the client markers assign by each sales depending on their previlage
-  Future<List<Marker>> _getClientMarker() async {
+  Future<Set<Marker>> _getClientMarker() async {
     listMarkers.clear();
     if (widget.currentUser.roles.contains('isAdmin')) {
       var currentClients = await db.getClientFuture();
@@ -134,7 +137,11 @@ class _ShowMapState extends State<ShowMap> {
         }
       }
     }
-    return listMarkers;
+
+    userMarkers = Set.of(listMarkers);
+    print('the user markers: $userMarkers');
+
+    return userMarkers;
   }
 
   //Get directions
@@ -277,9 +284,9 @@ class _ShowMapState extends State<ShowMap> {
     }
   }
 
-  Future<List<Marker>> _getUserMarker(
+  Future<Set<Marker>> _getUserMarker(
       {double lat, double lng, String uid}) async {
-    // listMarkers.clear();
+    listMarkers.clear();
     if (widget.currentUser.roles.contains('isAdmin')) {
       if (userProvider != null && userProvider.isNotEmpty) {
         if (listMarkers.isEmpty) {
@@ -332,33 +339,28 @@ class _ShowMapState extends State<ShowMap> {
         }
       }
     }
-    print('an event of markerts: $listMarkers');
-    return listMarkers;
+    userMarkers = Set.of(listMarkers);
+
+    return userMarkers;
   }
 
   void updateMarkers() async {
     for (var user in userProvider) {
-      Stream<List<CustomMarker>> streamLocation =
-          db.getAllUsersLocation(userId: user.uid);
+      streamLocation = db.getAllUsersLocation(userId: user.uid);
 
       streamLocation.listen((event) {
-        print('an event was emitted: $event');
         if (event != null && event.isNotEmpty) {
           _getUserMarker(
               uid: user.uid,
               lat: event.first.coord.latitude,
               lng: event.first.coord.longitude);
         }
-        // if (mounted) {
-        //   setState(() {});
-        // }
       });
     }
   }
 
   Widget _buildLocationSelection() {
-    updateMarkers();
-
+    // updateMarkers();
     return Stack(
       children: [
         SizedBox(
@@ -367,14 +369,65 @@ class _ShowMapState extends State<ShowMap> {
           child: Stack(
             children: [
               userProvider != null
-                  ? StatefulBuilder(builder: (context, setState) {
-                      return GoogleMapMarkers(
-                        currentUser: widget.currentUser,
-                        projectData: projectProvider,
-                        center: _center,
-                        userMarkers: listMarkers,
-                      );
-                    })
+                  ? StreamBuilder(
+                      stream: streamLocation,
+                      builder: (context, setState) {
+                        return GoogleMap(
+                          onLongPress: (coordinates) async {
+                            //assing circule
+                            if (coordinates != null) {
+                              var betterName = '';
+                              await _getLocationName(coordinates);
+                              locationName.replaceAll(' ', '');
+                              var theName = locationName.split('\n');
+
+                              for (var i = 0; i < 7; i++) {
+                                betterName += theName[i].trimLeft();
+                              }
+
+                              var projectLocation = {
+                                'Lat': coordinates.latitude,
+                                'Lng': coordinates.longitude,
+                                'addressName': betterName
+                              };
+
+                              await Navigator.push(context,
+                                  MaterialPageRoute(builder: (_) {
+                                return ProjectForm(
+                                  projectLocation: projectLocation,
+                                  isNewProject: true,
+                                  currentUser: widget.currentUser,
+                                );
+                              }));
+                            }
+                          },
+                          onTap: (coordinates) {
+                            _selectedLocation = coordinates;
+                          },
+                          circles: _circules,
+                          mapToolbarEnabled: true,
+                          myLocationButtonEnabled: true,
+                          myLocationEnabled: false,
+                          polylines: {
+                            if (_info != null)
+                              Polyline(
+                                polylineId:
+                                    const PolylineId('overview_polyline'),
+                                color: Colors.red,
+                                width: 5,
+                                points: _info.polylinePoints
+                                    .map((e) => LatLng(e.latitude, e.longitude))
+                                    .toList(),
+                              )
+                          },
+                          initialCameraPosition:
+                              CameraPosition(target: _center, zoom: 13.0),
+                          markers: userMarkers != null && userMarkers.isNotEmpty
+                              ? userMarkers
+                              : noMarkers,
+                          mapType: MapType.normal,
+                        );
+                      })
                   : const Center(child: Loading()),
               if (_info != null)
                 Positioned(
@@ -449,101 +502,6 @@ class _ShowMapState extends State<ShowMap> {
       ],
     );
   }
-}
-
-class GoogleMapMarkers extends StatefulWidget {
-  const GoogleMapMarkers(
-      {Key key,
-      this.currentUser,
-      this.projectData,
-      this.center,
-      this.userMarkers})
-      : super(key: key);
-  final UserData currentUser;
-  final List<ProjectData> projectData;
-  final List<Marker> userMarkers;
-  final LatLng center;
-
-  @override
-  State<GoogleMapMarkers> createState() => _GoogleMapMarkersState();
-}
-
-class _GoogleMapMarkersState extends State<GoogleMapMarkers> {
-  Set<Marker> userMarkers;
-  String locationName;
-  LatLng _selectedLocation;
-  Set<Circle> _circules = HashSet<Circle>();
-  DatabaseService db = DatabaseService();
-  Directions _info;
-  Set<Marker> noMarker = {};
-
-  Marker marker1 = Marker(
-      markerId: const MarkerId('No clients were loaded'),
-      position: const LatLng(26.3650133, 50.19190929999999),
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow));
-
-  @override
-  void initState() {
-    super.initState();
-    noMarker.add(marker1);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GoogleMap(
-      onLongPress: (coordinates) async {
-        //assing circule
-        if (coordinates != null) {
-          var betterName = '';
-
-          await _getLocationName(coordinates);
-          locationName.replaceAll(' ', '');
-          var theName = locationName.split('\n');
-
-          for (var i = 0; i < 7; i++) {
-            betterName += theName[i].trimLeft();
-          }
-
-          var projectLocation = {
-            'Lat': coordinates.latitude,
-            'Lng': coordinates.longitude,
-            'addressName': betterName
-          };
-
-          await Navigator.push(context, MaterialPageRoute(builder: (_) {
-            return ProjectForm(
-              projectLocation: projectLocation,
-              isNewProject: true,
-              currentUser: widget.currentUser,
-            );
-          }));
-        }
-      },
-      onTap: (coordinates) {
-        _selectedLocation = coordinates;
-      },
-      circles: _circules,
-      mapToolbarEnabled: true,
-      myLocationButtonEnabled: true,
-      myLocationEnabled: false,
-      polylines: {
-        if (_info != null)
-          Polyline(
-            polylineId: const PolylineId('overview_polyline'),
-            color: Colors.red,
-            width: 5,
-            points: _info.polylinePoints
-                .map((e) => LatLng(e.latitude, e.longitude))
-                .toList(),
-          )
-      },
-      initialCameraPosition: CameraPosition(target: widget.center, zoom: 13.0),
-      markers: widget.userMarkers != null && widget.userMarkers.isNotEmpty
-          ? Set.of(widget.userMarkers)
-          : noMarker,
-      mapType: MapType.normal,
-    );
-  }
 
   Future<void> _getLocationName(coordinates) async {
     await placemarkFromCoordinates(coordinates.latitude, coordinates.longitude)
@@ -556,60 +514,5 @@ class _GoogleMapMarkersState extends State<GoogleMapMarkers> {
         locationName = '${value[4]}';
       }
     });
-  }
-
-  void _setCirclesLocations() {
-    _circules.clear();
-    for (var project in widget.projectData) {
-      _circules.add(Circle(
-          consumeTapEvents: true,
-          onTap: () {
-            _showDialog(
-                title: project.projectName,
-                content: project.projectDetails,
-                projectData: project);
-          },
-          circleId: CircleId(project.uid),
-          center: LatLng(
-              project.projectAddress['Lat'], project.projectAddress['Lng']),
-          radius: project.radius,
-          fillColor: Colors.redAccent.withOpacity(0.3),
-          strokeWidth: 3,
-          strokeColor: Colors.redAccent));
-    }
-  }
-
-  void _showDialog({String title, String content, ProjectData projectData}) {
-    showDialog(
-        context: context,
-        builder: (_) {
-          return AlertDialog(
-            title: Text(title),
-            content: Text(content),
-            actions: [
-              //Delete the project
-              projectData != null
-                  ? Center(
-                      child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromARGB(255, 56, 52, 11),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25.0),
-                            ),
-                          ),
-                          onPressed: () async {
-                            if (projectData.uid != null) {
-                              await db.deleteProject(
-                                  projectId: projectData.uid);
-                              Navigator.pop(context);
-                            }
-                          },
-                          child: const Text('Delete')),
-                    )
-                  : const SizedBox.shrink()
-            ],
-          );
-        });
   }
 }
