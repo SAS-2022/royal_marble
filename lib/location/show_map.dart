@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -29,7 +30,6 @@ class ShowMap extends StatefulWidget {
 }
 
 class _ShowMapState extends State<ShowMap> {
-  final _circleFormKey = GlobalKey<FormState>();
   Stream<List<CustomMarker>> streamLocation;
   SnackBarWidget _snackBarWidget = SnackBarWidget();
   Map<String, dynamic> locationProvider;
@@ -50,11 +50,11 @@ class _ShowMapState extends State<ShowMap> {
   String clientSector;
   Future assignedMarkers;
   Size _size;
-  int _circleIdCounter = 0;
   double radius = 1200;
   Set<Marker> userMarkers;
   String locationName;
   LatLng _selectedLocation;
+  Timer _timer;
 
   // var markerId = MarkerId('one');
   Marker marker1 = Marker(
@@ -72,6 +72,15 @@ class _ShowMapState extends State<ShowMap> {
     noMarkers.add(marker1);
     _getMyCurrentLocation = _determinePosition();
     _snackBarWidget.context = context;
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      updateState();
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _timer.cancel();
   }
 
   Future<void> _identifyMapMarkers() async {
@@ -83,15 +92,8 @@ class _ShowMapState extends State<ShowMap> {
         assignedMarkers = _getClientMarker();
         title = 'Clients';
         break;
-
-      case 'projects':
-        await _getProjectMarker();
-        title = 'Projects';
-        break;
     }
   }
-
-  Future<List<Marker>> _getProjectMarker() async {}
 
   //Function will get the client markers assign by each sales depending on their previlage
   Future<Set<Marker>> _getClientMarker() async {
@@ -137,10 +139,7 @@ class _ShowMapState extends State<ShowMap> {
         }
       }
     }
-
     userMarkers = Set.of(listMarkers);
-    print('the user markers: $userMarkers');
-
     return userMarkers;
   }
 
@@ -258,7 +257,7 @@ class _ShowMapState extends State<ShowMap> {
     if (widget.listOfMarkers == 'users' &&
         userProvider != null &&
         userProvider.isNotEmpty) {
-      updateMarkers();
+      setInitialMarkers();
     }
     return WillPopScope(
       onWillPop: () {
@@ -284,83 +283,85 @@ class _ShowMapState extends State<ShowMap> {
     }
   }
 
-  Future<Set<Marker>> _getUserMarker(
-      {double lat, double lng, String uid}) async {
+  void updateState() {
+    setState(() {});
+  }
+
+  Future setInitialMarkers() async {
     listMarkers.clear();
-    if (widget.currentUser.roles.contains('isAdmin')) {
-      if (userProvider != null && userProvider.isNotEmpty) {
-        if (listMarkers.isEmpty) {
-          listMarkers.add(
-            Marker(
-              markerId: MarkerId(uid),
-              position: LatLng(lat, lng),
-              icon: BitmapDescriptor.defaultMarkerWithHue(
-                  BitmapDescriptor.hueOrange),
-              infoWindow: InfoWindow(
-                  title: 'Testing now',
-                  // snippet: user.phoneNumber,
-                  onTap: () {}),
-            ),
-          );
-        }
-        for (var marker in listMarkers) {
-          if (marker.markerId.value == uid) {
-            var selectedMarker = listMarkers
-                .firstWhere((element) => element.markerId.value == uid);
-
-            if (selectedMarker != null) {
-              var index = listMarkers.indexOf(selectedMarker);
-
-              listMarkers[index] = Marker(
-                markerId: MarkerId(uid),
-                position: LatLng(lat, lng),
-                icon: BitmapDescriptor.defaultMarkerWithHue(
-                    BitmapDescriptor.hueOrange),
-                infoWindow: InfoWindow(
-                    title: 'Testing now',
-                    // snippet: user.phoneNumber,
-                    onTap: () {}),
-              );
-            }
-          } else {
-            listMarkers.add(
-              Marker(
-                markerId: MarkerId(uid),
-                position: LatLng(lat, lng),
-                icon: BitmapDescriptor.defaultMarkerWithHue(
-                    BitmapDescriptor.hueOrange),
-                infoWindow: InfoWindow(
-                    title: 'Testing now',
-                    // snippet: user.phoneNumber,
-                    onTap: () {}),
-              ),
-            );
-          }
-        }
-      }
+    for (var user in userProvider) {
+      streamLocation = db.getAllUsersLocation(userId: user.uid);
+      var result = await streamLocation.first;
+      _setInitialMarkers(
+        uuid: result.first.id,
+        userData: user,
+        lat: result.first.coord.latitude,
+        lng: result.first.coord.longitude,
+      );
     }
+    //assign a listener to stream events
+    streamLocation.listen((event) {
+      updateMarkers(
+          uuid: event.first.id,
+          newCoords:
+              LatLng(event.first.coord.latitude, event.first.coord.longitude));
+    });
+  }
+
+  Future<Set<Marker>> _setInitialMarkers(
+      {String uuid, double lat, double lng, UserData userData}) async {
+    listMarkers.add(
+      Marker(
+        markerId: MarkerId(uuid),
+        position: LatLng(lat, lng),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+        infoWindow: InfoWindow(
+            title: '${userData.firstName} ${userData.lastName}',
+            snippet: userData.phoneNumber,
+            onTap: () {}),
+      ),
+    );
     userMarkers = Set.of(listMarkers);
 
     return userMarkers;
   }
 
-  void updateMarkers() async {
-    for (var user in userProvider) {
-      streamLocation = db.getAllUsersLocation(userId: user.uid);
+  Future<Set<Marker>> _updateUserMarker(
+      {double lat, double lng, String uuid}) async {
+    for (var marker in listMarkers) {
+      if (marker.markerId.value == uuid) {
+        var selectedMarker =
+            listMarkers.firstWhere((element) => element.markerId.value == uuid);
 
-      streamLocation.listen((event) {
-        if (event != null && event.isNotEmpty) {
-          _getUserMarker(
-              uid: user.uid,
-              lat: event.first.coord.latitude,
-              lng: event.first.coord.longitude);
+        if (selectedMarker != null) {
+          var index = listMarkers.indexOf(selectedMarker);
+          print('the index: $index');
+          listMarkers[index] = Marker(
+            markerId: MarkerId(uuid),
+            position: LatLng(lat, lng),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+                BitmapDescriptor.hueOrange),
+            infoWindow: selectedMarker.infoWindow,
+          );
         }
-      });
+      }
+    }
+
+    userMarkers = Set.of(listMarkers);
+
+    return userMarkers;
+  }
+
+  void updateMarkers({LatLng newCoords, String uuid}) async {
+    if (uuid != null && newCoords != null) {
+      print('The new coords: $newCoords - $uuid');
+      _updateUserMarker(
+          lat: newCoords.latitude, lng: newCoords.longitude, uuid: uuid);
     }
   }
 
   Widget _buildLocationSelection() {
-    // updateMarkers();
+    //updateMarkers();
     return Stack(
       children: [
         SizedBox(
@@ -407,7 +408,7 @@ class _ShowMapState extends State<ShowMap> {
                           circles: _circules,
                           mapToolbarEnabled: true,
                           myLocationButtonEnabled: true,
-                          myLocationEnabled: false,
+                          myLocationEnabled: true,
                           polylines: {
                             if (_info != null)
                               Polyline(
@@ -476,7 +477,7 @@ class _ShowMapState extends State<ShowMap> {
                           style: textStyle4,
                         ),
                         Text(
-                          '${listMarkers.length}',
+                          '${userProvider.length}',
                           style: textStyle4,
                         ),
                         LayoutBuilder(

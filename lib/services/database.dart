@@ -253,7 +253,7 @@ class DatabaseService {
     return snapshot.docs.map((snapshot) {
       var data = snapshot.data() as Map<String, dynamic>;
       var result = CustomMarker(
-          id: snapshot.id,
+          id: data['location']['uuid'],
           coord: LatLng(data['location']['coords']['latitude'],
               data['location']['coords']['longitude']));
 

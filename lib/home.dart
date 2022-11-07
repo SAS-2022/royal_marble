@@ -76,8 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _motionActivity = 'UNKNOWN';
     _odometer = '0';
     _getLocationPermission();
-    //_onClickEnable(_enabled);
-    //_onClickChangePace();
+    _onClickEnable(_enabled);
     Future.delayed(const Duration(seconds: 5), () => _setUserId());
   }
 
@@ -90,64 +89,28 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       userId = userProvider.uid;
     }
-    // bg.BackgroundGeolocation.onLocation((bg.Location location) {
-    //   if (mounted) {
-    //     setState(() {
-    //       _locationJSON = encoder.convert(location.toMap());
-    //     });
-    //   }
-    // });
-    //First confirgure background adapter
+
+    bg.BackgroundGeolocation.onLocation((bg.Location location) {
+      if (mounted) {
+        setState(() {
+          _locationJSON = encoder.convert(location.toMap());
+        });
+      }
+    });
+
     if (userId != null) {
       BackgroundGeolocationFirebase.configure(
           BackgroundGeolocationFirebaseConfig(
         locationsCollection: 'users/$userId/location/current',
         // geofencesCollection: 'geofence',
         updateSingleDocument: true,
-      ));
+      )).catchError((err) {
+        print('An error occured: $err');
+      }).then((value) => print('the location was updated: Location'));
+      print('the current user ID: $userId');
     }
 
-    // bg.BackgroundGeolocation.ready(bg.Config(
-    //   debug: false,
-    //   distanceFilter: 50,
-    //   logLevel: bg.Config.LOG_LEVEL_VERBOSE,
-    //   stopTimeout: 1,
-    //   stopOnTerminate: false,
-    //   enableHeadless: true,
-    //   startOnBoot: true,
-    // )).then((bg.State state) {
-    //   if (mounted) {
-    //     setState(() {
-    //       _enabled = state.enabled;
-    //       if (_enabled) {
-    //         _persistEnabled = true;
-    //         print('the geoloation started');
-    //         bg.BackgroundGeolocation.start();
-    //         _enablePersistMethod();
-    //       } else {
-    //         _persistEnabled = false;
-    //         bg.BackgroundGeolocation.stop();
-    //         print('the geolocation stopped');
-    //         _enablePersistMethod();
-    //       }
-    //     });
-    //   }
-    // });
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
     if (!mounted) return;
-  }
-
-  //enable persist
-  void _enablePersistMethod() {
-    if (_persistEnabled) {
-      bg.BackgroundGeolocation.setConfig(
-          bg.Config(persistMode: bg.Config.PERSIST_MODE_ALL));
-    } else {
-      bg.BackgroundGeolocation.setConfig(
-          bg.Config(persistMode: bg.Config.PERSIST_MODE_NONE));
-    }
   }
 
   @override
@@ -556,19 +519,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       thickness: 3,
                     ),
                     //Messages from Admin
-                    Padding(
-                        padding: const EdgeInsets.only(top: 20, left: 15),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Distance Location: $_distanceLocation',
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                          ],
-                        )),
 
                     Padding(
                       padding: const EdgeInsets.only(top: 20, left: 15),
@@ -875,11 +825,11 @@ class _HomeScreenState extends State<HomeScreen> {
     if (userId == null) {
       if (userProvider.uid != null && _pref != null) {
         _pref.setString('userId', userProvider.uid);
-        // Future.delayed(const Duration(seconds: 7), () => detectMotion());
+        Future.delayed(const Duration(seconds: 7), () => detectMotion());
         Future.delayed(const Duration(seconds: 10), () => initPlatformState());
       }
     } else {
-      // Future.delayed(const Duration(seconds: 7), () => detectMotion());
+      Future.delayed(const Duration(seconds: 7), () => detectMotion());
       Future.delayed(const Duration(seconds: 10), () => initPlatformState());
     }
   }
@@ -916,18 +866,18 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // Manually toggle the tracking state:  moving vs stationary
-  void _onClickChangePace() {
-    setState(() {
-      _isMoving = !_isMoving;
-    });
-    print("[onClickChangePace] -> $_isMoving");
+  // void _onClickChangePace() {
+  //   setState(() {
+  //     _isMoving = !_isMoving;
+  //   });
+  //   print("[onClickChangePace] -> $_isMoving");
 
-    bg.BackgroundGeolocation.changePace(_isMoving).then((bool isMoving) {
-      print('[changePace] success $isMoving');
-    }).catchError((e) {
-      print('[changePace] ERROR: ' + e.code.toString());
-    });
-  }
+  //   bg.BackgroundGeolocation.changePace(_isMoving).then((bool isMoving) {
+  //     print('[changePace] success $isMoving');
+  //   }).catchError((e) {
+  //     print('[changePace] ERROR: ' + e.code.toString());
+  //   });
+  // }
 
   Future<void> _showProjectDialog({ProjectData projectData}) async {
     await showDialog(
