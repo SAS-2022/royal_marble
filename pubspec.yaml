@@ -44,6 +44,7 @@ dependencies:
   latlong2: ^0.8.1
   flutter_map: ^3.0.0
   http: ^0.13.5
+  intl: ^0.17.0
   # google_maps_place_picker: 2.1.0-nullsafety.3
 
 dev_dependencies:

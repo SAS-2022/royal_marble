@@ -16,6 +16,8 @@ class DatabaseService {
       FirebaseFirestore.instance.collection('clients');
   final CollectionReference projectCollection =
       FirebaseFirestore.instance.collection('projects');
+  final CollectionReference timeSheetCollection =
+      FirebaseFirestore.instance.collection('time_sheet');
 
   //Update the user data
   Future<String> updateUser({
@@ -467,7 +469,6 @@ class DatabaseService {
   //create a project with location
   Future<String> addNewProject({ProjectData project}) async {
     try {
-      print('the project address: ${project.projectAddress}');
       return await projectCollection.add({
         'projectName': project.projectName,
         'projectDetails': project.projectDetails,
@@ -634,6 +635,73 @@ class DatabaseService {
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
       return 'Error Deleting: $e';
+    }
+  }
+
+  //generating time sheet report
+  //Adding a new entry to the collection
+  Future<String> setWorkerTimeSheet(
+      {UserData currentUser,
+      String today,
+      ProjectData selectedProject,
+      bool isAtSite,
+      String checkIn,
+      String checkOut}) async {
+    try {
+      return await timeSheetCollection.doc(today).set({
+        currentUser.uid: {
+          'firstName': currentUser.firstName,
+          'lastName': currentUser.lastName,
+          'projectId': selectedProject.uid,
+          'projectName': selectedProject.projectName,
+          'arriving_at': checkIn,
+          'leaving_at': checkOut,
+          'isOnSite': isAtSite
+        }
+      }).then((value) => 'time sheet updated');
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return 'Error setting: $e';
+    }
+  }
+
+  //updating the current entry
+  Future<String> updateWorkerTimeSheet(
+      {UserData currentUser,
+      String today,
+      ProjectData selectedProject,
+      bool isAtSite,
+      String checkIn,
+      String checkOut}) async {
+    try {
+      return await timeSheetCollection.doc(today).set({
+        currentUser.uid: {
+          'firstName': currentUser.firstName,
+          'lastName': currentUser.lastName,
+          'projectId': selectedProject.uid,
+          'projectName': selectedProject.projectName,
+          'arriving_at': checkIn,
+          'leaving_at': checkOut,
+          'isOnSite': isAtSite
+        }
+      }).then((value) => 'time sheet updated');
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return 'Error updating: $e';
+    }
+  }
+
+  //reading the current entry
+  Future<Map<String, dynamic>> getCurrentTimeSheet({String today}) async {
+    try {
+      return await timeSheetCollection
+          .doc(today)
+          .get()
+          .then((value) => {'data': value.data()})
+          .catchError((err) => {'status': 'empty'});
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return {'Error': e};
     }
   }
 }

@@ -54,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Size _size;
   // List<ProjectData> assignedProject = [];
   List<dynamic> messages = [];
-
+  //required for location tracking
   bool _isMoving;
   bool _enabled;
   bool _persistEnabled;
@@ -661,10 +661,10 @@ class _HomeScreenState extends State<HomeScreen> {
       return await db.getPorjectByIdFuture(
           projectId: userProvider.assignedProject['id']);
     }
-
     return null;
   }
 
+  //will get the permission to access the location
   Future<void> _getLocationPermission() async {
     if (await Permission.location.serviceStatus.isEnabled) {
       var status = await Permission.location.status;
@@ -784,20 +784,6 @@ class _HomeScreenState extends State<HomeScreen> {
         lng = location.coords.latitude;
       });
     }
-    print('the odometerME: $odometerME');
-    if (odometerME > 150) {
-      HttpsCallable callable =
-          FirebaseFunctions.instance.httpsCallable('callingFunction');
-      await callable.call(<String, dynamic>{
-        'location': {
-          'lat': location.coords.latitude,
-          'lng': location.coords.longitude,
-        }
-      });
-      //update the database with the new coordinated
-      getCurrentLocation();
-      odometerME = 0.0;
-    }
   }
 
   void _onMotionChange(bg.Location location) {
@@ -864,20 +850,6 @@ class _HomeScreenState extends State<HomeScreen> {
       bg.BackgroundGeolocation.stop().then(callback);
     }
   }
-
-  // Manually toggle the tracking state:  moving vs stationary
-  // void _onClickChangePace() {
-  //   setState(() {
-  //     _isMoving = !_isMoving;
-  //   });
-  //   print("[onClickChangePace] -> $_isMoving");
-
-  //   bg.BackgroundGeolocation.changePace(_isMoving).then((bool isMoving) {
-  //     print('[changePace] success $isMoving');
-  //   }).catchError((e) {
-  //     print('[changePace] ERROR: ' + e.code.toString());
-  //   });
-  // }
 
   Future<void> _showProjectDialog({ProjectData projectData}) async {
     await showDialog(
