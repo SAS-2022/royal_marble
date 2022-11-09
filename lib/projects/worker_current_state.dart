@@ -122,6 +122,7 @@ class _WorkerWidgetState extends State<WorkerWidget> {
   bool _arrivedToSite = false;
   Size _size;
   double totalDistance;
+  DatabaseService db = DatabaseService();
 
   @override
   void initState() {
@@ -134,25 +135,80 @@ class _WorkerWidgetState extends State<WorkerWidget> {
     _size = MediaQuery.of(context).size;
 
     return SingleChildScrollView(
-      child: ListTile(
-        leading: const Text('User Photo'),
-        title: Text('${_userProvider.firstName} ${_userProvider.lastName}'),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Mobile: ${_userProvider.phoneNumber}'),
-            Text(
-                'Distance To Site: ${_userProvider.distanceToProject.toString()}')
-          ],
+      child: Dismissible(
+        key: Key(_userProvider.uid),
+        confirmDismiss: ((direction) async {
+          var result;
+          showDialog(
+              context: context,
+              builder: (_) => AlertDialog(
+                    title: const Text('Removing Worker'),
+                    content: const Text(
+                        'Are you sure you want to remove this worker from the project, this cannot be undone?'),
+                    actions: [
+                      TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text('No')),
+                      TextButton(
+                          onPressed: () async {
+                            result = await db.removeUserFromProject(
+                                selectedProject: widget.currentProject,
+                                userId: _userProvider.uid);
+                          },
+                          child: const Text('Yes'))
+                    ],
+                  ));
+          print('the result: $result');
+          if (result == 'Deleted Project') {
+            Navigator.pop(context);
+            return result;
+          } else {
+            Navigator.pop(context);
+            return null;
+          }
+        }),
+        onDismissed: (direction) async {
+          //The following code with remove user from the project
+        },
+        background: Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: Container(
+            color: Colors.red,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Container(
+                padding: const EdgeInsets.only(right: 5.0),
+                child: const Text(
+                  'Remove',
+                  style: textStyle3,
+                ),
+              ),
+            ),
+          ),
         ),
-        trailing: Container(
-          width: 20,
-          decoration: BoxDecoration(
-              color: _userProvider.distanceToProject != null &&
-                      _userProvider.distanceToProject <=
-                          _userProvider.assignedProject['radius']
-                  ? Colors.green
-                  : Colors.yellow),
+        direction: DismissDirection.endToStart,
+        child: ListTile(
+          leading: const Text('User Photo'),
+          title: Text('${_userProvider.firstName} ${_userProvider.lastName}'),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Mobile: ${_userProvider.phoneNumber}'),
+              Text(
+                  'Distance To Site: ${_userProvider.distanceToProject.toString()}')
+            ],
+          ),
+          trailing: Container(
+            width: 20,
+            decoration: BoxDecoration(
+                color: _userProvider.distanceToProject != null &&
+                        _userProvider.distanceToProject <=
+                            _userProvider.assignedProject['radius']
+                    ? Colors.green
+                    : Colors.yellow),
+          ),
         ),
       ),
     );

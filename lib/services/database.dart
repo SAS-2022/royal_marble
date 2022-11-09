@@ -552,8 +552,50 @@ class DatabaseService {
     }
   }
 
-  //Get projects through streams and Futures
+  //removing users from a selected project
+  Future<String> removeUserFromProject(
+      {ProjectData selectedProject, String userId}) async {
+    var result;
+    try {
+      //first remove user id from the project
+      List<dynamic> projectAssignedUsers =
+          await projectCollection.doc(selectedProject.uid).get().then((value) {
+        var data = value.data() as Map<String, dynamic>;
+        return data['assignedWorkers'];
+      });
+      //will remove current user
+      if (projectAssignedUsers != null && projectAssignedUsers.isNotEmpty) {
+        projectAssignedUsers.removeWhere((element) => element == userId);
+        //now assign the new list to the project
+        await projectCollection
+            .doc(selectedProject.uid)
+            .update({'assignedWorkers': projectAssignedUsers}).catchError(
+                (err) => print('Could not update project assigned workers'));
+      }
 
+      //now we need to remove the assigned project from the user's document
+      var assignedProject =
+          await userCollection.doc(userId).get().then((value) {
+        var data = value.data() as Map<String, dynamic>;
+        return data['assignedProject'];
+      });
+
+      if (assignedProject['id'] == selectedProject.uid) {
+        result = await userCollection
+            .doc(userId)
+            .update({'assignedProject': {}})
+            .then((value) => 'Deleted Project')
+            .catchError((err) => 'Error: $err');
+      }
+      return result;
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      print('An error removing users: $e');
+      return 'Error: $e';
+    }
+  }
+
+  //Get projects through streams and Futures
   Stream<List<ProjectData>> getAllProjects() {
     return projectCollection.snapshots().map(_listProjectDataFromSnapshot);
   }
