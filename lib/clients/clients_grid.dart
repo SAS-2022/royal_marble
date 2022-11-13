@@ -25,15 +25,15 @@ class _ClientGridState extends State<ClientGrid> {
                 value: db.getAllClients(),
                 initialData: const [],
                 catchError: (context, err) {
-                 // print('Error getting client: $err');
+                  // print('Error getting client: $err');
                   return [];
                 },
               )
             : StreamProvider<List<ClientData>>.value(
-                value: db.getClientsPerUser(),
+                value: db.getClientsPerUser(userId: widget.currentUser.uid),
                 initialData: const [],
                 catchError: (context, err) {
-                 // print('Error getting client: $err');
+                  // print('Error getting client: $err');
                   return [];
                 },
               ),

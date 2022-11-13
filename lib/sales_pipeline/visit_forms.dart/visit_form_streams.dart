@@ -15,14 +15,23 @@ class VisitFormStreams extends StatelessWidget {
 
     return MultiProvider(
       providers: [
-        StreamProvider<List<ClientData>>.value(
-          value: db.getClientsPerUser(userId: currentUser.uid),
-          initialData: const [],
-          catchError: (context, err) {
-            //print('Error getting clients: $err');
-            return [];
-          },
-        )
+        currentUser.roles.contains('isAdmin')
+            ? StreamProvider<List<ClientData>>.value(
+                value: db.getAllClients(),
+                initialData: const [],
+                catchError: (context, err) {
+                  // print('Error getting client: $err');
+                  return [];
+                },
+              )
+            : StreamProvider<List<ClientData>>.value(
+                value: db.getClientsPerUser(userId: currentUser.uid),
+                initialData: const [],
+                catchError: (context, err) {
+                  // print('Error getting client: $err');
+                  return [];
+                },
+              ),
       ],
       child: VisitFormOne(),
     );

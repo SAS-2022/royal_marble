@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:provider/provider.dart';
 import 'package:royal_marble/models/business_model.dart';
+import 'package:royal_marble/sales_pipeline/visit_forms.dart/visit_form_two.dart';
 import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/shared/snack_bar.dart';
 import '../../shared/constants.dart';
@@ -315,13 +316,18 @@ class _VisitFormOneState extends State<VisitFormOne> {
                           const SizedBox(height: 25),
                           ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                  primary:
+                                  backgroundColor:
                                       const Color.fromARGB(255, 191, 180, 66),
                                   fixedSize: Size(size.width, 45),
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(25))),
                               onPressed: () async {
-                                if (_formKey.currentState.validate()) {}
+                                if (_formKey.currentState.validate()) {
+                                  await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) => VisitFormTwo()));
+                                }
                               },
                               child: const Text(
                                 'Submit',
