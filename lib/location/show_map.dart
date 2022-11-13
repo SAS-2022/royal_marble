@@ -32,6 +32,7 @@ class ShowMap extends StatefulWidget {
 class _ShowMapState extends State<ShowMap> {
   Stream<List<CustomMarker>> streamLocation;
   SnackBarWidget _snackBarWidget = SnackBarWidget();
+  GoogleMapController _mapController;
   Map<String, dynamic> locationProvider;
   var projectProvider;
   var userProvider;
@@ -256,6 +257,8 @@ class _ShowMapState extends State<ShowMap> {
       long = currentLocation.longitude;
     });
     _center = LatLng(lat, long);
+    _mapController.animateCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(target: _center, zoom: 13.5)));
     return currentLocation;
   }
 
@@ -393,65 +396,65 @@ class _ShowMapState extends State<ShowMap> {
           child: Stack(
             children: [
               userProvider != null
-                  ? StreamBuilder(
-                      stream: streamLocation,
-                      builder: (context, setState) {
-                        return GoogleMap(
-                          onLongPress: (coordinates) async {
-                            //assing circule
-                            if (coordinates != null) {
-                              var betterName = '';
-                              await _getLocationName(coordinates);
-                              locationName.replaceAll(' ', '');
-                              var theName = locationName.split('\n');
+                  ? GoogleMap(
+                      onMapCreated: (controller) {
+                        setState(() {
+                          _mapController = controller;
+                        });
+                      },
+                      onLongPress: (coordinates) async {
+                        //assing circule
+                        if (coordinates != null) {
+                          var betterName = '';
+                          await _getLocationName(coordinates);
+                          locationName.replaceAll(' ', '');
+                          var theName = locationName.split('\n');
 
-                              for (var i = 0; i < 7; i++) {
-                                betterName += theName[i].trimLeft();
-                              }
+                          for (var i = 0; i < 7; i++) {
+                            betterName += theName[i].trimLeft();
+                          }
 
-                              var projectLocation = {
-                                'Lat': coordinates.latitude,
-                                'Lng': coordinates.longitude,
-                                'addressName': betterName
-                              };
+                          var projectLocation = {
+                            'Lat': coordinates.latitude,
+                            'Lng': coordinates.longitude,
+                            'addressName': betterName
+                          };
 
-                              await Navigator.push(context,
-                                  MaterialPageRoute(builder: (_) {
-                                return ProjectForm(
-                                  projectLocation: projectLocation,
-                                  isNewProject: true,
-                                  currentUser: widget.currentUser,
-                                );
-                              }));
-                            }
-                          },
-                          onTap: (coordinates) {
-                            _selectedLocation = coordinates;
-                          },
-                          circles: _circules,
-                          mapToolbarEnabled: true,
-                          myLocationButtonEnabled: true,
-                          myLocationEnabled: true,
-                          polylines: {
-                            if (_info != null)
-                              Polyline(
-                                polylineId:
-                                    const PolylineId('overview_polyline'),
-                                color: Colors.red,
-                                width: 5,
-                                points: _info.polylinePoints
-                                    .map((e) => LatLng(e.latitude, e.longitude))
-                                    .toList(),
-                              )
-                          },
-                          initialCameraPosition:
-                              CameraPosition(target: _center, zoom: 13.0),
-                          markers: listMarkers != null && listMarkers.isNotEmpty
-                              ? Set.of(listMarkers.values)
-                              : noMarkers,
-                          mapType: MapType.normal,
-                        );
-                      })
+                          await Navigator.push(context,
+                              MaterialPageRoute(builder: (_) {
+                            return ProjectForm(
+                              projectLocation: projectLocation,
+                              isNewProject: true,
+                              currentUser: widget.currentUser,
+                            );
+                          }));
+                        }
+                      },
+                      onTap: (coordinates) {
+                        _selectedLocation = coordinates;
+                      },
+                      circles: _circules,
+                      mapToolbarEnabled: true,
+                      myLocationButtonEnabled: true,
+                      myLocationEnabled: true,
+                      polylines: {
+                        if (_info != null)
+                          Polyline(
+                            polylineId: const PolylineId('overview_polyline'),
+                            color: Colors.red,
+                            width: 5,
+                            points: _info.polylinePoints
+                                .map((e) => LatLng(e.latitude, e.longitude))
+                                .toList(),
+                          )
+                      },
+                      initialCameraPosition:
+                          CameraPosition(target: _center, zoom: 13.0),
+                      markers: listMarkers != null && listMarkers.isNotEmpty
+                          ? Set.of(listMarkers.values)
+                          : noMarkers,
+                      mapType: MapType.normal,
+                    )
                   : const Center(child: Loading()),
               if (_info != null)
                 Positioned(
