@@ -41,8 +41,24 @@ class _UserDetailsState extends State<UserDetails> {
       newUserData.company = widget.currentUser.company;
       newUserData.nationality = widget.currentUser.nationality;
       newUserData.homeAddress = widget.currentUser.homeAddress;
+
       if (newUserData.homeAddress != null) {
         _myLocation = newUserData.homeAddress;
+      }
+      //show the current user role
+      if (widget.currentUser.roles != null &&
+          widget.currentUser.roles.isNotEmpty) {
+        switch (widget.currentUser.roles.first.toString()) {
+          case 'isNormalUser':
+            selectedRoles = 'Worker';
+            break;
+          case 'isAdmin':
+            selectedRoles = 'Admin';
+            break;
+          case 'isSales':
+            selectedRoles = 'Sales';
+            break;
+        }
       }
     }
   }

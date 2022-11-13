@@ -37,6 +37,7 @@ class _ClientFormState extends State<ClientForm> {
     super.initState();
     _snackBarWidget.context = context;
     newClient.userId = widget.currentUser.uid;
+    print('the new client: ${newClient.userId}');
     if (widget.client != null) {
       newClient = widget.client;
 
@@ -46,6 +47,7 @@ class _ClientFormState extends State<ClientForm> {
           'Lat': newClient.clientAddress['Lat'],
           'Lng': newClient.clientAddress['Lng'],
         };
+        print('where is my location $_myLocation');
       }
     }
   }
@@ -58,16 +60,18 @@ class _ClientFormState extends State<ClientForm> {
         title: const Text('Client Form'),
         backgroundColor: const Color.fromARGB(255, 191, 180, 66),
         actions: [
-          TextButton(
-              onPressed: () {
-                setState(() {
-                  _editContent = !_editContent;
-                });
-              },
-              child: const Text(
-                'Edit',
-                style: buttonStyle,
-              ))
+          !widget.isNewClient
+              ? TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _editContent = !_editContent;
+                    });
+                  },
+                  child: const Text(
+                    'Edit',
+                    style: buttonStyle,
+                  ))
+              : const SizedBox.shrink()
         ],
       ),
       body: widget.isNewClient
@@ -254,10 +258,13 @@ class _ClientFormState extends State<ClientForm> {
                 const SizedBox(
                   height: 15,
                 ),
-                SizedBox(
-                  height: 40,
-                  child: Center(child: Text('${_myLocation['addressName']}')),
-                ),
+                _myLocation.isNotEmpty
+                    ? SizedBox(
+                        height: 40,
+                        child: Center(
+                            child: Text('${_myLocation['addressName']}')),
+                      )
+                    : const SizedBox.shrink(),
                 const SizedBox(
                   height: 15,
                 ),
@@ -530,19 +537,34 @@ class _ClientFormState extends State<ClientForm> {
                                       )));
                         }
                       },
-                      child: Container(
-                        decoration: BoxDecoration(
-                            border: Border.all(),
-                            borderRadius: BorderRadius.circular(15)),
-                        height: 50,
-                        child: Center(
-                          child: Text(
-                            _myLocation.isNotEmpty
-                                ? 'Change Address'
-                                : 'Add Address',
-                            style: textStyle5,
+                      child: Column(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                                border: Border.all(),
+                                borderRadius: BorderRadius.circular(15)),
+                            height: 50,
+                            child: Center(
+                              child: Text(
+                                _myLocation.isNotEmpty
+                                    ? 'Change Address'
+                                    : 'Add Address',
+                                style: textStyle5,
+                              ),
+                            ),
                           ),
-                        ),
+                          _myLocation.isNotEmpty
+                              ? Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: SizedBox(
+                                    height: 40,
+                                    child: Center(
+                                        child: Text(
+                                            '${_myLocation['addressName']}')),
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
+                        ],
                       ),
                     )
                   : Row(children: [

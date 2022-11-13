@@ -61,5 +61,11 @@ const textStyle9 = TextStyle(
   color: Colors.black,
 );
 
+const textStyle10 = TextStyle(
+    fontSize: 24,
+    fontFamily: 'San Fransisco',
+    color: Colors.black,
+    fontWeight: FontWeight.bold);
+
 const buttonStyle =
     TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold, color: Colors.white);
