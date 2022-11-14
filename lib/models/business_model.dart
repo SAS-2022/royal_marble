@@ -50,12 +50,22 @@ class ProjectData {
 }
 
 class VisitDetails {
-  String visitContent;
+  String uid;
+  String clientId;
+  String clientName;
+  String visitPurpose;
+  String visitDetails;
   String contactPerson;
   DateTime visitTime;
+  String error;
   VisitDetails({
-    this.visitContent,
+    this.uid,
+    this.clientId,
+    this.clientName,
+    this.visitPurpose,
+    this.visitDetails,
     this.contactPerson,
     this.visitTime,
+    this.error,
   });
 }

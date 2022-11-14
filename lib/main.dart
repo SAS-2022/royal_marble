@@ -76,39 +76,6 @@ void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
   }
 }
 
-//Receive information in backgroundFetch in headless state
-// void backgroundFetchHeadlessTask(HeadlessTask task) async {
-//   String taskId = task.taskId;
-//   print('the task: $task');
-//   //if background fetch timeout event? finish and bail out
-//   if (task.timeout) {
-//     print('[BackgroundFetch] - Headless Task Timeout: $taskId');
-//     BackgroundFetch.finish(taskId);
-//     return;
-//   }
-
-//   try {
-//     var location =
-//         await bg.BackgroundGeolocation.getCurrentPosition(samples: 1, extras: {
-//       'event': 'background-fetch',
-//       'headless': true,
-//     });
-//     print('[Location] - $location');
-//   } catch (e) {
-//     print('[Location] Error - $e');
-//   }
-
-//   SharedPreferences prefs = await SharedPreferences.getInstance();
-//   int count = 0;
-//   if (prefs.get('fetch-count') != null) {
-//     count = prefs.getInt('fetch-count');
-//   }
-//   prefs.setInt('fetch-count', ++count);
-//   print('[BackgroundFetch] - count: $count');
-
-//   BackgroundFetch.finish(taskId);
-// }
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();

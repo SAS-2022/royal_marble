@@ -347,25 +347,6 @@ class DatabaseService {
     }
   }
 
-  //add a client visit
-  Future<String> addClientVisit(
-      {ClientData client, VisitDetails visitDetails}) async {
-    try {
-      return await clientCollection.doc(client.uid).update({
-        'clientVisits': FieldValue.arrayUnion([
-          {
-            'contactPerson': visitDetails.contactPerson,
-            'visitContent': visitDetails.visitContent,
-            'visitTime': visitDetails.visitTime
-          }
-        ])
-      }).then((value) => 'Completed');
-    } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
-      return 'Error: $e';
-    }
-  }
-
   //deleting clients
   Future<void> deleteClient({String clientId}) async {
     try {
@@ -744,6 +725,82 @@ class DatabaseService {
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
       return {'Error': e};
+    }
+  }
+
+  //sales user pipeline
+  //add a sales visit
+  Future<String> addNewSalesVisit(
+      {String userId,
+      ClientData selectedClient,
+      String contact,
+      String visitPurpose,
+      String visitDetails,
+      DateTime visitTime}) async {
+    try {
+      return await userCollection.doc(userId).collection('clientVisits').add({
+        'clientId': selectedClient.uid,
+        'clientName': selectedClient.clientName,
+        'contact': contact,
+        'visitPurpose': visitPurpose,
+        'visitDetails': visitDetails,
+        'visitTime': visitTime,
+      }).then((value) => 'Document added Successfully');
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return e;
+    }
+  }
+
+  //update a sales visit
+  Future<String> updateNewSalesVisit(
+      {String visitId,
+      String userId,
+      ClientData selectedClient,
+      String contact,
+      String visitPurpose,
+      String visitDetails}) async {
+    try {
+      return await userCollection
+          .doc(userId)
+          .collection('clientVisits')
+          .doc(visitId)
+          .update({
+        'clientId': selectedClient.uid,
+        'clientName': selectedClient.clientName,
+        'contact': contact,
+        'visitPurpose': visitPurpose,
+        'visitDetails': visitDetails,
+      }).then((value) => 'Document updated Successfully');
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return e;
+    }
+  }
+
+  //read a sales visit
+  Future<List<VisitDetails>> getSalesVisitDetails({String userId}) async {
+    try {
+      return await userCollection
+          .doc(userId)
+          .collection('clientVisit')
+          .get()
+          .then((value) {
+        return value.docs.map((e) {
+          return VisitDetails(
+            uid: e.id,
+            clientId: e.data()['clientId'],
+            clientName: e.data()['clientName'],
+            contactPerson: e.data()['contactPerson'],
+            visitPurpose: e.data()['visitPurpose'],
+            visitDetails: e.data()['visitDetails'],
+            visitTime: e.data()['visitTime'],
+          );
+        }).toList();
+      });
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return [VisitDetails(error: e)];
     }
   }
 }

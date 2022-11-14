@@ -5,10 +5,12 @@ import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/sales_pipeline/visit_forms.dart/visit_form_two.dart';
 import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/shared/snack_bar.dart';
+import '../../models/user_model.dart';
 import '../../shared/constants.dart';
 
 class VisitFormOne extends StatefulWidget {
-  const VisitFormOne({Key key}) : super(key: key);
+  const VisitFormOne({Key key, this.currentUser}) : super(key: key);
+  final UserData currentUser;
 
   @override
   State<VisitFormOne> createState() => _VisitFormOneState();
@@ -28,6 +30,7 @@ class _VisitFormOneState extends State<VisitFormOne> {
   final TextEditingController _projectNameText = TextEditingController();
   String contactPerson;
   String visitPurpose;
+  ClientData selectedClient = ClientData();
   final List<String> _visitPurposeList = [
     'Collecting payment',
     'Requesting payment',
@@ -120,9 +123,11 @@ class _VisitFormOneState extends State<VisitFormOne> {
                           //Client Name o project name
                           _type == VisitType.Client
                               ? TypeAheadFormField(
-                                  onSuggestionSelected: (suggestions) {
+                                  onSuggestionSelected:
+                                      (ClientData suggestions) {
                                     _clientNameText.text =
-                                        suggestions.toString();
+                                        suggestions.clientName.toString();
+                                    selectedClient = suggestions;
                                   },
                                   textFieldConfiguration:
                                       TextFieldConfiguration(
@@ -158,11 +163,13 @@ class _VisitFormOneState extends State<VisitFormOne> {
                                         ? 'Client name cannot be empty'
                                         : null;
                                   },
-                                  itemBuilder: (context, suggestion) {
+                                  itemBuilder:
+                                      (context, ClientData suggestion) {
                                     return ListTile(
                                       title: suggestion == null
                                           ? const Text(' ')
-                                          : Text(suggestion.toString()),
+                                          : Text(
+                                              suggestion.clientName.toString()),
                                     );
                                   },
                                   suggestionsCallback: (pattern) async {
@@ -326,7 +333,12 @@ class _VisitFormOneState extends State<VisitFormOne> {
                                   await Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (_) => VisitFormTwo()));
+                                          builder: (_) => VisitFormTwo(
+                                                selectedClient: selectedClient,
+                                                contactPerson: contactPerson,
+                                                visitPurpose: visitPurpose,
+                                                currentUser: widget.currentUser,
+                                              )));
                                 }
                               },
                               child: const Text(
@@ -345,9 +357,9 @@ class _VisitFormOneState extends State<VisitFormOne> {
   }
 
   //Client Suggestions
-  Future<List<dynamic>> clientSuggestions(String query) async {
-    var matches = [];
-    matches.addAll(clientProvider.map((e) => e.clientName));
+  Future<List<ClientData>> clientSuggestions(String query) async {
+    List<ClientData> matches = [];
+    matches.addAll(clientProvider.map((e) => e));
     matches.retainWhere((element) =>
         element.toString().toLowerCase().contains(query.toLowerCase()));
     return matches;

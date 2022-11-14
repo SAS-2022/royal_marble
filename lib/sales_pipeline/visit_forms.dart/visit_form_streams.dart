@@ -33,7 +33,9 @@ class VisitFormStreams extends StatelessWidget {
                 },
               ),
       ],
-      child: VisitFormOne(),
+      child: VisitFormOne(
+        currentUser: currentUser,
+      ),
     );
   }
 }
