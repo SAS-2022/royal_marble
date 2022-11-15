@@ -62,7 +62,6 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                         },
                       ),
                       //Add the user control settings
-
                       widget.currentUser.roles.contains('isAdmin')
                           ? ListTile(
                               leading: const Icon(Icons.people),
@@ -83,6 +82,7 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
 
                       widget.currentUser.roles.contains('isAdmin') ||
                               widget.currentUser.roles.contains('isSales')
+                          //Adding a new client
                           ? ExpansionTile(
                               leading: const Icon(
                                 Icons.business,
@@ -104,6 +104,7 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                                     );
                                   },
                                 ),
+                                //Viewing current clients
                                 ListTile(
                                   leading:
                                       const Icon(Icons.business_center_rounded),
@@ -131,6 +132,7 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                               ),
                               title: const Text('Sales Pipeline'),
                               children: [
+                                //Adding a new client visit
                                 ListTile(
                                   leading: const Icon(Icons.app_registration),
                                   title: const Text('New Visit'),
@@ -141,17 +143,29 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                                       MaterialPageRoute(
                                         builder: (_) => VisitFormStreams(
                                           currentUser: widget.currentUser,
+                                          viewingVisit: false,
                                         ),
                                       ),
                                     );
                                   },
                                 ),
+                                //Visiting the current client
                                 ListTile(
                                   leading:
                                       const Icon(Icons.apps_outage_outlined),
                                   title: const Text('View Visits'),
                                   enabled: true,
-                                  onTap: () async {},
+                                  onTap: () async {
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => VisitFormStreams(
+                                          currentUser: widget.currentUser,
+                                          viewingVisit: true,
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
                               ],
                             )

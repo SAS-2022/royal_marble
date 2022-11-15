@@ -206,6 +206,14 @@ class DatabaseService {
         .map(_allUserDataFromSnapshot);
   }
 
+  Stream<List<UserData>> getSalesUsers() {
+    return userCollection
+        .where('roles', arrayContains: 'isSales')
+        .orderBy('firstName', descending: false)
+        .snapshots()
+        .map(_allUserDataFromSnapshot);
+  }
+
   Future<UserData> getUserByIdFuture({String uid}) async {
     try {
       return await userCollection.doc(uid).get().then((data) {
@@ -778,6 +786,18 @@ class DatabaseService {
     }
   }
 
+  //stream sales visits
+  Stream<List<VisitDetails>> getSalesVisitDetailsStream(
+      {String userId, DateTime fromDate, DateTime toDate}) {
+    return userCollection
+        .doc(userId)
+        .collection('clientVisits')
+        .where('visitTime', isGreaterThanOrEqualTo: fromDate)
+        .where('visitTime', isLessThanOrEqualTo: toDate)
+        .snapshots()
+        .map(_listVisitDetailsMap);
+  }
+
   //read a sales visit
   Future<List<VisitDetails>> getSalesVisitDetails({String userId}) async {
     try {
@@ -802,5 +822,18 @@ class DatabaseService {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
       return [VisitDetails(error: e)];
     }
+  }
+
+  List<VisitDetails> _listVisitDetailsMap(QuerySnapshot snapshot) {
+    return snapshot.docs.map((value) {
+      var data = value.data() as Map<String, dynamic>;
+      return VisitDetails(
+          uid: value.id,
+          clientId: data['clientId'],
+          clientName: data['clientName'],
+          visitDetails: data['visitDetails'],
+          visitPurpose: data['visitPurpose'],
+          visitTime: data['visitTime']);
+    }).toList();
   }
 }
