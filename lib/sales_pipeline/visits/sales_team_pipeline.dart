@@ -4,6 +4,7 @@ import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/sales_pipeline/visits/visit_grid.dart';
 
 import '../../shared/constants.dart';
+import '../../shared/date_picker.dart';
 
 class SalesTeamPipeline extends StatefulWidget {
   const SalesTeamPipeline({Key key, this.currentUser}) : super(key: key);
@@ -37,15 +38,22 @@ class _SalesTeamPipelineState extends State<SalesTeamPipeline> {
           itemCount: salesProvider.length,
           itemBuilder: ((context, index) {
             return GestureDetector(
-              onTap: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => VisitsGrid(
-                      currentUser: widget.currentUser,
-                    ),
-                  ),
-                );
+              onTap: () {
+                showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                          content: DatePicker(
+                            selectedUser: salesProvider[index],
+                          ),
+                        ));
+                // await Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (_) => VisitsGrid(
+                //       currentUser: widget.currentUser,
+                //     ),
+                //   ),
+                // );
               },
               child: Padding(
                 padding:

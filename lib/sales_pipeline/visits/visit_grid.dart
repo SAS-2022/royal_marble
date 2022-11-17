@@ -6,8 +6,17 @@ import 'package:royal_marble/sales_pipeline/visits/visit_list.dart';
 import 'package:royal_marble/services/database.dart';
 
 class VisitsGrid extends StatelessWidget {
-  const VisitsGrid({Key key, this.currentUser}) : super(key: key);
+  const VisitsGrid(
+      {Key key,
+      this.currentUser,
+      this.fromDate,
+      this.toDate,
+      this.selectedUser})
+      : super(key: key);
   final UserData currentUser;
+  final UserData selectedUser;
+  final DateTime fromDate;
+  final DateTime toDate;
 
   @override
   Widget build(BuildContext context) {
