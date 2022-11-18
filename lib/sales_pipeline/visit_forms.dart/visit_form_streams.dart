@@ -15,7 +15,6 @@ class VisitFormStreams extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final db = DatabaseService();
-
     return MultiProvider(
       providers: [
         currentUser.roles.contains('isAdmin')

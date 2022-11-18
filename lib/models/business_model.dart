@@ -56,7 +56,7 @@ class VisitDetails {
   String visitPurpose;
   String visitDetails;
   String contactPerson;
-  DateTime visitTime;
+  var visitTime;
   String error;
   VisitDetails({
     this.uid,

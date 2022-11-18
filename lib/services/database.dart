@@ -831,7 +831,6 @@ class DatabaseService {
   List<VisitDetails> _listVisitDetailsMap(QuerySnapshot snapshot) {
     return snapshot.docs.map((value) {
       var data = value.data() as Map<String, dynamic>;
-      print('the value id: $data');
       var result = VisitDetails(
           uid: value.id,
           clientId: data['clientId'],
@@ -840,7 +839,6 @@ class DatabaseService {
           visitPurpose: data['visitPurpose'],
           visitTime: data['visitTime']);
 
-      print('the result: $result');
       return result;
     }).toList();
   }
