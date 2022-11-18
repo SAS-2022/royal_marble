@@ -31,7 +31,7 @@ class VisitFormStreams extends StatelessWidget {
                 value: db.getClientsPerUser(userId: currentUser.uid),
                 initialData: const [],
                 catchError: (context, err) {
-                  // print('Error getting client: $err');
+                  print('Error getting client: $err');
                   return [];
                 },
               ),
@@ -45,7 +45,13 @@ class VisitFormStreams extends StatelessWidget {
                   return [];
                 },
               )
-            : null
+            : StreamProvider<UserData>.value(
+                value: db.getUserPerId(uid: currentUser.uid),
+                initialData: UserData(),
+                catchError: (context, err) {
+                  return UserData();
+                },
+              )
       ],
       child: viewingVisit
           ? SalesTeamPipeline(

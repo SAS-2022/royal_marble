@@ -56,7 +56,15 @@ class _VisitFormOneState extends State<VisitFormOne> {
         title: const Text('Sales Pipeline'),
         backgroundColor: const Color.fromARGB(255, 191, 180, 66),
       ),
-      body: _buildSalesVisitFormOne(),
+      body: clientProvider.isNotEmpty
+          ? _buildSalesVisitFormOne()
+          : _buildEmptyClientList(),
+    );
+  }
+
+  Widget _buildEmptyClientList() {
+    return const Center(
+      child: Text('You have not added any clients!', style: textStyle3),
     );
   }
 

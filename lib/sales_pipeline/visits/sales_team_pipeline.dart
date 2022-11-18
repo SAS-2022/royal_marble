@@ -34,48 +34,78 @@ class _SalesTeamPipelineState extends State<SalesTeamPipeline> {
     return SingleChildScrollView(
       child: SizedBox(
         height: size.height - 100,
-        child: ListView.builder(
-          itemCount: salesProvider.length,
-          itemBuilder: ((context, index) {
-            return GestureDetector(
-              onTap: () {
-                showDialog(
-                    context: context,
-                    builder: (_) => AlertDialog(
-                          content: DatePicker(
-                            selectedUser: salesProvider[index],
+        child: widget.currentUser.roles.contains('isAdmin')
+            ? ListView.builder(
+                itemCount: salesProvider.length,
+                itemBuilder: ((context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      showDialog(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                                content: DatePicker(
+                                  selectedUser: salesProvider[index],
+                                ),
+                              ));
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 25, vertical: 25),
+                      child: Card(
+                        color: const Color.fromARGB(255, 181, 160, 130),
+                        elevation: 4,
+                        child: ListTile(
+                          title: Text(
+                            '${salesProvider[index].firstName} ${salesProvider[index].lastName}',
+                            style: textStyle3,
                           ),
-                        ));
-                // await Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //     builder: (_) => VisitsGrid(
-                //       currentUser: widget.currentUser,
-                //     ),
-                //   ),
-                // );
-              },
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 25, vertical: 25),
-                child: Card(
-                  color: const Color.fromARGB(255, 181, 160, 130),
-                  elevation: 4,
-                  child: ListTile(
-                    title: Text(
-                      '${salesProvider[index].firstName} ${salesProvider[index].lastName}',
-                      style: textStyle3,
+                          subtitle: Text(
+                            '${salesProvider[index].phoneNumber} - ${salesProvider[index].emailAddress}',
+                            style: textStyle5,
+                          ),
+                        ),
+                      ),
                     ),
-                    subtitle: Text(
-                      '${salesProvider[index].phoneNumber} - ${salesProvider[index].emailAddress}',
-                      style: textStyle5,
+                  );
+                }),
+              )
+            : Center(
+                child: SizedBox(
+                  height: 150,
+                  width: size.width - 30,
+                  child: GestureDetector(
+                    onTap: () {
+                      showDialog(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                                content: DatePicker(
+                                  selectedUser: widget.currentUser,
+                                ),
+                              ));
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 25, vertical: 25),
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30)),
+                        color: const Color.fromARGB(255, 181, 160, 130),
+                        elevation: 4,
+                        child: ListTile(
+                          title: Text(
+                            '${widget.currentUser.firstName} ${widget.currentUser.lastName}',
+                            style: textStyle3,
+                          ),
+                          subtitle: Text(
+                            '${widget.currentUser.phoneNumber} - ${widget.currentUser.emailAddress}',
+                            style: textStyle5,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
-            );
-          }),
-        ),
       ),
     );
   }

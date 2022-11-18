@@ -366,10 +366,11 @@ class DatabaseService {
 
   //reading through streams and futures
   Stream<List<ClientData>> getClientsPerUser({String userId}) {
-    return clientCollection
+    var result = clientCollection
         .where('userId', isEqualTo: userId)
         .snapshots()
         .map(_listClientDataFromSnapshot);
+    return result;
   }
 
   Stream<ClientData> getClientPerId({String uid}) {
@@ -398,6 +399,7 @@ class DatabaseService {
   List<ClientData> _listClientDataFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((snapshot) {
       var data = snapshot.data() as Map<String, dynamic>;
+
       return ClientData(
           uid: snapshot.id,
           clientName: data['clientName'],
@@ -789,12 +791,14 @@ class DatabaseService {
   //stream sales visits
   Stream<List<VisitDetails>> getSalesVisitDetailsStream(
       {String userId, DateTime fromDate, DateTime toDate}) {
+    print('the userId: $userId');
     return userCollection
         .doc(userId)
         .collection('clientVisits')
-        .where('visitTime', isGreaterThanOrEqualTo: fromDate)
-        .where('visitTime', isLessThanOrEqualTo: toDate)
         .snapshots()
+        // .where('visitTime', isGreaterThanOrEqualTo: fromDate)
+        // .where('visitTime', isLessThanOrEqualTo: toDate)
+        // .snapshots()
         .map(_listVisitDetailsMap);
   }
 
@@ -827,13 +831,17 @@ class DatabaseService {
   List<VisitDetails> _listVisitDetailsMap(QuerySnapshot snapshot) {
     return snapshot.docs.map((value) {
       var data = value.data() as Map<String, dynamic>;
-      return VisitDetails(
+      print('the value id: $data');
+      var result = VisitDetails(
           uid: value.id,
           clientId: data['clientId'],
           clientName: data['clientName'],
           visitDetails: data['visitDetails'],
           visitPurpose: data['visitPurpose'],
           visitTime: data['visitTime']);
+
+      print('the result: $result');
+      return result;
     }).toList();
   }
 }

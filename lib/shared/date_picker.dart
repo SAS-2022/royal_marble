@@ -55,7 +55,6 @@ class _DatePickerState extends State<DatePicker> {
           endDate = args.value.endDate ?? args.value.startDate;
         }
       });
-      print('the start: $startDate, the end: $endDate');
     }
   }
 }

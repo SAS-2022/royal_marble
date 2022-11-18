@@ -21,19 +21,18 @@ class VisitsGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     DatabaseService db = DatabaseService();
-
     return MultiProvider(
       providers: [
         StreamProvider<List<VisitDetails>>.value(
-          value: db.getSalesVisitDetailsStream(),
-          initialData: [],
+          value: db.getSalesVisitDetailsStream(userId: selectedUser.uid),
+          initialData: const [],
           catchError: (context, error) {
             return [];
           },
         )
       ],
       child: VisitList(
-        currentUser: currentUser,
+        currentUser: selectedUser,
       ),
     );
   }

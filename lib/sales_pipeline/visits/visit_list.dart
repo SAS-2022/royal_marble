@@ -20,7 +20,7 @@ class _VisitListState extends State<VisitList> {
   Widget build(BuildContext context) {
     visitProvider = Provider.of<List<VisitDetails>>(context);
     size = MediaQuery.of(context).size;
-
+    print('the visit provider: $visitProvider');
     return Scaffold(
       appBar: AppBar(
         title: const Text('Daily Visits List'),
