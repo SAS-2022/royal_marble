@@ -48,66 +48,79 @@ class _VisitListState extends State<VisitList> {
                       scrollDirection: Axis.vertical,
                       itemCount: visitProvider.length,
                       itemBuilder: (context, index) {
-                        var date = visitProvider[index]
-                            .visitTime
-                            .toDate()
-                            .toString()
-                            .split(' ');
+                        if (visitProvider[index] != null) {
+                          var date = visitProvider[index]
+                              .visitTime
+                              .toDate()
+                              .toString()
+                              .split(' ');
 
-                        var time = date[1].split(':');
-                        return SizedBox(
-                          height: size.height / 4,
-                          width: size.width - 30,
-                          child: Padding(
-                            padding: const EdgeInsets.all(15.0),
-                            child: Card(
-                              elevation: 4,
-                              color: Colors.grey[200],
-                              child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Center(
-                                      child: Text(
-                                        DateFormat('EEEE').format(
-                                            visitProvider[index]
-                                                .visitTime
-                                                .toDate()),
-                                        style: textStyle7,
+                          var time = date[1].split(':');
+                          return SizedBox(
+                            height: size.height / 4,
+                            width: size.width - 30,
+                            child: Padding(
+                              padding: const EdgeInsets.all(15.0),
+                              child: Card(
+                                elevation: 4,
+                                color: Colors.grey[200],
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Center(
+                                        child: Text(
+                                          DateFormat('EEEE').format(
+                                              visitProvider[index]
+                                                  .visitTime
+                                                  .toDate()),
+                                          style: textStyle7,
+                                        ),
                                       ),
-                                    ),
-                                    const Divider(
-                                      thickness: 1,
-                                    ),
-                                    Text(
-                                      'Client Name: ${visitProvider[index].clientName}',
-                                      style: textStyle5,
-                                    ),
-                                    Text(
-                                      'Visit Purpose: ${visitProvider[index].visitPurpose}',
-                                      style: textStyle5,
-                                    ),
-                                    Text(
-                                      'Visit Details: ${visitProvider[index].visitDetails}',
-                                      style: textStyle5,
-                                      softWrap: true,
-                                    ),
-                                    const Divider(
-                                      thickness: 1,
-                                    ),
-                                    Text(
-                                      'Date: ${date[0]} - ${time[0]}:${time[1]}',
-                                      style: textStyle6,
-                                    ),
-                                  ],
+                                      const Divider(
+                                        thickness: 1,
+                                      ),
+                                      Text(
+                                        'Client Name: ${visitProvider[index].clientName}',
+                                        style: textStyle5,
+                                      ),
+                                      Text(
+                                        'Visit Purpose: ${visitProvider[index].visitPurpose}',
+                                        style: textStyle5,
+                                      ),
+                                      Text(
+                                        'Visit Details: ${visitProvider[index].visitDetails}',
+                                        style: textStyle5,
+                                        softWrap: true,
+                                      ),
+                                      const Divider(
+                                        thickness: 1,
+                                      ),
+                                      Text(
+                                        'Date: ${date[0]} - ${time[0]}:${time[1]}',
+                                        style: textStyle6,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        );
+                          );
+                        } else {
+                          return SizedBox(
+                            height: size.height - 10,
+                            child: const Center(
+                              child: Text(
+                                'No visits found for the selected dates!',
+                                style: textStyle3,
+                              ),
+                            ),
+                          );
+                        }
                       }),
                 ),
         ),

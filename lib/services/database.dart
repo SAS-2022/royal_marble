@@ -791,15 +791,28 @@ class DatabaseService {
   //stream sales visits
   Stream<List<VisitDetails>> getSalesVisitDetailsStream(
       {String userId, DateTime fromDate, DateTime toDate}) {
-    print('the userId: $userId');
     return userCollection
         .doc(userId)
         .collection('clientVisits')
         .snapshots()
-        // .where('visitTime', isGreaterThanOrEqualTo: fromDate)
-        // .where('visitTime', isLessThanOrEqualTo: toDate)
-        // .snapshots()
-        .map(_listVisitDetailsMap);
+        .map((event) {
+      return event.docs.map((value) {
+        var data = value.data();
+
+        if (fromDate.isBefore(data['visitTime'].toDate()) &&
+            toDate.isAfter(data['visitTime'].toDate())) {
+          return VisitDetails(
+              uid: value.id,
+              clientId: data['clientId'],
+              clientName: data['clientName'],
+              visitDetails: data['visitDetails'],
+              visitPurpose: data['visitPurpose'],
+              visitTime: data['visitTime']);
+        } else {
+          return null;
+        }
+      }).toList();
+    });
   }
 
   //read a sales visit
