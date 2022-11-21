@@ -755,6 +755,7 @@ class DatabaseService {
         'visitPurpose': visitPurpose,
         'visitDetails': visitDetails,
         'visitTime': visitTime,
+        'userId': userId,
       }).then((value) => 'Document added Successfully');
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
@@ -769,7 +770,8 @@ class DatabaseService {
       ClientData selectedClient,
       String contact,
       String visitPurpose,
-      String visitDetails}) async {
+      String visitDetails,
+      String managerComments}) async {
     try {
       return await userCollection
           .doc(userId)
@@ -781,6 +783,28 @@ class DatabaseService {
         'contact': contact,
         'visitPurpose': visitPurpose,
         'visitDetails': visitDetails,
+        'managerComments': managerComments,
+      }).then((value) => 'Document updated Successfully');
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return e;
+    }
+  }
+
+  //update manager note or visit details
+  Future<String> updateCurrentSalesVisit(
+      {String visitId,
+      String userId,
+      String managerComments,
+      String visitDetails}) async {
+    try {
+      return await userCollection
+          .doc(userId)
+          .collection('clientVisits')
+          .doc(visitId)
+          .update({
+        'visitDetails': visitDetails,
+        'managerComments': managerComments,
       }).then((value) => 'Document updated Successfully');
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
@@ -805,8 +829,10 @@ class DatabaseService {
               uid: value.id,
               clientId: data['clientId'],
               clientName: data['clientName'],
+              contactPerson: data['contact'],
               visitDetails: data['visitDetails'],
               visitPurpose: data['visitPurpose'],
+              managerComments: data['managerComments'],
               visitTime: data['visitTime']);
         } else {
           return null;

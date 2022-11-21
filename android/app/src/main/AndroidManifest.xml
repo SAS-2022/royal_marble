@@ -4,7 +4,7 @@
    <application
         android:usesCleartextTraffic="true"
         tools:replace="android:label"
-        android:label="royal_marble"
+        android:label="Royal Marble"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <meta-data android:name="com.google.android.geo.API_KEY"

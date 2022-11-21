@@ -51,21 +51,25 @@ class ProjectData {
 
 class VisitDetails {
   String uid;
+  String userId;
   String clientId;
   String clientName;
   String visitPurpose;
   String visitDetails;
   String contactPerson;
+  String managerComments;
   var visitTime;
   String error;
   VisitDetails({
     this.uid,
+    this.userId,
     this.clientId,
     this.clientName,
     this.visitPurpose,
     this.visitDetails,
     this.contactPerson,
     this.visitTime,
+    this.managerComments,
     this.error,
   });
 }
