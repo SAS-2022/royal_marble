@@ -77,22 +77,24 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
               );
             }
           }),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            FloatingActionButton(
-              heroTag: 'navigate',
-              backgroundColor: Colors.green,
-              foregroundColor: Colors.white,
-              child: const Icon(Icons.navigate_next_sharp),
-              onPressed: () =>
-                  _startNaviagtionGoogleMap(lat: widget.lat, lng: widget.lng),
-            ),
-          ],
-        ),
-      ),
+      floatingActionButton: widget.navigate
+          ? Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  FloatingActionButton(
+                    heroTag: 'navigate',
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                    child: const Icon(Icons.navigate_next_sharp),
+                    onPressed: () => _startNaviagtionGoogleMap(
+                        lat: widget.lat, lng: widget.lng),
+                  ),
+                ],
+              ),
+            )
+          : const SizedBox.shrink(),
     );
   }
 

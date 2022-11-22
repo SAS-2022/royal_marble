@@ -117,19 +117,6 @@ class _ShowMapState extends State<ShowMap> {
                   onTap: () {}),
             )
           };
-          // listMarkers.add(
-          //   Marker(
-          //     markerId: MarkerId(client.clientName),
-          //     position: LatLng(
-          //         client.clientAddress['Lat'], client.clientAddress['Lng']),
-          //     icon: BitmapDescriptor.defaultMarkerWithHue(
-          //         BitmapDescriptor.hueOrange),
-          //     infoWindow: InfoWindow(
-          //         title: client.clientName,
-          //         snippet: client.phoneNumber,
-          //         onTap: () {}),
-          //   ),
-          // );
         }
       }
     }
@@ -287,6 +274,7 @@ class _ShowMapState extends State<ShowMap> {
           backgroundColor: const Color.fromARGB(255, 191, 180, 66),
         ),
         body: _buildLocationSelection(),
+        endDrawer: _buildMarkersDrawer(),
       ),
     );
   }
@@ -318,7 +306,6 @@ class _ShowMapState extends State<ShowMap> {
     }
     //assign a listener to stream events
     streamLocation.listen((event) {
-      print('the event: ${event.first}');
       updateMarkers(
           uuid: event.first.id,
           newCoords:
@@ -340,13 +327,11 @@ class _ShowMapState extends State<ShowMap> {
                   snippet: userData.phoneNumber,
                   onTap: () {}),
             ));
-    print('the initial ListMarker Lenght: ${listMarkers.length}');
 
     return userMarkers;
   }
 
   Future<void> _updateUserMarker({double lat, double lng, String uuid}) async {
-    print('the list marker type: ${listMarkers.runtimeType}');
     if (listMarkers.containsKey(uuid)) {
       listMarkers[uuid] = Marker(
         markerId: MarkerId(uuid),
@@ -354,30 +339,8 @@ class _ShowMapState extends State<ShowMap> {
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
         // infoWindow: selectedMarker.infoWindow,
       );
+      print('the event is updating: ${listMarkers[uuid].position}');
     }
-
-    // for (var marker in listMarkers) {
-    //   if (marker.markerId.value == uuid) {
-    //     var selectedMarker =
-    //         listMarkers.firstWhere((element) => element.markerId.value == uuid);
-
-    //     if (selectedMarker != null) {
-    //       var index = listMarkers.indexOf(selectedMarker);
-    //       print('the index: $index');
-    //       listMarkers[index] = Marker(
-    //         markerId: MarkerId(uuid),
-    //         position: LatLng(lat, lng),
-    //         icon: BitmapDescriptor.defaultMarkerWithHue(
-    //             BitmapDescriptor.hueOrange),
-    //         infoWindow: selectedMarker.infoWindow,
-    //       );
-    //     }
-    //   }
-    // }
-
-    // userMarkers = Set.of(listMarkers);
-
-    //return userMarkers;
   }
 
   void updateMarkers({LatLng newCoords, String uuid}) async {
@@ -527,6 +490,66 @@ class _ShowMapState extends State<ShowMap> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildMarkersDrawer() {
+    //THe following drawer will show the list of users or clients
+    return Drawer(
+      backgroundColor: const Color.fromARGB(255, 186, 184, 152),
+      width: _size.width / 2,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 40, right: 10),
+        child: Column(
+          children: [
+            const Text(
+              'List of Workers',
+              style: textStyle3,
+            ),
+            SizedBox(
+              height: _size.height - 70,
+              child: ListView.builder(
+                  itemCount: userProvider.length,
+                  itemBuilder: (context, index) {
+                    var result;
+                    return Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: GestureDetector(
+                        onTap: () async {
+                          print(userProvider[index]);
+                          result = db.getAllUsersLocation(
+                              userId: userProvider[index].uid);
+                          var userLoc = await result.first;
+
+                          setState(() {
+                            _center = LatLng(userLoc.first.coord.latitude,
+                                userLoc.first.coord.longitude);
+                          });
+                          _mapController.animateCamera(
+                              CameraUpdate.newCameraPosition(
+                                  CameraPosition(target: _center, zoom: 13.5)));
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 15),
+                          decoration: BoxDecoration(
+                              color: Color.fromARGB(255, 156, 151, 216),
+                              border: Border.all(),
+                              borderRadius: BorderRadius.circular(15)),
+                          child: Text(
+                            '${userProvider[index].firstName} ${userProvider[index].lastName}',
+                            textAlign: TextAlign.center,
+                            style: textStyle5,
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

@@ -4,6 +4,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:royal_marble/location/http_navigation.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/shared/constants.dart';
@@ -25,6 +26,7 @@ class ClientForm extends StatefulWidget {
 
 class _ClientFormState extends State<ClientForm> {
   final _formKey = GlobalKey<FormState>();
+  HttpNavigation _httpNavigation = HttpNavigation();
   final db = DatabaseService();
   final _snackBarWidget = SnackBarWidget();
   ClientData newClient = ClientData();
@@ -37,7 +39,6 @@ class _ClientFormState extends State<ClientForm> {
     super.initState();
     _snackBarWidget.context = context;
     newClient.userId = widget.currentUser.uid;
-    print('the new client: ${newClient.userId}');
     if (widget.client != null) {
       newClient = widget.client;
 
@@ -47,7 +48,6 @@ class _ClientFormState extends State<ClientForm> {
           'Lat': newClient.clientAddress['Lat'],
           'Lng': newClient.clientAddress['Lng'],
         };
-        print('where is my location $_myLocation');
       }
     }
   }
@@ -227,25 +227,38 @@ class _ClientFormState extends State<ClientForm> {
                 const SizedBox(
                   height: 15,
                 ),
-                Container(
-                  decoration: BoxDecoration(
-                      border: Border.all(),
-                      borderRadius: BorderRadius.circular(15)),
-                  height: 50,
-                  child: Center(
-                    child: GestureDetector(
-                      onTap: () async {
-                        if (Platform.isIOS) {
-                        } else {
-                          await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => GoogleMapNavigation(
-                                        getLocation: selecteMapLocation,
-                                        navigate: false,
-                                      )));
-                        }
-                      },
+                GestureDetector(
+                  onTap: () async {
+                    await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => GoogleMapNavigation(
+                                  getLocation: selecteMapLocation,
+                                  navigate: false,
+                                )));
+                    // if (Platform.isIOS) {
+                    //   var myLocation = await selecteMapLocation();
+                    //   print('myLocation: $myLocation');
+                    //   _httpNavigation.context = context;
+                    //   _httpNavigation.lat = myLocation['Lat'];
+                    //   _httpNavigation.lng = myLocation['Lng'];
+                    //   await _httpNavigation.startNaviagtionGoogleMap();
+                    // } else {
+                    //   await Navigator.push(
+                    //       context,
+                    //       MaterialPageRoute(
+                    //           builder: (_) => GoogleMapNavigation(
+                    //                 getLocation: selecteMapLocation,
+                    //                 navigate: false,
+                    //               )));
+                    // }
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                        border: Border.all(),
+                        borderRadius: BorderRadius.circular(15)),
+                    height: 50,
+                    child: Center(
                       child: Text(
                         _myLocation.isNotEmpty
                             ? 'Change Address'
@@ -634,8 +647,9 @@ class _ClientFormState extends State<ClientForm> {
         'Lng': locationAddress.longitude,
       };
       newClient.clientAddress = _myLocation;
-
-      setState(() {});
+    } else {
+      _myLocation = {'Lat': '', 'Lng': ''};
     }
+    setState(() {});
   }
 }

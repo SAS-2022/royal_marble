@@ -181,22 +181,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       children: [
                         GestureDetector(
                           onTap: () async {
-                            if (Platform.isIOS) {
-                              var myLocation = await selecteMapLocation();
-                              _httpNavigation.context = context;
-                              _httpNavigation.lat = myLocation['Lat'];
-                              _httpNavigation.lng = myLocation['Lng'];
+                            await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => GoogleMapNavigation(
+                                          getLocation: selecteMapLocation,
+                                          navigate: false,
+                                        )));
+                            // if (Platform.isIOS) {
+                            //   var myLocation = await selecteMapLocation();
+                            //   _httpNavigation.context = context;
+                            //   _httpNavigation.lat = myLocation['Lat'];
+                            //   _httpNavigation.lng = myLocation['Lng'];
 
-                              await _httpNavigation.startNaviagtionGoogleMap();
-                            } else {
-                              await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) => GoogleMapNavigation(
-                                            getLocation: selecteMapLocation,
-                                            navigate: false,
-                                          )));
-                            }
+                            //   await _httpNavigation.startNaviagtionGoogleMap();
+                            // } else {
+                            //   await Navigator.push(
+                            //       context,
+                            //       MaterialPageRoute(
+                            //           builder: (_) => GoogleMapNavigation(
+                            //                 getLocation: selecteMapLocation,
+                            //                 navigate: false,
+                            //               )));
+                            // }
                           },
                           child: Container(
                             decoration: BoxDecoration(

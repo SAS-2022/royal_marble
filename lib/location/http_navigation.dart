@@ -13,8 +13,9 @@ class HttpNavigation {
     _snackBarWidget.context = context;
     var uri = Uri.parse('google.navigation:q=$lat,$lng&mode=d');
     var iosUri = 'comgooglemaps://?q=$lat,$lng&zoom=14';
+    var uriIos = Uri.parse('comgooglemaps://?q=$lat,$lng&zoom=14');
     if (Platform.isAndroid) {
-      await launch(uri.toString()).onError((error, stackTrace) {
+      await launchUrl(uri).onError((error, stackTrace) {
         _snackBarWidget.content = 'Error: $error';
         _snackBarWidget.showSnack();
         return false;
@@ -23,9 +24,8 @@ class HttpNavigation {
         _snackBarWidget.showSnack();
       });
     } else {
-      if (await canLaunch('comgooglemaps://')) {
-        await launch(iosUri.toString(), forceSafariVC: false)
-            .onError((error, stackTrace) {
+      if (await canLaunchUrl(uriIos)) {
+        await launchUrl(uriIos).onError((error, stackTrace) {
           _snackBarWidget.content = 'Error: $error';
           _snackBarWidget.showSnack();
           return false;
