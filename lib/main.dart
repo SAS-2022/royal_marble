@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui';
 import 'package:background_geolocation_firebase/background_geolocation_firebase.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -172,43 +173,64 @@ class _SplashScreenState extends State<SplashScreen> {
       body: Stack(
         fit: StackFit.expand,
         children: <Widget>[
-          Container(
-            decoration: const BoxDecoration(
-              color: Color.fromARGB(255, 105, 96, 15),
-            ),
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Expanded(
-                flex: 2,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      height: _size.height / 4,
-                      width: 2 * _size.width / 3,
-                      child: Image.asset('assets/images/logo_2.jpg'),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.only(
-                        top: 35.0,
-                      ),
-                      child: Center(
-                          child: Text(
-                        'Please wait...',
-                        style: textStyle2,
-                      )),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.only(
-                        top: 35.0,
-                      ),
-                      child: Center(child: Loading()),
-                    ),
-                  ],
+          Stack(
+            children: [
+              Container(
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                      fit: BoxFit.scaleDown,
+                      repeat: ImageRepeat.repeat,
+                      image: AssetImage('assets/images/logo_3.jpg')),
+                  color: Color.fromARGB(255, 105, 96, 15),
+                ),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
+                  child: Container(
+                    decoration:
+                        BoxDecoration(color: Colors.white.withOpacity(0)),
+                  ),
                 ),
               ),
+              Center(
+                child: Image.asset('assets/images/logo_2.jpg'),
+              ),
+              Positioned(
+                bottom: 50,
+                left: _size.width / 2 + 50,
+                child: const Text(
+                  'Please wait...',
+                  style: textStyle2,
+                ),
+              )
+              // Expanded(
+              //   flex: 2,
+              //   child: Column(
+              //     mainAxisAlignment: MainAxisAlignment.center,
+              //     children: [
+              //       SizedBox(
+              //         height: _size.height / 4,
+              //         width: 2 * _size.width / 3,
+              //         child: Image.asset('assets/images/logo_2.jpg'),
+              //       ),
+              //       const Padding(
+              //         padding: EdgeInsets.only(
+              //           top: 35.0,
+              //         ),
+              //         child: Center(
+              //             child: Text(
+              //           'Please wait...',
+              //           style: textStyle2,
+              //         )),
+              //       ),
+              //       const Padding(
+              //         padding: EdgeInsets.only(
+              //           top: 35.0,
+              //         ),
+              //         child: Center(child: Loading()),
+              //       ),
+              //     ],
+              //   ),
+              // ),
             ],
           )
         ],

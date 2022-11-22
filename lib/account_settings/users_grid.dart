@@ -17,7 +17,7 @@ class _UserGridState extends State<UserGrid> {
   @override
   Widget build(BuildContext context) {
     return StreamProvider<List<UserData>>.value(
-      value: db.getAllUsers(),
+      value: db.getNonAdminUsers(),
       initialData: const [],
       child: const UserList(),
     );

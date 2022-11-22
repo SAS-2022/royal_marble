@@ -84,6 +84,10 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                               widget.currentUser.roles.contains('isSales')
                           //Adding a new client
                           ? ExpansionTile(
+                              iconColor:
+                                  const Color.fromARGB(255, 191, 180, 66),
+                              textColor:
+                                  const Color.fromARGB(255, 191, 180, 66),
                               leading: const Icon(
                                 Icons.business,
                               ),
@@ -127,6 +131,10 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                       widget.currentUser.roles.contains('isAdmin') ||
                               widget.currentUser.roles.contains('isSales')
                           ? ExpansionTile(
+                              iconColor:
+                                  const Color.fromARGB(255, 191, 180, 66),
+                              textColor:
+                                  const Color.fromARGB(255, 191, 180, 66),
                               leading: const Icon(
                                 Icons.account_tree,
                               ),
@@ -173,6 +181,10 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
 
                       widget.currentUser.roles.contains('isAdmin')
                           ? ExpansionTile(
+                              iconColor:
+                                  const Color.fromARGB(255, 191, 180, 66),
+                              textColor:
+                                  const Color.fromARGB(255, 191, 180, 66),
                               leading: const Icon(
                                 Icons.account_tree,
                               ),

@@ -171,6 +171,13 @@ class DatabaseService {
     return userCollection.snapshots().map(_allUserDataFromSnapshot);
   }
 
+  Stream<List<UserData>> getNonAdminUsers() {
+    return userCollection
+        .where('roles', arrayContainsAny: ['isSales', 'isNormalUser'])
+        .snapshots()
+        .map(_allUserDataFromSnapshot);
+  }
+
   Stream<List<CustomMarker>> getAllUsersLocation({String userId}) {
     return userCollection
         .doc(userId)
