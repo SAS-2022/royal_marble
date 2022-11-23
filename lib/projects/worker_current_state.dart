@@ -6,6 +6,7 @@ import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/shared/constants.dart';
 import 'package:royal_marble/shared/loading.dart';
+import 'package:royal_marble/shared/snack_bar.dart';
 import '../models/user_model.dart';
 
 class WorkerCurrentStream extends StatelessWidget {
@@ -66,7 +67,8 @@ class _WorkerCurrentStateState extends State<WorkerCurrentState> {
             padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 15),
             child: SizedBox(
               height: _size.height - 120,
-              child: _projectProvider.assignedWorkers != null
+              child: _projectProvider.assignedWorkers != null &&
+                      _projectProvider.assignedWorkers.isNotEmpty
                   ? ListView.builder(
                       itemCount: _projectProvider.assignedWorkers.length,
                       itemBuilder: (context, index) {
@@ -119,14 +121,34 @@ class WorkerWidget extends StatefulWidget {
 
 class _WorkerWidgetState extends State<WorkerWidget> {
   UserData _userProvider;
+  SnackBarWidget _snackBarWidget = SnackBarWidget();
   bool _arrivedToSite = false;
   Size _size;
   double totalDistance;
   DatabaseService db = DatabaseService();
-
+  String role;
   @override
   void initState() {
     super.initState();
+    _snackBarWidget.context = context;
+  }
+
+  void _selectUserRole() {
+    if (_userProvider != null && _userProvider.roles != null) {
+      switch (_userProvider.roles.first) {
+        case 'isNormalUser':
+          role = 'Worker';
+          break;
+        case 'isSiteEngineer':
+          role = 'Site Engineer';
+          break;
+        case 'isSupervisor':
+          role = 'Supervisor';
+          break;
+        default:
+          role = 'Un-releated';
+      }
+    }
   }
 
   @override
@@ -134,44 +156,11 @@ class _WorkerWidgetState extends State<WorkerWidget> {
     _userProvider = Provider.of<UserData>(context);
     _size = MediaQuery.of(context).size;
 
+    _selectUserRole();
     return SingleChildScrollView(
       child: Dismissible(
         key: Key(_userProvider.uid),
-        confirmDismiss: ((direction) async {
-          var result;
-          showDialog(
-              context: context,
-              builder: (_) => AlertDialog(
-                    title: const Text('Removing Worker'),
-                    content: const Text(
-                        'Are you sure you want to remove this worker from the project, this cannot be undone?'),
-                    actions: [
-                      TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text('No')),
-                      TextButton(
-                          onPressed: () async {
-                            result = await db.removeUserFromProject(
-                                selectedProject: widget.currentProject,
-                                userId: _userProvider.uid);
-                          },
-                          child: const Text('Yes'))
-                    ],
-                  ));
-          print('the result: $result');
-          if (result == 'Deleted Project') {
-            Navigator.pop(context);
-            return result;
-          } else {
-            Navigator.pop(context);
-            return null;
-          }
-        }),
-        onDismissed: (direction) async {
-          //The following code with remove user from the project
-        },
+        direction: DismissDirection.endToStart,
         background: Padding(
           padding: const EdgeInsets.all(5.0),
           child: Container(
@@ -188,16 +177,60 @@ class _WorkerWidgetState extends State<WorkerWidget> {
             ),
           ),
         ),
-        direction: DismissDirection.endToStart,
+        confirmDismiss: ((val) async {
+          var result;
+          //will call a function to confirm that the admin wants to remove this user
+          result = await showDialog(
+              context: context,
+              builder: (_) => AlertDialog(
+                    title: const Text('Removing Worker'),
+                    content: const Text(
+                        'Are you sure you want to remove this worker from the project, this cannot be undone?'),
+                    actions: [
+                      TextButton(
+                          onPressed: () {
+                            Navigator.pop(context, 'no delete');
+                          },
+                          child: const Text('No')),
+                      TextButton(
+                          onPressed: () {
+                            if (mounted) {
+                              Navigator.pop(context, 'Delete');
+                            }
+                          },
+                          child: const Text('Yes'))
+                    ],
+                  )).then((val) {
+            result = val;
+            return val;
+          });
+
+          if (result == 'Delete') {
+            await db.removeUserFromProject(
+                selectedProject: widget.currentProject,
+                userId: _userProvider.uid);
+
+            return true;
+          }
+
+          return null;
+        }),
+        onDismissed: (direction) async {
+          //The following code with remove user from the project
+          print('we are here: $direction');
+          _snackBarWidget.content = 'User have been removed from this project';
+          _snackBarWidget.showSnack();
+        },
         child: ListTile(
           leading: const Text('User Photo'),
-          title: Text('${_userProvider.firstName} ${_userProvider.lastName}'),
+          title: Text(
+              '${_userProvider.firstName} ${_userProvider.lastName} - $role'),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Mobile: ${_userProvider.phoneNumber}'),
               Text(
-                  'Distance To Site: ${_userProvider.distanceToProject.toString()}')
+                  'Distance To Site: ${_userProvider.distanceToProject != null ? _userProvider.distanceToProject.toStringAsFixed(2) : ''}')
             ],
           ),
           trailing: Container(
@@ -214,31 +247,5 @@ class _WorkerWidgetState extends State<WorkerWidget> {
     );
   }
 
-  //the following function will check if user arrived to the location or not yet
-  // _checkUserLocation() {
-  //   double calculateDistance(lat1, lon1, lat2, lon2) {
-  //     var p = 0.017453292519943295;
-  //     var c = cos;
-  //     var a = 0.5 -
-  //         c((lat2 - lat1) * p) / 2 +
-  //         c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
-  //     return 12742 * asin(sqrt(a));
-  //   }
-
-  //   if (_userProvider.currentLocation != null) {
-  //     totalDistance = calculateDistance(
-  //         _userProvider.currentLocation['Lat'],
-  //         _userProvider.currentLocation['Lng'],
-  //         widget.currentProject.projectAddress['Lat'],
-  //         widget.currentProject.projectAddress['Lng']);
-  //     if (totalDistance < (widget.currentProject.radius / 1000)) {
-  //       _arrivedToSite = true;
-  //       if (mounted) {
-  //         setState(() {});
-  //       }
-  //     } else {
-  //       _arrivedToSite = false;
-  //     }
-  //   }
-  // }
+  _confirmUserRemoval() async {}
 }

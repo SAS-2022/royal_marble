@@ -28,7 +28,13 @@ class _UserDetailsState extends State<UserDetails> {
   UserData newUserData = UserData();
   Map<String, dynamic> _myLocation = {};
   String selectedRoles;
-  List<dynamic> currentRoles = ['Worker', 'Sales', 'Admin'];
+  List<dynamic> currentRoles = [
+    'Worker',
+    'Supervisor',
+    'Site Engineer',
+    'Sales',
+    'Admin'
+  ];
 
   @override
   void initState() {
@@ -51,6 +57,12 @@ class _UserDetailsState extends State<UserDetails> {
         switch (widget.currentUser.roles.first.toString()) {
           case 'isNormalUser':
             selectedRoles = 'Worker';
+            break;
+          case 'isSupervisor':
+            selectedRoles = 'Supervisor';
+            break;
+          case 'isSiteEngineer':
+            selectedRoles = 'Site Engineer';
             break;
           case 'isAdmin':
             selectedRoles = 'Admin';
@@ -372,7 +384,17 @@ class _UserDetailsState extends State<UserDetails> {
                       fixedSize: Size(_size.width / 2, 45),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25))),
-                  onPressed: widget.currentUser.isActive ? null : () async {},
+                  onPressed: widget.currentUser.isActive
+                      ? null
+                      : () async {
+                          //will delete the selected user
+                          var result =
+                              await db.deleteUser(uid: widget.currentUser.uid);
+
+                          _snackBarWidget.content = result;
+                          _snackBarWidget.showSnack();
+                          Navigator.pop(context);
+                        },
                   child: const Text(
                     'Delete',
                     style: textStyle2,

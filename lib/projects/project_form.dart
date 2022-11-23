@@ -46,6 +46,7 @@ class _ProjectFormState extends State<ProjectForm> {
   final _snackBarWidget = SnackBarWidget();
   UserData selectedUser;
   List<UserData> addedUsers = [];
+  List<UserData> removedUsers = [];
   Future _checkAssignedWorkers;
   List<UserData> workerOnThisProject = [];
   List<double> availableRadius = [100, 200, 400, 600, 1000];
@@ -71,8 +72,6 @@ class _ProjectFormState extends State<ProjectForm> {
               .take(120)
               .toString());
     }
-    //check if the current user is on site
-    //userStatus = checkCurrentUserStatus();
   }
 
   @override
@@ -107,7 +106,6 @@ class _ProjectFormState extends State<ProjectForm> {
     Future.delayed(const Duration(milliseconds: 500), () {
       if (widget.allWorkers != null && widget.allWorkers.isNotEmpty) {
         for (var worker in widget.allWorkers) {
-          //print('A worker: ${worker.toString()}');
           if (worker.assignedProject != null &&
               worker.assignedProject['id'] == widget.selectedProject.uid) {
             workerOnThisProject.add(worker);
@@ -507,7 +505,10 @@ class _ProjectFormState extends State<ProjectForm> {
                       height: 15,
                     ),
                     //will allow the worker to check in the project they just arrived to
-                    widget.currentUser.roles.contains('isNormalUser')
+                    widget.currentUser.roles.contains('isNormalUser') ||
+                            widget.currentUser.roles
+                                .contains('isSiteEngineer') ||
+                            widget.currentUser.roles.contains('isSupervisor')
                         ? FutureBuilder(
                             future: checkCurrentUserStatus(),
                             builder: (context, snapshot) {
@@ -616,7 +617,7 @@ class _ProjectFormState extends State<ProjectForm> {
                                           .map<Widget>(
                                             (item) => Center(
                                               child: Text(
-                                                '${item.firstName} ${item.lastName}',
+                                                '${item.firstName} ${item.lastName} - ${item.roles.first}',
                                                 style: textStyle5,
                                               ),
                                             ),
@@ -632,7 +633,7 @@ class _ProjectFormState extends State<ProjectForm> {
                                               value: item,
                                               child: Center(
                                                   child: Text(
-                                                '${item.firstName} ${item.lastName}',
+                                                '${item.firstName} ${item.lastName}- ${item.roles.first}',
                                                 style: textStyle5,
                                               )),
                                             ))
@@ -650,44 +651,67 @@ class _ProjectFormState extends State<ProjectForm> {
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData) {
                                     addedUsers = snapshot.data;
-
-                                    return SizedBox(
-                                      height: _size.height / 4,
-                                      width: _size.width - 60,
-                                      child: ListView.builder(
-                                        itemCount: addedUsers.length,
-                                        itemBuilder: ((context, index) =>
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 10,
-                                                      horizontal: 20),
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                    color: Colors.grey[200],
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            20)),
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 10),
+                                      child: Container(
+                                        decoration: const BoxDecoration(
+                                            border: Border.symmetric(
+                                                horizontal: BorderSide(
+                                                  width: 2,
+                                                ),
+                                                vertical: BorderSide.none)),
+                                        height: _size.height / 4.5,
+                                        width: _size.width - 80,
+                                        child: ListView.builder(
+                                          itemCount: addedUsers.length,
+                                          itemBuilder: ((context, index) =>
+                                              Padding(
                                                 padding:
-                                                    const EdgeInsets.all(12),
-                                                child: GestureDetector(
-                                                  onTap: () {
-                                                    addedUsers.removeAt(index);
-
-                                                    setState(() {});
-                                                  },
-                                                  child: Text(
-                                                    '${addedUsers[index].firstName} ${addedUsers[index].lastName}',
-                                                    textAlign: TextAlign.center,
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 10,
+                                                        horizontal: 20),
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                      color: Colors.grey[200],
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20)),
+                                                  padding:
+                                                      const EdgeInsets.all(12),
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      //check the removed users
+                                                      if (!removedUsers
+                                                          .contains(addedUsers[
+                                                              index])) {
+                                                        removedUsers.add(
+                                                            addedUsers[index]);
+                                                      }
+                                                      addedUsers
+                                                          .removeAt(index);
+                                                      setState(() {});
+                                                    },
+                                                    child: Text(
+                                                      '${addedUsers[index].firstName} ${addedUsers[index].lastName} - ${addedUsers[index].roles.first}',
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                            )),
+                                              )),
+                                        ),
                                       ),
                                     );
                                   } else {
-                                    return SizedBox(
-                                      height: _size.height / 4,
+                                    return Container(
+                                      decoration: const BoxDecoration(
+                                          border: Border.symmetric(
+                                              horizontal: BorderSide(
+                                                width: 2,
+                                              ),
+                                              vertical: BorderSide.none)),
+                                      height: _size.height / 4.5,
                                       width: _size.width - 60,
                                       child: ListView.builder(
                                         itemCount: addedUsers.length,
@@ -707,8 +731,13 @@ class _ProjectFormState extends State<ProjectForm> {
                                                     const EdgeInsets.all(12),
                                                 child: GestureDetector(
                                                   onTap: () {
+                                                    //check the removed users
+                                                    if (!removedUsers.contains(
+                                                        addedUsers[index])) {
+                                                      removedUsers.add(
+                                                          addedUsers[index]);
+                                                    }
                                                     addedUsers.removeAt(index);
-
                                                     setState(() {});
                                                   },
                                                   child: Text(
@@ -742,7 +771,8 @@ class _ProjectFormState extends State<ProjectForm> {
                                     var result =
                                         await db.updateProjectWithWorkers(
                                             project: widget.selectedProject,
-                                            selectedUserIds: userIds);
+                                            selectedUserIds: userIds,
+                                            removedUsers: removedUsers);
                                     if (result == 'Completed') {
                                       Navigator.pop(context);
                                     } else {

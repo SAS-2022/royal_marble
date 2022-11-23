@@ -13,6 +13,7 @@ class UserData {
   var distanceToProject;
   String company;
   bool isActive;
+  String imageUrl;
   String error;
 
   UserData({
@@ -30,6 +31,7 @@ class UserData {
     this.isActive,
     this.assignedProject,
     this.distanceToProject,
+    this.imageUrl,
     this.error,
   });
 

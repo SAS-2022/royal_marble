@@ -1,12 +1,14 @@
 import 'dart:io';
 
 import 'package:email_validator/email_validator.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:royal_marble/location/http_navigation.dart';
 import 'package:royal_marble/shared/snack_bar.dart';
-
+import 'package:path/path.dart' as Path;
 import '../location/google_map_navigation.dart';
 import '../services/auth.dart';
 import '../shared/constants.dart';
@@ -39,7 +41,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Map<String, dynamic> myLocation = {};
   Size size;
   SnackBarWidget _snackBarWidget = SnackBarWidget();
+  final ImagePicker _picker = ImagePicker();
+  bool _imageRequested = false;
+  XFile pickedImage;
 
+  ImageSource _imageSource;
   @override
   void initState() {
     super.initState();
@@ -55,6 +61,47 @@ class _RegisterScreenState extends State<RegisterScreen> {
         backgroundColor: const Color.fromARGB(255, 191, 180, 66),
       ),
       body: loading ? const Center(child: Loading()) : _buildRegisterBody(),
+      bottomNavigationBar: _imageRequested
+          ? BottomAppBar(
+              clipBehavior: Clip.hardEdge,
+              elevation: 2,
+              child: Container(
+                decoration: BoxDecoration(
+                    color: Colors.grey[600],
+                    border: Border.all(color: Colors.grey[800]),
+                    borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(25),
+                        topRight: Radius.circular(25))),
+                height: size.height / 10,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        IconButton(
+                            onPressed: () async {
+                              _imageSource = ImageSource.gallery;
+                              await _openImagePicker();
+                            },
+                            icon: const Icon(
+                              Icons.photo_album,
+                              size: 50,
+                              color: Color.fromARGB(255, 191, 180, 66),
+                            )),
+                        IconButton(
+                            onPressed: () async {
+                              _imageSource = ImageSource.camera;
+                              await _openImagePicker();
+                            },
+                            icon: const Icon(
+                              Icons.camera,
+                              size: 50,
+                              color: Color.fromARGB(255, 191, 180, 66),
+                            ))
+                      ]),
+                ),
+              ))
+          : null,
     );
   }
 
@@ -73,6 +120,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   style: textStyle6,
                 ),
               ),
+              //user photo
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: GestureDetector(
+                  onTap: () async => _selectImageSource(),
+                  child: Container(
+                    height: size.height / 5,
+                    width: size.width / 2,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(),
+                    ),
+                    child: pickedImage == null
+                        ? const Center(
+                            child: Text(
+                              'Add Photo',
+                              style: textStyle3,
+                            ),
+                          )
+                        : CircleAvatar(
+                            backgroundImage: FileImage(
+                            File(pickedImage.path),
+                            scale: 2,
+                          )),
+                  ),
+                ),
+              ),
+
               //First Name
               Row(
                 children: [
@@ -188,22 +263,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           getLocation: selecteMapLocation,
                                           navigate: false,
                                         )));
-                            // if (Platform.isIOS) {
-                            //   var myLocation = await selecteMapLocation();
-                            //   _httpNavigation.context = context;
-                            //   _httpNavigation.lat = myLocation['Lat'];
-                            //   _httpNavigation.lng = myLocation['Lng'];
-
-                            //   await _httpNavigation.startNaviagtionGoogleMap();
-                            // } else {
-                            //   await Navigator.push(
-                            //       context,
-                            //       MaterialPageRoute(
-                            //           builder: (_) => GoogleMapNavigation(
-                            //                 getLocation: selecteMapLocation,
-                            //                 navigate: false,
-                            //               )));
-                            // }
                           },
                           child: Container(
                             decoration: BoxDecoration(
@@ -477,7 +536,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       style: buttonStyle,
                     ),
                     onPressed: () async {
-                      if (_formKey.currentState.validate()) {
+                      if (_formKey.currentState.validate() &&
+                          pickedImage != null) {
                         if (myLocation.isEmpty) {
                           _snackBarWidget.content =
                               'Home address needs to be assigned';
@@ -487,6 +547,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         setState(() {
                           loading = true;
                         });
+                        String imageUrl = await _uploadImage(file: pickedImage);
 
                         await _auth.registerWithEmailandPassword(
                             email: email.trim(),
@@ -498,6 +559,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             nationality: nationality,
                             homeAddress: myLocation,
                             isActive: false,
+                            imageUrl: imageUrl,
                             roles: ['isNormalUser']);
 
                         setState(() {
@@ -513,6 +575,51 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
+  }
+
+  Future<String> _uploadImage({XFile file}) async {
+    FirebaseStorage storageReference;
+    String folderName = 'profile_images';
+
+    try {
+      storageReference = FirebaseStorage.instance;
+      var ref = storageReference
+          .ref()
+          .child('$folderName/${Path.basename(file.path)}');
+      var uploadTask = ref.putFile(File(file.path));
+      var downloadUrl = await (await uploadTask).ref.getDownloadURL();
+      return downloadUrl;
+    } catch (e, stackTrace) {
+      _snackBarWidget.content = 'Image Error: $e';
+      _snackBarWidget.showSnack();
+      return e;
+    }
+  }
+
+  void _selectImageSource() {
+    setState(() {
+      _imageRequested = !_imageRequested;
+    });
+  }
+
+  Future _openImagePicker() async {
+    try {
+      if (_imageRequested) {
+        pickedImage = await _picker.pickImage(
+            preferredCameraDevice: CameraDevice.front,
+            source: _imageSource,
+            maxHeight: size.height - 10,
+            maxWidth: size.width - 10,
+            imageQuality: 100);
+      }
+      _imageRequested = false;
+      setState(() {});
+      return pickedImage;
+    } catch (e) {
+      print('the error: $e');
+      _snackBarWidget.content = 'Image could not be picked: $e';
+      _snackBarWidget.showSnack();
+    }
   }
 
   Future selecteMapLocation(

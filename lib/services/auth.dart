@@ -75,6 +75,7 @@ class AuthService {
       String phoneNumber,
       Map<String, dynamic> nationality,
       Map<String, dynamic> homeAddress,
+      String imageUrl,
       List<String> roles}) async {
     try {
       var result = await _auth.createUserWithEmailAndPassword(
@@ -93,6 +94,7 @@ class AuthService {
                 emailAddress: email,
                 nationality: nationality,
                 homeAddress: homeAddress,
+                imageUrl: imageUrl,
                 roles: roles)
             .then((value) {
           return value;
@@ -130,6 +132,12 @@ class AuthService {
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
       return 'Reset email error: $e';
+    }
+  }
+
+  Future deleteUser(String uid) async {
+    try {} catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
     }
   }
 }

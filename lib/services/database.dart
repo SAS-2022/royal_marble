@@ -29,6 +29,7 @@ class DatabaseService {
     String phoneNumber,
     String emailAddress,
     List<dynamic> roles,
+    String imageUrl,
     Map<String, dynamic> nationality,
     Map<String, dynamic> homeAddress,
   }) async {
@@ -42,6 +43,7 @@ class DatabaseService {
         'emailAddress': emailAddress,
         'nationality': nationality,
         'roles': roles,
+        'imageUrl': imageUrl,
         'homeAddress': homeAddress,
       }).then((value) {
         return 'your data has been updated successfully';
@@ -102,6 +104,12 @@ class DatabaseService {
       case 'Worker':
         roles = 'isNormalUser';
         break;
+      case 'Supervisor':
+        roles = 'isSupervisor';
+        break;
+      case 'Site Engineer':
+        roles = 'isSiteEngineer';
+        break;
       case 'Sales':
         roles = 'isSales';
         break;
@@ -125,6 +133,7 @@ class DatabaseService {
       return await userCollection.doc(uid).update({
         'firstName': newUsers.firstName,
         'lastName': newUsers.lastName,
+        'imageUrl': newUsers.imageUrl,
         'company': newUsers.company,
         'phoneNumber': newUsers.phoneNumber,
         'nationality': {
@@ -173,7 +182,12 @@ class DatabaseService {
 
   Stream<List<UserData>> getNonAdminUsers() {
     return userCollection
-        .where('roles', arrayContainsAny: ['isSales', 'isNormalUser'])
+        .where('roles', arrayContainsAny: [
+          'isSales',
+          'isNormalUser',
+          'isSupervisor',
+          'isSiteEngineer'
+        ])
         .snapshots()
         .map(_allUserDataFromSnapshot);
   }
@@ -207,7 +221,11 @@ class DatabaseService {
 
   Stream<List<UserData>> getAllWorkers() {
     return userCollection
-        .where('roles', arrayContains: 'isNormalUser')
+        .where('roles', arrayContainsAny: [
+          'isNormalUser',
+          'isSupervisor',
+          'isSiteEngineer'
+        ])
         .orderBy('firstName', descending: false)
         .snapshots()
         .map(_allUserDataFromSnapshot);
@@ -225,19 +243,19 @@ class DatabaseService {
     try {
       return await userCollection.doc(uid).get().then((data) {
         return UserData(
-          emailAddress: data['emailAddress'],
-          firstName: data['firstName'],
-          lastName: data['lastName'],
-          phoneNumber: data['phoneNumber'],
-          nationality: data['nationality'],
-          isActive: data['isActive'] ?? false,
-          roles: data['roles'],
-          company: data['company'],
-          homeAddress: data['homeAddress'],
-          assignedProject: data['assignedProject'],
-          distanceToProject: data['distanceToProject'],
-          currentLocation: data['currentLocation'],
-        );
+            emailAddress: data['emailAddress'],
+            firstName: data['firstName'],
+            lastName: data['lastName'],
+            phoneNumber: data['phoneNumber'],
+            nationality: data['nationality'],
+            isActive: data['isActive'] ?? false,
+            roles: data['roles'],
+            company: data['company'],
+            homeAddress: data['homeAddress'],
+            assignedProject: data['assignedProject'],
+            distanceToProject: data['distanceToProject'],
+            currentLocation: data['currentLocation'],
+            imageUrl: data['imageUrl']);
       });
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
@@ -262,6 +280,7 @@ class DatabaseService {
       assignedProject: data['assignedProject'],
       distanceToProject: data['distanceToProject'],
       currentLocation: data['currentLocation'],
+      imageUrl: data['imageUrl'],
       location: data['location'],
     );
   }
@@ -295,6 +314,7 @@ class DatabaseService {
         assignedProject: data['assignedProject'],
         distanceToProject: data['distanceToProject'],
         currentLocation: data['currentLocation'],
+        imageUrl: data['imageUrl'],
         location: data['location'],
       );
     }).toList();
@@ -318,6 +338,7 @@ class DatabaseService {
               company: data['company'],
               homeAddress: data['homeAddress'],
               distanceToProject: data['distanceToProject'],
+              imageUrl: data['imageUrl'],
               currentLocation: data['currentLocation']);
         }).toList();
       });
@@ -510,7 +531,9 @@ class DatabaseService {
   //we will update the project with a list of users ids
   //we will update each user with the assigned project and its coordinates
   Future<String> updateProjectWithWorkers(
-      {ProjectData project, List<String> selectedUserIds}) async {
+      {ProjectData project,
+      List<String> selectedUserIds,
+      List<UserData> removedUsers}) async {
     try {
       //update the project data first
       var result = await projectCollection
@@ -523,6 +546,19 @@ class DatabaseService {
 
       if (result == 'Completed') {
         var userResult;
+        //check which users were removed to remove them
+        if (removedUsers != null && removedUsers.isNotEmpty) {
+          for (var user in removedUsers) {
+            await userCollection
+                .doc(user.uid)
+                .update({'assignedProject': {}})
+                .then((value) => print(
+                    'the user ${user.firstName} ${user.lastName} was removed'))
+                .catchError((err) => print(
+                    'Error remove user ${user.firstName} ${user.lastName}'));
+          }
+        }
+        //add new users
         for (var user in selectedUserIds) {
           userResult = await userCollection
               .doc(user)
@@ -540,6 +576,7 @@ class DatabaseService {
                 return err;
               });
         }
+
         return userResult;
       } else {
         return '[Failed]: $result';
@@ -582,7 +619,7 @@ class DatabaseService {
         result = await userCollection
             .doc(userId)
             .update({'assignedProject': {}})
-            .then((value) => 'Deleted Project')
+            .then((value) => 'Deleted User')
             .catchError((err) => 'Error: $err');
       }
       return result;
