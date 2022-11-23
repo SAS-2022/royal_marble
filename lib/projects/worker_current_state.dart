@@ -217,12 +217,24 @@ class _WorkerWidgetState extends State<WorkerWidget> {
         }),
         onDismissed: (direction) async {
           //The following code with remove user from the project
-          print('we are here: $direction');
           _snackBarWidget.content = 'User have been removed from this project';
           _snackBarWidget.showSnack();
         },
         child: ListTile(
-          leading: const Text('User Photo'),
+          leading: _userProvider.imageUrl == null
+              ? const CircleAvatar(
+                  radius: 30,
+                  child: Icon(
+                    Icons.person,
+                    size: 50,
+                  ),
+                )
+              : CircleAvatar(
+                  radius: 30,
+                  backgroundImage: NetworkImage(
+                    _userProvider.imageUrl,
+                    scale: 2,
+                  )),
           title: Text(
               '${_userProvider.firstName} ${_userProvider.lastName} - $role'),
           subtitle: Column(

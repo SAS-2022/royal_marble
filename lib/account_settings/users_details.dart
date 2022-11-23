@@ -1,12 +1,17 @@
 import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as Path;
 import 'package:royal_marble/location/google_map_navigation.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/shared/constants.dart';
+import 'package:royal_marble/shared/loading.dart';
 import 'package:royal_marble/shared/snack_bar.dart';
+import 'package:uri_to_file/uri_to_file.dart';
 
 import '../shared/country_picker.dart';
 
@@ -28,6 +33,11 @@ class _UserDetailsState extends State<UserDetails> {
   UserData newUserData = UserData();
   Map<String, dynamic> _myLocation = {};
   String selectedRoles;
+  XFile pickedImage;
+  File pickImageFile;
+  final ImagePicker _picker = ImagePicker();
+  bool _imageRequested = false;
+  ImageSource _imageSource;
   List<dynamic> currentRoles = [
     'Worker',
     'Supervisor',
@@ -35,7 +45,7 @@ class _UserDetailsState extends State<UserDetails> {
     'Sales',
     'Admin'
   ];
-
+  bool _isUpdating = false;
   @override
   void initState() {
     super.initState();
@@ -47,10 +57,12 @@ class _UserDetailsState extends State<UserDetails> {
       newUserData.company = widget.currentUser.company;
       newUserData.nationality = widget.currentUser.nationality;
       newUserData.homeAddress = widget.currentUser.homeAddress;
-
+      newUserData.imageUrl = widget.currentUser.imageUrl;
+      print('the new user: ${newUserData.imageUrl}');
       if (newUserData.homeAddress != null) {
         _myLocation = newUserData.homeAddress;
       }
+
       //show the current user role
       if (widget.currentUser.roles != null &&
           widget.currentUser.roles.isNotEmpty) {
@@ -78,25 +90,97 @@ class _UserDetailsState extends State<UserDetails> {
   @override
   Widget build(BuildContext context) {
     _size = MediaQuery.of(context).size;
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Main Page'),
+        title: const Text('Profile Page'),
         backgroundColor: const Color.fromARGB(255, 191, 180, 66),
       ),
-      body: SingleChildScrollView(
-          child:
-              widget.myAccount ? _buildMyUserDetails() : _buildUserDetails()),
+      body: Stack(children: [
+        SingleChildScrollView(
+            child:
+                widget.myAccount ? _buildMyUserDetails() : _buildUserDetails()),
+        _isUpdating
+            ? const Center(
+                child: Loading(),
+              )
+            : const SizedBox.shrink(),
+      ]),
+      bottomNavigationBar: _imageRequested
+          ? BottomAppBar(
+              clipBehavior: Clip.hardEdge,
+              elevation: 2,
+              child: Container(
+                decoration: BoxDecoration(
+                    color: Colors.grey[600],
+                    border: Border.all(color: Colors.grey[800]),
+                    borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(25),
+                        topRight: Radius.circular(25))),
+                height: _size.height / 10,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        IconButton(
+                            onPressed: () async {
+                              _imageSource = ImageSource.gallery;
+                              await _openImagePicker();
+                            },
+                            icon: const Icon(
+                              Icons.photo_album,
+                              size: 50,
+                              color: Color.fromARGB(255, 191, 180, 66),
+                            )),
+                        IconButton(
+                            onPressed: () async {
+                              _imageSource = ImageSource.camera;
+                              await _openImagePicker();
+                            },
+                            icon: const Icon(
+                              Icons.camera,
+                              size: 50,
+                              color: Color.fromARGB(255, 191, 180, 66),
+                            ))
+                      ]),
+                ),
+              ))
+          : null,
     );
   }
 
   Widget _buildUserDetails() {
     return Padding(
-      padding: const EdgeInsets.only(top: 35, left: 25, right: 10),
+      padding: const EdgeInsets.only(top: 5, left: 25, right: 10),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Container(
+                height: _size.height / 5,
+                width: _size.width / 2,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(),
+                ),
+                child: newUserData.imageUrl == null
+                    ? const Center(
+                        child: Text(
+                          'No Photo',
+                          style: textStyle3,
+                        ),
+                      )
+                    : CircleAvatar(
+                        backgroundImage: NetworkImage(
+                        newUserData.imageUrl,
+                        scale: 2,
+                      )),
+              ),
+            ),
+          ),
           Row(
             children: [
               const Text(
@@ -410,13 +494,48 @@ class _UserDetailsState extends State<UserDetails> {
     return Form(
       key: _formKey,
       child: Padding(
-        padding: const EdgeInsets.only(top: 35, left: 25, right: 10),
+        padding: const EdgeInsets.only(top: 5, left: 25, right: 10),
         child: SizedBox(
           width: _size.width - 10,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: GestureDetector(
+                    onTap: () async => _selectImageSource(),
+                    child: Container(
+                      height: _size.height / 5,
+                      width: _size.width / 2,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(),
+                      ),
+                      child:
+                          pickImageFile == null && newUserData.imageUrl == null
+                              ? const Center(
+                                  child: Text(
+                                    'Add Photo',
+                                    style: textStyle3,
+                                  ),
+                                )
+                              : pickImageFile != null
+                                  ? CircleAvatar(
+                                      backgroundImage: FileImage(
+                                      File(pickImageFile.path),
+                                      scale: 2,
+                                    ))
+                                  : CircleAvatar(
+                                      backgroundImage: NetworkImage(
+                                      newUserData.imageUrl,
+                                      scale: 2,
+                                    )),
+                    ),
+                  ),
+                ),
+              ),
               Row(
                 children: [
                   const Expanded(
@@ -704,26 +823,46 @@ class _UserDetailsState extends State<UserDetails> {
               Center(
                 child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                        primary: widget.currentUser.isActive
+                        backgroundColor: widget.currentUser.isActive
                             ? Colors.red[400]
                             : Colors.green[400],
                         fixedSize: Size(_size.width / 2, 45),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(25))),
-                    onPressed: () async {
-                      if (_formKey.currentState.validate() &&
-                          _myLocation.isNotEmpty) {
-                        var result = await db.updateCurrentUser(
-                            uid: widget.currentUser.uid, newUsers: newUserData);
-                        if (result == 'Completed') {
-                          Navigator.pop(context);
-                        } else {
-                          _snackBarWidget.content =
-                              'failed to update account, please contact developer';
-                          _snackBarWidget.showSnack();
-                        }
-                      }
-                    },
+                    onPressed: _isUpdating
+                        ? null
+                        : () async {
+                            if (_formKey.currentState.validate() &&
+                                _myLocation.isNotEmpty &&
+                                pickedImage != null) {
+                              setState(() {
+                                _isUpdating = true;
+                              });
+                              String imageUrl =
+                                  await _uploadImage(file: pickedImage);
+                              newUserData.imageUrl = imageUrl;
+                              var result = await db.updateCurrentUser(
+                                  uid: widget.currentUser.uid,
+                                  newUsers: newUserData);
+                              if (result == 'Completed') {
+                                if (mounted) {
+                                  setState(() {
+                                    _isUpdating = false;
+                                  });
+                                }
+                                Navigator.pop(context);
+                              } else {
+                                if (mounted) {
+                                  setState(() {
+                                    _isUpdating = false;
+                                  });
+                                }
+                                _snackBarWidget.content =
+                                    'failed to update account, please contact developer';
+                                _snackBarWidget.showSnack();
+                              }
+                            }
+                          },
                     child: const Text(
                       'Update',
                       style: textStyle2,
@@ -734,6 +873,52 @@ class _UserDetailsState extends State<UserDetails> {
         ),
       ),
     );
+  }
+
+  void _selectImageSource() {
+    setState(() {
+      _imageRequested = !_imageRequested;
+    });
+  }
+
+  Future<String> _uploadImage({XFile file}) async {
+    FirebaseStorage storageReference;
+    String folderName = 'profile_images';
+
+    try {
+      storageReference = FirebaseStorage.instance;
+      var ref = storageReference
+          .ref()
+          .child('$folderName/${Path.basename(file.path)}');
+      var uploadTask = ref.putFile(File(file.path));
+      var downloadUrl = await (await uploadTask).ref.getDownloadURL();
+      return downloadUrl;
+    } catch (e, stackTrace) {
+      _snackBarWidget.content = 'Image Error: $e';
+      _snackBarWidget.showSnack();
+      return e;
+    }
+  }
+
+  Future _openImagePicker() async {
+    try {
+      if (_imageRequested) {
+        pickedImage = await _picker.pickImage(
+            preferredCameraDevice: CameraDevice.front,
+            source: _imageSource,
+            maxHeight: _size.height - 10,
+            maxWidth: _size.width - 10,
+            imageQuality: 100);
+      }
+      _imageRequested = false;
+      setState(() {});
+      pickImageFile = File(pickedImage.path);
+      return pickedImage;
+    } catch (e) {
+      print('the error: $e');
+      _snackBarWidget.content = 'Image could not be picked: $e';
+      _snackBarWidget.showSnack();
+    }
   }
 
   Future selecteMapLocation(

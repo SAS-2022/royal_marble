@@ -71,10 +71,20 @@ class _UserListState extends State<UserList> {
                                   );
                                 },
                                 child: ListTile(
-                                  leading: const Icon(
-                                    Icons.person,
-                                    size: 50,
-                                  ),
+                                  leading: listOfUsers[index].imageUrl == null
+                                      ? const CircleAvatar(
+                                          radius: 30,
+                                          child: Icon(
+                                            Icons.person,
+                                            size: 50,
+                                          ),
+                                        )
+                                      : CircleAvatar(
+                                          radius: 30,
+                                          backgroundImage: NetworkImage(
+                                            listOfUsers[index].imageUrl,
+                                            scale: 2,
+                                          )),
                                   title: Text(
                                       '${listOfUsers[index].firstName} ${listOfUsers[index].lastName}'),
                                   subtitle: SizedBox(
