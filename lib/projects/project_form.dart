@@ -1191,6 +1191,7 @@ class _ProjectFormState extends State<ProjectForm> {
                 timeSheetUpdated = await db.updateWorkerTimeSheet(
                     isAtSite: _isAtSite,
                     currentUser: widget.currentUser,
+                    userRole: widget.currentUser.roles.first,
                     selectedProject: widget.selectedProject,
                     today: '${result.day}-${result.month}-${result.year}',
                     checkOut: todayTimeSheet['data'][widget.currentUser.uid]
@@ -1201,6 +1202,7 @@ class _ProjectFormState extends State<ProjectForm> {
                     isAtSite: _isAtSite,
                     currentUser: widget.currentUser,
                     selectedProject: widget.selectedProject,
+                    userRole: widget.currentUser.roles.first,
                     today: '${result.day}-${result.month}-${result.year}',
                     checkIn: todayTimeSheet['data'][widget.currentUser.uid]
                         ['arriving_at'],

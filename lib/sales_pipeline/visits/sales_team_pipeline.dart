@@ -44,6 +44,8 @@ class _SalesTeamPipelineState extends State<SalesTeamPipeline> {
                           context: context,
                           builder: (_) => AlertDialog(
                                 content: DatePicker(
+                                  currentUser: widget.currentUser,
+                                  reportType: 'pipeline',
                                   selectedUser: salesProvider[index],
                                 ),
                               ));
@@ -79,6 +81,8 @@ class _SalesTeamPipelineState extends State<SalesTeamPipeline> {
                           context: context,
                           builder: (_) => AlertDialog(
                                 content: DatePicker(
+                                  currentUser: widget.currentUser,
+                                  reportType: 'pipeline',
                                   selectedUser: widget.currentUser,
                                 ),
                               ));

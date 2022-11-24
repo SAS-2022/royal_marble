@@ -745,6 +745,7 @@ class DatabaseService {
   //updating the current entry
   Future<String> updateWorkerTimeSheet(
       {UserData currentUser,
+      String userRole,
       String today,
       ProjectData selectedProject,
       bool isAtSite,
@@ -759,7 +760,8 @@ class DatabaseService {
           'projectName': selectedProject.projectName,
           'arriving_at': checkIn,
           'leaving_at': checkOut,
-          'isOnSite': isAtSite
+          'isOnSite': isAtSite,
+          'roles': userRole
         }
       }).then((value) => 'time sheet updated');
     } catch (e, stackTrace) {
@@ -779,6 +781,14 @@ class DatabaseService {
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
       return {'Error': e};
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getRangeTimeSheets(
+      {String startingAt, String endingAt, List<String> roles}) async {
+    try {} catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return [];
     }
   }
 

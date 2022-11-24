@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:royal_marble/reports/report_details.dart';
 import 'package:royal_marble/sales_pipeline/visits/visit_grid.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import '../models/user_model.dart';
 
 class DatePicker extends StatefulWidget {
-  const DatePicker({Key key, this.selectedUser}) : super(key: key);
+  const DatePicker(
+      {Key key,
+      this.selectedUser,
+      this.bulkUsers,
+      this.reportType,
+      this.currentUser})
+      : super(key: key);
+  final UserData currentUser;
   final UserData selectedUser;
+  final List<UserData> bulkUsers;
+  final String reportType;
 
   @override
   State<DatePicker> createState() => _DatePickerState();
@@ -26,21 +36,38 @@ class _DatePickerState extends State<DatePicker> {
           child: SfDateRangePicker(
         showActionButtons: true,
         onSubmit: ((p0) {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (_) => VisitsGrid(
-                        selectedUser: widget.selectedUser,
-                        fromDate: startDate,
-                        toDate: endDate,
-                      )));
+          switch (widget.reportType) {
+            case 'pipeline':
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => VisitsGrid(
+                            selectedUser: widget.selectedUser,
+                            fromDate: startDate,
+                            toDate: endDate,
+                          )));
+              break;
+            case 'timesheet':
+              print('the dates: $startDate - $endDate');
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => ReportDetails(
+                            bulkUsers: widget.bulkUsers,
+                            currentUser: widget.currentUser,
+                            reportType: widget.reportType,
+                            fromDate: startDate,
+                            toDate: endDate,
+                          )));
+              break;
+          }
         }),
         onCancel: () => Navigator.pop(context),
         onSelectionChanged: _onSelectionChanged,
         selectionMode: DateRangePickerSelectionMode.range,
         initialSelectedRange: PickerDateRange(
-            DateTime.now().subtract(const Duration(days: 4)),
-            DateTime.now().add(const Duration(days: 3))),
+            DateTime.now().subtract(const Duration(days: 2)),
+            DateTime.now().add(const Duration(days: 2))),
       )),
     );
   }
