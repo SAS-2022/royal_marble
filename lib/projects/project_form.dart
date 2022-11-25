@@ -454,7 +454,6 @@ class _ProjectFormState extends State<ProjectForm> {
                     const SizedBox(
                       height: 15,
                     ),
-
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
@@ -473,6 +472,7 @@ class _ProjectFormState extends State<ProjectForm> {
                           child: GestureDetector(
                             onTap: () async {
                               if (Platform.isIOS) {
+                                print('accessing loation: ');
                                 _httpNavigation.context = context;
                                 _httpNavigation.lat = widget
                                     .selectedProject.projectAddress['Lat'];
@@ -605,8 +605,47 @@ class _ProjectFormState extends State<ProjectForm> {
                                       if (val != null) {
                                         setState(() {
                                           selectedUser = val;
-                                          if (!addedUsers.contains(val)) {
-                                            addedUsers.add(val);
+                                          if (selectedUser.assignedProject !=
+                                                  null &&
+                                              selectedUser
+                                                  .assignedProject.isNotEmpty) {
+                                            showDialog(
+                                                context: context,
+                                                builder: (_) => AlertDialog(
+                                                      title:
+                                                          const Text('Warning'),
+                                                      content: Text(
+                                                          '${selectedUser.firstName} ${selectedUser.lastName} is already assigned to project ${selectedUser.assignedProject['name']}.\nAre you sure you want to assign him to a new project?'),
+                                                      actions: [
+                                                        TextButton(
+                                                            onPressed: () {
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                            child: const Text(
+                                                                'No')),
+                                                        TextButton(
+                                                            onPressed: () {
+                                                              setState(() {
+                                                                if (!addedUsers
+                                                                    .contains(
+                                                                        val)) {
+                                                                  addedUsers
+                                                                      .add(val);
+                                                                }
+                                                              });
+
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                            child: const Text(
+                                                                'Yes')),
+                                                      ],
+                                                    ));
+                                          } else {
+                                            if (!addedUsers.contains(val)) {
+                                              addedUsers.add(val);
+                                            }
                                           }
                                         });
                                       }
@@ -751,7 +790,8 @@ class _ProjectFormState extends State<ProjectForm> {
                                 })
                             : const SizedBox.shrink()
                         : const SizedBox.shrink(),
-                    !_editContent
+                    !_editContent &&
+                            widget.currentUser.roles.contains('isAdmin')
                         ? Center(
                             child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
@@ -1142,9 +1182,10 @@ class _ProjectFormState extends State<ProjectForm> {
         myLocation.longitude,
         widget.selectedProject.projectAddress['Lat'],
         widget.selectedProject.projectAddress['Lng']);
-
+    print(
+        'the calculation: ${result * 1000} - ${widget.selectedProject.radius} - $_isAtSite');
     //will check if the worker has arrived to the site
-    if (result != null && result <= widget.selectedProject.radius) {
+    if (result != null && result * 1000 <= widget.selectedProject.radius) {
       if (_isAtSite) {
         _snackBarWidget.content =
             'Have a great day, you have checked out.\nTime: $dateFormat\n';
@@ -1177,7 +1218,7 @@ class _ProjectFormState extends State<ProjectForm> {
     if (userLocation != null) {
       var result = await _calculateDistance(
           LatLng(userLocation.latitude, userLocation.longitude));
-
+      print('the result: $result');
       //we will check if user in at site and record it in the report collection
       if (result != null && data.hasData) {
         var timeSheetUpdated;

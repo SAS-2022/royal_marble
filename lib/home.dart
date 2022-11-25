@@ -185,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 15,
               ),
               SizedBox(
-                height: _size.height / 4.5,
+                height: _size.height / 4,
                 width: _size.width - 20,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
@@ -205,7 +205,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                         child: Container(
                           padding: const EdgeInsets.all(5),
-                          height: _size.height / 4,
+                          height: _size.height / 3,
                           width: _size.width / 2,
                           decoration: BoxDecoration(
                               color: const Color.fromARGB(255, 186, 186, 130),
@@ -318,7 +318,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         const Divider(
-          height: 20,
+          height: 15,
           thickness: 3,
         ),
         //Sales team section
@@ -515,7 +515,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         }),
 
                     const Divider(
-                      height: 25,
+                      height: 15,
                       thickness: 3,
                     ),
                     //Messages from Admin
@@ -591,7 +591,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     //List of projects assigned two
 
                     const Divider(
-                      height: 25,
+                      height: 15,
                       thickness: 3,
                     ),
                     //Messages from Admin
@@ -858,7 +858,7 @@ class _HomeScreenState extends State<HomeScreen> {
           return AlertDialog(
             title: const Text('Project Options'),
             content: SizedBox(
-              height: _size.height / 4,
+              height: _size.height / 3.5,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,

@@ -784,11 +784,15 @@ class DatabaseService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getRangeTimeSheets(
-      {String startingAt, String endingAt, List<String> roles}) async {
-    try {} catch (e, stackTrace) {
+  Future<Map<String, dynamic>> getRangeTimeSheets(
+      {String uid, List<String> roles}) async {
+    try {
+      return await timeSheetCollection.doc(uid).get().then((value) {
+        return {'id': value.id, 'data': value.data()};
+      });
+    } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
-      return [];
+      return {};
     }
   }
 

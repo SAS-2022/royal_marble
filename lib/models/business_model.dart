@@ -73,3 +73,5 @@ class VisitDetails {
     this.error,
   });
 }
+
+class TimeSheet {}
