@@ -96,6 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _locationJSON = encoder.convert(location.toMap());
         });
       }
+      getCurrentLocation();
     });
 
     if (userId != null) {
@@ -106,8 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
         updateSingleDocument: true,
       )).catchError((err) {
         print('An error occured: $err');
-      }).then((value) => print('the location was updated: Location'));
-      print('the current user ID: $userId');
+      }).then((value) => print('the location was updated: $value'));
     }
 
     if (!mounted) return;
@@ -172,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         //Project Section Adding and viewing project
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 15),
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
           child: SizedBox(
             height: _size.height / 3,
             child:
@@ -184,7 +184,8 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(
                 height: 15,
               ),
-              SizedBox(
+              Container(
+                padding: const EdgeInsets.all(10),
                 height: _size.height / 4,
                 width: _size.width - 20,
                 child: ListView.builder(
@@ -204,18 +205,17 @@ class _HomeScreenState extends State<HomeScreen> {
                           //if long pressed it will show a dialog that will allow you to edit or delete project
                         },
                         child: Container(
-                          padding: const EdgeInsets.all(5),
-                          height: _size.height / 3,
+                          padding: const EdgeInsets.all(10),
                           width: _size.width / 2,
                           decoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 186, 186, 130),
+                              color: const Color.fromARGB(255, 226, 189, 68),
                               boxShadow: [
                                 BoxShadow(
                                     color: Colors.grey[500],
-                                    offset: const Offset(-4, 4),
-                                    spreadRadius: 1)
+                                    offset: const Offset(-3, 3),
+                                    spreadRadius: 2)
                               ],
-                              border: Border.all(width: 2),
+                              border: Border.all(width: 1),
                               borderRadius: BorderRadius.circular(10)),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -308,7 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 20),
+                padding: const EdgeInsets.only(top: 10),
                 child: Center(
                   child: Text(
                       'Total Projects: ${allProjectProvider.length} project'),
@@ -519,7 +519,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       thickness: 3,
                     ),
                     //Messages from Admin
-
                     Padding(
                       padding: const EdgeInsets.only(top: 20, left: 15),
                       child: Column(children: [
@@ -732,6 +731,8 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     }
+
+    print('the distance from the assigned project: $distance');
   }
 
   void detectMotion() async {

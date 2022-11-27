@@ -202,35 +202,6 @@ class _SplashScreenState extends State<SplashScreen> {
                   style: textStyle2,
                 ),
               )
-              // Expanded(
-              //   flex: 2,
-              //   child: Column(
-              //     mainAxisAlignment: MainAxisAlignment.center,
-              //     children: [
-              //       SizedBox(
-              //         height: _size.height / 4,
-              //         width: 2 * _size.width / 3,
-              //         child: Image.asset('assets/images/logo_2.jpg'),
-              //       ),
-              //       const Padding(
-              //         padding: EdgeInsets.only(
-              //           top: 35.0,
-              //         ),
-              //         child: Center(
-              //             child: Text(
-              //           'Please wait...',
-              //           style: textStyle2,
-              //         )),
-              //       ),
-              //       const Padding(
-              //         padding: EdgeInsets.only(
-              //           top: 35.0,
-              //         ),
-              //         child: Center(child: Loading()),
-              //       ),
-              //     ],
-              //   ),
-              // ),
             ],
           )
         ],

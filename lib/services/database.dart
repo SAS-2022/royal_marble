@@ -723,7 +723,8 @@ class DatabaseService {
       ProjectData selectedProject,
       bool isAtSite,
       String checkIn,
-      String checkOut}) async {
+      String checkOut,
+      String userRole}) async {
     try {
       return await timeSheetCollection.doc(today).set({
         currentUser.uid: {
@@ -733,7 +734,8 @@ class DatabaseService {
           'projectName': selectedProject.projectName,
           'arriving_at': checkIn,
           'leaving_at': checkOut,
-          'isOnSite': isAtSite
+          'isOnSite': isAtSite,
+          'role': userRole
         }
       }).then((value) => 'time sheet updated');
     } catch (e, stackTrace) {
@@ -750,7 +752,8 @@ class DatabaseService {
       ProjectData selectedProject,
       bool isAtSite,
       String checkIn,
-      String checkOut}) async {
+      String checkOut,
+      }) async {
     try {
       return await timeSheetCollection.doc(today).set({
         currentUser.uid: {

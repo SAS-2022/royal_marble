@@ -472,12 +472,13 @@ class _ProjectFormState extends State<ProjectForm> {
                           child: GestureDetector(
                             onTap: () async {
                               if (Platform.isIOS) {
-                                print('accessing loation: ');
+                                //will start google navigation for the current project location
                                 _httpNavigation.context = context;
                                 _httpNavigation.lat = widget
                                     .selectedProject.projectAddress['Lat'];
                                 _httpNavigation.lng = widget
                                     .selectedProject.projectAddress['Lng'];
+                                _httpNavigation.startNaviagtionGoogleMap();
                               } else {
                                 await Navigator.push(
                                     context,
@@ -612,34 +613,37 @@ class _ProjectFormState extends State<ProjectForm> {
                                             showDialog(
                                                 context: context,
                                                 builder: (_) => AlertDialog(
-                                                      title:
-                                                          const Text('Warning'),
+                                                      backgroundColor:
+                                                          Colors.red[100],
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          35)),
+                                                      title: const Text(
+                                                        'Warning',
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                      ),
                                                       content: Text(
-                                                          '${selectedUser.firstName} ${selectedUser.lastName} is already assigned to project ${selectedUser.assignedProject['name']}.\nAre you sure you want to assign him to a new project?'),
+                                                        '${selectedUser.firstName} ${selectedUser.lastName} is already assigned to project ${selectedUser.assignedProject['name']}.\nPlease remove the user from the first project before adding to a new one?',
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                      ),
                                                       actions: [
-                                                        TextButton(
-                                                            onPressed: () {
-                                                              Navigator.pop(
-                                                                  context);
-                                                            },
-                                                            child: const Text(
-                                                                'No')),
-                                                        TextButton(
-                                                            onPressed: () {
-                                                              setState(() {
-                                                                if (!addedUsers
-                                                                    .contains(
-                                                                        val)) {
-                                                                  addedUsers
-                                                                      .add(val);
-                                                                }
-                                                              });
-
-                                                              Navigator.pop(
-                                                                  context);
-                                                            },
-                                                            child: const Text(
-                                                                'Yes')),
+                                                        Center(
+                                                          child: TextButton(
+                                                              onPressed: () {
+                                                                Navigator.pop(
+                                                                    context);
+                                                              },
+                                                              child: const Text(
+                                                                'Ok',
+                                                                style:
+                                                                    textStyle3,
+                                                              )),
+                                                        ),
                                                       ],
                                                     ));
                                           } else {
@@ -1182,8 +1186,6 @@ class _ProjectFormState extends State<ProjectForm> {
         myLocation.longitude,
         widget.selectedProject.projectAddress['Lat'],
         widget.selectedProject.projectAddress['Lng']);
-    print(
-        'the calculation: ${result * 1000} - ${widget.selectedProject.radius} - $_isAtSite');
     //will check if the worker has arrived to the site
     if (result != null && result * 1000 <= widget.selectedProject.radius) {
       if (_isAtSite) {
@@ -1204,7 +1206,7 @@ class _ProjectFormState extends State<ProjectForm> {
     } else {
       dt = null;
       _snackBarWidget.content =
-          'You have ${(result - widget.selectedProject.radius).round()} meters to arrive to your destination.';
+          'You have ${((result * 1000) - widget.selectedProject.radius).round()} meters to arrive to your destination.';
       _snackBarWidget.showSnack();
     }
     return dt;
@@ -1218,7 +1220,6 @@ class _ProjectFormState extends State<ProjectForm> {
     if (userLocation != null) {
       var result = await _calculateDistance(
           LatLng(userLocation.latitude, userLocation.longitude));
-      print('the result: $result');
       //we will check if user in at site and record it in the report collection
       if (result != null && data.hasData) {
         var timeSheetUpdated;
@@ -1255,6 +1256,7 @@ class _ProjectFormState extends State<ProjectForm> {
           //set the data base with the required information
           if (_isAtSite) {
             timeSheetUpdated = await db.setWorkerTimeSheet(
+                userRole: widget.currentUser.roles.first,
                 isAtSite: _isAtSite,
                 currentUser: widget.currentUser,
                 selectedProject: widget.selectedProject,
@@ -1262,6 +1264,7 @@ class _ProjectFormState extends State<ProjectForm> {
                 checkIn: DateFormat('hh:mm a').format(result));
           } else {
             timeSheetUpdated = await db.setWorkerTimeSheet(
+                userRole: widget.currentUser.roles.first,
                 isAtSite: _isAtSite,
                 currentUser: widget.currentUser,
                 selectedProject: widget.selectedProject,

@@ -258,6 +258,4 @@ class _WorkerWidgetState extends State<WorkerWidget> {
       ),
     );
   }
-
-  _confirmUserRemoval() async {}
 }
