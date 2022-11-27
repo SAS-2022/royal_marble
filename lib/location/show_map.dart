@@ -16,6 +16,7 @@ import '../models/directions.dart';
 import '../models/user_model.dart';
 import '../services/database.dart';
 import '../shared/loading.dart';
+import 'package:google_maps_flutter_platform_interface/src/types/marker_updates.dart';
 
 class ShowMap extends StatefulWidget {
   const ShowMap({
@@ -48,6 +49,7 @@ class _ShowMapState extends State<ShowMap> {
   final _elevation = 3.0;
 
   Map<String, Marker> listMarkers = {};
+  Map<String, Marker> clientMarkers = {};
   Set<Marker> noMarkers = {};
   String clientSector;
   Future assignedMarkers;
@@ -75,7 +77,7 @@ class _ShowMapState extends State<ShowMap> {
     _getMyCurrentLocation = _determinePosition();
     _snackBarWidget.context = context;
     _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      updateState();
+      _updateCurrentMarkers();
     });
   }
 
@@ -89,6 +91,7 @@ class _ShowMapState extends State<ShowMap> {
     switch (widget.listOfMarkers) {
       case 'users':
         title = 'Users';
+        _getClientMarker();
         break;
       case 'clients':
         assignedMarkers = _getClientMarker();
@@ -104,19 +107,19 @@ class _ShowMapState extends State<ShowMap> {
       var currentClients = await db.getClientFuture();
       if (currentClients.isNotEmpty) {
         for (var client in currentClients) {
-          listMarkers = {
-            client.uid: Marker(
-              markerId: MarkerId(client.clientName),
-              position: LatLng(
-                  client.clientAddress['Lat'], client.clientAddress['Lng']),
-              icon: BitmapDescriptor.defaultMarkerWithHue(
-                  BitmapDescriptor.hueOrange),
-              infoWindow: InfoWindow(
-                  title: client.clientName,
-                  snippet: client.phoneNumber,
-                  onTap: () {}),
-            )
-          };
+          clientMarkers.putIfAbsent(
+              client.uid,
+              () => Marker(
+                    markerId: MarkerId(client.clientName),
+                    position: LatLng(client.clientAddress['Lat'],
+                        client.clientAddress['Lng']),
+                    icon: BitmapDescriptor.defaultMarkerWithHue(
+                        BitmapDescriptor.hueGreen),
+                    infoWindow: InfoWindow(
+                        title: client.clientName,
+                        snippet: client.phoneNumber,
+                        onTap: () {}),
+                  ));
         }
       }
     }
@@ -125,23 +128,23 @@ class _ShowMapState extends State<ShowMap> {
           await db.getSalesUserClientFuture(userId: widget.currentUser.uid);
       if (currentClients.isNotEmpty) {
         for (var client in currentClients) {
-          listMarkers = {
-            client.uid: Marker(
-              markerId: MarkerId(client.clientName),
-              position: LatLng(
-                  client.clientAddress['Lat'], client.clientAddress['Lng']),
-              icon: BitmapDescriptor.defaultMarkerWithHue(
-                  BitmapDescriptor.hueOrange),
-              infoWindow: InfoWindow(
-                  title: client.clientName,
-                  snippet: client.phoneNumber,
-                  onTap: () {}),
-            )
-          };
+          clientMarkers.putIfAbsent(
+              client.uid,
+              () => Marker(
+                    markerId: MarkerId(client.clientName),
+                    position: LatLng(client.clientAddress['Lat'],
+                        client.clientAddress['Lng']),
+                    icon: BitmapDescriptor.defaultMarkerWithHue(
+                        BitmapDescriptor.hueGreen),
+                    infoWindow: InfoWindow(
+                        title: client.clientName,
+                        snippet: client.phoneNumber,
+                        onTap: () {}),
+                  ));
         }
       }
     }
-    //userMarkers = Set.of(listMarkers);
+
     return userMarkers;
   }
 
@@ -305,12 +308,12 @@ class _ShowMapState extends State<ShowMap> {
       );
     }
     //assign a listener to stream events
-    streamLocation.listen((event) {
-      updateMarkers(
-          uuid: event.first.id,
-          newCoords:
-              LatLng(event.first.coord.latitude, event.first.coord.longitude));
-    });
+    // streamLocation.listen((event) {
+    //   updateMarkers(
+    //       uuid: event.first.id,
+    //       newCoords:
+    //           LatLng(event.first.coord.latitude, event.first.coord.longitude));
+    // });
   }
 
   Future<Set<Marker>> _setInitialMarkers(
@@ -328,27 +331,65 @@ class _ShowMapState extends State<ShowMap> {
                   onTap: () {}),
             ));
 
+    if (clientMarkers.isNotEmpty) {
+      listMarkers.addAll(clientMarkers);
+    }
+
     return userMarkers;
   }
 
-  Future<void> _updateUserMarker({double lat, double lng, String uuid}) async {
-    if (listMarkers.containsKey(uuid)) {
-      listMarkers[uuid] = Marker(
-        markerId: MarkerId(uuid),
-        position: LatLng(lat, lng),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
-        // infoWindow: selectedMarker.infoWindow,
-      );
-      print('the event is updating: ${listMarkers[uuid].position}');
+  void _updateCurrentMarkers() async {
+    Map<String, Marker> updatedMarker = {};
+    for (var user in userProvider) {
+      streamLocation = db.getAllUsersLocation(userId: user.uid);
+      var result = await streamLocation.first;
+
+      updatedMarker.putIfAbsent(
+          result.first.id,
+          () => Marker(
+                markerId: MarkerId(result.first.id),
+                position: LatLng(
+                    result.first.coord.latitude, result.first.coord.longitude),
+                icon: BitmapDescriptor.defaultMarkerWithHue(
+                    BitmapDescriptor.hueOrange),
+                infoWindow: InfoWindow(
+                    title: '${user.firstName} ${user.lastName}',
+                    snippet: user.phoneNumber,
+                    onTap: () {}),
+              ));
+      if (clientMarkers.isNotEmpty) {
+        updatedMarker.addAll(clientMarkers);
+      }
+    }
+    if (mounted) {
+      setState(() {
+        MarkerUpdates.from(
+            Set.of(listMarkers.values), Set.of(updatedMarker.values));
+        listMarkers = {};
+        listMarkers = updatedMarker;
+      });
     }
   }
 
-  void updateMarkers({LatLng newCoords, String uuid}) async {
-    if (uuid != null && newCoords != null) {
-      _updateUserMarker(
-          lat: newCoords.latitude, lng: newCoords.longitude, uuid: uuid);
-    }
-  }
+  // Future<void> _updateUserMarker({double lat, double lng, String uuid}) async {
+  //   if (listMarkers.containsKey(uuid)) {
+  //     listMarkers[uuid] = Marker(
+  //       markerId: MarkerId(uuid),
+  //       position: LatLng(lat, lng),
+  //       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+  //       //infoWindow: selectedMarker.infoWindow,
+  //     );
+
+  //     print('the event is updating: $uuid -${listMarkers[uuid].position}');
+  //   }
+  // }
+
+  // void updateMarkers({LatLng newCoords, String uuid}) async {
+  //   if (uuid != null && newCoords != null) {
+  //     _updateUserMarker(
+  //         lat: newCoords.latitude, lng: newCoords.longitude, uuid: uuid);
+  //   }
+  // }
 
   Widget _buildLocationSelection() {
     return Stack(
