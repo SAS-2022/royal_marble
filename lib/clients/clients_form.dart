@@ -236,22 +236,6 @@ class _ClientFormState extends State<ClientForm> {
                                   getLocation: selecteMapLocation,
                                   navigate: false,
                                 )));
-                    // if (Platform.isIOS) {
-                    //   var myLocation = await selecteMapLocation();
-                    //   print('myLocation: $myLocation');
-                    //   _httpNavigation.context = context;
-                    //   _httpNavigation.lat = myLocation['Lat'];
-                    //   _httpNavigation.lng = myLocation['Lng'];
-                    //   await _httpNavigation.startNaviagtionGoogleMap();
-                    // } else {
-                    //   await Navigator.push(
-                    //       context,
-                    //       MaterialPageRoute(
-                    //           builder: (_) => GoogleMapNavigation(
-                    //                 getLocation: selecteMapLocation,
-                    //                 navigate: false,
-                    //               )));
-                    // }
                   },
                   child: Container(
                     decoration: BoxDecoration(
@@ -540,6 +524,10 @@ class _ClientFormState extends State<ClientForm> {
                   ? GestureDetector(
                       onTap: () async {
                         if (Platform.isIOS) {
+                          _httpNavigation.context = context;
+                          _httpNavigation.lat = _myLocation['Lat'];
+                          _httpNavigation.lng = _myLocation['Lng'];
+                          await _httpNavigation.startNaviagtionGoogleMap();
                         } else {
                           await Navigator.push(
                               context,
@@ -590,9 +578,29 @@ class _ClientFormState extends State<ClientForm> {
                       ),
                       Expanded(
                         flex: 2,
-                        child: Text(
-                          _myLocation['addressName'].toString(),
-                          style: textStyle3,
+                        child: GestureDetector(
+                          onTap: () async {
+                            if (Platform.isIOS) {
+                              _httpNavigation.context = context;
+                              _httpNavigation.lat = _myLocation['Lat'];
+                              _httpNavigation.lng = _myLocation['Lng'];
+                              await _httpNavigation.startNaviagtionGoogleMap();
+                            } else {
+                              await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => GoogleMapNavigation(
+                                            getLocation: selecteMapLocation,
+                                            lat: _myLocation['Lat'],
+                                            lng: _myLocation['Lng'],
+                                            navigate: true,
+                                          )));
+                            }
+                          },
+                          child: Text(
+                            _myLocation['addressName'].toString(),
+                            style: textStyle3,
+                          ),
                         ),
                       )
                     ]),
@@ -608,7 +616,8 @@ class _ClientFormState extends State<ClientForm> {
                   ? Center(
                       child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                              primary: const Color.fromARGB(255, 191, 180, 66),
+                              backgroundColor:
+                                  const Color.fromARGB(255, 191, 180, 66),
                               fixedSize: Size(_size.width / 2, 45),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(25))),
@@ -627,6 +636,67 @@ class _ClientFormState extends State<ClientForm> {
                           },
                           child: const Text(
                             'Submit',
+                            style: textStyle2,
+                          )),
+                    )
+                  : const SizedBox.shrink(),
+              const SizedBox(
+                height: 15,
+              ),
+              //Delete button will allow you to delete the current client
+              _editContent && widget.currentUser.roles.contains('isAdmin')
+                  ? Center(
+                      child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              fixedSize: Size(_size.width / 2, 45),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(25))),
+                          onPressed: () async {
+                            await showDialog(
+                                context: context,
+                                builder: (_) {
+                                  return AlertDialog(
+                                    backgroundColor: Colors.red[100],
+                                    title: const Text(
+                                      'Delete',
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    content: const Text(
+                                      'Are you sure you want to delete this client, this action cannot be undone!',
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    actions: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                            child: const Text(
+                                              'No',
+                                              style: textStyle3,
+                                            ),
+                                          ),
+                                          TextButton(
+                                            onPressed: () async =>
+                                                await db.deleteClient(
+                                                    clientId:
+                                                        widget.client.uid),
+                                            child: const Text(
+                                              'Yes',
+                                              style: textStyle3,
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    ],
+                                  );
+                                });
+                          },
+                          child: const Text(
+                            'Delete',
                             style: textStyle2,
                           )),
                     )

@@ -174,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
           child: SizedBox(
-            height: _size.height / 3,
+            height: _size.height / 2.8,
             child:
                 Column(mainAxisAlignment: MainAxisAlignment.start, children: [
               const Text(
@@ -307,18 +307,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   }),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: Center(
-                  child: Text(
-                      'Total Projects: ${allProjectProvider.length} project'),
-                ),
+              const SizedBox(
+                height: 25,
+              ),
+              Center(
+                child: Text(
+                    'Total Projects: ${allProjectProvider.length} project'),
               )
             ]),
           ),
         ),
         const Divider(
-          height: 15,
+          height: 5,
           thickness: 3,
         ),
         //Sales team section

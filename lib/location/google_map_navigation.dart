@@ -310,6 +310,7 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
 
     _center = LatLng(lat, long);
     _cameraPosition = CameraPosition(target: _center);
+
     addMarker = _addMarker(
         currentLat: currentLocation.latitude,
         currentLng: currentLocation.longitude);
