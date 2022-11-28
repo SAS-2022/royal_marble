@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -32,6 +33,7 @@ class ShowMap extends StatefulWidget {
 
 class _ShowMapState extends State<ShowMap> {
   Stream<List<CustomMarker>> streamLocation;
+  Map<String, dynamic> futureLocation;
   SnackBarWidget _snackBarWidget = SnackBarWidget();
   GoogleMapController _mapController;
   Map<String, dynamic> locationProvider;
@@ -297,14 +299,15 @@ class _ShowMapState extends State<ShowMap> {
 
   Future setInitialMarkers() async {
     for (var user in userProvider) {
-      streamLocation = db.getAllUsersLocation(userId: user.uid);
-      var result = await streamLocation.first;
+      //  streamLocation = db.getAllUsersLocation(userId: user.uid);
+      futureLocation = await db.getUserLocationFuture(usersId: user.uid);
+      // var result = await streamLocation.first;
 
       _setInitialMarkers(
-        uuid: result.first.id,
+        uuid: futureLocation['uuid'],
         userData: user,
-        lat: result.first.coord.latitude,
-        lng: result.first.coord.longitude,
+        lat: futureLocation['lat'],
+        lng: futureLocation['lng'],
       );
     }
     //assign a listener to stream events
@@ -341,15 +344,16 @@ class _ShowMapState extends State<ShowMap> {
   void _updateCurrentMarkers() async {
     Map<String, Marker> updatedMarker = {};
     for (var user in userProvider) {
-      streamLocation = db.getAllUsersLocation(userId: user.uid);
-      var result = await streamLocation.first;
-
+      // streamLocation = db.getAllUsersLocation(userId: user.uid);
+      futureLocation = await db.getUserLocationFuture(usersId: user.uid);
+      //  var result = await streamLocation.first;
+      print(
+          'the uuid: ${futureLocation['uuid']} Lat:${futureLocation['lat']} Lng: ${futureLocation['lng']}');
       updatedMarker.putIfAbsent(
-          result.first.id,
+          futureLocation['uuid'],
           () => Marker(
-                markerId: MarkerId(result.first.id),
-                position: LatLng(
-                    result.first.coord.latitude, result.first.coord.longitude),
+                markerId: MarkerId(futureLocation['uuid']),
+                position: LatLng(futureLocation['lat'], futureLocation['lng']),
                 icon: BitmapDescriptor.defaultMarkerWithHue(
                     BitmapDescriptor.hueOrange),
                 infoWindow: InfoWindow(

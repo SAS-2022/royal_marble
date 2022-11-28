@@ -210,8 +210,9 @@ class DatabaseService {
         .then((value) {
       if (value.data() != null) {
         return {
+          'uuid': value.data()['location']['uuid'],
           'lat': value.data()['location']['coords']['latitude'],
-          'lng': value.data()['location']['coords']['longitude']
+          'lng': value.data()['location']['coords']['longitude'],
         };
       } else {
         return {};
@@ -745,15 +746,15 @@ class DatabaseService {
   }
 
   //updating the current entry
-  Future<String> updateWorkerTimeSheet(
-      {UserData currentUser,
-      String userRole,
-      String today,
-      ProjectData selectedProject,
-      bool isAtSite,
-      String checkIn,
-      String checkOut,
-      }) async {
+  Future<String> updateWorkerTimeSheet({
+    UserData currentUser,
+    String userRole,
+    String today,
+    ProjectData selectedProject,
+    bool isAtSite,
+    String checkIn,
+    String checkOut,
+  }) async {
     try {
       return await timeSheetCollection.doc(today).set({
         currentUser.uid: {
