@@ -7,6 +7,7 @@ class ClientData {
   String emailAddress;
   List<dynamic> clientVisits;
   String userId;
+  String error;
   ClientData({
     this.uid,
     this.clientName,
@@ -16,6 +17,7 @@ class ClientData {
     this.emailAddress,
     this.clientVisits,
     this.userId,
+    this.error,
   });
 }
 

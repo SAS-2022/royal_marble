@@ -48,7 +48,7 @@ class _UserListState extends State<UserList> {
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
                     child: Text(
-                      'These are the list of not active user who have registered to the company',
+                      'List of non-active users who have registered to the company',
                       style: textStyle6,
                     ),
                   ),
@@ -128,73 +128,89 @@ class _UserListState extends State<UserList> {
                         height: 10,
                         thickness: 3,
                       ),
-                      SizedBox(
-                        height: listOfUsers.isNotEmpty
-                            ? (size.height / 2) - 10
-                            : size.height / 6,
-                        child: listOfUsers.isNotEmpty
-                            ? ListView.builder(
-                                itemCount: listOfUsers.length,
-                                itemBuilder: (context, index) {
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 15, vertical: 20),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          border: Border.all(),
-                                          borderRadius:
-                                              BorderRadius.circular(25)),
-                                      child: GestureDetector(
-                                        onTap: () async {
-                                          await Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (_) => UserDetails(
-                                                currentUser: listOfUsers[index],
-                                                myAccount: false,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        child: ListTile(
-                                          leading: listOfUsers[index]
-                                                      .imageUrl ==
-                                                  null
-                                              ? const CircleAvatar(
-                                                  radius: 30,
-                                                  child: Icon(
-                                                    Icons.person,
-                                                    size: 50,
+                      Column(
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 15, vertical: 20),
+                            child: Text(
+                              'List of active users for the company',
+                              style: textStyle6,
+                            ),
+                          ),
+                          SizedBox(
+                            height: listOfUsers.isNotEmpty
+                                ? (size.height / 2) - 10
+                                : size.height / 6,
+                            child: listOfUsers.isNotEmpty
+                                ? ListView.builder(
+                                    itemCount: listOfUsers.length,
+                                    itemBuilder: (context, index) {
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 15, vertical: 20),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                              border: Border.all(),
+                                              borderRadius:
+                                                  BorderRadius.circular(25)),
+                                          child: GestureDetector(
+                                            onTap: () async {
+                                              await Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (_) => UserDetails(
+                                                    currentUser:
+                                                        listOfUsers[index],
+                                                    myAccount: false,
                                                   ),
-                                                )
-                                              : CircleAvatar(
-                                                  radius: 30,
-                                                  backgroundImage: NetworkImage(
-                                                    listOfUsers[index].imageUrl,
-                                                    scale: 2,
+                                                ),
+                                              );
+                                            },
+                                            child: ListTile(
+                                              leading:
+                                                  listOfUsers[index].imageUrl ==
+                                                          null
+                                                      ? const CircleAvatar(
+                                                          radius: 30,
+                                                          child: Icon(
+                                                            Icons.person,
+                                                            size: 50,
+                                                          ),
+                                                        )
+                                                      : CircleAvatar(
+                                                          radius: 30,
+                                                          backgroundImage:
+                                                              NetworkImage(
+                                                            listOfUsers[index]
+                                                                .imageUrl,
+                                                            scale: 2,
+                                                          )),
+                                              title: Text(
+                                                  '${listOfUsers[index].firstName} ${listOfUsers[index].lastName}'),
+                                              subtitle: SizedBox(
+                                                  height: 60,
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                          'Email Address: ${listOfUsers[index].emailAddress}'),
+                                                      Text(
+                                                          'Phone Number: ${listOfUsers[index].phoneNumber}')
+                                                    ],
                                                   )),
-                                          title: Text(
-                                              '${listOfUsers[index].firstName} ${listOfUsers[index].lastName}'),
-                                          subtitle: SizedBox(
-                                              height: 60,
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                      'Email Address: ${listOfUsers[index].emailAddress}'),
-                                                  Text(
-                                                      'Phone Number: ${listOfUsers[index].phoneNumber}')
-                                                ],
-                                              )),
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                  );
-                                })
-                            : const Center(
-                                child: Text('There are no active users'),
-                              ),
+                                      );
+                                    })
+                                : const Center(
+                                    child: Text('There are no active users'),
+                                  ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

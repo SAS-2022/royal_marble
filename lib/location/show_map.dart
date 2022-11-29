@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:royal_marble/location/.env.dart';
 import 'package:royal_marble/location/direction_repo.dart';
@@ -41,6 +42,7 @@ class _ShowMapState extends State<ShowMap> {
   Map<String, dynamic> locationProvider;
   var projectProvider;
   var userProvider;
+  List<ClientData> clientProvider;
   Directions _info;
   String title = '';
   var lat = 0.0, long = 0.0;
@@ -154,6 +156,10 @@ class _ShowMapState extends State<ShowMap> {
                   ));
         }
       }
+    }
+    //will put the client in a list
+    if (clientMarkers.isNotEmpty) {
+      clientProvider = await db.getClientFuture();
     }
 
     return userMarkers;
@@ -568,56 +574,123 @@ class _ShowMapState extends State<ShowMap> {
     return Drawer(
       backgroundColor: const Color.fromARGB(255, 186, 184, 152),
       width: _size.width / 2,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 40, right: 10),
-        child: Column(
-          children: [
-            const Text(
-              'List of Workers',
-              style: textStyle3,
-            ),
-            SizedBox(
-              height: _size.height - 70,
-              child: ListView.builder(
-                  itemCount: userProvider.length,
-                  itemBuilder: (context, index) {
-                    var result;
-                    return Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: GestureDetector(
-                        onTap: () async {
-                          print(userProvider[index]);
-                          result = db.getAllUsersLocation(
-                              userId: userProvider[index].uid);
-                          var userLoc = await result.first;
-
-                          setState(() {
-                            _center = LatLng(userLoc.first.coord.latitude,
-                                userLoc.first.coord.longitude);
-                          });
-                          _mapController.animateCamera(
-                              CameraUpdate.newCameraPosition(
-                                  CameraPosition(target: _center, zoom: 13.5)));
-                          Navigator.pop(context);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 15),
-                          decoration: BoxDecoration(
-                              color: Color.fromARGB(255, 156, 151, 216),
-                              border: Border.all(),
-                              borderRadius: BorderRadius.circular(15)),
-                          child: Text(
-                            '${userProvider[index].firstName} ${userProvider[index].lastName}',
-                            textAlign: TextAlign.center,
-                            style: textStyle5,
-                          ),
-                        ),
+      child: DefaultTabController(
+        length: 2,
+        child: Padding(
+          padding: EdgeInsets.only(top: _size.height / 15, right: 10),
+          child: Column(
+            children: [
+              const SizedBox(
+                child: TabBar(
+                    labelStyle: textStyle5,
+                    labelColor: Colors.black,
+                    unselectedLabelColor: Colors.white,
+                    indicatorColor: Colors.black,
+                    tabs: [
+                      Tab(
+                        text: 'Users',
                       ),
-                    );
-                  }),
-            ),
-          ],
+                      Tab(
+                        text: 'Clients',
+                      ),
+                    ]),
+              ),
+              SizedBox(
+                height: _size.height - 105,
+                child: TabBarView(children: [
+                  SizedBox(
+                    height: _size.height - 100,
+                    child: ListView.builder(
+                        itemCount: userProvider.length,
+                        itemBuilder: (context, index) {
+                          var result;
+                          return Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: GestureDetector(
+                              onTap: () async {
+                                result = db.getAllUsersLocation(
+                                    userId: userProvider[index].uid);
+                                var userLoc = await result.first;
+
+                                setState(() {
+                                  _center = LatLng(userLoc.first.coord.latitude,
+                                      userLoc.first.coord.longitude);
+                                });
+                                _mapController.animateCamera(
+                                    CameraUpdate.newCameraPosition(
+                                        CameraPosition(
+                                            target: _center, zoom: 13.5)));
+                                Navigator.pop(context);
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 15),
+                                decoration: BoxDecoration(
+                                    color: Color.fromARGB(255, 156, 151, 216),
+                                    border: Border.all(),
+                                    borderRadius: BorderRadius.circular(15)),
+                                child: Text(
+                                  '${userProvider[index].firstName} ${userProvider[index].lastName}',
+                                  textAlign: TextAlign.center,
+                                  style: textStyle5,
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
+                  ),
+                  SizedBox(
+                    height: _size.height - 105,
+                    child: clientProvider != null && clientProvider.isNotEmpty
+                        ? ListView.builder(
+                            itemCount: clientProvider.length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.all(15.0),
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    setState(() {
+                                      _center = LatLng(
+                                          clientProvider[index]
+                                              .clientAddress['Lat'],
+                                          clientProvider[index]
+                                              .clientAddress['Lng']);
+                                    });
+                                    _mapController.animateCamera(
+                                        CameraUpdate.newCameraPosition(
+                                            CameraPosition(
+                                                target: _center, zoom: 13.5)));
+                                    Navigator.pop(context);
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 15),
+                                    decoration: BoxDecoration(
+                                        color: const Color.fromARGB(
+                                            255, 156, 151, 216),
+                                        border: Border.all(),
+                                        borderRadius:
+                                            BorderRadius.circular(15)),
+                                    child: Text(
+                                      clientProvider[index].clientName,
+                                      textAlign: TextAlign.center,
+                                      style: textStyle5,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            })
+                        : SizedBox(
+                            height: _size.height - 105,
+                            child: const Center(
+                              child: Text('Please wait for list to load'),
+                            ),
+                          ),
+                  )
+                ]),
+              ),
+            ],
+          ),
         ),
       ),
     );

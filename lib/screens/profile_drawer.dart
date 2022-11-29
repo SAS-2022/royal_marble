@@ -243,23 +243,23 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                                     );
                                   },
                                 ),
-                                ListTile(
-                                  leading: const Icon(Icons.map_outlined),
-                                  title: const Text('Client Map'),
-                                  enabled: true,
-                                  onTap: () async {
-                                    await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (_) => MapProviders(
-                                                allUsers: widget.allUsers,
-                                                currentUser: widget.currentUser,
-                                                listOfMarkers: 'clients',
-                                                addNewProject: false,
-                                              )),
-                                    );
-                                  },
-                                ),
+                                // ListTile(
+                                //   leading: const Icon(Icons.map_outlined),
+                                //   title: const Text('Client Map'),
+                                //   enabled: true,
+                                //   onTap: () async {
+                                //     await Navigator.push(
+                                //       context,
+                                //       MaterialPageRoute(
+                                //           builder: (_) => MapProviders(
+                                //                 allUsers: widget.allUsers,
+                                //                 currentUser: widget.currentUser,
+                                //                 listOfMarkers: 'clients',
+                                //                 addNewProject: false,
+                                //               )),
+                                //     );
+                                //   },
+                                // ),
                               ],
                             )
                           : const SizedBox.shrink(),
