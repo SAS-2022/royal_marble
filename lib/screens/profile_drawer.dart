@@ -4,6 +4,7 @@ import 'package:royal_marble/account_settings/users_grid.dart';
 import 'package:royal_marble/clients/clients_form.dart';
 import 'package:royal_marble/clients/clients_grid.dart';
 import 'package:royal_marble/location/map_providers.dart';
+import 'package:royal_marble/location/show_map.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/reports/report_grid.dart';
 import 'package:royal_marble/sales_pipeline/visit_forms.dart/visit_form_streams.dart';
@@ -129,6 +130,40 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                             )
                           : const SizedBox.shrink(),
 
+                      //Will show the current project
+                      widget.currentUser.roles.contains('isAdmin') ||
+                              widget.currentUser.roles.contains('isSales')
+                          //Adding a new project
+                          ? ExpansionTile(
+                              iconColor:
+                                  const Color.fromARGB(255, 191, 180, 66),
+                              textColor:
+                                  const Color.fromARGB(255, 191, 180, 66),
+                              leading: const Icon(
+                                Icons.build,
+                              ),
+                              title: const Text('Projects'),
+                              children: [
+                                ListTile(
+                                  leading: const Icon(Icons.add_location),
+                                  title: const Text('Add New Project'),
+                                  enabled: true,
+                                  onTap: () async {
+                                    await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (_) => MapProviders(
+                                                  currentUser:
+                                                      widget.currentUser,
+                                                  addNewProject: true,
+                                                  listOfMarkers: 'Add Project',
+                                                )));
+                                  },
+                                ),
+                              ],
+                            )
+                          : const SizedBox.shrink(),
+
                       widget.currentUser.roles.contains('isAdmin') ||
                               widget.currentUser.roles.contains('isSales')
                           ? ExpansionTile(
@@ -203,6 +238,7 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                                                 allUsers: widget.allUsers,
                                                 currentUser: widget.currentUser,
                                                 listOfMarkers: 'users',
+                                                addNewProject: false,
                                               )),
                                     );
                                   },
@@ -219,6 +255,7 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                                                 allUsers: widget.allUsers,
                                                 currentUser: widget.currentUser,
                                                 listOfMarkers: 'clients',
+                                                addNewProject: false,
                                               )),
                                     );
                                   },

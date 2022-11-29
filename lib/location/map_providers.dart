@@ -6,11 +6,17 @@ import '../models/business_model.dart';
 import '../models/user_model.dart';
 
 class MapProviders extends StatelessWidget {
-  MapProviders({Key key, this.currentUser, this.listOfMarkers, this.allUsers})
+  MapProviders(
+      {Key key,
+      this.currentUser,
+      this.listOfMarkers,
+      this.allUsers,
+      this.addNewProject})
       : super(key: key);
   final UserData currentUser;
   final String listOfMarkers;
   final List<UserData> allUsers;
+  final bool addNewProject;
   final db = DatabaseService();
   @override
   Widget build(BuildContext context) {
@@ -31,6 +37,7 @@ class MapProviders extends StatelessWidget {
       child: ShowMap(
         currentUser: currentUser,
         listOfMarkers: listOfMarkers,
+        addProject: addNewProject,
       ),
     );
   }

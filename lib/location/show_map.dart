@@ -24,9 +24,11 @@ class ShowMap extends StatefulWidget {
     Key key,
     this.currentUser,
     this.listOfMarkers,
+    this.addProject,
   }) : super(key: key);
   final UserData currentUser;
   final String listOfMarkers;
+  final bool addProject;
   @override
   _ShowMapState createState() => _ShowMapState();
 }
@@ -73,20 +75,24 @@ class _ShowMapState extends State<ShowMap> {
     super.initState();
     _center = LatLng(widget.currentUser.homeAddress['Lat'],
         widget.currentUser.homeAddress['Lng']);
-    _identifyMapMarkers();
     _getApiKey();
-    noMarkers.add(marker1);
     _getMyCurrentLocation = _determinePosition();
-    _snackBarWidget.context = context;
-    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      _updateCurrentMarkers();
-    });
+    _identifyMapMarkers();
+    if (!widget.addProject) {
+      noMarkers.add(marker1);
+      _snackBarWidget.context = context;
+      _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+        _updateCurrentMarkers();
+      });
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
-    _timer.cancel();
+    if (!widget.addProject) {
+      _timer.cancel();
+    }
   }
 
   Future<void> _identifyMapMarkers() async {
@@ -98,6 +104,9 @@ class _ShowMapState extends State<ShowMap> {
       case 'clients':
         assignedMarkers = _getClientMarker();
         title = 'Clients';
+        break;
+      case 'Add Project':
+        title = 'Add Project';
         break;
     }
   }
@@ -279,7 +288,7 @@ class _ShowMapState extends State<ShowMap> {
           backgroundColor: const Color.fromARGB(255, 191, 180, 66),
         ),
         body: _buildLocationSelection(),
-        endDrawer: _buildMarkersDrawer(),
+        endDrawer: widget.addProject ? null : _buildMarkersDrawer(),
       ),
     );
   }
@@ -347,8 +356,6 @@ class _ShowMapState extends State<ShowMap> {
       // streamLocation = db.getAllUsersLocation(userId: user.uid);
       futureLocation = await db.getUserLocationFuture(usersId: user.uid);
       //  var result = await streamLocation.first;
-      print(
-          'the uuid: ${futureLocation['uuid']} Lat:${futureLocation['lat']} Lng: ${futureLocation['lng']}');
       updatedMarker.putIfAbsent(
           futureLocation['uuid'],
           () => Marker(
@@ -534,6 +541,24 @@ class _ShowMapState extends State<ShowMap> {
             ],
           ),
         ),
+        widget.addProject
+            ? Positioned(
+                bottom: 15,
+                left: 15,
+                right: 15,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                      color: Colors.amber[200],
+                      borderRadius: BorderRadius.circular(25)),
+                  child: const Text(
+                    'For adding a project, long press on the map location you want the project to be.',
+                    style: textStyle5,
+                    softWrap: true,
+                    textAlign: TextAlign.center,
+                  ),
+                ))
+            : const SizedBox.shrink(),
       ],
     );
   }
