@@ -65,10 +65,10 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<!-- <key>LSApplicationQueriesSchemes</key>
+	<key>LSApplicationQueriesSchemes</key>
 	<array>
 	<string>comgooglemaps</string>
-	</array> -->
+	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 	<key>CADisableMinimumFrameDurationOnPhone</key>

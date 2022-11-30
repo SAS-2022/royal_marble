@@ -54,6 +54,7 @@ class _ProjectFormState extends State<ProjectForm> {
   HttpNavigation _httpNavigation = HttpNavigation();
   bool _isAtSite = false;
   Future userStatus;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -98,7 +99,11 @@ class _ProjectFormState extends State<ProjectForm> {
               : const SizedBox.shrink()
         ],
       ),
-      body: !widget.isNewProject ? _buildProjectBody() : _buildNewProjectForm(),
+      body: _isLoading
+          ? const Center(child: Loading())
+          : !widget.isNewProject
+              ? _buildProjectBody()
+              : _buildNewProjectForm(),
     );
   }
 
@@ -549,35 +554,35 @@ class _ProjectFormState extends State<ProjectForm> {
                         : const SizedBox.shrink(),
 
                     //Submit button will allow you add the entered data into the database
-                    _editContent
-                        ? Center(
-                            child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        const Color.fromARGB(255, 191, 180, 66),
-                                    fixedSize: Size(_size.width / 2, 45),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(25))),
-                                onPressed: () async {
-                                  if (_formKey.currentState.validate()) {
-                                    var result = await db.addNewProject(
-                                        project: newProject);
-                                    if (result == 'Completed') {
-                                      Navigator.pop(context);
-                                    } else {
-                                      _snackBarWidget.content =
-                                          'failed to update account, please contact developer';
-                                      _snackBarWidget.showSnack();
-                                    }
-                                  }
-                                },
-                                child: const Text(
-                                  'Submit',
-                                  style: textStyle2,
-                                )),
-                          )
-                        : const SizedBox.shrink(),
+                    // _editContent
+                    //     ? Center(
+                    //         child: ElevatedButton(
+                    //             style: ElevatedButton.styleFrom(
+                    //                 backgroundColor:
+                    //                     const Color.fromARGB(255, 191, 180, 66),
+                    //                 fixedSize: Size(_size.width / 2, 45),
+                    //                 shape: RoundedRectangleBorder(
+                    //                     borderRadius:
+                    //                         BorderRadius.circular(25))),
+                    //             onPressed: () async {
+                    //               if (_formKey.currentState.validate()) {
+                    //                 var result = await db.addNewProject(
+                    //                     project: newProject);
+                    //                 if (result == 'Completed') {
+                    //                   Navigator.pop(context);
+                    //                 } else {
+                    //                   _snackBarWidget.content =
+                    //                       'failed to update account, please contact developer';
+                    //                   _snackBarWidget.showSnack();
+                    //                 }
+                    //               }
+                    //             },
+                    //             child: const Text(
+                    //               'Submit',
+                    //               style: textStyle2,
+                    //             )),
+                    //       )
+                    //     : const SizedBox.shrink(),
                     //this feature is only available for admin users
                     widget.currentUser.roles.contains('isAdmin')
                         ? !_editContent
@@ -806,6 +811,10 @@ class _ProjectFormState extends State<ProjectForm> {
                                         borderRadius:
                                             BorderRadius.circular(25))),
                                 onPressed: () async {
+                                  setState(() {
+                                    _isLoading = true;
+                                  });
+                                  print('Added users: $addedUsers');
                                   if (addedUsers.isNotEmpty) {
                                     List<String> userIds = [];
                                     for (var element in addedUsers) {
@@ -817,12 +826,30 @@ class _ProjectFormState extends State<ProjectForm> {
                                             project: widget.selectedProject,
                                             selectedUserIds: userIds,
                                             removedUsers: removedUsers);
+                                    print('the result: $result');
+
                                     if (result == 'Completed') {
                                       Navigator.pop(context);
                                     } else {
                                       _snackBarWidget.content =
                                           'failed to update account, please contact developer';
                                       _snackBarWidget.showSnack();
+                                    }
+                                  } else {
+                                    if (_formKey.currentState.validate()) {
+                                      var result = await db.updateProjectData(
+                                          project: newProject);
+
+                                      if (result == 'Completed') {
+                                        Navigator.pop(context);
+                                      } else {
+                                        _snackBarWidget.content =
+                                            'failed to update account, please contact developer';
+                                        _snackBarWidget.showSnack();
+                                        setState(() {
+                                          _isLoading = false;
+                                        });
+                                      }
                                     }
                                   }
                                 },
@@ -1140,6 +1167,9 @@ class _ProjectFormState extends State<ProjectForm> {
                             borderRadius: BorderRadius.circular(25))),
                     onPressed: () async {
                       if (_formKey.currentState.validate()) {
+                        setState(() {
+                          _isLoading = true;
+                        });
                         var result =
                             await db.addNewProject(project: newProject);
                         if (result == 'Completed') {

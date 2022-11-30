@@ -186,7 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               Container(
                 padding: const EdgeInsets.all(10),
-                height: _size.height / 4,
+                height: _size.height / 3.8,
                 width: _size.width - 20,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
@@ -232,7 +232,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       allProjectProvider[index]
                                           .projectName
                                           .toUpperCase(),
-                                      style: textStyle5,
+                                      style: textStyle12,
                                     ),
                                   ),
                                 ],
@@ -250,22 +250,38 @@ class _HomeScreenState extends State<HomeScreen> {
                                             30
                                         ? Text(
                                             '${allProjectProvider[index].projectDetails.characters.take(30)}...',
-                                            style: textStyle5,
+                                            style: textStyle12,
                                           )
-                                        : Text(allProjectProvider[index]
-                                            .projectDetails),
+                                        : Text(
+                                            allProjectProvider[index]
+                                                .projectDetails,
+                                            style: textStyle12,
+                                          ),
                                   ),
                                 ],
                               ),
                               Row(
                                 children: [
                                   const Text(
-                                    'Contactor: ',
+                                    'Contractor: ',
                                     style: textStyle3,
                                   ),
-                                  Text(
-                                    allProjectProvider[index].contactorCompany,
-                                    style: textStyle5,
+                                  Expanded(
+                                    child: allProjectProvider[index]
+                                                .projectDetails
+                                                .length >
+                                            30
+                                        ? Text(
+                                            '${allProjectProvider[index].contactorCompany.characters.take(30)}...',
+                                            style: textStyle12,
+                                            softWrap: true,
+                                          )
+                                        : Text(
+                                            allProjectProvider[index]
+                                                .contactorCompany,
+                                            style: textStyle12,
+                                            softWrap: true,
+                                          ),
                                   ),
                                 ],
                               ),
@@ -277,7 +293,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   Text(
                                     allProjectProvider[index].phoneNumber,
-                                    style: textStyle5,
+                                    style: textStyle12,
                                   ),
                                 ],
                               ),
@@ -295,7 +311,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             .length
                                             .toString()
                                         : 'None',
-                                    style: textStyle5,
+                                    style: textStyle12,
                                   ),
                                 ],
                               ),
