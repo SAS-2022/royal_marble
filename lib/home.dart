@@ -11,7 +11,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/models/user_model.dart';
-import 'package:royal_marble/projects/project_form.dart';
 import 'package:royal_marble/projects/project_grid.dart';
 import 'package:royal_marble/projects/worker_current_state.dart';
 import 'package:royal_marble/screens/profile_drawer.dart';
@@ -691,7 +690,8 @@ class _HomeScreenState extends State<HomeScreen> {
       } else if (status.isDenied) {
         await openAppSettings();
       } else {
-        print('$status');
+        _snackBarWidget.content = 'Location Permission: $status';
+        _snackBarWidget.showSnack();
       }
     }
     getCurrentLocation();

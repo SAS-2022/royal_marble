@@ -58,6 +58,7 @@ class _ReportTypeListState extends State<ReportTypeList> {
                                     reportType: 'timesheet',
                                     bulkUsers: userProvider,
                                     currentUser: widget.currentUser,
+                                    reportSection: 'isNormalUser',
                                   ),
                                 ));
                       },
@@ -88,6 +89,18 @@ class _ReportTypeListState extends State<ReportTypeList> {
                     ),
                     //Site Engineers Report
                     GestureDetector(
+                      onTap: () {
+                        showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                                  content: DatePicker(
+                                    reportType: 'timesheet',
+                                    bulkUsers: userProvider,
+                                    currentUser: widget.currentUser,
+                                    reportSection: 'isSiteEngineer',
+                                  ),
+                                ));
+                      },
                       child: Container(
                         decoration: BoxDecoration(
                             boxShadow: const [
@@ -115,6 +128,18 @@ class _ReportTypeListState extends State<ReportTypeList> {
                     ),
                     //Site Supervisors Reports
                     GestureDetector(
+                      onTap: () {
+                        showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                                  content: DatePicker(
+                                    reportType: 'timesheet',
+                                    bulkUsers: userProvider,
+                                    currentUser: widget.currentUser,
+                                    reportSection: 'isSupervisor',
+                                  ),
+                                ));
+                      },
                       child: Container(
                         decoration: BoxDecoration(
                             boxShadow: const [

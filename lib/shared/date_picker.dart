@@ -10,12 +10,14 @@ class DatePicker extends StatefulWidget {
       this.selectedUser,
       this.bulkUsers,
       this.reportType,
+      this.reportSection,
       this.currentUser})
       : super(key: key);
   final UserData currentUser;
   final UserData selectedUser;
   final List<UserData> bulkUsers;
   final String reportType;
+  final String reportSection;
 
   @override
   State<DatePicker> createState() => _DatePickerState();
@@ -48,7 +50,6 @@ class _DatePickerState extends State<DatePicker> {
                           )));
               break;
             case 'timesheet':
-              print('the dates: $startDate - $endDate');
               Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -58,6 +59,7 @@ class _DatePickerState extends State<DatePicker> {
                             reportType: widget.reportType,
                             fromDate: startDate,
                             toDate: endDate,
+                            reportSection: widget.reportSection,
                           )));
               break;
           }

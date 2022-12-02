@@ -790,10 +790,22 @@ class DatabaseService {
   }
 
   Future<Map<String, dynamic>> getRangeTimeSheets(
-      {String uid, List<String> roles}) async {
+      {String uid, List<String> roles, String reportSection}) async {
     try {
       return await timeSheetCollection.doc(uid).get().then((value) {
-        return {'id': value.id, 'data': value.data()};
+        Map<String, dynamic> reportList = {};
+        var result = value.data() as Map<String, dynamic>;
+        var keys = result.keys;
+
+        for (var key in keys) {
+          if (result[key]['roles'] == reportSection) {
+            reportList.addAll({'id': value.id, 'data': value.data()});
+          } else {
+            return {};
+          }
+        }
+
+        return reportList;
       });
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
