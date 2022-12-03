@@ -44,6 +44,7 @@ class _DatePickerState extends State<DatePicker> {
                   context,
                   MaterialPageRoute(
                       builder: (_) => VisitsGrid(
+                            currentUser: widget.currentUser,
                             selectedUser: widget.selectedUser,
                             fromDate: startDate,
                             toDate: endDate,

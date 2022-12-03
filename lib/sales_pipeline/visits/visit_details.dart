@@ -6,9 +6,11 @@ import 'package:royal_marble/shared/constants.dart';
 import 'package:royal_marble/shared/snack_bar.dart';
 
 class VisitDetailsClass extends StatefulWidget {
-  const VisitDetailsClass({Key key, this.currentUser, this.currentVisit})
+  const VisitDetailsClass(
+      {Key key, this.currentUser, this.currentVisit, this.selectedUser})
       : super(key: key);
   final UserData currentUser;
+  final UserData selectedUser;
   final VisitDetails currentVisit;
 
   @override
@@ -18,6 +20,7 @@ class VisitDetailsClass extends StatefulWidget {
 class _VisitDetailsClassState extends State<VisitDetailsClass> {
   Size _size;
   bool _edit = false;
+
   String visitDetails;
   String managerComments;
   DatabaseService db = DatabaseService();
@@ -26,6 +29,7 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
   void initState() {
     super.initState();
     visitDetails = widget.currentVisit.visitDetails;
+
     managerComments = widget.currentVisit.managerComments ?? '';
   }
 
@@ -173,27 +177,33 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
                                 visitDetails,
                                 style: textStyle5,
                               )
-                            : TextFormField(
-                                initialValue: visitDetails,
-                                maxLines: 7,
-                                style: textStyle5,
-                                decoration: const InputDecoration(
-                                  filled: true,
-                                  hintText: 'Visit Details',
-                                  border: InputBorder.none,
-                                ),
-                                validator: (val) {
-                                  if (val.isEmpty) {
-                                    return 'Details cannot be left empty';
-                                  }
-                                  return null;
-                                },
-                                onChanged: (val) {
-                                  if (val != null) {
-                                    visitDetails = val.trim();
-                                  }
-                                },
-                              ),
+                            : widget.selectedUser.uid ==
+                                    widget.currentVisit.userId
+                                ? TextFormField(
+                                    initialValue: visitDetails,
+                                    maxLines: 7,
+                                    style: textStyle5,
+                                    decoration: const InputDecoration(
+                                      filled: true,
+                                      hintText: 'Visit Details',
+                                      border: InputBorder.none,
+                                    ),
+                                    validator: (val) {
+                                      if (val.isEmpty) {
+                                        return 'Details cannot be left empty';
+                                      }
+                                      return null;
+                                    },
+                                    onChanged: (val) {
+                                      if (val != null) {
+                                        visitDetails = val.trim();
+                                      }
+                                    },
+                                  )
+                                : Text(
+                                    visitDetails,
+                                    style: textStyle5,
+                                  ),
                       )
                     ],
                   ),
@@ -227,27 +237,32 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
                                 managerComments,
                                 style: textStyle5,
                               )
-                            : TextFormField(
-                                initialValue: managerComments,
-                                maxLines: 7,
-                                style: textStyle5,
-                                decoration: const InputDecoration(
-                                  filled: true,
-                                  hintText: 'Manager Comments',
-                                  border: InputBorder.none,
-                                ),
-                                validator: (val) {
-                                  if (val.isEmpty) {
-                                    return 'Details cannot be left empty';
-                                  }
-                                  return null;
-                                },
-                                onChanged: (val) {
-                                  if (val != null) {
-                                    managerComments = val.trim();
-                                  }
-                                },
-                              ),
+                            : widget.currentUser.roles.contains('isAdmin')
+                                ? TextFormField(
+                                    initialValue: managerComments,
+                                    maxLines: 7,
+                                    style: textStyle5,
+                                    decoration: const InputDecoration(
+                                      filled: true,
+                                      hintText: 'Manager Comments',
+                                      border: InputBorder.none,
+                                    ),
+                                    validator: (val) {
+                                      if (val.isEmpty) {
+                                        return 'Details cannot be left empty';
+                                      }
+                                      return null;
+                                    },
+                                    onChanged: (val) {
+                                      if (val != null) {
+                                        managerComments = val.trim();
+                                      }
+                                    },
+                                  )
+                                : Text(
+                                    managerComments,
+                                    style: textStyle5,
+                                  ),
                       )
                     ],
                   ),

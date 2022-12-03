@@ -33,7 +33,8 @@ class VisitsGrid extends StatelessWidget {
         )
       ],
       child: VisitList(
-        currentUser: selectedUser,
+        currentUser: currentUser,
+        selectedUser: selectedUser,
       ),
     );
   }

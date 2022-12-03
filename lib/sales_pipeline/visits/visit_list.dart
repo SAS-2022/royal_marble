@@ -7,8 +7,10 @@ import 'package:royal_marble/shared/constants.dart';
 import 'package:intl/intl.dart';
 
 class VisitList extends StatefulWidget {
-  const VisitList({Key key, this.currentUser}) : super(key: key);
+  const VisitList({Key key, this.currentUser, this.selectedUser})
+      : super(key: key);
   final UserData currentUser;
+  final UserData selectedUser;
 
   @override
   State<VisitList> createState() => _VisitListState();
@@ -63,6 +65,7 @@ class _VisitListState extends State<VisitList> {
                               MaterialPageRoute(
                                 builder: (_) => VisitDetailsClass(
                                   currentUser: widget.currentUser,
+                                  selectedUser: widget.selectedUser,
                                   currentVisit: visitProvider[index],
                                 ),
                               ),

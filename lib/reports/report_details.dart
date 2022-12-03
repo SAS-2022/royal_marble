@@ -206,7 +206,8 @@ class _ReportDetailsState extends State<ReportDetails> {
                             );
                           }
                         });
-                  }))
+                  }),
+                )
               : const Center(
                   child: Text(
                     'Please select a date range!',
