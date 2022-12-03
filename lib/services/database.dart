@@ -757,7 +757,7 @@ class DatabaseService {
     String checkOut,
   }) async {
     try {
-      return await timeSheetCollection.doc(today).set({
+      return await timeSheetCollection.doc(today).update({
         currentUser.uid: {
           'firstName': currentUser.firstName,
           'lastName': currentUser.lastName,
@@ -800,8 +800,6 @@ class DatabaseService {
         for (var key in keys) {
           if (result[key]['roles'] == reportSection) {
             reportList.addAll({'id': value.id, 'data': value.data()});
-          } else {
-            return {};
           }
         }
 

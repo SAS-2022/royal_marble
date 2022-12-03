@@ -48,7 +48,9 @@ dependencies:
   intl: ^0.17.0
   syncfusion_flutter_datepicker: ^20.3.57
   uri_to_file: ^0.2.0
-  # google_maps_place_picker: 2.1.0-nullsafety.3
+  pdf: ^3.8.4
+  printing: ^5.9.3
+ 
 
 dev_dependencies:
   flutter_test:

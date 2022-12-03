@@ -874,6 +874,8 @@ PODS:
     - Flutter
   - permission_handler_apple (9.0.4):
     - Flutter
+  - printing (1.0.0):
+    - Flutter
   - PromisesObjC (2.1.1)
   - Sentry (7.22.0):
     - Sentry/Core (= 7.22.0)
@@ -909,6 +911,7 @@ DEPENDENCIES:
   - location (from `.symlinks/plugins/location/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
+  - printing (from `.symlinks/plugins/printing/ios`)
   - sentry_flutter (from `.symlinks/plugins/sentry_flutter/ios`)
   - shared_preferences_ios (from `.symlinks/plugins/shared_preferences_ios/ios`)
   - uri_to_file (from `.symlinks/plugins/uri_to_file/ios`)
@@ -988,6 +991,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/package_info_plus/ios"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
+  printing:
+    :path: ".symlinks/plugins/printing/ios"
   sentry_flutter:
     :path: ".symlinks/plugins/sentry_flutter/ios"
   shared_preferences_ios:
@@ -1047,6 +1052,7 @@ SPEC CHECKSUMS:
   nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
   package_info_plus: 6c92f08e1f853dc01228d6f553146438dafcd14e
   permission_handler_apple: 44366e37eaf29454a1e7b1b7d736c2cceaeb17ce
+  printing: eafa00acb682c0ca029d4d98d0798f55a1e27102
   PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
   Sentry: 30b51086ca9aac23337880152e95538f7e177f7f
   sentry_flutter: eaca55af5c951f4be6c4b1daddce1744c37d8476

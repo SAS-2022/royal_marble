@@ -520,8 +520,14 @@ class _ProjectFormState extends State<ProjectForm> {
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
                                 if (snapshot.data['data'] != null) {
-                                  _isAtSite = snapshot.data['data']
-                                      [widget.currentUser.uid]['isOnSite'];
+                                  if (snapshot.data['data']
+                                          [widget.currentUser.uid] !=
+                                      null) {
+                                    print(
+                                        'the data: ${snapshot.data['data'][widget.currentUser.uid]}');
+                                    _isAtSite = snapshot.data['data']
+                                        [widget.currentUser.uid]['isOnSite'];
+                                  }
                                 }
                               }
 
@@ -1255,32 +1261,41 @@ class _ProjectFormState extends State<ProjectForm> {
         var timeSheetUpdated;
         //check if field is available
         var todayTimeSheet = data.data;
+        print('the time sheet: $todayTimeSheet');
 
         if (todayTimeSheet['data'] != null) {
-          if (todayTimeSheet['data'] != null) {
-            if (todayTimeSheet['data'][widget.currentUser.uid] != null) {
-              if (_isAtSite) {
-                timeSheetUpdated = await db.updateWorkerTimeSheet(
-                    isAtSite: _isAtSite,
-                    currentUser: widget.currentUser,
-                    userRole: widget.currentUser.roles.first,
-                    selectedProject: widget.selectedProject,
-                    today: '${result.day}-${result.month}-${result.year}',
-                    checkOut: todayTimeSheet['data'][widget.currentUser.uid]
-                        ['leaving_at'],
-                    checkIn: DateFormat('hh:mm a').format(result));
-              } else {
-                timeSheetUpdated = await db.updateWorkerTimeSheet(
-                    isAtSite: _isAtSite,
-                    currentUser: widget.currentUser,
-                    selectedProject: widget.selectedProject,
-                    userRole: widget.currentUser.roles.first,
-                    today: '${result.day}-${result.month}-${result.year}',
-                    checkIn: todayTimeSheet['data'][widget.currentUser.uid]
-                        ['arriving_at'],
-                    checkOut: DateFormat('hh:mm a').format(result));
-              }
+          if (todayTimeSheet['data'][widget.currentUser.uid] != null) {
+            if (_isAtSite) {
+              timeSheetUpdated = await db.updateWorkerTimeSheet(
+                  isAtSite: _isAtSite,
+                  currentUser: widget.currentUser,
+                  userRole: widget.currentUser.roles.first,
+                  selectedProject: widget.selectedProject,
+                  today: '${result.day}-${result.month}-${result.year}',
+                  checkOut: todayTimeSheet['data'][widget.currentUser.uid]
+                      ['leaving_at'],
+                  checkIn: DateFormat('hh:mm a').format(result));
+            } else {
+              timeSheetUpdated = await db.updateWorkerTimeSheet(
+                  isAtSite: _isAtSite,
+                  currentUser: widget.currentUser,
+                  selectedProject: widget.selectedProject,
+                  userRole: widget.currentUser.roles.first,
+                  today: '${result.day}-${result.month}-${result.year}',
+                  checkIn: todayTimeSheet['data'][widget.currentUser.uid]
+                      ['arriving_at'],
+                  checkOut: DateFormat('hh:mm a').format(result));
             }
+          } else {
+            //set the data base with the required information
+            timeSheetUpdated = await db.updateWorkerTimeSheet(
+              isAtSite: _isAtSite,
+              currentUser: widget.currentUser,
+              selectedProject: widget.selectedProject,
+              userRole: widget.currentUser.roles.first,
+              today: '${result.day}-${result.month}-${result.year}',
+              checkIn: DateFormat('hh:mm a').format(result),
+            );
           }
         } else {
           //set the data base with the required information

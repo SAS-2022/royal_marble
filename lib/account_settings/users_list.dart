@@ -144,6 +144,7 @@ class _UserListState extends State<UserList> {
                                 : size.height / 6,
                             child: listOfUsers.isNotEmpty
                                 ? ListView.builder(
+                                    // shrinkWrap: true,
                                     itemCount: listOfUsers.length,
                                     itemBuilder: (context, index) {
                                       return Padding(

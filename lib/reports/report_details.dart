@@ -31,6 +31,7 @@ class _ReportDetailsState extends State<ReportDetails> {
   var days;
   List<DateTime> dateRange = [];
   var singleUserMap = [];
+  var generateddata = [];
   @override
   Widget build(BuildContext context) {
     _size = MediaQuery.of(context).size;
@@ -73,6 +74,8 @@ class _ReportDetailsState extends State<ReportDetails> {
                     return FutureBuilder(
                         future: _getDatesTimeSheet(uid: uid),
                         builder: (context, snapshot) {
+                          singleUserMap = [];
+
                           if (snapshot.hasData) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
@@ -91,6 +94,8 @@ class _ReportDetailsState extends State<ReportDetails> {
                                     'projectName': value['projectName'],
                                   });
                                 });
+
+                                generateddata.addAll(singleUserMap);
 
                                 return Container(
                                   width: _size.width,
