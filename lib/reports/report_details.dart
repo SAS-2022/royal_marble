@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/shared/constants.dart';
+import 'package:royal_marble/shared/generating_pdf.dart';
 import 'package:royal_marble/shared/loading.dart';
+import 'package:royal_marble/shared/pdf_builder.dart';
 
 class ReportDetails extends StatefulWidget {
   const ReportDetails(
@@ -28,6 +32,7 @@ class ReportDetails extends StatefulWidget {
 class _ReportDetailsState extends State<ReportDetails> {
   Size _size;
   DatabaseService db = DatabaseService();
+  PdfPageFormat pdfFormat;
   var days;
   List<DateTime> dateRange = [];
   var singleUserMap = [];
@@ -35,10 +40,34 @@ class _ReportDetailsState extends State<ReportDetails> {
   @override
   Widget build(BuildContext context) {
     _size = MediaQuery.of(context).size;
+    pdfFormat = PdfPageFormat(_size.width, _size.height);
     return Scaffold(
       appBar: AppBar(
         title: Text('Report Details - ${widget.reportType}'),
         backgroundColor: const Color.fromARGB(255, 191, 180, 66),
+        actions: [
+          //Generate document pdf
+          TextButton(
+              onPressed: () async {
+                var pageFormat = PdfPageFormat(_size.width, _size.height);
+                if (generateddata != null && generateddata.isNotEmpty) {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PdfPreview(
+                        maxPageWidth: _size.width - 10,
+                        build: (format) =>
+                            fileTypes[0].builder(pdfFormat, generateddata),
+                      ),
+                    ),
+                  );
+                }
+              },
+              child: const Text(
+                'PDF',
+                style: buttonStyle,
+              ))
+        ],
       ),
       body: _buildReportDetails(),
     );
