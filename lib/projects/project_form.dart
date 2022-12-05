@@ -55,6 +55,7 @@ class _ProjectFormState extends State<ProjectForm> {
   bool _isAtSite = false;
   Future userStatus;
   bool _isLoading = false;
+  bool _checkInOutLoading = false;
 
   @override
   void initState() {
@@ -523,72 +524,63 @@ class _ProjectFormState extends State<ProjectForm> {
                                   if (snapshot.data['data']
                                           [widget.currentUser.uid] !=
                                       null) {
-                                    print(
-                                        'the data: ${snapshot.data['data'][widget.currentUser.uid]}');
                                     _isAtSite = snapshot.data['data']
                                         [widget.currentUser.uid]['isOnSite'];
                                   }
                                 }
                               }
 
-                              return Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: SizedBox(
-                                  height: _size.width / 2,
-                                  width: _size.width / 2,
-                                  child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                          backgroundColor: !_isAtSite
-                                              ? Colors.green[400]
-                                              : Colors.red[600],
-                                          shape: const CircleBorder()),
-                                      onPressed: () async {
-                                        await checkInOut(snapshot);
-                                      },
-                                      child: !_isAtSite
-                                          ? const Text(
-                                              'Check In',
-                                              style: textStyle2,
-                                            )
-                                          : const Text(
-                                              'Check Out',
-                                              style: textStyle2,
-                                            )),
-                                ),
+                              return Stack(
+                                children: [
+                                  Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(12),
+                                      child: SizedBox(
+                                        height: _size.width / 2,
+                                        width: _size.width / 2,
+                                        child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                                backgroundColor: !_isAtSite
+                                                    ? Colors.green[400]
+                                                    : Colors.red[600],
+                                                shape: const CircleBorder()),
+                                            onPressed: !_checkInOutLoading
+                                                ? () async {
+                                                    setState(() {
+                                                      _checkInOutLoading = true;
+                                                    });
+                                                    await checkInOut(snapshot);
+                                                    setState(() {
+                                                      _checkInOutLoading =
+                                                          false;
+                                                    });
+                                                  }
+                                                : null,
+                                            child: !_isAtSite
+                                                ? const Text(
+                                                    'Check In',
+                                                    style: textStyle2,
+                                                  )
+                                                : const Text(
+                                                    'Check Out',
+                                                    style: textStyle2,
+                                                  )),
+                                      ),
+                                    ),
+                                  ),
+                                  _checkInOutLoading
+                                      ? Center(
+                                          child: SizedBox(
+                                              height: _size.width / 2,
+                                              width: _size.width / 2,
+                                              child: const Loading()),
+                                        )
+                                      : const SizedBox.shrink()
+                                ],
                               );
                             })
                         : const SizedBox.shrink(),
 
-                    //Submit button will allow you add the entered data into the database
-                    // _editContent
-                    //     ? Center(
-                    //         child: ElevatedButton(
-                    //             style: ElevatedButton.styleFrom(
-                    //                 backgroundColor:
-                    //                     const Color.fromARGB(255, 191, 180, 66),
-                    //                 fixedSize: Size(_size.width / 2, 45),
-                    //                 shape: RoundedRectangleBorder(
-                    //                     borderRadius:
-                    //                         BorderRadius.circular(25))),
-                    //             onPressed: () async {
-                    //               if (_formKey.currentState.validate()) {
-                    //                 var result = await db.addNewProject(
-                    //                     project: newProject);
-                    //                 if (result == 'Completed') {
-                    //                   Navigator.pop(context);
-                    //                 } else {
-                    //                   _snackBarWidget.content =
-                    //                       'failed to update account, please contact developer';
-                    //                   _snackBarWidget.showSnack();
-                    //                 }
-                    //               }
-                    //             },
-                    //             child: const Text(
-                    //               'Submit',
-                    //               style: textStyle2,
-                    //             )),
-                    //       )
-                    //     : const SizedBox.shrink(),
                     //this feature is only available for admin users
                     widget.currentUser.roles.contains('isAdmin')
                         ? !_editContent
@@ -1245,6 +1237,7 @@ class _ProjectFormState extends State<ProjectForm> {
           'You have ${((result * 1000) - widget.selectedProject.radius).round()} meters to arrive to your destination.';
       _snackBarWidget.showSnack();
     }
+
     return dt;
   }
 
@@ -1274,7 +1267,7 @@ class _ProjectFormState extends State<ProjectForm> {
                   today: '${result.day}-${result.month}-${result.year}',
                   checkOut: todayTimeSheet['data'][widget.currentUser.uid]
                       ['leaving_at'],
-                  checkIn: DateFormat('hh:mm a').format(result));
+                  checkIn: result.toString());
             } else {
               timeSheetUpdated = await db.updateWorkerTimeSheet(
                   isAtSite: _isAtSite,
@@ -1284,7 +1277,7 @@ class _ProjectFormState extends State<ProjectForm> {
                   today: '${result.day}-${result.month}-${result.year}',
                   checkIn: todayTimeSheet['data'][widget.currentUser.uid]
                       ['arriving_at'],
-                  checkOut: DateFormat('hh:mm a').format(result));
+                  checkOut: result.toString());
             }
           } else {
             //set the data base with the required information
@@ -1294,7 +1287,7 @@ class _ProjectFormState extends State<ProjectForm> {
               selectedProject: widget.selectedProject,
               userRole: widget.currentUser.roles.first,
               today: '${result.day}-${result.month}-${result.year}',
-              checkIn: DateFormat('hh:mm a').format(result),
+              checkIn: result.toString(),
             );
           }
         } else {
@@ -1306,7 +1299,7 @@ class _ProjectFormState extends State<ProjectForm> {
                 currentUser: widget.currentUser,
                 selectedProject: widget.selectedProject,
                 today: '${result.day}-${result.month}-${result.year}',
-                checkIn: DateFormat('hh:mm a').format(result));
+                checkIn: result.toString());
           } else {
             timeSheetUpdated = await db.setWorkerTimeSheet(
                 userRole: widget.currentUser.roles.first,
@@ -1314,7 +1307,7 @@ class _ProjectFormState extends State<ProjectForm> {
                 currentUser: widget.currentUser,
                 selectedProject: widget.selectedProject,
                 today: '${result.day}-${result.month}-${result.year}',
-                checkOut: DateFormat('hh:mm a').format(result));
+                checkOut: result.toString());
           }
         }
       }

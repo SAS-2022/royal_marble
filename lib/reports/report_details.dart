@@ -206,16 +206,25 @@ class _ReportDetailsState extends State<ReportDetails> {
                                         ],
                                         rows: singleUserMap.map(
                                           (e) {
+                                            var arrived = e['arrivedAt'] != null
+                                                ? DateTime.parse(e['arrivedAt'])
+                                                : null;
+
+                                            var left = e['leftAt'] != null
+                                                ? DateTime.parse(e['leftAt'])
+                                                : null;
                                             return DataRow(
                                               cells: [
                                                 DataCell(
                                                     Text('${e['firstName']}')),
                                                 DataCell(
                                                     Text('${e['lastName']}')),
-                                                DataCell(
-                                                    Text('${e['arrivedAt']}')),
-                                                DataCell(
-                                                    Text('${e['leftAt']}')),
+                                                DataCell(Text(
+                                                    DateFormat('hh:mm a')
+                                                        .format(arrived))),
+                                                DataCell(Text(
+                                                    DateFormat('hh:mm a')
+                                                        .format(left))),
                                                 DataCell(Text(
                                                     '${e['projectName']}')),
                                               ],
