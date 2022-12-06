@@ -7,11 +7,18 @@ import 'package:royal_marble/shared/snack_bar.dart';
 
 class VisitDetailsClass extends StatefulWidget {
   const VisitDetailsClass(
-      {Key key, this.currentUser, this.currentVisit, this.selectedUser})
+      {Key key,
+      this.currentUser,
+      this.currentVisit,
+      this.selectedUser,
+      this.projectVisit,
+      this.visitType})
       : super(key: key);
   final UserData currentUser;
   final UserData selectedUser;
   final ClientVisitDetails currentVisit;
+  final ProjectVisitDetails projectVisit;
+  final String visitType;
 
   @override
   State<VisitDetailsClass> createState() => _VisitDetailsClassState();
@@ -25,12 +32,21 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
   String managerComments;
   DatabaseService db = DatabaseService();
   SnackBarWidget _snackBarWidget = SnackBarWidget();
+  String visitUser;
   @override
   void initState() {
     super.initState();
-    visitDetails = widget.currentVisit.visitDetails;
-
-    managerComments = widget.currentVisit.managerComments ?? '';
+    if (widget.currentVisit == null) {
+      visitDetails = widget.projectVisit.visitDetails;
+      managerComments = widget.projectVisit.managerComments ?? '';
+      visitUser = widget.projectVisit.userId;
+      print('visit details: ${widget.projectVisit} ');
+    } else {
+      visitDetails = widget.currentVisit.visitDetails;
+      managerComments = widget.currentVisit.managerComments ?? '';
+      visitUser = widget.currentVisit.userId;
+      print('visit details: ${widget.currentVisit} ');
+    }
   }
 
   @override
@@ -54,7 +70,7 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
                 ))
           ],
         ),
-        body: widget.currentVisit != null
+        body: widget.currentVisit != null || widget.projectVisit != null
             ? _buildVisitDetails()
             : _buildNullVisit());
   }
@@ -87,7 +103,9 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
                 Expanded(
                   flex: 2,
                   child: Text(
-                    widget.currentVisit.clientName.toUpperCase(),
+                    widget.currentVisit != null
+                        ? widget.currentVisit.clientName.toUpperCase()
+                        : widget.projectVisit.projectName.toUpperCase(),
                     style: textStyle5,
                   ),
                 )
@@ -110,7 +128,9 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
                 Expanded(
                   flex: 2,
                   child: Text(
-                    widget.currentVisit.contactPerson.toUpperCase(),
+                    widget.currentVisit != null
+                        ? widget.currentVisit.contactPerson.toUpperCase()
+                        : widget.projectVisit.contactPerson.toUpperCase(),
                     style: textStyle5,
                   ),
                 )
@@ -138,7 +158,9 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
                       Expanded(
                         flex: 2,
                         child: Text(
-                          widget.currentVisit.visitPurpose.toUpperCase(),
+                          widget.currentVisit != null
+                              ? widget.currentVisit.visitPurpose.toUpperCase()
+                              : widget.projectVisit.visitPurpose.toUpperCase(),
                           style: textStyle5,
                         ),
                       )
@@ -177,8 +199,7 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
                                 visitDetails,
                                 style: textStyle5,
                               )
-                            : widget.selectedUser.uid ==
-                                    widget.currentVisit.userId
+                            : widget.selectedUser.uid == visitUser
                                 ? TextFormField(
                                     initialValue: visitDetails,
                                     maxLines: 7,
@@ -285,17 +306,34 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
                     onPressed: () async {
                       var result;
                       _snackBarWidget.context = context;
+                      var managerCommentsOld;
+                      var visitDetailsOld;
+
+                      if (widget.currentVisit != null) {
+                        managerCommentsOld =
+                            widget.currentVisit.managerComments ?? '';
+                        visitDetailsOld = widget.currentVisit.visitDetails;
+                      } else {
+                        managerCommentsOld =
+                            widget.projectVisit.managerComments ?? '';
+                        visitDetailsOld = widget.projectVisit.visitDetails;
+                      }
                       //will update the manager comment or edit the content of the visit details
-                      if (managerComments !=
-                              widget.currentVisit.managerComments ||
-                          visitDetails != widget.currentVisit.visitDetails) {
+                      if (managerComments != managerCommentsOld ||
+                          visitDetails != visitDetailsOld) {
                         //will shall save changes
                         result = await db.updateCurrentSalesVisit(
-                            visitId: widget.currentVisit.uid,
-                            userId: widget.currentVisit.userId,
+                            visitId: widget.currentVisit != null
+                                ? widget.currentVisit.uid
+                                : widget.projectVisit.uid,
+                            userId: widget.currentVisit != null
+                                ? widget.currentVisit.userId
+                                : widget.projectVisit.userId,
                             managerComments: managerComments,
-                            visitDetails: visitDetails);
+                            visitDetails: visitDetails,
+                            visitType: widget.visitType);
                       }
+                      Navigator.pop(context);
                       _snackBarWidget.content = result;
                       _snackBarWidget.showSnack();
                     },

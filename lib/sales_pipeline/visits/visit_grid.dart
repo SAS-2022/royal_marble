@@ -28,9 +28,19 @@ class VisitsGrid extends StatelessWidget {
               userId: selectedUser.uid, fromDate: fromDate, toDate: toDate),
           initialData: const [],
           catchError: (context, error) {
+            print('the error client visits: $error');
             return [];
           },
-        )
+        ),
+        StreamProvider<List<ProjectVisitDetails>>.value(
+          value: db.getSalesVisitDetailsStreamProjects(
+              userId: selectedUser.uid, fromDate: fromDate, toDate: toDate),
+          initialData: const [],
+          catchError: (context, error) {
+            print('the error project visits: $error');
+            return [];
+          },
+        ),
       ],
       child: VisitList(
         currentUser: currentUser,

@@ -895,11 +895,19 @@ class DatabaseService {
       {String visitId,
       String userId,
       String managerComments,
+      String visitType,
       String visitDetails}) async {
     try {
+      var subCollection;
+      if (visitType == 'Client') {
+        subCollection = 'clientVisits';
+      } else {
+        subCollection = 'projectVisits';
+      }
+
       return await userCollection
           .doc(userId)
-          .collection('clientVisits')
+          .collection(subCollection)
           .doc(visitId)
           .update({
         'visitDetails': visitDetails,
@@ -907,6 +915,7 @@ class DatabaseService {
       }).then((value) => 'Document updated Successfully');
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      print('Error updating visit: $e');
       return e;
     }
   }
@@ -932,6 +941,7 @@ class DatabaseService {
               visitDetails: data['visitDetails'],
               visitPurpose: data['visitPurpose'],
               managerComments: data['managerComments'],
+              userId: data['userId'],
               visitTime: data['visitTime']);
         } else {
           return null;
@@ -953,15 +963,17 @@ class DatabaseService {
 
         if (fromDate.isBefore(data['visitTime'].toDate()) &&
             toDate.isAfter(data['visitTime'].toDate())) {
-          return ProjectVisitDetails(
+          var result = ProjectVisitDetails(
               uid: value.id,
               projectId: data['uid'],
               projectName: data['name'],
               contactPerson: data['contact'],
               visitDetails: data['visitDetails'],
               visitPurpose: data['visitPurpose'],
+              userId: data['userId'],
               managerComments: data['managerComments'],
               visitTime: data['visitTime']);
+          return result;
         } else {
           return null;
         }

@@ -74,6 +74,11 @@ class ClientVisitDetails {
     this.managerComments,
     this.error,
   });
+
+  @override
+  String toString() {
+    return 'ClientVisitDetails(uid: $uid, userId: $userId, clientId: $clientId, clientName: $clientName, visitPurpose: $visitPurpose, visitDetails: $visitDetails, contactPerson: $contactPerson, managerComments: $managerComments, visitTime: $visitTime, error: $error)';
+  }
 }
 
 class ProjectVisitDetails {
@@ -99,6 +104,11 @@ class ProjectVisitDetails {
     this.managerComments,
     this.error,
   });
+
+  @override
+  String toString() {
+    return 'ProjectVisitDetails(uid: $uid, userId: $userId, projectId: $projectId, projectName: $projectName, visitPurpose: $visitPurpose, visitDetails: $visitDetails, contactPerson: $contactPerson, managerComments: $managerComments, visitTime: $visitTime, error: $error)';
+  }
 }
 
 class TimeSheet {}
