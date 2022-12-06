@@ -2,20 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/shared/constants.dart';
+import 'package:royal_marble/shared/loading.dart';
 import '../../models/user_model.dart';
 
 class VisitFormTwo extends StatefulWidget {
   const VisitFormTwo(
       {Key key,
       this.selectedClient,
+      this.selectedProject,
       this.contactPerson,
       this.visitPurpose,
-      this.currentUser})
+      this.currentUser,
+      this.visitType})
       : super(key: key);
   final ClientData selectedClient;
+  final ProjectData selectedProject;
   final String contactPerson;
   final String visitPurpose;
   final UserData currentUser;
+  final String visitType;
 
   @override
   State<VisitFormTwo> createState() => _VisitFormTwoState();
@@ -26,7 +31,8 @@ class _VisitFormTwoState extends State<VisitFormTwo> {
   DatabaseService db = DatabaseService();
   DateTime _time;
   String visitDetails;
-  var size;
+  Size size;
+  bool _loading = false;
 
   @override
   void initState() {
@@ -42,7 +48,19 @@ class _VisitFormTwoState extends State<VisitFormTwo> {
         title: const Text('Sales Pipeline '),
         backgroundColor: const Color.fromARGB(255, 191, 180, 66),
       ),
-      body: _buildSalesVisitFormTwo(),
+      body: Stack(
+        children: [
+          _buildSalesVisitFormTwo(),
+          _loading
+              ? SizedBox(
+                  height: size.height,
+                  width: size.width,
+                  child: const Center(
+                    child: Loading(),
+                  ))
+              : const SizedBox.shrink()
+        ],
+      ),
     );
   }
 
@@ -104,13 +122,32 @@ class _VisitFormTwoState extends State<VisitFormTwo> {
                           borderRadius: BorderRadius.circular(25))),
                   onPressed: () async {
                     if (_formKey.currentState.validate()) {
-                      await db.addNewSalesVisit(
-                          userId: widget.currentUser.uid,
-                          selectedClient: widget.selectedClient,
-                          contact: widget.contactPerson,
-                          visitPurpose: widget.visitPurpose,
-                          visitDetails: visitDetails,
-                          visitTime: _time);
+                      setState(() {
+                        _loading = true;
+                      });
+
+                      widget.visitType == 'Client'
+                          ? await db.addNewSalesVisit(
+                              userId: widget.currentUser.uid,
+                              selectedClient: widget.selectedClient,
+                              contact: widget.contactPerson,
+                              visitPurpose: widget.visitPurpose,
+                              visitDetails: visitDetails,
+                              visitTime: _time,
+                              visitType: widget.visitType)
+                          : await db.addNewSalesVisit(
+                              userId: widget.currentUser.uid,
+                              selectedProject: widget.selectedProject,
+                              contact: widget.contactPerson,
+                              visitPurpose: widget.visitPurpose,
+                              visitDetails: visitDetails,
+                              visitTime: _time,
+                              visitType: widget.visitType);
+                      if (mounted) {
+                        setState(() {
+                          _loading = false;
+                        });
+                      }
 
                       Navigator.pushNamedAndRemoveUntil(
                           context, '/home', (route) => false);

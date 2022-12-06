@@ -23,7 +23,7 @@ class VisitsGrid extends StatelessWidget {
     DatabaseService db = DatabaseService();
     return MultiProvider(
       providers: [
-        StreamProvider<List<VisitDetails>>.value(
+        StreamProvider<List<ClientVisitDetails>>.value(
           value: db.getSalesVisitDetailsStream(
               userId: selectedUser.uid, fromDate: fromDate, toDate: toDate),
           initialData: const [],

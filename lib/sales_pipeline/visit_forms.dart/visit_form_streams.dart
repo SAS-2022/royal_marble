@@ -34,6 +34,15 @@ class VisitFormStreams extends StatelessWidget {
                   return [];
                 },
               ),
+        //get all project
+        StreamProvider<List<ProjectData>>.value(
+          value: db.getAllProjects(),
+          initialData: [],
+          catchError: (context, error) {
+            print('Could not get projects: $error');
+            return [];
+          },
+        ),
         //if visits are being viewed
         //create a stream to get current sales team
         viewingVisit

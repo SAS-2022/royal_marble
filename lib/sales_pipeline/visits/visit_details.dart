@@ -11,7 +11,7 @@ class VisitDetailsClass extends StatefulWidget {
       : super(key: key);
   final UserData currentUser;
   final UserData selectedUser;
-  final VisitDetails currentVisit;
+  final ClientVisitDetails currentVisit;
 
   @override
   State<VisitDetailsClass> createState() => _VisitDetailsClassState();

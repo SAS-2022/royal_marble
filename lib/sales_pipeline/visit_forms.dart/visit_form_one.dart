@@ -26,11 +26,13 @@ class _VisitFormOneState extends State<VisitFormOne> {
   VisitType _type;
   bool _isTypeSelected = false;
   List<ClientData> clientProvider;
+  List<ProjectData> projectProvider;
   final TextEditingController _clientNameText = TextEditingController();
   final TextEditingController _projectNameText = TextEditingController();
   String contactPerson;
   String visitPurpose;
   ClientData selectedClient = ClientData();
+  ProjectData selectedProject = ProjectData();
   final List<String> _visitPurposeList = [
     'Collecting payment',
     'Requesting payment',
@@ -51,6 +53,7 @@ class _VisitFormOneState extends State<VisitFormOne> {
   Widget build(BuildContext context) {
     size = MediaQuery.of(context).size;
     clientProvider = Provider.of<List<ClientData>>(context);
+    projectProvider = Provider.of<List<ProjectData>>(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sales Pipeline'),
@@ -213,7 +216,8 @@ class _VisitFormOneState extends State<VisitFormOne> {
                                   keepSuggestionsOnLoading: true,
                                   onSuggestionSelected: (suggestions) {
                                     _projectNameText.text =
-                                        suggestions.toString();
+                                        suggestions.projectName.toString();
+                                    selectedProject = suggestions;
                                   },
                                   autoFlipDirection: true,
                                   transitionBuilder:
@@ -229,7 +233,8 @@ class _VisitFormOneState extends State<VisitFormOne> {
                                     return ListTile(
                                       title: suggestion == null
                                           ? const Text(' ')
-                                          : Text(suggestion.toString()),
+                                          : Text(suggestion.projectName
+                                              .toString()),
                                     );
                                   },
                                   suggestionsCallback: (pattern) async {
@@ -241,6 +246,7 @@ class _VisitFormOneState extends State<VisitFormOne> {
                             autofocus: false,
                             initialValue: contactPerson,
                             style: textStyle3,
+                            textCapitalization: TextCapitalization.sentences,
                             decoration: InputDecoration(
                               filled: true,
                               label: const Text('Contact Person'),
@@ -342,10 +348,13 @@ class _VisitFormOneState extends State<VisitFormOne> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (_) => VisitFormTwo(
+                                                selectedProject:
+                                                    selectedProject,
                                                 selectedClient: selectedClient,
                                                 contactPerson: contactPerson,
                                                 visitPurpose: visitPurpose,
                                                 currentUser: widget.currentUser,
+                                                visitType: _type.name,
                                               )));
                                 }
                               },
@@ -376,7 +385,9 @@ class _VisitFormOneState extends State<VisitFormOne> {
   //Project Suggestions
   Future<List<dynamic>> projectSuggestions(String query) async {
     var matches = [];
-
+    matches.addAll(projectProvider.map((e) => e));
+    matches.retainWhere((element) =>
+        element.toString().toLowerCase().contains(query.toLowerCase()));
     return matches;
   }
 }

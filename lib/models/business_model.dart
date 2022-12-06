@@ -51,7 +51,7 @@ class ProjectData {
       this.error});
 }
 
-class VisitDetails {
+class ClientVisitDetails {
   String uid;
   String userId;
   String clientId;
@@ -62,11 +62,36 @@ class VisitDetails {
   String managerComments;
   var visitTime;
   String error;
-  VisitDetails({
+  ClientVisitDetails({
     this.uid,
     this.userId,
     this.clientId,
     this.clientName,
+    this.visitPurpose,
+    this.visitDetails,
+    this.contactPerson,
+    this.visitTime,
+    this.managerComments,
+    this.error,
+  });
+}
+
+class ProjectVisitDetails {
+  String uid;
+  String userId;
+  String projectId;
+  String projectName;
+  String visitPurpose;
+  String visitDetails;
+  String contactPerson;
+  String managerComments;
+  var visitTime;
+  String error;
+  ProjectVisitDetails({
+    this.uid,
+    this.userId,
+    this.projectId,
+    this.projectName,
     this.visitPurpose,
     this.visitDetails,
     this.contactPerson,

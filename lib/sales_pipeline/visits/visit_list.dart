@@ -17,12 +17,12 @@ class VisitList extends StatefulWidget {
 }
 
 class _VisitListState extends State<VisitList> {
-  List<VisitDetails> visitProvider;
+  List<ClientVisitDetails> visitProvider;
   Size size;
 
   @override
   Widget build(BuildContext context) {
-    visitProvider = Provider.of<List<VisitDetails>>(context);
+    visitProvider = Provider.of<List<ClientVisitDetails>>(context);
     size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(

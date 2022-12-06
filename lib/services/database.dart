@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/models/directions.dart';
+import 'package:royal_marble/sales_pipeline/visit_forms.dart/visit_form_one.dart';
 import 'package:sentry/sentry.dart' as sentry;
 import '../models/user_model.dart';
 
@@ -816,14 +817,26 @@ class DatabaseService {
   Future<String> addNewSalesVisit(
       {String userId,
       ClientData selectedClient,
+      ProjectData selectedProject,
       String contact,
       String visitPurpose,
       String visitDetails,
-      DateTime visitTime}) async {
+      DateTime visitTime,
+      String visitType}) async {
     try {
-      return await userCollection.doc(userId).collection('clientVisits').add({
-        'clientId': selectedClient.uid,
-        'clientName': selectedClient.clientName,
+      var visitCollection;
+      if (visitType == 'Client') {
+        visitCollection = 'clientVisits';
+      } else {
+        visitCollection = 'projectVisits';
+      }
+
+      return await userCollection.doc(userId).collection(visitCollection).add({
+        'uid':
+            selectedClient != null ? selectedClient.uid : selectedProject.uid,
+        'name': selectedClient != null
+            ? selectedClient.clientName
+            : selectedProject.projectName,
         'contact': contact,
         'visitPurpose': visitPurpose,
         'visitDetails': visitDetails,
@@ -832,6 +845,7 @@ class DatabaseService {
       }).then((value) => 'Document added Successfully');
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      print('the error: $e');
       return e;
     }
   }
@@ -841,18 +855,30 @@ class DatabaseService {
       {String visitId,
       String userId,
       ClientData selectedClient,
+      ProjectData selectedProject,
       String contact,
       String visitPurpose,
       String visitDetails,
-      String managerComments}) async {
+      String managerComments,
+      String visitType}) async {
     try {
+      var visitCollection;
+      if (visitType == 'Clients') {
+        visitCollection = 'clientVisits';
+      } else {
+        visitCollection = 'projectVisits';
+      }
+
       return await userCollection
           .doc(userId)
-          .collection('clientVisits')
+          .collection(visitCollection)
           .doc(visitId)
           .update({
-        'clientId': selectedClient.uid,
-        'clientName': selectedClient.clientName,
+        'uid':
+            selectedClient != null ? selectedClient.uid : selectedProject.uid,
+        'name': selectedClient != null
+            ? selectedClient.clientName
+            : selectedProject.projectName,
         'contact': contact,
         'visitPurpose': visitPurpose,
         'visitDetails': visitDetails,
@@ -885,8 +911,8 @@ class DatabaseService {
     }
   }
 
-  //stream sales visits
-  Stream<List<VisitDetails>> getSalesVisitDetailsStream(
+  //stream sales visits for clients
+  Stream<List<ClientVisitDetails>> getSalesVisitDetailsStream(
       {String userId, DateTime fromDate, DateTime toDate}) {
     return userCollection
         .doc(userId)
@@ -898,10 +924,39 @@ class DatabaseService {
 
         if (fromDate.isBefore(data['visitTime'].toDate()) &&
             toDate.isAfter(data['visitTime'].toDate())) {
-          return VisitDetails(
+          return ClientVisitDetails(
               uid: value.id,
-              clientId: data['clientId'],
-              clientName: data['clientName'],
+              clientId: data['uid'],
+              clientName: data['name'],
+              contactPerson: data['contact'],
+              visitDetails: data['visitDetails'],
+              visitPurpose: data['visitPurpose'],
+              managerComments: data['managerComments'],
+              visitTime: data['visitTime']);
+        } else {
+          return null;
+        }
+      }).toList();
+    });
+  }
+
+  //stream sales visit for projects
+  Stream<List<ProjectVisitDetails>> getSalesVisitDetailsStreamProjects(
+      {String userId, DateTime fromDate, DateTime toDate}) {
+    return userCollection
+        .doc(userId)
+        .collection('projectVisits')
+        .snapshots()
+        .map((event) {
+      return event.docs.map((value) {
+        var data = value.data();
+
+        if (fromDate.isBefore(data['visitTime'].toDate()) &&
+            toDate.isAfter(data['visitTime'].toDate())) {
+          return ProjectVisitDetails(
+              uid: value.id,
+              projectId: data['uid'],
+              projectName: data['name'],
               contactPerson: data['contact'],
               visitDetails: data['visitDetails'],
               visitPurpose: data['visitPurpose'],
@@ -915,7 +970,7 @@ class DatabaseService {
   }
 
   //read a sales visit
-  Future<List<VisitDetails>> getSalesVisitDetails({String userId}) async {
+  Future<List<ClientVisitDetails>> getSalesVisitDetails({String userId}) async {
     try {
       return await userCollection
           .doc(userId)
@@ -923,7 +978,7 @@ class DatabaseService {
           .get()
           .then((value) {
         return value.docs.map((e) {
-          return VisitDetails(
+          return ClientVisitDetails(
             uid: e.id,
             clientId: e.data()['clientId'],
             clientName: e.data()['clientName'],
@@ -936,14 +991,14 @@ class DatabaseService {
       });
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
-      return [VisitDetails(error: e)];
+      return [ClientVisitDetails(error: e)];
     }
   }
 
-  List<VisitDetails> _listVisitDetailsMap(QuerySnapshot snapshot) {
+  List<ClientVisitDetails> _listVisitDetailsMap(QuerySnapshot snapshot) {
     return snapshot.docs.map((value) {
       var data = value.data() as Map<String, dynamic>;
-      var result = VisitDetails(
+      var result = ClientVisitDetails(
           uid: value.id,
           clientId: data['clientId'],
           clientName: data['clientName'],
