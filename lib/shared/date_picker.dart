@@ -68,9 +68,9 @@ class _DatePickerState extends State<DatePicker> {
         onCancel: () => Navigator.pop(context),
         onSelectionChanged: _onSelectionChanged,
         selectionMode: DateRangePickerSelectionMode.range,
-        initialSelectedRange: PickerDateRange(
-            DateTime.now().subtract(const Duration(days: 2)),
-            DateTime.now().add(const Duration(days: 2))),
+        // initialSelectedRange: PickerDateRange(
+        //     DateTime.now().subtract(const Duration(days: 2)),
+        //     DateTime.now().add(const Duration(days: 2))),
       )),
     );
   }
@@ -81,6 +81,8 @@ class _DatePickerState extends State<DatePicker> {
         if (args.value is PickerDateRange) {
           startDate = args.value.startDate;
           endDate = args.value.endDate ?? args.value.startDate;
+          endDate = DateTime(
+              endDate.year, endDate.month, endDate.day, 23, 59, 59, 0000);
         }
       });
     }

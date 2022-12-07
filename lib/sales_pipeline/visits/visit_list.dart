@@ -148,15 +148,7 @@ class _VisitListState extends State<VisitList> with TickerProviderStateMixin {
                               ),
                             );
                           } else {
-                            return SizedBox(
-                              height: size.height - 10,
-                              child: const Center(
-                                child: Text(
-                                  'No visits found for the selected dates!',
-                                  style: textStyle3,
-                                ),
-                              ),
-                            );
+                            return const SizedBox.shrink();
                           }
                         }),
                   ),
@@ -262,15 +254,7 @@ class _VisitListState extends State<VisitList> with TickerProviderStateMixin {
                               ),
                             );
                           } else {
-                            return SizedBox(
-                              height: size.height - 10,
-                              child: const Center(
-                                child: Text(
-                                  'No visits found for the selected dates!',
-                                  style: textStyle3,
-                                ),
-                              ),
-                            );
+                            return const SizedBox.shrink();
                           }
                         }),
                   ),
