@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:developer';
+// import 'dart:developer';
 import 'dart:io';
+import 'dart:ui' as ui;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:http/http.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:royal_marble/location/.env.dart';
 import 'package:royal_marble/location/direction_repo.dart';
@@ -102,10 +105,6 @@ class _ShowMapState extends State<ShowMap> {
       case 'users':
         title = 'Users';
         _getClientMarker();
-        break;
-      case 'clients':
-        assignedMarkers = _getClientMarker();
-        title = 'Clients';
         break;
       case 'Add Project':
         title = 'Add Project';
@@ -325,24 +324,19 @@ class _ShowMapState extends State<ShowMap> {
         lng: futureLocation['lng'],
       );
     }
-    //assign a listener to stream events
-    // streamLocation.listen((event) {
-    //   updateMarkers(
-    //       uuid: event.first.id,
-    //       newCoords:
-    //           LatLng(event.first.coord.latitude, event.first.coord.longitude));
-    // });
   }
 
   Future<Set<Marker>> _setInitialMarkers(
       {String uuid, double lat, double lng, UserData userData}) async {
+    // final Uint8List markIcons = await getImages(userData.imageUrl, 20);
+
     listMarkers.putIfAbsent(
         uuid,
         () => Marker(
               markerId: MarkerId(uuid),
               position: LatLng(lat, lng),
               icon: BitmapDescriptor.defaultMarkerWithHue(
-                  BitmapDescriptor.hueOrange),
+                  BitmapDescriptor.hueViolet),
               infoWindow: InfoWindow(
                   title: '${userData.firstName} ${userData.lastName}',
                   snippet: userData.phoneNumber,
@@ -356,9 +350,29 @@ class _ShowMapState extends State<ShowMap> {
     return userMarkers;
   }
 
+  //will get the user image
+  Future<Uint8List> getImages(String urlPath, int width) async {
+    print('the byte data:$urlPath');
+    final File markerImageFile =
+        await DefaultCacheManager().getSingleFile(urlPath);
+
+    final Uint8List markerImageBytes = await markerImageFile.readAsBytes();
+
+    final ui.Codec codec =
+        await ui.instantiateImageCodec(markerImageBytes, targetHeight: width);
+
+    final ui.FrameInfo info = await codec.getNextFrame();
+
+    final ByteData byteData =
+        await info.image.toByteData(format: ui.ImageByteFormat.png);
+
+    return byteData.buffer.asUint8List();
+  }
+
   void _updateCurrentMarkers() async {
     Map<String, Marker> updatedMarker = {};
     for (var user in userProvider) {
+      //final Uint8List markIcons = await getImages(user.imageUrl, 20);
       // streamLocation = db.getAllUsersLocation(userId: user.uid);
       futureLocation = await db.getUserLocationFuture(usersId: user.uid);
       //  var result = await streamLocation.first;
@@ -368,7 +382,7 @@ class _ShowMapState extends State<ShowMap> {
                 markerId: MarkerId(futureLocation['uuid']),
                 position: LatLng(futureLocation['lat'], futureLocation['lng']),
                 icon: BitmapDescriptor.defaultMarkerWithHue(
-                    BitmapDescriptor.hueOrange),
+                    BitmapDescriptor.hueViolet),
                 infoWindow: InfoWindow(
                     title: '${user.firstName} ${user.lastName}',
                     snippet: user.phoneNumber,
@@ -387,26 +401,6 @@ class _ShowMapState extends State<ShowMap> {
       });
     }
   }
-
-  // Future<void> _updateUserMarker({double lat, double lng, String uuid}) async {
-  //   if (listMarkers.containsKey(uuid)) {
-  //     listMarkers[uuid] = Marker(
-  //       markerId: MarkerId(uuid),
-  //       position: LatLng(lat, lng),
-  //       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
-  //       //infoWindow: selectedMarker.infoWindow,
-  //     );
-
-  //     print('the event is updating: $uuid -${listMarkers[uuid].position}');
-  //   }
-  // }
-
-  // void updateMarkers({LatLng newCoords, String uuid}) async {
-  //   if (uuid != null && newCoords != null) {
-  //     _updateUserMarker(
-  //         lat: newCoords.latitude, lng: newCoords.longitude, uuid: uuid);
-  //   }
-  // }
 
   Widget _buildLocationSelection() {
     return Stack(

@@ -119,7 +119,6 @@ class _HomeScreenState extends State<HomeScreen> {
     allUsers = Provider.of<List<UserData>>(context);
     allProjectProvider = Provider.of<List<ProjectData>>(context);
     _size = MediaQuery.of(context).size;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Main Page'),

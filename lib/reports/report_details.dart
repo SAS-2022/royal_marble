@@ -86,6 +86,9 @@ class _ReportDetailsState extends State<ReportDetails> {
   }
 
   Widget _buildReportDetails() {
+    if (generateddata.isNotEmpty) {
+      generateddata = [];
+    }
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(20.0),

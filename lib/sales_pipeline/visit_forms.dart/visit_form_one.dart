@@ -50,6 +50,12 @@ class _VisitFormOneState extends State<VisitFormOne> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _snackBarWidget.context = context;
+  }
+
+  @override
   Widget build(BuildContext context) {
     size = MediaQuery.of(context).size;
     clientProvider = Provider.of<List<ClientData>>(context);
@@ -344,18 +350,26 @@ class _VisitFormOneState extends State<VisitFormOne> {
                                       borderRadius: BorderRadius.circular(25))),
                               onPressed: () async {
                                 if (_formKey.currentState.validate()) {
-                                  await Navigator.push(
+                                  if (selectedProject.uid != null ||
+                                      selectedClient.uid != null) {
+                                    await Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (_) => VisitFormTwo(
-                                                selectedProject:
-                                                    selectedProject,
-                                                selectedClient: selectedClient,
-                                                contactPerson: contactPerson,
-                                                visitPurpose: visitPurpose,
-                                                currentUser: widget.currentUser,
-                                                visitType: _type.name,
-                                              )));
+                                        builder: (_) => VisitFormTwo(
+                                          selectedProject: selectedProject,
+                                          selectedClient: selectedClient,
+                                          contactPerson: contactPerson,
+                                          visitPurpose: visitPurpose,
+                                          currentUser: widget.currentUser,
+                                          visitType: _type.name,
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    _snackBarWidget.content =
+                                        'You need to select a registered client or project';
+                                    _snackBarWidget.showSnack();
+                                  }
                                 }
                               },
                               child: const Text(

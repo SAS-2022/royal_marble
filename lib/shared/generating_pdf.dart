@@ -11,6 +11,7 @@ Future<Uint8List> generateReport(
   List<dynamic> data,
 ) async {
   const tableHead = ['Name', 'Arrived', 'Left', 'Project', 'Total Hours'];
+  Map<String, List<Map>> days = {};
 
   final document = pw.Document();
   final theme = pw.ThemeData.withFont(
@@ -26,16 +27,6 @@ Future<Uint8List> generateReport(
       child: pw.Transform.rotateBox(
         angle: pi / 2,
         child: pw.Text('Hours'),
-      ),
-    ),
-    overlay: pw.ChartLegend(
-      position: const pw.Alignment(-7, 1),
-      decoration: pw.BoxDecoration(
-        color: PdfColors.white,
-        border: pw.Border.all(
-          color: PdfColors.black,
-          width: 1,
-        ),
       ),
     ),
     grid: pw.CartesianGrid(
@@ -55,16 +46,16 @@ Future<Uint8List> generateReport(
           List.generate(data.length, (index) {
             return '${data[index]['firstName']} ${data[index]['lastName']}';
           }),
-          marginStart: 50,
-          marginEnd: 50,
+          marginStart: 20,
+          marginEnd: 20,
           ticks: true,
         )),
     datasets: [
       pw.BarDataSet(
-        color: PdfColors.blue100,
+        color: PdfColors.blue200,
         legend: tableHead[0],
         width: 15,
-        offset: -10,
+        offset: 0,
         borderColor: baseColor,
         data: List<pw.PointChartValue>.generate(
           data.length,
@@ -77,7 +68,7 @@ Future<Uint8List> generateReport(
                 : null;
             var diff = left.difference(arrived);
             var totalHours = diff.inHours;
-            print('the total Hours: $totalHours');
+
             return pw.PointChartValue(index.toDouble(), totalHours.toDouble());
           },
         ),
@@ -100,6 +91,31 @@ Future<Uint8List> generateReport(
           var diff = left.difference(arrived);
           var totalHours = diff.inHours;
           var totalMin = diff.inMinutes % 60;
+          var thisDate = '${arrived.day}-${arrived.month}-${arrived.year}';
+          //will add a day if it doesn't exist in the map
+          days.putIfAbsent(
+              thisDate,
+              () => [
+                    {
+                      'name':
+                          '${data[index]['firstName']} ${data[index]['lastName']}',
+                      'arrived': DateFormat('hh:mm a').format(arrived),
+                      'left': DateFormat('hh:mm a').format(left),
+                      'project': data[index]['projectName'],
+                      'totalHours': '$totalHours:$totalMin'
+                    }
+                  ]);
+          //will update the list if the day is alreayd added
+
+          if (days[thisDate] != null) {
+            days[thisDate].add({
+              'name': '${data[index]['firstName']} ${data[index]['lastName']}',
+              'arrived': DateFormat('hh:mm a').format(arrived),
+              'left': DateFormat('hh:mm a').format(left),
+              'project': data[index]['projectName'],
+              'totalHours': '$totalHours:$totalMin'
+            });
+          }
 
           return <String>[
             '${data[index]['firstName']} ${data[index]['lastName']}',
@@ -131,9 +147,14 @@ Future<Uint8List> generateReport(
           style: const pw.TextStyle(color: baseColor, fontSize: 36),
         ),
         pw.Divider(thickness: 4),
-        pw.Container(height: pdfPageFormat.height / 2, child: chart1),
+        pw.Container(height: pdfPageFormat.height / 4, child: chart1),
         pw.Divider(thickness: 2),
-        pw.Container(height: pdfPageFormat.height / 2 - 10, child: table),
+        pw.Container(
+            decoration: pw.BoxDecoration(
+              border: pw.Border.all(),
+            ),
+            height: pdfPageFormat.height,
+            child: table),
       ]);
     },
   ));

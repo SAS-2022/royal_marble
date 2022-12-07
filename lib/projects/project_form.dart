@@ -1254,7 +1254,6 @@ class _ProjectFormState extends State<ProjectForm> {
         var timeSheetUpdated;
         //check if field is available
         var todayTimeSheet = data.data;
-        print('the time sheet: $todayTimeSheet');
 
         if (todayTimeSheet['data'] != null) {
           if (todayTimeSheet['data'][widget.currentUser.uid] != null) {
