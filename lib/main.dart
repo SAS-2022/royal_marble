@@ -1,27 +1,27 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
-import 'package:background_geolocation_firebase/background_geolocation_firebase.dart';
+//import 'package:background_geolocation_firebase/background_geolocation_firebase.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+//import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:royal_marble/services/auth.dart';
-import 'package:royal_marble/services/database.dart';
-import 'package:royal_marble/shared/calculate_distance.dart';
+//import 'package:royal_marble/services/database.dart';
+//import 'package:royal_marble/shared/calculate_distance.dart';
 import 'package:royal_marble/shared/constants.dart';
-import 'package:royal_marble/shared/loading.dart';
+//import 'package:royal_marble/shared/loading.dart';
 import 'package:royal_marble/wrapper.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'models/user_model.dart';
-import 'package:background_fetch/background_fetch.dart';
+//import 'package:background_fetch/background_fetch.dart';
 
 @pragma('vm:entry-point')
 void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {

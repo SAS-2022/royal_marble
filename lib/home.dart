@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:background_geolocation_firebase/background_geolocation_firebase.dart';
-import 'package:cloud_functions/cloud_functions.dart';
+//import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart' as geo;
