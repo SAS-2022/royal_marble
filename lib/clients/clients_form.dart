@@ -45,7 +45,6 @@ class _ClientFormState extends State<ClientForm> {
       newClient = widget.client;
 
       if (widget.client.phoneNumber != null) {
-        print('the phoneNumber: ${widget.client.phoneNumber}');
         phoneNumber = PhoneNumber(
           phoneNumber: widget.client.phoneNumber.phoneNumber,
           dialCode: widget.client.phoneNumber.dialCode,
@@ -192,13 +191,7 @@ class _ClientFormState extends State<ClientForm> {
                     newClient.phoneNumber = number;
                   },
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    _formKey.currentState?.save();
-                    if (_formKey.currentState.validate()) {}
-                  },
-                  child: Text('Save'),
-                ),
+
                 // TextFormField(
                 //   autofocus: false,
                 //   initialValue: '',

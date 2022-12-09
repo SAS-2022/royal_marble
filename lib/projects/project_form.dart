@@ -3,6 +3,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/shared/calculate_distance.dart';
 import 'package:royal_marble/shared/constants.dart';
@@ -56,6 +57,9 @@ class _ProjectFormState extends State<ProjectForm> {
   Future userStatus;
   bool _isLoading = false;
   bool _checkInOutLoading = false;
+  PhoneNumber phoneNumber = PhoneNumber(isoCode: 'AE');
+  TextEditingController _phoneController = TextEditingController();
+  Color _statusColor;
 
   @override
   void initState() {
@@ -63,8 +67,16 @@ class _ProjectFormState extends State<ProjectForm> {
     _snackBarWidget.context = context;
     if (!widget.isNewProject) {
       newProject = widget.selectedProject;
+
+      phoneNumber = PhoneNumber(
+        phoneNumber: widget.selectedProject.phoneNumber.phoneNumber,
+        isoCode: widget.selectedProject.phoneNumber.isoCode,
+        dialCode: widget.selectedProject.phoneNumber.dialCode,
+      );
+
       _checkAssignedWorkers = checkProjectWorkers();
     } else {
+      newProject.projectStatus = 'potential';
       selectMapLocation(
           locationAddress: LatLng(
               widget.projectLocation['Lat'], widget.projectLocation['Lng']),
@@ -74,6 +86,26 @@ class _ProjectFormState extends State<ProjectForm> {
               .take(120)
               .toString());
     }
+
+    if (newProject.projectStatus != null) {
+      switch (newProject.projectStatus) {
+        case 'active':
+          _statusColor = const Color.fromARGB(255, 148, 218, 83);
+          break;
+        case 'potential':
+          _statusColor = const Color.fromARGB(255, 214, 163, 238);
+          break;
+        case 'closed':
+          _statusColor = const Color.fromARGB(255, 243, 98, 49);
+          break;
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _phoneController.dispose();
   }
 
   @override
@@ -81,7 +113,30 @@ class _ProjectFormState extends State<ProjectForm> {
     _size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Project Form'),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Text('Project Form'),
+            //Project status
+            Padding(
+              padding: const EdgeInsets.only(left: 15),
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                width: _size.width / 3.5,
+                decoration: BoxDecoration(
+                  color: _statusColor,
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                child: Text(
+                  newProject.projectStatus.toUpperCase(),
+                  style: textStyle12,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            )
+          ],
+        ),
         backgroundColor: const Color.fromARGB(255, 191, 180, 66),
         actions: [
           !widget.isNewProject
@@ -347,44 +402,29 @@ class _ProjectFormState extends State<ProjectForm> {
                       height: 15,
                     ),
                     _editContent
-                        ? TextFormField(
-                            autofocus: false,
-                            initialValue: widget.selectedProject.phoneNumber,
-                            style: textStyle5,
-                            keyboardType: TextInputType.number,
-                            inputFormatters: <TextInputFormatter>[
-                              FilteringTextInputFormatter.digitsOnly,
-                            ],
-                            decoration: InputDecoration(
-                              filled: true,
-                              label: const Text('Contact Phone'),
-                              hintText: 'Ex: 05 123 12345',
-                              fillColor: Colors.grey[100],
-                              enabledBorder: const OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(15.0)),
-                                  borderSide: BorderSide(color: Colors.grey)),
-                              focusedBorder: const OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(15.0)),
-                                  borderSide: BorderSide(color: Colors.green)),
-                            ),
-                            validator: (val) {
-                              Pattern pattern = r'^(?:[05]8)?[0-9]{10}$';
-                              var regexp = RegExp(pattern.toString());
-                              if (val.isEmpty) {
-                                return 'Phone cannot be empty';
-                              }
-                              if (!regexp.hasMatch(val)) {
-                                return 'Phone number does not match a UAE number';
-                              } else {
-                                return null;
-                              }
+                        ? InternationalPhoneNumberInput(
+                            onInputChanged: (PhoneNumber number) {
+                              print(
+                                  '${number.phoneNumber} - ${number.isoCode}');
                             },
-                            onChanged: (val) {
-                              setState(() {
-                                newProject.phoneNumber = val.trim();
-                              });
+                            onInputValidated: (bool value) {
+                              print(value);
+                            },
+                            selectorConfig: const SelectorConfig(
+                              selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
+                            ),
+                            ignoreBlank: false,
+                            autoValidateMode: AutovalidateMode.disabled,
+                            selectorTextStyle:
+                                const TextStyle(color: Colors.black),
+                            initialValue: phoneNumber,
+                            textFieldController: _phoneController,
+                            formatInput: false,
+                            keyboardType: const TextInputType.numberWithOptions(
+                                signed: true, decimal: true),
+                            inputBorder: const OutlineInputBorder(),
+                            onSaved: (PhoneNumber number) {
+                              newProject.phoneNumber = number;
                             },
                           )
                         : Row(children: [
@@ -398,7 +438,9 @@ class _ProjectFormState extends State<ProjectForm> {
                             Expanded(
                               flex: 2,
                               child: Text(
-                                widget.selectedProject.phoneNumber,
+                                phoneNumber != null
+                                    ? phoneNumber.phoneNumber
+                                    : '',
                                 style: textStyle3,
                               ),
                             )
@@ -797,8 +839,8 @@ class _ProjectFormState extends State<ProjectForm> {
                                 })
                             : const SizedBox.shrink()
                         : const SizedBox.shrink(),
-                    !_editContent &&
-                            widget.currentUser.roles.contains('isAdmin')
+
+                    widget.currentUser.roles.contains('isAdmin')
                         ? Center(
                             child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
@@ -812,31 +854,34 @@ class _ProjectFormState extends State<ProjectForm> {
                                   setState(() {
                                     _isLoading = true;
                                   });
-                                  print('Added users: $addedUsers');
-                                  if (addedUsers.isNotEmpty) {
-                                    List<String> userIds = [];
-                                    for (var element in addedUsers) {
-                                      userIds.add(element.uid);
-                                    }
-
-                                    var result =
-                                        await db.updateProjectWithWorkers(
-                                            project: widget.selectedProject,
-                                            selectedUserIds: userIds,
-                                            removedUsers: removedUsers);
-                                    print('the result: $result');
-
-                                    if (result == 'Completed') {
+                                  if (_editContent) {
+                                    print('the new data: $newProject');
+                                    if (_formKey.currentState.validate()) {
+                                      _formKey.currentState.save();
+                                      var result = await db.updateProjectData(
+                                        project: newProject,
+                                      );
                                       Navigator.pop(context);
                                     } else {
+                                      setState(() {
+                                        _isLoading = false;
+                                      });
                                       _snackBarWidget.content =
-                                          'failed to update account, please contact developer';
+                                          'Please validate your entries';
                                       _snackBarWidget.showSnack();
                                     }
                                   } else {
-                                    if (_formKey.currentState.validate()) {
-                                      var result = await db.updateProjectData(
-                                          project: newProject);
+                                    if (addedUsers.isNotEmpty) {
+                                      List<String> userIds = [];
+                                      for (var element in addedUsers) {
+                                        userIds.add(element.uid);
+                                      }
+
+                                      var result =
+                                          await db.updateProjectWithWorkers(
+                                              project: widget.selectedProject,
+                                              selectedUserIds: userIds,
+                                              removedUsers: removedUsers);
 
                                       if (result == 'Completed') {
                                         Navigator.pop(context);
@@ -844,9 +889,22 @@ class _ProjectFormState extends State<ProjectForm> {
                                         _snackBarWidget.content =
                                             'failed to update account, please contact developer';
                                         _snackBarWidget.showSnack();
-                                        setState(() {
-                                          _isLoading = false;
-                                        });
+                                      }
+                                    } else {
+                                      if (_formKey.currentState.validate()) {
+                                        var result = await db.updateProjectData(
+                                            project: newProject);
+
+                                        if (result == 'Completed') {
+                                          Navigator.pop(context);
+                                        } else {
+                                          _snackBarWidget.content =
+                                              'failed to update account, please contact developer';
+                                          _snackBarWidget.showSnack();
+                                          setState(() {
+                                            _isLoading = false;
+                                          });
+                                        }
                                       }
                                     }
                                   }
@@ -1001,44 +1059,67 @@ class _ProjectFormState extends State<ProjectForm> {
               const SizedBox(
                 height: 15,
               ),
-              TextFormField(
-                autofocus: false,
-                initialValue: '',
-                style: textStyle5,
-                keyboardType: TextInputType.number,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.digitsOnly,
-                ],
-                decoration: InputDecoration(
-                  filled: true,
-                  label: const Text('Contact Phone'),
-                  hintText: 'Ex: 05 123 12345',
-                  fillColor: Colors.grey[100],
-                  enabledBorder: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                      borderSide: BorderSide(color: Colors.grey)),
-                  focusedBorder: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                      borderSide: BorderSide(color: Colors.green)),
-                ),
-                validator: (val) {
-                  Pattern pattern = r'^(?:[05]8)?[0-9]{10}$';
-                  var regexp = RegExp(pattern.toString());
-                  if (val.isEmpty) {
-                    return 'Phone cannot be empty';
-                  }
-                  if (!regexp.hasMatch(val)) {
-                    return 'Phone number does not match a UAE number';
-                  } else {
-                    return null;
-                  }
+              InternationalPhoneNumberInput(
+                onInputChanged: (PhoneNumber number) {
+                  print('${number.phoneNumber} - ${number.isoCode}');
                 },
-                onChanged: (val) {
-                  setState(() {
-                    newProject.phoneNumber = val.trim();
-                  });
+                onInputValidated: (bool value) {
+                  print(value);
+                },
+                selectorConfig: const SelectorConfig(
+                  selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
+                ),
+                ignoreBlank: false,
+                autoValidateMode: AutovalidateMode.disabled,
+                selectorTextStyle: const TextStyle(color: Colors.black),
+                initialValue: phoneNumber,
+                textFieldController: _phoneController,
+                formatInput: false,
+                keyboardType: const TextInputType.numberWithOptions(
+                    signed: true, decimal: true),
+                inputBorder: const OutlineInputBorder(),
+                onSaved: (PhoneNumber number) {
+                  newProject.phoneNumber = number;
                 },
               ),
+              // TextFormField(
+              //   autofocus: false,
+              //   initialValue: '',
+              //   style: textStyle5,
+              //   keyboardType: TextInputType.number,
+              //   inputFormatters: <TextInputFormatter>[
+              //     FilteringTextInputFormatter.digitsOnly,
+              //   ],
+              //   decoration: InputDecoration(
+              //     filled: true,
+              //     label: const Text('Contact Phone'),
+              //     hintText: 'Ex: 05 123 12345',
+              //     fillColor: Colors.grey[100],
+              //     enabledBorder: const OutlineInputBorder(
+              //         borderRadius: BorderRadius.all(Radius.circular(15.0)),
+              //         borderSide: BorderSide(color: Colors.grey)),
+              //     focusedBorder: const OutlineInputBorder(
+              //         borderRadius: BorderRadius.all(Radius.circular(15.0)),
+              //         borderSide: BorderSide(color: Colors.green)),
+              //   ),
+              //   validator: (val) {
+              //     Pattern pattern = r'^(?:[05]8)?[0-9]{10}$';
+              //     var regexp = RegExp(pattern.toString());
+              //     if (val.isEmpty) {
+              //       return 'Phone cannot be empty';
+              //     }
+              //     if (!regexp.hasMatch(val)) {
+              //       return 'Phone number does not match a UAE number';
+              //     } else {
+              //       return null;
+              //     }
+              //   },
+              //   onChanged: (val) {
+              //     setState(() {
+              //       newProject.phoneNumber = val.trim();
+              //     });
+              //   },
+              // ),
               const SizedBox(
                 height: 15,
               ),
@@ -1165,6 +1246,7 @@ class _ProjectFormState extends State<ProjectForm> {
                             borderRadius: BorderRadius.circular(25))),
                     onPressed: () async {
                       if (_formKey.currentState.validate()) {
+                        _formKey.currentState.save();
                         setState(() {
                           _isLoading = true;
                         });

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:location/location.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/models/directions.dart';
@@ -430,7 +431,10 @@ class DatabaseService {
         contactPerson: data['contactPerson'],
         clientAddress: data['clientAddress'],
         emailAddress: data['emailAddress'],
-        phoneNumber: data['phoneNumber'],
+        phoneNumber: PhoneNumber(
+            phoneNumber: data['phoneNumber']['phoneNumber'],
+            isoCode: data['phoneNumber']['isoCode'],
+            dialCode: data['phoneNumber']['dialCode']),
         clientVisits: data['clientVisits']);
   }
 
@@ -444,7 +448,10 @@ class DatabaseService {
           contactPerson: data['contactPerson'],
           clientAddress: data['clientAddress'],
           emailAddress: data['emailAddress'],
-          phoneNumber: data['phoneNumber'],
+          phoneNumber: PhoneNumber(
+              phoneNumber: data['phoneNumber']['phoneNumber'],
+              isoCode: data['phoneNumber']['isoCode'],
+              dialCode: data['phoneNumber']['dialCode']),
           clientVisits: data['clientVisits']);
     }).toList();
   }
@@ -505,7 +512,11 @@ class DatabaseService {
         'radius': project.radius,
         'contractor': project.contactorCompany,
         'contactPerson': project.contactPerson,
-        'phoneNumber': project.phoneNumber,
+        'phoneNumber': {
+          'phoneNumber': project.phoneNumber.phoneNumber,
+          'isoCode': project.phoneNumber.isoCode,
+          'dialCode': project.phoneNumber.dialCode,
+        },
         'emailAddress': project.emailAddress,
         'salesInCharge': project.userId,
         'assignedWorkers': project.assignedWorkers,
@@ -527,7 +538,11 @@ class DatabaseService {
         'radius': project.radius,
         'contractor': project.contactorCompany,
         'contactPerson': project.contactPerson,
-        'phoneNumber': project.phoneNumber,
+        'phoneNumber': {
+          'phoneNumber': project.phoneNumber.phoneNumber,
+          'isoCode': project.phoneNumber.isoCode,
+          'dialCode': project.phoneNumber.dialCode,
+        },
         'emailAddress': project.emailAddress,
         'salesInCharge': project.userId,
         'assignedWorkers': project.assignedWorkers,
@@ -679,7 +694,10 @@ class DatabaseService {
             contactorCompany: data['contractor'],
             contactPerson: data['contactPerson'],
             emailAddress: data['emailAddress'],
-            phoneNumber: data['phoneNumber'],
+            phoneNumber: PhoneNumber(
+                phoneNumber: data['phoneNumber']['phoneNumber'],
+                isoCode: data['phoneNumber']['isoCode'],
+                dialCode: data['phoneNumber']['dialCode']),
             userId: data['salesInCharge'],
             projectStatus: data['status'],
             assignedWorkers: data['assignedWorkers']);
@@ -706,7 +724,10 @@ class DatabaseService {
           contactorCompany: data['contractor'],
           contactPerson: data['contactPerson'],
           emailAddress: data['emailAddress'],
-          phoneNumber: data['phoneNumber'],
+          phoneNumber: PhoneNumber(
+              phoneNumber: data['phoneNumber']['phoneNumber'],
+              isoCode: data['phoneNumber']['isoCode'],
+              dialCode: data['phoneNumber']['dialCode']),
           userId: data['salesInCharge'],
           projectStatus: data['status'],
           assignedWorkers: data['assignedWorkers']);
@@ -724,8 +745,12 @@ class DatabaseService {
       contactorCompany: data['contractor'],
       contactPerson: data['contactPerson'],
       emailAddress: data['emailAddress'],
-      phoneNumber: data['phoneNumber'],
+      phoneNumber: PhoneNumber(
+          phoneNumber: data['phoneNumber']['phoneNumber'],
+          isoCode: data['phoneNumber']['isoCode'],
+          dialCode: data['phoneNumber']['dialCode']),
       userId: data['salesInCharge'],
+      projectStatus: data['status'],
       assignedWorkers: data['assignedWorkers'],
     );
   }

@@ -153,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
             return _buildAdminHomeScreen();
 
           case 'sales':
-            return _buildSalesHomeScreen();
+            return _buildAdminHomeScreen();
 
           case 'worker':
             return _buildWorkerHomeScreen();
@@ -208,7 +208,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                   await _showProjectDialog(
                                       projectData: allProjectProvider[index]);
                                 }
-                              : null,
+                              : userProvider.roles.contains('isSales')
+                                  ? () async {
+                                      print('we are here');
+                                      await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (_) => ProjectGrid(
+                                                    currentUser: userProvider,
+                                                    selectedProject:
+                                                        allProjectProvider[
+                                                            index],
+                                                  )));
+                                    }
+                                  : null,
                           child: Container(
                             padding: const EdgeInsets.all(5),
                             width: _size.width / 2,
@@ -321,7 +334,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                     await _showProjectDialog(
                                         projectData: allProjectProvider[index]);
                                   }
-                                : null,
+                                : userProvider.roles.contains('isSales')
+                                    ? () async {
+                                        print('we are here');
+                                        await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (_) => ProjectGrid(
+                                                      currentUser: userProvider,
+                                                      selectedProject:
+                                                          allProjectProvider[
+                                                              index],
+                                                    )));
+                                      }
+                                    : null,
                             onLongPress: () {
                               //if long pressed it will show a dialog that will allow you to edit or delete project
                             },
@@ -848,7 +874,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onLocation(bg.Location location) async {
-    print('[location] - $location');
     String odometerKM = (location.odometer / 1000.0).toStringAsFixed(1);
     double odometerME = (location.odometer);
     if (mounted) {
@@ -863,7 +888,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onMotionChange(bg.Location location) {
-    print('[motionchange] - $location');
     String odometerKM = (location.odometer / 1000.0).toStringAsFixed(1);
     double odometerMEd = location.odometer;
     String odometerME = (location.odometer).toStringAsFixed(2);
@@ -899,7 +923,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onClickEnable(enabled) async {
     if (enabled) {
       callback(bg.State state) async {
-        print('[start] success: $state');
         if (mounted) {
           setState(() {
             _enabled = state.enabled;
@@ -916,7 +939,6 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     } else {
       callback(bg.State state) {
-        print('[stop] success: $state');
         setState(() {
           _enabled = state.enabled;
           _isMoving = state.isMoving;

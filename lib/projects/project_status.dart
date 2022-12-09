@@ -148,7 +148,7 @@ class _ProjectStatusState extends State<ProjectStatus> {
               Expanded(
                 flex: 2,
                 child: Text(
-                  widget.selectedProject.phoneNumber,
+                  widget.selectedProject.phoneNumber.phoneNumber,
                   style: textStyle4,
                 ),
               )

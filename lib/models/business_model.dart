@@ -5,7 +5,7 @@ class ClientData {
   String clientName;
   Map<String, dynamic> clientAddress;
   String contactPerson;
-  var phoneNumber;
+  PhoneNumber phoneNumber;
   String emailAddress;
   List<dynamic> clientVisits;
   String userId;
@@ -31,7 +31,7 @@ class ProjectData {
   double radius;
   String contactorCompany;
   String contactPerson;
-  String phoneNumber;
+  PhoneNumber phoneNumber;
   String emailAddress;
   List<dynamic> projectVisits;
   String userId;
@@ -53,6 +53,11 @@ class ProjectData {
       this.assignedWorkers,
       this.projectStatus,
       this.error});
+
+  @override
+  String toString() {
+    return 'ProjectData(uid: $uid, projectName: $projectName, projectDetails: $projectDetails, projectAddress: $projectAddress, radius: $radius, contactorCompany: $contactorCompany, contactPerson: $contactPerson, phoneNumber: $phoneNumber, emailAddress: $emailAddress, projectVisits: $projectVisits, userId: $userId, assignedWorkers: $assignedWorkers, projectStatus: $projectStatus, error: $error)';
+  }
 }
 
 class ClientVisitDetails {
