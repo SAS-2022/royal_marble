@@ -34,6 +34,7 @@ class ProjectData {
   List<dynamic> projectVisits;
   String userId;
   List<dynamic> assignedWorkers;
+  String projectStatus;
   String error;
   ProjectData(
       {this.uid,
@@ -48,6 +49,7 @@ class ProjectData {
       this.projectVisits,
       this.userId,
       this.assignedWorkers,
+      this.projectStatus,
       this.error});
 }
 

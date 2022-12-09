@@ -501,6 +501,7 @@ class DatabaseService {
         'emailAddress': project.emailAddress,
         'salesInCharge': project.userId,
         'assignedWorkers': project.assignedWorkers,
+        'status': project.projectStatus,
       }).then((value) => 'Completed');
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
@@ -522,6 +523,19 @@ class DatabaseService {
         'emailAddress': project.emailAddress,
         'salesInCharge': project.userId,
         'assignedWorkers': project.assignedWorkers,
+        'status': project.projectStatus,
+      }).then((value) => 'Completed');
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return 'Error: $e';
+    }
+  }
+
+  //update project status
+  Future<String> updateProjectStatus({ProjectData project}) async {
+    try {
+      return await projectCollection.doc(project.uid).update({
+        'status': project.projectStatus,
       }).then((value) => 'Completed');
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
@@ -659,6 +673,7 @@ class DatabaseService {
             emailAddress: data['emailAddress'],
             phoneNumber: data['phoneNumber'],
             userId: data['salesInCharge'],
+            projectStatus: data['status'],
             assignedWorkers: data['assignedWorkers']);
         return result;
       });
@@ -685,6 +700,7 @@ class DatabaseService {
           emailAddress: data['emailAddress'],
           phoneNumber: data['phoneNumber'],
           userId: data['salesInCharge'],
+          projectStatus: data['status'],
           assignedWorkers: data['assignedWorkers']);
     }).toList();
   }

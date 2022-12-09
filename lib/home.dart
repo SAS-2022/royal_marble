@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:background_geolocation_firebase/background_geolocation_firebase.dart';
-//import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart' as geo;
@@ -12,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/projects/project_grid.dart';
+import 'package:royal_marble/projects/project_status.dart';
 import 'package:royal_marble/projects/worker_current_state.dart';
 import 'package:royal_marble/screens/profile_drawer.dart';
 import 'package:royal_marble/services/database.dart';
@@ -51,6 +51,8 @@ class _HomeScreenState extends State<HomeScreen> {
   double lat, lng;
   int tempCounter = 0;
   Size _size;
+  List<String> activeProjects = [];
+  List<String> potentialProjects = [];
   // List<ProjectData> assignedProject = [];
   List<dynamic> messages = [];
   //required for location tracking
@@ -172,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
           child: SizedBox(
-            height: _size.height / 2.8,
+            height: _size.height / 2.6,
             child:
                 Column(mainAxisAlignment: MainAxisAlignment.start, children: [
               const Text(
@@ -184,29 +186,35 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               Container(
                 padding: const EdgeInsets.all(10),
-                height: _size.height / 3.8,
+                height: _size.height / 3.5,
                 width: _size.width - 20,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: allProjectProvider.length,
                   itemBuilder: ((context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-                      child: GestureDetector(
-                        onTap: () async {
-                          //once tapped shall navigate to a page that will show assigned workers
-                          //will present a dialog on the things that could be done
-                          await _showProjectDialog(
-                              projectData: allProjectProvider[index]);
-                        },
-                        onLongPress: () {
-                          //if long pressed it will show a dialog that will allow you to edit or delete project
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          width: _size.width / 2,
-                          decoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 226, 189, 68),
+                    if (allProjectProvider[index].projectStatus == 'active') {
+                      if (!activeProjects
+                          .contains(allProjectProvider[index].uid)) {
+                        activeProjects.add(allProjectProvider[index].uid);
+                      }
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: GestureDetector(
+                          onTap: userProvider.roles.contains('isAdmin')
+                              ? () async {
+                                  //once tapped shall navigate to a page that will show assigned workers
+                                  //will present a dialog on the things that could be done
+                                  await _showProjectDialog(
+                                      projectData: allProjectProvider[index]);
+                                }
+                              : null,
+                          child: Container(
+                            padding: const EdgeInsets.all(5),
+                            width: _size.width / 2,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: const Color.fromARGB(255, 148, 218, 83),
                               boxShadow: [
                                 BoxShadow(
                                     color: Colors.grey[500],
@@ -214,110 +222,50 @@ class _HomeScreenState extends State<HomeScreen> {
                                     spreadRadius: 2)
                               ],
                               border: Border.all(width: 1),
-                              borderRadius: BorderRadius.circular(10)),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  const Text(
-                                    'Name: ',
-                                    style: textStyle3,
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  child: Text(
+                                    allProjectProvider[index]
+                                        .projectName
+                                        .toUpperCase(),
+                                    style: textStyle4,
+                                    textAlign: TextAlign.center,
                                   ),
-                                  Expanded(
-                                    child: Text(
+                                ),
+                                const SizedBox(
+                                  height: 15,
+                                ),
+                                Column(
+                                  children: [
+                                    const Text(
+                                      'Workers: ',
+                                      style: textStyle3,
+                                    ),
+                                    Text(
                                       allProjectProvider[index]
-                                          .projectName
-                                          .toUpperCase(),
+                                                  .assignedWorkers !=
+                                              null
+                                          ? allProjectProvider[index]
+                                              .assignedWorkers
+                                              .length
+                                              .toString()
+                                          : 'None',
                                       style: textStyle12,
                                     ),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  const Text(
-                                    'Details: ',
-                                    style: textStyle3,
-                                  ),
-                                  Expanded(
-                                    child: allProjectProvider[index]
-                                                .projectDetails
-                                                .length >
-                                            30
-                                        ? Text(
-                                            '${allProjectProvider[index].projectDetails.characters.take(30)}...',
-                                            style: textStyle12,
-                                          )
-                                        : Text(
-                                            allProjectProvider[index]
-                                                .projectDetails,
-                                            style: textStyle12,
-                                          ),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  const Text(
-                                    'Contractor: ',
-                                    style: textStyle3,
-                                  ),
-                                  Expanded(
-                                    child: allProjectProvider[index]
-                                                .projectDetails
-                                                .length >
-                                            30
-                                        ? Text(
-                                            '${allProjectProvider[index].contactorCompany.characters.take(30)}...',
-                                            style: textStyle12,
-                                            softWrap: true,
-                                          )
-                                        : Text(
-                                            allProjectProvider[index]
-                                                .contactorCompany,
-                                            style: textStyle12,
-                                            softWrap: true,
-                                          ),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  const Text(
-                                    'Phone: ',
-                                    style: textStyle3,
-                                  ),
-                                  Text(
-                                    allProjectProvider[index].phoneNumber,
-                                    style: textStyle12,
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  const Text(
-                                    'Workers: ',
-                                    style: textStyle3,
-                                  ),
-                                  Text(
-                                    allProjectProvider[index].assignedWorkers !=
-                                            null
-                                        ? allProjectProvider[index]
-                                            .assignedWorkers
-                                            .length
-                                            .toString()
-                                        : 'None',
-                                    style: textStyle12,
-                                  ),
-                                ],
-                              ),
-                            ],
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    );
+                      );
+                    } else {
+                      return const SizedBox.shrink();
+                    }
                   }),
                 ),
               ),
@@ -326,16 +274,128 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               Center(
                 child: Text(
-                    'Total Projects: ${allProjectProvider.length} project'),
+                    'Total Active Projects: ${activeProjects.length} project'),
               )
             ]),
           ),
         ),
         const Divider(
-          height: 5,
+          height: 2,
           thickness: 3,
         ),
-        //Sales team section
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+          child: SizedBox(
+            height: _size.height / 2.8,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                const Text(
+                  'Potential Project that are still under negotiation',
+                  style: textStyle6,
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  height: _size.height / 3.8,
+                  width: _size.width - 20,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: allProjectProvider.length,
+                    itemBuilder: ((context, index) {
+                      if (allProjectProvider[index].projectStatus ==
+                          'potential') {
+                        if (!potentialProjects
+                            .contains(allProjectProvider[index].uid)) {
+                          potentialProjects.add(allProjectProvider[index].uid);
+                        }
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: GestureDetector(
+                            onTap: userProvider.roles.contains('isAdmin')
+                                ? () async {
+                                    //once tapped shall navigate to a page that will show assigned workers
+                                    //will present a dialog on the things that could be done
+                                    await _showProjectDialog(
+                                        projectData: allProjectProvider[index]);
+                                  }
+                                : null,
+                            onLongPress: () {
+                              //if long pressed it will show a dialog that will allow you to edit or delete project
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(5),
+                              width: _size.width / 2,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: const Color.fromARGB(255, 214, 163, 238),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.grey[500],
+                                      offset: const Offset(-3, 3),
+                                      spreadRadius: 2)
+                                ],
+                                border: Border.all(width: 1),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    child: Text(
+                                      allProjectProvider[index]
+                                          .projectName
+                                          .toUpperCase(),
+                                      style: textStyle4,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 15,
+                                  ),
+                                  Column(
+                                    children: [
+                                      const Text(
+                                        'Workers: ',
+                                        style: textStyle3,
+                                      ),
+                                      Text(
+                                        allProjectProvider[index]
+                                                    .assignedWorkers !=
+                                                null
+                                            ? allProjectProvider[index]
+                                                .assignedWorkers
+                                                .length
+                                                .toString()
+                                            : 'None',
+                                        style: textStyle12,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    }),
+                  ),
+                ),
+                const SizedBox(
+                  height: 25,
+                ),
+                Center(
+                  child: Text(
+                      'Total Projects: ${potentialProjects.length} project'),
+                )
+              ],
+            ),
+          ),
+        ),
         userProvider.isActive != null && userProvider.isActive
             ? const SizedBox.shrink()
             : const Padding(
@@ -886,54 +946,89 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: textStyle6,
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 15),
-                    child: SizedBox(
-                      width: _size.width / 2,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color.fromARGB(255, 56, 52, 11),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25.0),
-                          ),
-                        ),
-                        onPressed: () async {
-                          //Navigate to a page to assign workers
-                          await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => ProjectGrid(
-                                        selectedProject: projectData,
-                                        currentUser: userProvider,
-                                      )));
-                        },
-                        child: const Text('Assign Workers'),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: _size.width / 2,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red[400],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25.0),
-                        ),
-                      ),
-                      onPressed: () async {
-                        //Navigate to a page to assign workers
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => WorkerCurrentStream(
-                              selectedProject: projectData,
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      projectData.projectStatus == 'active'
+                          ? Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: SizedBox(
+                                width: _size.width / 2,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.black,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(25.0),
+                                    ),
+                                  ),
+                                  onPressed: () async {
+                                    //Navigate to a page to assign workers
+                                    await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (_) => ProjectGrid(
+                                                  selectedProject: projectData,
+                                                  currentUser: userProvider,
+                                                )));
+                                  },
+                                  child: const Text('Assign Workers'),
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                      projectData.projectStatus == 'active'
+                          ? Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: SizedBox(
+                                width: _size.width / 2,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red[400],
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(25.0),
+                                    ),
+                                  ),
+                                  onPressed: () async {
+                                    //Navigate to a page to assign workers
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => WorkerCurrentStream(
+                                          selectedProject: projectData,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text('View Workers State'),
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                      //define project status
+                      SizedBox(
+                        width: _size.width / 2,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25.0),
                             ),
                           ),
-                        );
-                      },
-                      child: const Text('View Workers State'),
-                    ),
+                          onPressed: () async {
+                            //Navigate to a page to assign workers
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ProjectStatus(
+                                  selectedProject: projectData,
+                                ),
+                              ),
+                            );
+                          },
+                          child: const Text('Change Status'),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
