@@ -108,6 +108,8 @@ class _VisitFormOneState extends State<VisitFormOne> {
                           setState(() {
                             _type = type;
                             _isTypeSelected = true;
+                            selectedClient = ClientData();
+                            selectedProject = ProjectData();
                           });
                         },
                       ),
@@ -123,6 +125,8 @@ class _VisitFormOneState extends State<VisitFormOne> {
                           setState(() {
                             _type = type;
                             _isTypeSelected = true;
+                            selectedClient = ClientData();
+                            selectedProject = ProjectData();
                           });
                         },
                       ),
@@ -350,6 +354,8 @@ class _VisitFormOneState extends State<VisitFormOne> {
                                       borderRadius: BorderRadius.circular(25))),
                               onPressed: () async {
                                 if (_formKey.currentState.validate()) {
+                                  print(
+                                      'the project: ${selectedProject.uid} or client id: ${selectedClient.uid}');
                                   if (selectedProject.uid != null ||
                                       selectedClient.uid != null) {
                                     await Navigator.push(

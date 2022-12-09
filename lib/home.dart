@@ -133,6 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
             )
           : const Loading(),
       body: _selectView(),
+      resizeToAvoidBottomInset: false,
     );
   }
 
@@ -336,7 +337,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                   }
                                 : userProvider.roles.contains('isSales')
                                     ? () async {
-                                        print('we are here');
                                         await Navigator.push(
                                             context,
                                             MaterialPageRoute(
