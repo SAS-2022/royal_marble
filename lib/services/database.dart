@@ -358,7 +358,11 @@ class DatabaseService {
         'clientName': client.clientName,
         'clientAddress': client.clientAddress,
         'contactPerson': client.contactPerson,
-        'phoneNumber': client.phoneNumber,
+        'phoneNumber': {
+          'phoneNumber': client.phoneNumber.phoneNumber,
+          'dialCode': client.phoneNumber.dialCode,
+          'isoCode': client.phoneNumber.isoCode,
+        },
         'emailAddress': client.emailAddress,
         'userId': client.userId,
       }).then((value) => 'Completed');
@@ -375,7 +379,11 @@ class DatabaseService {
         'clientName': client.clientName,
         'clientAddress': client.clientAddress,
         'contactPerson': client.contactPerson,
-        'phoneNumber': client.phoneNumber,
+        'phoneNumber': {
+          'phoneNumber': client.phoneNumber.phoneNumber,
+          'dialCode': client.phoneNumber.dialCode,
+          'isoCode': client.phoneNumber.isoCode,
+        },
         'emailAddress': client.emailAddress,
         'userId': client.userId,
       }).then((value) => 'Completed');

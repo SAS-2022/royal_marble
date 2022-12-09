@@ -129,7 +129,7 @@ class _ShowMapState extends State<ShowMap> {
                         BitmapDescriptor.hueGreen),
                     infoWindow: InfoWindow(
                         title: client.clientName,
-                        snippet: client.phoneNumber,
+                        snippet: client.phoneNumber.phoneNumber,
                         onTap: () {}),
                   ));
         }
@@ -150,7 +150,7 @@ class _ShowMapState extends State<ShowMap> {
                         BitmapDescriptor.hueGreen),
                     infoWindow: InfoWindow(
                         title: client.clientName,
-                        snippet: client.phoneNumber,
+                        snippet: client.phoneNumber.phoneNumber,
                         onTap: () {}),
                   ));
         }

@@ -35,43 +35,41 @@ class _DatePickerState extends State<DatePicker> {
       height: _size.height / 2,
       width: _size.width - 10,
       child: Center(
-          child: SfDateRangePicker(
-        showActionButtons: true,
-        onSubmit: ((p0) {
-          switch (widget.reportType) {
-            case 'pipeline':
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => VisitsGrid(
-                            currentUser: widget.currentUser,
-                            selectedUser: widget.selectedUser,
-                            fromDate: startDate,
-                            toDate: endDate,
-                          )));
-              break;
-            case 'timesheet':
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => ReportDetails(
-                            bulkUsers: widget.bulkUsers,
-                            currentUser: widget.currentUser,
-                            reportType: widget.reportType,
-                            fromDate: startDate,
-                            toDate: endDate,
-                            reportSection: widget.reportSection,
-                          )));
-              break;
-          }
-        }),
-        onCancel: () => Navigator.pop(context),
-        onSelectionChanged: _onSelectionChanged,
-        selectionMode: DateRangePickerSelectionMode.range,
-        // initialSelectedRange: PickerDateRange(
-        //     DateTime.now().subtract(const Duration(days: 2)),
-        //     DateTime.now().add(const Duration(days: 2))),
-      )),
+        child: SfDateRangePicker(
+          showActionButtons: true,
+          onSubmit: ((p0) {
+            switch (widget.reportType) {
+              case 'pipeline':
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => VisitsGrid(
+                              currentUser: widget.currentUser,
+                              selectedUser: widget.selectedUser,
+                              fromDate: startDate,
+                              toDate: endDate,
+                            )));
+                break;
+              case 'timesheet':
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => ReportDetails(
+                              bulkUsers: widget.bulkUsers,
+                              currentUser: widget.currentUser,
+                              reportType: widget.reportType,
+                              fromDate: startDate,
+                              toDate: endDate,
+                              reportSection: widget.reportSection,
+                            )));
+                break;
+            }
+          }),
+          onCancel: () => Navigator.pop(context),
+          onSelectionChanged: _onSelectionChanged,
+          selectionMode: DateRangePickerSelectionMode.range,
+        ),
+      ),
     );
   }
 

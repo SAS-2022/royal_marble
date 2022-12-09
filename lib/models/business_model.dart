@@ -1,9 +1,11 @@
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+
 class ClientData {
   String uid;
   String clientName;
   Map<String, dynamic> clientAddress;
   String contactPerson;
-  String phoneNumber;
+  var phoneNumber;
   String emailAddress;
   List<dynamic> clientVisits;
   String userId;

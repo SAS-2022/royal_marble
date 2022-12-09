@@ -9,7 +9,7 @@ import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/shared/constants.dart';
 import 'package:royal_marble/shared/snack_bar.dart';
-
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import '../location/google_map_navigation.dart';
 import '../models/business_model.dart';
 
@@ -32,6 +32,8 @@ class _ClientFormState extends State<ClientForm> {
   ClientData newClient = ClientData();
   bool _editContent = false;
   Map<String, dynamic> _myLocation = {};
+  PhoneNumber phoneNumber = PhoneNumber(isoCode: 'AE');
+  TextEditingController _phoneController = TextEditingController();
   Size _size;
 
   @override
@@ -42,6 +44,15 @@ class _ClientFormState extends State<ClientForm> {
     if (widget.client != null) {
       newClient = widget.client;
 
+      if (widget.client.phoneNumber != null) {
+        print('the phoneNumber: ${widget.client.phoneNumber}');
+        phoneNumber = PhoneNumber(
+          phoneNumber: widget.client.phoneNumber.phoneNumber,
+          dialCode: widget.client.phoneNumber.dialCode,
+          isoCode: widget.client.phoneNumber.isoCode,
+        );
+      }
+
       if (widget.client.clientAddress != null) {
         _myLocation = {
           'addressName': newClient.clientAddress['addressName'],
@@ -50,6 +61,12 @@ class _ClientFormState extends State<ClientForm> {
         };
       }
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _phoneController.dispose();
   }
 
   @override
@@ -151,44 +168,75 @@ class _ClientFormState extends State<ClientForm> {
                 const SizedBox(
                   height: 15,
                 ),
-                TextFormField(
-                  autofocus: false,
-                  initialValue: '',
-                  style: textStyle5,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.digitsOnly,
-                  ],
-                  decoration: InputDecoration(
-                    filled: true,
-                    label: const Text('Client Phone'),
-                    hintText: 'Ex: 05 123 12345',
-                    fillColor: Colors.grey[100],
-                    enabledBorder: const OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                        borderSide: BorderSide(color: Colors.grey)),
-                    focusedBorder: const OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                        borderSide: BorderSide(color: Colors.green)),
-                  ),
-                  validator: (val) {
-                    Pattern pattern = r'^(?:[05]8)?[0-9]{10}$';
-                    var regexp = RegExp(pattern.toString());
-                    if (val.isEmpty) {
-                      return 'Phone cannot be empty';
-                    }
-                    if (!regexp.hasMatch(val)) {
-                      return 'Phone number does not match a UAE number';
-                    } else {
-                      return null;
-                    }
+                InternationalPhoneNumberInput(
+                  onInputChanged: (PhoneNumber number) {
+                    print('${number.phoneNumber} - ${number.isoCode}');
                   },
-                  onChanged: (val) {
-                    setState(() {
-                      newClient.phoneNumber = val.trim();
-                    });
+                  onInputValidated: (bool value) {
+                    print(value);
+                  },
+                  selectorConfig: const SelectorConfig(
+                    selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
+                  ),
+                  ignoreBlank: false,
+                  autoValidateMode: AutovalidateMode.disabled,
+                  selectorTextStyle: const TextStyle(color: Colors.black),
+                  initialValue: phoneNumber,
+                  textFieldController: _phoneController,
+                  formatInput: false,
+                  keyboardType: const TextInputType.numberWithOptions(
+                      signed: true, decimal: true),
+                  inputBorder: const OutlineInputBorder(),
+                  onSaved: (PhoneNumber number) {
+                    print('the number: $number');
+                    newClient.phoneNumber = number;
                   },
                 ),
+                ElevatedButton(
+                  onPressed: () {
+                    _formKey.currentState?.save();
+                    if (_formKey.currentState.validate()) {}
+                  },
+                  child: Text('Save'),
+                ),
+                // TextFormField(
+                //   autofocus: false,
+                //   initialValue: '',
+                //   style: textStyle5,
+                //   keyboardType: TextInputType.number,
+                //   inputFormatters: <TextInputFormatter>[
+                //     FilteringTextInputFormatter.digitsOnly,
+                //   ],
+                //   decoration: InputDecoration(
+                //     filled: true,
+                //     label: const Text('Client Phone'),
+                //     hintText: 'Ex: 05 123 12345',
+                //     fillColor: Colors.grey[100],
+                //     enabledBorder: const OutlineInputBorder(
+                //         borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                //         borderSide: BorderSide(color: Colors.grey)),
+                //     focusedBorder: const OutlineInputBorder(
+                //         borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                //         borderSide: BorderSide(color: Colors.green)),
+                //   ),
+                //   validator: (val) {
+                //     Pattern pattern = r'^(?:[05]8)?[0-9]{10}$';
+                //     var regexp = RegExp(pattern.toString());
+                //     if (val.isEmpty) {
+                //       return 'Phone cannot be empty';
+                //     }
+                //     if (!regexp.hasMatch(val)) {
+                //       return 'Phone number does not match a UAE number';
+                //     } else {
+                //       return null;
+                //     }
+                //   },
+                //   onChanged: (val) {
+                //     setState(() {
+                //       newClient.phoneNumber = val.trim();
+                //     });
+                //   },
+                // ),
                 const SizedBox(
                   height: 15,
                 ),
@@ -269,12 +317,14 @@ class _ClientFormState extends State<ClientForm> {
                 Center(
                   child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                          primary: const Color.fromARGB(255, 191, 180, 66),
+                          backgroundColor:
+                              const Color.fromARGB(255, 191, 180, 66),
                           fixedSize: Size(_size.width / 2, 45),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(25))),
                       onPressed: () async {
                         if (_formKey.currentState.validate()) {
+                          _formKey.currentState.save();
                           var result =
                               await db.addNewClients(client: newClient);
                           if (result == 'Completed') {
@@ -407,44 +457,27 @@ class _ClientFormState extends State<ClientForm> {
                 height: 15,
               ),
               _editContent
-                  ? TextFormField(
-                      autofocus: false,
-                      initialValue: newClient.phoneNumber,
-                      style: textStyle5,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: <TextInputFormatter>[
-                        FilteringTextInputFormatter.digitsOnly,
-                      ],
-                      decoration: InputDecoration(
-                        filled: true,
-                        label: const Text('Client Phone'),
-                        hintText: 'Ex: 05 123 12345',
-                        fillColor: Colors.grey[100],
-                        enabledBorder: const OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(15.0)),
-                            borderSide: BorderSide(color: Colors.grey)),
-                        focusedBorder: const OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(15.0)),
-                            borderSide: BorderSide(color: Colors.green)),
-                      ),
-                      validator: (val) {
-                        Pattern pattern = r'^(?:[05]8)?[0-9]{10}$';
-                        var regexp = RegExp(pattern.toString());
-                        if (val.isEmpty) {
-                          return 'Phone cannot be empty';
-                        }
-                        if (!regexp.hasMatch(val)) {
-                          return 'Phone number does not match a UAE number';
-                        } else {
-                          return null;
-                        }
+                  ? InternationalPhoneNumberInput(
+                      onInputChanged: (PhoneNumber number) {
+                        print('${number.phoneNumber} - ${number.isoCode}');
                       },
-                      onChanged: (val) {
-                        setState(() {
-                          newClient.phoneNumber = val.trim();
-                        });
+                      onInputValidated: (bool value) {
+                        print(value);
+                      },
+                      selectorConfig: const SelectorConfig(
+                        selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
+                      ),
+                      ignoreBlank: false,
+                      autoValidateMode: AutovalidateMode.disabled,
+                      selectorTextStyle: const TextStyle(color: Colors.black),
+                      initialValue: phoneNumber,
+                      textFieldController: _phoneController,
+                      formatInput: false,
+                      keyboardType: const TextInputType.numberWithOptions(
+                          signed: true, decimal: true),
+                      inputBorder: const OutlineInputBorder(),
+                      onSaved: (PhoneNumber number) {
+                        newClient.phoneNumber = number;
                       },
                     )
                   : Row(children: [
@@ -458,7 +491,7 @@ class _ClientFormState extends State<ClientForm> {
                       Expanded(
                         flex: 2,
                         child: Text(
-                          widget.client.phoneNumber,
+                          phoneNumber != null ? phoneNumber.phoneNumber : '',
                           style: textStyle3,
                         ),
                       )
@@ -607,10 +640,6 @@ class _ClientFormState extends State<ClientForm> {
               const SizedBox(
                 height: 15,
               ),
-              // SizedBox(
-              //   height: 40,
-              //   child: Center(child: Text('${_myLocation['addressName']}')),
-              // ),
               //Submit button will allow you add the entered data into the database
               _editContent
                   ? Center(
@@ -623,8 +652,9 @@ class _ClientFormState extends State<ClientForm> {
                                   borderRadius: BorderRadius.circular(25))),
                           onPressed: () async {
                             if (_formKey.currentState.validate()) {
+                              _formKey.currentState.save();
                               var result =
-                                  await db.addNewClients(client: newClient);
+                                  await db.updateClientData(client: newClient);
                               if (result == 'Completed') {
                                 Navigator.pop(context);
                               } else {
@@ -648,10 +678,12 @@ class _ClientFormState extends State<ClientForm> {
                   ? Center(
                       child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                              fixedSize: Size(_size.width / 2, 45),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(25))),
+                            backgroundColor: Colors.red,
+                            fixedSize: Size(_size.width / 2, 45),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                          ),
                           onPressed: () async {
                             await showDialog(
                                 context: context,
