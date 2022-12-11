@@ -6,13 +6,12 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as Path;
 import 'package:royal_marble/location/google_map_navigation.dart';
+import 'package:royal_marble/location/http_navigation.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/shared/constants.dart';
 import 'package:royal_marble/shared/loading.dart';
 import 'package:royal_marble/shared/snack_bar.dart';
-import 'package:uri_to_file/uri_to_file.dart';
-
 import '../shared/country_picker.dart';
 
 class UserDetails extends StatefulWidget {
@@ -30,6 +29,7 @@ class _UserDetailsState extends State<UserDetails> {
   DatabaseService db = DatabaseService();
   final _snackBarWidget = SnackBarWidget();
   final _formKey = GlobalKey<FormState>();
+  HttpNavigation _httpNavigation = HttpNavigation();
   UserData newUserData = UserData();
   Map<String, dynamic> _myLocation = {};
   String selectedRoles;
@@ -58,7 +58,6 @@ class _UserDetailsState extends State<UserDetails> {
       newUserData.nationality = widget.currentUser.nationality;
       newUserData.homeAddress = widget.currentUser.homeAddress;
       newUserData.imageUrl = widget.currentUser.imageUrl;
-      print('the new user: ${newUserData.imageUrl}');
       if (newUserData.homeAddress != null) {
         _myLocation = newUserData.homeAddress;
       }
@@ -151,7 +150,7 @@ class _UserDetailsState extends State<UserDetails> {
 
   Widget _buildUserDetails() {
     return Padding(
-      padding: const EdgeInsets.only(top: 5, left: 25, right: 10),
+      padding: const EdgeInsets.only(top: 5, left: 15, right: 15),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -181,129 +180,209 @@ class _UserDetailsState extends State<UserDetails> {
               ),
             ),
           ),
-          Row(
-            children: [
-              const Text(
-                'First Name: ',
-                style: textStyle5,
-              ),
-              Text(
-                widget.currentUser.firstName,
-                style: textStyle3,
-              )
-            ],
-          ),
-          const SizedBox(
-            height: 15,
-          ),
-          Row(
-            children: [
-              const Text(
-                'Last Name: ',
-                style: textStyle5,
-              ),
-              Text(
-                widget.currentUser.lastName,
-                style: textStyle3,
-              )
-            ],
-          ),
-          const SizedBox(
-            height: 15,
-          ),
-          Row(
-            children: [
-              const Text(
-                'Phone Number: ',
-                style: textStyle5,
-              ),
-              Text(
-                widget.currentUser.phoneNumber,
-                style: textStyle3,
-              )
-            ],
-          ),
-          const SizedBox(
-            height: 15,
-          ),
-          Row(
-            children: [
-              const Text(
-                'Email Address: ',
-                style: textStyle5,
-              ),
-              Text(
-                widget.currentUser.emailAddress,
-                style: textStyle3,
-              )
-            ],
-          ),
-          const SizedBox(
-            height: 15,
-          ),
-          Row(
-            children: [
-              const Text(
-                'Nationality: ',
-                style: textStyle5,
-              ),
-              Text(
-                widget.currentUser.nationality['countryName'],
-                style: textStyle3,
-              )
-            ],
-          ),
-          const SizedBox(
-            height: 15,
-          ),
-          Row(
-            children: [
-              const Text(
-                'Company: ',
-                style: textStyle5,
-              ),
-              Text(
-                widget.currentUser.company,
-                style: textStyle3,
-              )
-            ],
-          ),
-          const SizedBox(
-            height: 15,
-          ),
-          Row(
-            children: [
-              const Text(
-                'Home Address: ',
-                style: textStyle5,
-              ),
-              SizedBox(
-                width: (_size.width / 2),
-                child: Text(
-                  widget.currentUser.homeAddress != null
-                      ? widget.currentUser.homeAddress['addressName']
-                      : 'Address not found',
-                  style: textStyle3,
+          Container(
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(15)),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Expanded(
+                      flex: 2,
+                      child: Text(
+                        'First Name: ',
+                        style: textStyle5,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        widget.currentUser.firstName,
+                        style: textStyle12,
+                      ),
+                    )
+                  ],
                 ),
-              )
-            ],
+                const SizedBox(
+                  height: 15,
+                ),
+                Row(
+                  children: [
+                    const Expanded(
+                      flex: 2,
+                      child: Text(
+                        'Last Name: ',
+                        style: textStyle5,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        widget.currentUser.lastName,
+                        style: textStyle12,
+                      ),
+                    )
+                  ],
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                Row(
+                  children: [
+                    const Expanded(
+                      flex: 2,
+                      child: Text(
+                        'Phone Number: ',
+                        style: textStyle5,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        widget.currentUser.phoneNumber,
+                        style: textStyle12,
+                      ),
+                    )
+                  ],
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                Row(
+                  children: [
+                    const Expanded(
+                      flex: 2,
+                      child: Text(
+                        'Email Address: ',
+                        style: textStyle5,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        widget.currentUser.emailAddress,
+                        style: textStyle12,
+                      ),
+                    )
+                  ],
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                Row(
+                  children: [
+                    const Expanded(
+                      flex: 2,
+                      child: Text(
+                        'Nationality: ',
+                        style: textStyle5,
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        widget.currentUser.nationality['countryName'],
+                        style: textStyle12,
+                      ),
+                    )
+                  ],
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                Row(
+                  children: [
+                    const Expanded(
+                      flex: 2,
+                      child: Text(
+                        'Company: ',
+                        style: textStyle5,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        widget.currentUser.company,
+                        style: textStyle12,
+                      ),
+                    )
+                  ],
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                Row(
+                  children: [
+                    const Expanded(
+                      flex: 2,
+                      child: Text(
+                        'Home Address: ',
+                        style: textStyle5,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: GestureDetector(
+                        onTap: () async {
+                          if (widget.currentUser.homeAddress != null) {
+                            if (Platform.isIOS) {
+                              _httpNavigation.context = context;
+                              _httpNavigation.lat = _myLocation['Lat'];
+                              _httpNavigation.lng = _myLocation['Lng'];
+                              await _httpNavigation.startNaviagtionGoogleMap();
+                            } else {
+                              await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => GoogleMapNavigation(
+                                            getLocation: selecteMapLocation,
+                                            lat: _myLocation['Lat'],
+                                            lng: _myLocation['Lng'],
+                                            navigate: true,
+                                          )));
+                            }
+                          }
+                        },
+                        child: Text(
+                          widget.currentUser.homeAddress != null
+                              ? widget.currentUser.homeAddress['addressName']
+                              : 'Address not found',
+                          style: textStyle12,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                Row(
+                  children: [
+                    const Expanded(
+                      flex: 2,
+                      child: Text(
+                        'Active User: ',
+                        style: textStyle5,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        widget.currentUser.isActive.toString(),
+                        style: textStyle12,
+                      ),
+                    )
+                  ],
+                ),
+              ],
+            ),
           ),
           const SizedBox(
             height: 15,
           ),
-          Row(
-            children: [
-              const Text(
-                'Active User: ',
-                style: textStyle5,
-              ),
-              Text(
-                widget.currentUser.isActive.toString(),
-                style: textStyle3,
-              )
-            ],
-          ),
-          const Divider(height: 30, thickness: 3),
+          // const Divider(height: 30, thickness: 3),
           //the below code will be functions for the admin to do
           //Assign user's role
           Column(
@@ -931,6 +1010,8 @@ class _UserDetailsState extends State<UserDetails> {
       };
       newUserData.homeAddress = _myLocation;
       setState(() {});
+    } else {
+      _myLocation = {'Lat': '', 'Lng': ''};
     }
   }
 

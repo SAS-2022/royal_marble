@@ -566,7 +566,7 @@ class _ShowMapState extends State<ShowMap> {
                   ),
                 ))
             : const SizedBox.shrink(),
-        _loading
+        _loading && !widget.addProject
             ? SizedBox(
                 height: _size.height,
                 child: Column(
