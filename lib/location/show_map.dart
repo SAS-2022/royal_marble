@@ -3,13 +3,12 @@ import 'dart:collection';
 // import 'dart:developer';
 import 'dart:io';
 import 'dart:ui' as ui;
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+//import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:royal_marble/location/.env.dart';
 import 'package:royal_marble/location/direction_repo.dart';
@@ -68,6 +67,7 @@ class _ShowMapState extends State<ShowMap> {
   String locationName;
   LatLng _selectedLocation;
   Timer _timer;
+  bool _loading = true;
 
   // var markerId = MarkerId('one');
   Marker marker1 = Marker(
@@ -316,13 +316,14 @@ class _ShowMapState extends State<ShowMap> {
       //  streamLocation = db.getAllUsersLocation(userId: user.uid);
       futureLocation = await db.getUserLocationFuture(usersId: user.uid);
       // var result = await streamLocation.first;
-
-      _setInitialMarkers(
-        uuid: futureLocation['uuid'],
-        userData: user,
-        lat: futureLocation['lat'],
-        lng: futureLocation['lng'],
-      );
+      if (futureLocation['uuid'] != null) {
+        _setInitialMarkers(
+          uuid: futureLocation['uuid'],
+          userData: user,
+          lat: futureLocation['lat'],
+          lng: futureLocation['lng'],
+        );
+      }
     }
   }
 
@@ -346,48 +347,54 @@ class _ShowMapState extends State<ShowMap> {
     if (clientMarkers.isNotEmpty) {
       listMarkers.addAll(clientMarkers);
     }
+    if (mounted) {
+      setState(() {
+        _loading = false;
+      });
+    }
 
     return userMarkers;
   }
 
   //will get the user image
-  Future<Uint8List> getImages(String urlPath, int width) async {
-    print('the byte data:$urlPath');
-    final File markerImageFile =
-        await DefaultCacheManager().getSingleFile(urlPath);
+  // Future<Uint8List> getImages(String urlPath, int width) async {
+  //   print('the byte data:$urlPath');
+  //   final File markerImageFile =
+  //       await DefaultCacheManager().getSingleFile(urlPath);
 
-    final Uint8List markerImageBytes = await markerImageFile.readAsBytes();
+  //   final Uint8List markerImageBytes = await markerImageFile.readAsBytes();
 
-    final ui.Codec codec =
-        await ui.instantiateImageCodec(markerImageBytes, targetHeight: width);
+  //   final ui.Codec codec =
+  //       await ui.instantiateImageCodec(markerImageBytes, targetHeight: width);
 
-    final ui.FrameInfo info = await codec.getNextFrame();
+  //   final ui.FrameInfo info = await codec.getNextFrame();
 
-    final ByteData byteData =
-        await info.image.toByteData(format: ui.ImageByteFormat.png);
+  //   final ByteData byteData =
+  //       await info.image.toByteData(format: ui.ImageByteFormat.png);
 
-    return byteData.buffer.asUint8List();
-  }
+  //   return byteData.buffer.asUint8List();
+  // }
 
   void _updateCurrentMarkers() async {
     Map<String, Marker> updatedMarker = {};
     for (var user in userProvider) {
-      //final Uint8List markIcons = await getImages(user.imageUrl, 20);
-      // streamLocation = db.getAllUsersLocation(userId: user.uid);
       futureLocation = await db.getUserLocationFuture(usersId: user.uid);
-      //  var result = await streamLocation.first;
-      updatedMarker.putIfAbsent(
-          futureLocation['uuid'],
-          () => Marker(
-                markerId: MarkerId(futureLocation['uuid']),
-                position: LatLng(futureLocation['lat'], futureLocation['lng']),
-                icon: BitmapDescriptor.defaultMarkerWithHue(
-                    BitmapDescriptor.hueViolet),
-                infoWindow: InfoWindow(
-                    title: '${user.firstName} ${user.lastName}',
-                    snippet: user.phoneNumber,
-                    onTap: () {}),
-              ));
+      if (futureLocation['uuid'] != null) {
+        updatedMarker.putIfAbsent(
+            futureLocation['uuid'],
+            () => Marker(
+                  markerId: MarkerId(futureLocation['uuid']),
+                  position:
+                      LatLng(futureLocation['lat'], futureLocation['lng']),
+                  icon: BitmapDescriptor.defaultMarkerWithHue(
+                      BitmapDescriptor.hueViolet),
+                  infoWindow: InfoWindow(
+                      title: '${user.firstName} ${user.lastName}',
+                      snippet: user.phoneNumber,
+                      onTap: () {}),
+                ));
+      }
+
       if (clientMarkers.isNotEmpty) {
         updatedMarker.addAll(clientMarkers);
       }
@@ -559,6 +566,30 @@ class _ShowMapState extends State<ShowMap> {
                   ),
                 ))
             : const SizedBox.shrink(),
+        _loading
+            ? SizedBox(
+                height: _size.height,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'Please wait...',
+                      style: textStyle4,
+                    ),
+                    const SizedBox(
+                      height: 25,
+                    ),
+                    Center(
+                      child: SpinKitSpinningLines(
+                        color: Colors.black,
+                        size: _size.height / 5,
+                        lineWidth: 6,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : const SizedBox.shrink()
       ],
     );
   }
@@ -592,47 +623,90 @@ class _ShowMapState extends State<ShowMap> {
               SizedBox(
                 height: _size.height - 105,
                 child: TabBarView(children: [
-                  SizedBox(
-                    height: _size.height - 100,
-                    child: ListView.builder(
-                        itemCount: userProvider.length,
-                        itemBuilder: (context, index) {
-                          var result;
-                          return Padding(
-                            padding: const EdgeInsets.all(15.0),
-                            child: GestureDetector(
-                              onTap: () async {
-                                result = db.getAllUsersLocation(
-                                    userId: userProvider[index].uid);
-                                var userLoc = await result.first;
+                  StatefulBuilder(builder: (context, setState) {
+                    return SizedBox(
+                      height: _size.height - 100,
+                      child: ListView.builder(
+                          itemCount: userProvider.length,
+                          itemBuilder: (context, index) {
+                            String locationStatus;
+                            bool _locationFailed = false;
+                            var result;
+                            result = db.getAllUsersLocation(
+                                userId: userProvider[index].uid);
+                            //check if location collection exist or not
 
-                                setState(() {
-                                  _center = LatLng(userLoc.first.coord.latitude,
-                                      userLoc.first.coord.longitude);
-                                });
-                                _mapController.animateCamera(
-                                    CameraUpdate.newCameraPosition(
-                                        CameraPosition(
-                                            target: _center, zoom: 13.5)));
-                                Navigator.pop(context);
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 15),
-                                decoration: BoxDecoration(
-                                    color: Color.fromARGB(255, 156, 151, 216),
-                                    border: Border.all(),
-                                    borderRadius: BorderRadius.circular(15)),
-                                child: Text(
-                                  '${userProvider[index].firstName} ${userProvider[index].lastName}',
-                                  textAlign: TextAlign.center,
-                                  style: textStyle5,
+                            if (userProvider[index].permissionStatus != null &&
+                                    userProvider[index].permissionStatus ==
+                                        'PermissionStatus.denied' ||
+                                userProvider[index].permissionStatus ==
+                                    'PermissionStatus.limited' ||
+                                userProvider[index].permissionStatus ==
+                                    'PermissionStatus.restricted') {
+                              locationStatus = 'disabled';
+                            }
+                            if (locationStatus == 'disabled') {
+                              _locationFailed = true;
+                            }
+
+                            return Padding(
+                              padding: const EdgeInsets.all(15.0),
+                              child: GestureDetector(
+                                onTap: () async {
+                                  var userLoc = await result.first;
+                                  if (userLoc != null && userLoc.isNotEmpty) {
+                                    setState(() {
+                                      _center = LatLng(
+                                          userLoc.first.coord.latitude,
+                                          userLoc.first.coord.longitude);
+                                    });
+                                    _mapController.animateCamera(
+                                        CameraUpdate.newCameraPosition(
+                                            CameraPosition(
+                                                target: _center, zoom: 13.5)));
+                                    Navigator.pop(context);
+                                  } else {
+                                    locationStatus = 'No Collection';
+                                    setState(() {
+                                      _locationFailed = true;
+                                    });
+                                    if (locationStatus == 'No Collection') {
+                                      _snackBarWidget.content =
+                                          'Location not found';
+                                      _snackBarWidget.showSnack();
+                                      return;
+                                    }
+                                  }
+
+                                  if (locationStatus == 'disabled') {
+                                    _snackBarWidget.content =
+                                        'Access has been denied';
+                                    _snackBarWidget.showSnack();
+                                    return;
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 15),
+                                  decoration: BoxDecoration(
+                                      color: _locationFailed
+                                          ? const Color.fromARGB(
+                                              255, 239, 57, 24)
+                                          : const Color.fromARGB(
+                                              255, 192, 144, 229),
+                                      borderRadius: BorderRadius.circular(15)),
+                                  child: Text(
+                                    '${userProvider[index].firstName} ${userProvider[index].lastName}',
+                                    textAlign: TextAlign.center,
+                                    softWrap: true,
+                                    style: textStyle13,
+                                  ),
                                 ),
                               ),
-                            ),
-                          );
-                        }),
-                  ),
+                            );
+                          }),
+                    );
+                  }),
                   SizedBox(
                     height: _size.height - 105,
                     child: clientProvider != null && clientProvider.isNotEmpty
@@ -661,14 +735,13 @@ class _ShowMapState extends State<ShowMap> {
                                         horizontal: 10, vertical: 15),
                                     decoration: BoxDecoration(
                                         color: const Color.fromARGB(
-                                            255, 156, 151, 216),
-                                        border: Border.all(),
+                                            255, 169, 236, 158),
                                         borderRadius:
                                             BorderRadius.circular(15)),
                                     child: Text(
                                       clientProvider[index].clientName,
                                       textAlign: TextAlign.center,
-                                      style: textStyle5,
+                                      style: textStyle13,
                                     ),
                                   ),
                                 ),

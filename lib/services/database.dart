@@ -1,3 +1,4 @@
+import 'package:permission_handler/permission_handler.dart' as ph;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
@@ -71,6 +72,21 @@ class DatabaseService {
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
       return ' $e';
+    }
+  }
+
+  //update user location permission status
+  Future<String> updateUserPermissionStatus(
+      {String uid, ph.PermissionStatus permissionStatus}) async {
+    try {
+      print('the status 1: $permissionStatus');
+      return await userCollection
+          .doc(uid)
+          .update({'locationPermission': permissionStatus.toString()}).then(
+              (value) => 'Permission Status updated');
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return 'Error: $e';
     }
   }
 
@@ -179,7 +195,10 @@ class DatabaseService {
   }
 
   Stream<List<UserData>> getAllUsers() {
-    return userCollection.snapshots().map(_allUserDataFromSnapshot);
+    return userCollection
+        .orderBy('firstName')
+        .snapshots()
+        .map(_allUserDataFromSnapshot);
   }
 
   Stream<List<UserData>> getNonAdminUsers() {
@@ -318,6 +337,7 @@ class DatabaseService {
         distanceToProject: data['distanceToProject'],
         currentLocation: data['currentLocation'],
         imageUrl: data['imageUrl'],
+        permissionStatus: data['locationPermission'],
         location: data['location'],
       );
     }).toList();
@@ -468,7 +488,10 @@ class DatabaseService {
               contactPerson: data['contactPerson'],
               clientAddress: data['clientAddress'],
               emailAddress: data['emailAddress'],
-              phoneNumber: data['phoneNumber'],
+              phoneNumber: PhoneNumber(
+                  phoneNumber: data['phoneNumber']['phoneNumber'],
+                  isoCode: data['phoneNumber']['isoCode'],
+                  dialCode: data['phoneNumber']['dialCode']),
               clientVisits: data['clientVisits']);
         }).toList();
       });
@@ -492,7 +515,10 @@ class DatabaseService {
               contactPerson: data['contactPerson'],
               clientAddress: data['clientAddress'],
               emailAddress: data['emailAddress'],
-              phoneNumber: data['phoneNumber'],
+              phoneNumber: PhoneNumber(
+                  phoneNumber: data['phoneNumber']['phoneNumber'],
+                  isoCode: data['phoneNumber']['isoCode'],
+                  dialCode: data['phoneNumber']['dialCode']),
               clientVisits: data['clientVisits']);
         }).toList();
       });

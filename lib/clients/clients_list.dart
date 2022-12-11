@@ -108,7 +108,7 @@ class _ClientListState extends State<ClientList> {
                                   Text(
                                       'Contact: ${_searchResult[index].contactPerson}'),
                                   Text(
-                                      'Mobile: ${_searchResult[index].phoneNumber}'),
+                                      'Mobile: ${_searchResult[index].phoneNumber.phoneNumber}'),
                                   Text(
                                       'Email: ${_searchResult[index].emailAddress}'),
                                 ],

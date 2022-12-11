@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:permission_handler/permission_handler.dart' as ph;
 import 'package:provider/provider.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/models/user_model.dart';
@@ -65,6 +65,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String _distanceLocation;
   String _distanceMotion;
   String _locationJSON;
+  Timer _timer;
+  ph.PermissionStatus permissionStatus;
 
   @override
   void initState() {
@@ -79,6 +81,15 @@ class _HomeScreenState extends State<HomeScreen> {
     _getLocationPermission();
     _onClickEnable(_enabled);
     Future.delayed(const Duration(seconds: 5), () => _setUserId());
+
+    _timer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      if (permissionStatus.isDenied ||
+          permissionStatus.isLimited ||
+          permissionStatus.isPermanentlyDenied ||
+          permissionStatus.isRestricted) {
+        _getLocationPermission();
+      }
+    });
   }
 
   //platform massages are asynchrones so we initialize in an async method
@@ -765,21 +776,48 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //will get the permission to access the location
   Future<void> _getLocationPermission() async {
-    if (await Permission.location.serviceStatus.isEnabled) {
-      var status = await Permission.location.status;
-      if (status.isGranted) {
-        if (Permission.location == Permission.locationWhenInUse ||
-            Permission.location == Permission.location) {
-          await [Permission.location, Permission.locationAlways].request();
+    try {
+      if (await ph.Permission.location.serviceStatus.isEnabled) {
+        permissionStatus =
+            await ph.Permission.location.status.onError((error, stackTrace) {
+          return error;
+        });
+        print('the permission: ${permissionStatus}');
+        if (permissionStatus.isGranted) {
+          if (ph.Permission.location == ph.Permission.locationWhenInUse ||
+              ph.Permission.location == ph.Permission.location) {
+            await [ph.Permission.location, ph.Permission.locationAlways]
+                .request();
+          }
+          //update database with permission status
+          if (userProvider != null) {
+            var result = await db.updateUserPermissionStatus(
+                uid: userProvider.uid, permissionStatus: permissionStatus);
+            print('the result: $result');
+          }
+
+          getCurrentLocation();
+        } else if (permissionStatus.isDenied ||
+            permissionStatus.isRestricted ||
+            permissionStatus.isPermanentlyDenied ||
+            permissionStatus.isLimited ||
+            permissionStatus == PermissionStatus.denied) {
+          await ph.openAppSettings();
+          //update data base with permission status
+          if (userProvider != null) {
+            var result = await db.updateUserPermissionStatus(
+                uid: userProvider.uid, permissionStatus: permissionStatus);
+            print('the result: $result');
+          }
+        } else {
+          _snackBarWidget.content = 'Location Permission: $permissionStatus';
+          _snackBarWidget.showSnack();
         }
-      } else if (status.isDenied) {
-        await openAppSettings();
-      } else {
-        _snackBarWidget.content = 'Location Permission: $status';
-        _snackBarWidget.showSnack();
+        print('the status: $permissionStatus');
       }
+    } catch (e) {
+      print('Error obtaining permission: $e');
     }
-    getCurrentLocation();
   }
 
   //fetch location while running in background

@@ -14,6 +14,7 @@ class UserData {
   String company;
   bool isActive;
   String imageUrl;
+  String permissionStatus;
   String error;
 
   UserData({
@@ -32,6 +33,7 @@ class UserData {
     this.assignedProject,
     this.distanceToProject,
     this.imageUrl,
+    this.permissionStatus,
     this.error,
   });
 

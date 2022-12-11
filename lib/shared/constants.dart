@@ -80,5 +80,11 @@ const textStyle12 = TextStyle(
   color: Colors.black,
 );
 
+const textStyle13 = TextStyle(
+  fontSize: 12,
+  fontFamily: 'San Fransisco',
+  color: Colors.black,
+);
+
 const buttonStyle =
     TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold, color: Colors.white);

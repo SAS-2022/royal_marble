@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:royal_marble/location/http_navigation.dart';
 import 'package:royal_marble/models/user_model.dart';
@@ -35,6 +36,7 @@ class _ClientFormState extends State<ClientForm> {
   PhoneNumber phoneNumber = PhoneNumber(isoCode: 'AE');
   TextEditingController _phoneController = TextEditingController();
   Size _size;
+  bool _loading = false;
 
   @override
   void initState() {
@@ -90,9 +92,25 @@ class _ClientFormState extends State<ClientForm> {
               : const SizedBox.shrink()
         ],
       ),
-      body: widget.isNewClient
-          ? _buildNewClientForm()
-          : _buildSelectedClientDetails(),
+      body: Stack(
+        children: [
+          widget.isNewClient
+              ? _buildNewClientForm()
+              : _buildSelectedClientDetails(),
+          _loading
+              ? SizedBox(
+                  height: _size.height,
+                  child: Center(
+                    child: SpinKitSpinningLines(
+                      color: Colors.black,
+                      lineWidth: 6,
+                      size: _size.height / 5,
+                    ),
+                  ),
+                )
+              : const SizedBox.shrink()
+        ],
+      ),
     );
   }
 
@@ -318,6 +336,9 @@ class _ClientFormState extends State<ClientForm> {
                       onPressed: () async {
                         if (_formKey.currentState.validate()) {
                           _formKey.currentState.save();
+                          setState(() {
+                            _loading = true;
+                          });
                           var result =
                               await db.addNewClients(client: newClient);
                           if (result == 'Completed') {
@@ -697,18 +718,21 @@ class _ClientFormState extends State<ClientForm> {
                                             MainAxisAlignment.spaceEvenly,
                                         children: [
                                           TextButton(
-                                            onPressed: () =>
-                                                Navigator.pop(context),
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
                                             child: const Text(
                                               'No',
                                               style: textStyle3,
                                             ),
                                           ),
                                           TextButton(
-                                            onPressed: () async =>
-                                                await db.deleteClient(
-                                                    clientId:
-                                                        widget.client.uid),
+                                            onPressed: () async {
+                                              await db.deleteClient(
+                                                  clientId: widget.client.uid);
+                                              Navigator.pop(context);
+                                              Navigator.pop(context);
+                                            },
                                             child: const Text(
                                               'Yes',
                                               style: textStyle3,
