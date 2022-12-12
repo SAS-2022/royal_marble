@@ -39,7 +39,7 @@ class _UserDetailsState extends State<UserDetails> {
   bool _imageRequested = false;
   ImageSource _imageSource;
   List<dynamic> currentRoles = [
-    'Worker',
+    'Mason',
     'Supervisor',
     'Site Engineer',
     'Sales',
@@ -67,7 +67,7 @@ class _UserDetailsState extends State<UserDetails> {
           widget.currentUser.roles.isNotEmpty) {
         switch (widget.currentUser.roles.first.toString()) {
           case 'isNormalUser':
-            selectedRoles = 'Worker';
+            selectedRoles = 'Mason';
             break;
           case 'isSupervisor':
             selectedRoles = 'Supervisor';

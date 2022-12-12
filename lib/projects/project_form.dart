@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:royal_marble/models/business_model.dart';
+import 'package:royal_marble/projects/work_completed.dart';
 import 'package:royal_marble/shared/calculate_distance.dart';
 import 'package:royal_marble/shared/constants.dart';
 import 'package:royal_marble/shared/loading.dart';
@@ -1325,6 +1326,7 @@ class _ProjectFormState extends State<ProjectForm> {
 
   //will allow the working to checkin or checkout
   Future<void> checkInOut(var data) async {
+    Map<String, dynamic> completedWork = {};
     geo.Position userLocation = await geo.Geolocator.getCurrentPosition(
         desiredAccuracy: geo.LocationAccuracy.high);
 
@@ -1336,64 +1338,83 @@ class _ProjectFormState extends State<ProjectForm> {
         var timeSheetUpdated;
         //check if field is available
         var todayTimeSheet = data.data;
-
-        if (todayTimeSheet['data'] != null) {
-          if (todayTimeSheet['data'][widget.currentUser.uid] != null) {
-            if (_isAtSite) {
-              timeSheetUpdated = await db.updateWorkerTimeSheet(
+        //Code will execute for isNormalUser only when trying to check out
+        if (!_isAtSite && widget.currentUser.roles.contains('isNormalUser')) {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => WorkCompleted(
                   isAtSite: _isAtSite,
                   currentUser: widget.currentUser,
-                  userRole: widget.currentUser.roles.first,
+                  timeSheetId: '${result.day}-${result.month}-${result.year}',
                   selectedProject: widget.selectedProject,
-                  today: '${result.day}-${result.month}-${result.year}',
-                  checkOut: todayTimeSheet['data'][widget.currentUser.uid]
-                      ['leaving_at'],
-                  checkIn: result.toString());
-            } else {
-              timeSheetUpdated = await db.updateWorkerTimeSheet(
-                  isAtSite: _isAtSite,
-                  currentUser: widget.currentUser,
-                  selectedProject: widget.selectedProject,
-                  userRole: widget.currentUser.roles.first,
-                  today: '${result.day}-${result.month}-${result.year}',
                   checkIn: todayTimeSheet['data'][widget.currentUser.uid]
                       ['arriving_at'],
-                  checkOut: result.toString());
+                  checkOut: result.toString()),
+            ),
+          );
+        } else {
+          //code will execute for all user including isNormalUser to check it, and for all users excluding isNormalUser to checkout
+          if (todayTimeSheet['data'] != null) {
+            if (todayTimeSheet['data'][widget.currentUser.uid] != null) {
+              if (_isAtSite) {
+                timeSheetUpdated = await db.updateWorkerTimeSheet(
+                    isAtSite: _isAtSite,
+                    currentUser: widget.currentUser,
+                    userRole: widget.currentUser.roles.first,
+                    selectedProject: widget.selectedProject,
+                    today: '${result.day}-${result.month}-${result.year}',
+                    checkOut: todayTimeSheet['data'][widget.currentUser.uid]
+                        ['leaving_at'],
+                    checkIn: result.toString());
+              } else {
+                timeSheetUpdated = await db.updateWorkerTimeSheet(
+                    isAtSite: _isAtSite,
+                    currentUser: widget.currentUser,
+                    selectedProject: widget.selectedProject,
+                    userRole: widget.currentUser.roles.first,
+                    today: '${result.day}-${result.month}-${result.year}',
+                    checkIn: todayTimeSheet['data'][widget.currentUser.uid]
+                        ['arriving_at'],
+                    checkOut: result.toString());
+              }
+            } else {
+              //set the data base with the required information
+              timeSheetUpdated = await db.updateWorkerTimeSheet(
+                isAtSite: _isAtSite,
+                currentUser: widget.currentUser,
+                selectedProject: widget.selectedProject,
+                userRole: widget.currentUser.roles.first,
+                today: '${result.day}-${result.month}-${result.year}',
+                checkIn: result.toString(),
+              );
             }
           } else {
             //set the data base with the required information
-            timeSheetUpdated = await db.updateWorkerTimeSheet(
-              isAtSite: _isAtSite,
-              currentUser: widget.currentUser,
-              selectedProject: widget.selectedProject,
-              userRole: widget.currentUser.roles.first,
-              today: '${result.day}-${result.month}-${result.year}',
-              checkIn: result.toString(),
-            );
-          }
-        } else {
-          //set the data base with the required information
-          if (_isAtSite) {
-            timeSheetUpdated = await db.setWorkerTimeSheet(
-                userRole: widget.currentUser.roles.first,
-                isAtSite: _isAtSite,
-                currentUser: widget.currentUser,
-                selectedProject: widget.selectedProject,
-                today: '${result.day}-${result.month}-${result.year}',
-                checkIn: result.toString());
-          } else {
-            timeSheetUpdated = await db.setWorkerTimeSheet(
-                userRole: widget.currentUser.roles.first,
-                isAtSite: _isAtSite,
-                currentUser: widget.currentUser,
-                selectedProject: widget.selectedProject,
-                today: '${result.day}-${result.month}-${result.year}',
-                checkOut: result.toString());
+            if (_isAtSite) {
+              timeSheetUpdated = await db.setWorkerTimeSheet(
+                  userRole: widget.currentUser.roles.first,
+                  isAtSite: _isAtSite,
+                  currentUser: widget.currentUser,
+                  selectedProject: widget.selectedProject,
+                  today: '${result.day}-${result.month}-${result.year}',
+                  checkIn: result.toString());
+            } else {
+              timeSheetUpdated = await db.setWorkerTimeSheet(
+                  userRole: widget.currentUser.roles.first,
+                  isAtSite: _isAtSite,
+                  currentUser: widget.currentUser,
+                  selectedProject: widget.selectedProject,
+                  today: '${result.day}-${result.month}-${result.year}',
+                  checkOut: result.toString());
+            }
           }
         }
       }
     }
   }
+
+  Future<Map<String, dynamic>> _completedWork() async {}
 
   Future checkCurrentUserStatus() async {
     String currentDate =

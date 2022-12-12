@@ -2,10 +2,8 @@ import 'package:permission_handler/permission_handler.dart' as ph;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
-import 'package:location/location.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/models/directions.dart';
-import 'package:royal_marble/sales_pipeline/visit_forms.dart/visit_form_one.dart';
 import 'package:sentry/sentry.dart' as sentry;
 import '../models/user_model.dart';
 
@@ -831,6 +829,8 @@ class DatabaseService {
     bool isAtSite,
     String checkIn,
     String checkOut,
+    String workType,
+    double squareMeters,
   }) async {
     try {
       return await timeSheetCollection.doc(today).update({
@@ -842,7 +842,33 @@ class DatabaseService {
           'arriving_at': checkIn,
           'leaving_at': checkOut,
           'isOnSite': isAtSite,
-          'roles': userRole
+          'roles': userRole,
+          'workCompleted': {
+            'workType': workType,
+            'sqaureMeters': squareMeters,
+          }
+        }
+      }).then((value) => 'time sheet updated');
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return 'Error updating: $e';
+    }
+  }
+
+  //Add the mason's work to the time sheet
+  Future<String> updateMasonWork({
+    UserData currentUser,
+    String today,
+    String workType,
+    double sqaureMeters,
+  }) async {
+    try {
+      return await timeSheetCollection.doc(today).update({
+        currentUser.uid: {
+          'completedWork': {
+            'workType': workType,
+            'sqaureMetere': sqaureMeters,
+          }
         }
       }).then((value) => 'time sheet updated');
     } catch (e, stackTrace) {
