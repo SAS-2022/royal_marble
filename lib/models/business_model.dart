@@ -120,4 +120,9 @@ class ProjectVisitDetails {
   }
 }
 
-class TimeSheet {}
+class TimeSheet {
+  Map<String, dynamic> userData;
+  TimeSheet({
+    this.userData,
+  });
+}

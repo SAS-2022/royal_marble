@@ -19,11 +19,13 @@ class _WrapperState extends State<Wrapper> {
   bool _isUserVerified = false;
   DatabaseService db = DatabaseService();
   String message;
-
+  String today;
   @override
   void initState() {
     super.initState();
     _checkIfUserVerified();
+    today =
+        '${DateTime.now().day}-${DateTime.now().month}-${DateTime.now().year}';
   }
 
   @override
@@ -54,6 +56,14 @@ class _WrapperState extends State<Wrapper> {
               value: db.getAllUsers(),
               initialData: [],
               catchError: (context, err) => [UserData(error: err)]),
+          StreamProvider<Map<String, dynamic>>.value(
+            value: db.getTimeSheetData(uid: today),
+            initialData: null,
+            catchError: (context, err) {
+              print('Error obtaining time sheet');
+              return null;
+            },
+          )
         ],
         child: const HomeScreen(),
       );

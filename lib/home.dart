@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:permission_handler/permission_handler.dart' as ph;
 import 'package:provider/provider.dart';
@@ -22,6 +23,7 @@ import 'package:flutter_background_geolocation/flutter_background_geolocation.da
 import 'package:royal_marble/shared/loading.dart';
 import 'package:royal_marble/shared/snack_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timer_builder/timer_builder.dart';
 
 JsonEncoder encoder = const JsonEncoder.withIndent("     ");
 
@@ -38,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
   SnackBarWidget _snackBarWidget = SnackBarWidget();
   SharedPreferences _pref;
   UserData userProvider;
+  Map<String, dynamic> timeSheetProvider;
   List<ProjectData> allProjectProvider = [];
   Future assignedProject;
   final Completer<GoogleMapController> _googleMapController = Completer();
@@ -92,6 +95,26 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  String getSystemTime() {
+    var now = DateTime.now();
+    DateTime startingTime;
+    var difference = 'Good Morning';
+    if (timeSheetProvider != null &&
+        timeSheetProvider.containsKey(userProvider.uid)) {
+      if (timeSheetProvider[userProvider.uid]['arriving_at'] != null &&
+          timeSheetProvider[userProvider.uid]['leaving_at'] == null) {
+        startingTime =
+            DateTime.parse(timeSheetProvider[userProvider.uid]['arriving_at']);
+
+        difference = now.difference(startingTime).toString().split('.')[0];
+        // print('the start time: $diff');
+      } else if (timeSheetProvider[userProvider.uid]['leaving_at'] != null) {
+        difference = 'Have A Nice Day';
+      }
+    }
+    return difference;
+  }
+
   //platform massages are asynchrones so we initialize in an async method
   Future<void> initPlatformState() async {
     _pref = await SharedPreferences.getInstance();
@@ -131,6 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
     userProvider = Provider.of<UserData>(context);
     allUsers = Provider.of<List<UserData>>(context);
     allProjectProvider = Provider.of<List<ProjectData>>(context);
+    timeSheetProvider = Provider.of<Map<String, dynamic>>(context);
     _size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
@@ -629,6 +653,26 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: 15,
                       thickness: 3,
                     ),
+                    //Timer for when work starts
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20, left: 15),
+                      child: Container(
+                        height: _size.height / 6,
+                        decoration: BoxDecoration(
+                            border: Border.all(),
+                            borderRadius: BorderRadius.circular(20)),
+                        child: Center(
+                          child: TimerBuilder.periodic(
+                              const Duration(seconds: 1), builder: (context) {
+                            return Text(
+                              getSystemTime(),
+                              style: timerTextStyle,
+                            );
+                          }),
+                        ),
+                      ),
+                    ),
+
                     //Messages from Admin
                     Padding(
                       padding: const EdgeInsets.only(top: 20, left: 15),
@@ -870,8 +914,6 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     }
-
-    print('the distance from the assigned project: $distance');
   }
 
   void detectMotion() async {

@@ -913,6 +913,18 @@ class DatabaseService {
     }
   }
 
+  Stream<Map<String, dynamic>> getTimeSheetData({String uid}) {
+    return timeSheetCollection
+        .doc(uid)
+        .snapshots()
+        .map(_timeSheetDataFromSnapshot);
+  }
+
+  Map<String, dynamic> _timeSheetDataFromSnapshot(DocumentSnapshot snapshot) {
+    var data = snapshot.data() as Map<String, dynamic>;
+    return data;
+  }
+
   //sales user pipeline
   //add a sales visit
   Future<String> addNewSalesVisit(
