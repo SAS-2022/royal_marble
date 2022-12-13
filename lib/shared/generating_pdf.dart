@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -10,7 +11,15 @@ Future<Uint8List> generateReport(
   PdfPageFormat pdfPageFormat,
   List<dynamic> data,
 ) async {
-  const tableHead = ['Name', 'Arrived', 'Left', 'Project', 'Total Hours'];
+  const tableHead = [
+    'Name',
+    'Arrived',
+    'Left',
+    'Project',
+    'Total Hours',
+    'Work Type',
+    'Meters'
+  ];
   Map<String, List<Map>> days = {};
   Map<String, List<Map<dynamic, dynamic>>> userTimeTable = {};
 
@@ -41,7 +50,9 @@ Future<Uint8List> generateReport(
           'arrived': DateFormat('hh:mm a').format(arrived),
           'left': DateFormat('hh:mm a').format(left),
           'project': data[index]['projectName'],
-          'totalHours': '$totalHours:$totalMin'
+          'totalHours': '$totalHours:$totalMin',
+          'workType': '${data[index]['workType']}',
+          'meters': '${data[index]['squareMeters']}',
         });
       }
       //will add a day if it doesn't exist in the map
@@ -54,7 +65,9 @@ Future<Uint8List> generateReport(
                   'arrived': DateFormat('hh:mm a').format(arrived),
                   'left': DateFormat('hh:mm a').format(left),
                   'project': data[index]['projectName'],
-                  'totalHours': '$totalHours:$totalMin'
+                  'totalHours': '$totalHours:$totalMin',
+                  'workType': '${data[index]['workType']}',
+                  'meters': '${data[index]['squareMeters']}',
                 }
               ]);
     }
@@ -62,62 +75,17 @@ Future<Uint8List> generateReport(
   }
 
   userTimeTable = await generateTableDate();
+  Map<int, pw.TableColumnWidth> widths = {};
 
-  final chart1 = pw.Chart(
-    left: pw.Container(
-      alignment: pw.Alignment.topCenter,
-      margin: const pw.EdgeInsets.all(10),
-      child: pw.Transform.rotateBox(
-        angle: pi / 2,
-        child: pw.Text('Hours'),
-      ),
-    ),
-    grid: pw.CartesianGrid(
-        yAxis: pw.FixedAxis(
-          [
-            1,
-            5,
-            10,
-            20,
-            25,
-          ],
-          marginStart: 30,
-          marginEnd: 30,
-          ticks: true,
-        ),
-        xAxis: pw.FixedAxis.fromStrings(
-          List.generate(data.length, (index) {
-            return '${data[index]['firstName']} ${data[index]['lastName']}';
-          }),
-          marginStart: 20,
-          marginEnd: 20,
-          ticks: true,
-        )),
-    datasets: [
-      pw.BarDataSet(
-        color: PdfColors.blue200,
-        legend: tableHead[0],
-        width: 15,
-        offset: 0,
-        borderColor: baseColor,
-        data: List<pw.PointChartValue>.generate(
-          data.length,
-          (index) {
-            var arrived = data[index]['arrivedAt'] != null
-                ? DateTime.parse(data[index]['arrivedAt'])
-                : null;
-            var left = data[index]['leftAt'] != null
-                ? DateTime.parse(data[index]['leftAt'])
-                : null;
-            var diff = left.difference(arrived);
-            var totalHours = diff.inHours;
-
-            return pw.PointChartValue(index.toDouble(), totalHours.toDouble());
-          },
-        ),
-      ),
-    ],
-  );
+  widths = {
+    0: const pw.FractionColumnWidth(0.5),
+    1: const pw.FractionColumnWidth(0.1),
+    2: const pw.FractionColumnWidth(0.1),
+    3: const pw.FractionColumnWidth(0.15),
+    4: const pw.FractionColumnWidth(0.1),
+    5: const pw.FractionColumnWidth(0.15),
+    6: const pw.FractionColumnWidth(0.1),
+  };
 
   List<pw.Table> table = [];
   List.generate(userTimeTable.length, (index) {
@@ -129,6 +97,7 @@ Future<Uint8List> generateReport(
         data: [
           [key]
         ],
+        columnWidths: widths,
         headerStyle: pw.TextStyle(
             color: PdfColors.white, fontWeight: pw.FontWeight.bold),
         headerDecoration: const pw.BoxDecoration(color: PdfColors.amber700),
@@ -154,7 +123,9 @@ Future<Uint8List> generateReport(
               userTimeTable[key][i]['arrived'],
               userTimeTable[key][i]['left'],
               userTimeTable[key][i]['project'],
-              userTimeTable[key][i]['totalHours']
+              userTimeTable[key][i]['totalHours'],
+              userTimeTable[key][i]['workType'],
+              userTimeTable[key][i]['meters']
             ];
             //print('the list $list');
             return list;

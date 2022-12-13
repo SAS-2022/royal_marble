@@ -165,30 +165,30 @@ class _ReportTypeListState extends State<ReportTypeList> {
                     const SizedBox(
                       height: 25,
                     ),
-                    //All Together
-                    GestureDetector(
-                      child: Container(
-                        decoration: BoxDecoration(
-                            boxShadow: const [
-                              BoxShadow(
-                                  color: Colors.black,
-                                  offset: Offset(-2, 2),
-                                  spreadRadius: 1)
-                            ],
-                            color: const Color.fromARGB(255, 181, 160, 130),
-                            border: Border.all(),
-                            borderRadius: BorderRadius.circular(15)),
-                        width: _size.width - 10,
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 15, vertical: 10),
-                          child: Text(
-                            'All Together',
-                            style: textStyle3,
-                          ),
-                        ),
-                      ),
-                    ),
+                    // //All Together
+                    // GestureDetector(
+                    //   child: Container(
+                    //     decoration: BoxDecoration(
+                    //         boxShadow: const [
+                    //           BoxShadow(
+                    //               color: Colors.black,
+                    //               offset: Offset(-2, 2),
+                    //               spreadRadius: 1)
+                    //         ],
+                    //         color: const Color.fromARGB(255, 181, 160, 130),
+                    //         border: Border.all(),
+                    //         borderRadius: BorderRadius.circular(15)),
+                    //     width: _size.width - 10,
+                    //     child: const Padding(
+                    //       padding: EdgeInsets.symmetric(
+                    //           horizontal: 15, vertical: 10),
+                    //       child: Text(
+                    //         'All Together',
+                    //         style: textStyle3,
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                   ])
             : Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -204,6 +204,18 @@ class _ReportTypeListState extends State<ReportTypeList> {
                     ),
                     //Sales Team
                     GestureDetector(
+                      onTap: () {
+                        showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                                  content: DatePicker(
+                                    reportType: 'salesReport',
+                                    bulkUsers: userProvider,
+                                    currentUser: widget.currentUser,
+                                    reportSection: 'isSales',
+                                  ),
+                                ));
+                      },
                       child: Container(
                         decoration: BoxDecoration(
                             boxShadow: const [

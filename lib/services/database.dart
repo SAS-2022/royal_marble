@@ -1094,6 +1094,66 @@ class DatabaseService {
     });
   }
 
+  //read client visits in a future with a date range
+  Future<List<ClientVisitDetails>> getTimeRangedClientVisitsFuture(
+      {String userId, DateTime fromDate, DateTime toDate}) async {
+    try {
+      return await userCollection
+          .doc(userId)
+          .collection('clientVisits')
+          .where('visitTime', isGreaterThanOrEqualTo: fromDate)
+          .where('visitTime', isLessThanOrEqualTo: toDate)
+          .get()
+          .then((value) {
+        return value.docs.map((e) {
+          return ClientVisitDetails(
+            uid: e.id,
+            clientId: e.data()['clientId'],
+            clientName: e.data()['clientName'],
+            contactPerson: e.data()['contactPerson'],
+            visitPurpose: e.data()['visitPurpose'],
+            visitDetails: e.data()['visitDetails'],
+            visitTime: e.data()['visitTime'],
+          );
+        }).toList();
+      });
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return [ClientVisitDetails(error: e)];
+    }
+  }
+
+  //read project visits in a future date range
+  Future<List<ProjectVisitDetails>> getTimeRangedProjectVisitsFuture(
+      {String userId, DateTime fromDate, DateTime toDate}) async {
+    try {
+      return await userCollection
+          .doc(userId)
+          .collection('projectVisits')
+          .get()
+          .then((value) {
+        return value.docs.map((e) {
+          if (fromDate.isBefore(e['visitTime'].toDate()) &&
+              toDate.isAfter(e['visitTime'].toDate())) {
+            return ProjectVisitDetails(
+                uid: e.id,
+                projectId: e['uid'],
+                projectName: e['name'],
+                contactPerson: e['contact'],
+                visitDetails: e['visitDetails'],
+                visitPurpose: e['visitPurpose'],
+                userId: e['userId'],
+                managerComments: e['managerComments'],
+                visitTime: e['visitTime']);
+          }
+        }).toList();
+      });
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return [ProjectVisitDetails(error: e)];
+    }
+  }
+
   //read a sales visit
   Future<List<ClientVisitDetails>> getSalesVisitDetails({String userId}) async {
     try {

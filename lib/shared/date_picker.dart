@@ -63,6 +63,19 @@ class _DatePickerState extends State<DatePicker> {
                               reportSection: widget.reportSection,
                             )));
                 break;
+              case 'salesReport':
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => ReportDetails(
+                              bulkUsers: widget.bulkUsers,
+                              currentUser: widget.currentUser,
+                              reportType: widget.reportType,
+                              fromDate: startDate,
+                              toDate: endDate,
+                              reportSection: widget.reportSection,
+                            )));
+                break;
             }
           }),
           onCancel: () => Navigator.pop(context),
