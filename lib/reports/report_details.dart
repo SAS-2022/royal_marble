@@ -309,7 +309,8 @@ class _ReportDetailsState extends State<ReportDetails> {
                           borderRadius: BorderRadius.circular(10)),
                       height: _size.height / 2,
                       child: FutureBuilder(
-                          future: _getSalesVisits(),
+                          future: _getSalesVisits(
+                              userId: widget.bulkUsers[index].uid),
                           builder: (context, snapshot) {
                             if (snapshot.hasData) {
                               print('the snapshot: ${snapshot.data}');
@@ -425,7 +426,6 @@ class _ReportDetailsState extends State<ReportDetails> {
     projectVisits = await db.getTimeRangedProjectVisitsFuture(
         userId: userId, fromDate: widget.fromDate, toDate: widget.toDate);
 
-    print('the client Visits: $clientVisits');
-    print('the project visits: $projectVisits');
+    Map<String, List<dynamic>> visits = {};
   }
 }
