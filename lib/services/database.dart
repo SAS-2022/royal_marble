@@ -232,6 +232,21 @@ class DatabaseService {
           'uuid': value.data()['location']['uuid'],
           'lat': value.data()['location']['coords']['latitude'],
           'lng': value.data()['location']['coords']['longitude'],
+          'speed': value.data()['location']['coords']['speed'] ?? '',
+          'activity': value.data()['location']['activity']['type'] ?? '',
+          'charging': value.data()['location']['battery']['is_charging'] ?? '',
+          'battery': value.data()['location']['battery']['level'] ?? '',
+          'isMoving': value.data()['location']['is_moving'] ?? '',
+          'enabled': value.data()['location']['provider'] != null
+              ? value.data()['location']['provider']['enabled']
+              : '',
+          'network': value.data()['location']['provider'] != null
+              ? value.data()['location']['provider']['network']
+              : '',
+          'gps': value.data()['location']['provider'] != null
+              ? value.data()['location']['provider']['gps']
+              : '',
+          'time': value.data()['location']['timestamp'] ?? ''
         };
       } else {
         return {};
@@ -1108,9 +1123,9 @@ class DatabaseService {
         return value.docs.map((e) {
           return ClientVisitDetails(
             uid: e.id,
-            clientId: e.data()['clientId'],
-            clientName: e.data()['clientName'],
-            contactPerson: e.data()['contactPerson'],
+            clientId: e.data()['uid'],
+            clientName: e.data()['name'],
+            contactPerson: e.data()['contact'],
             visitPurpose: e.data()['visitPurpose'],
             visitDetails: e.data()['visitDetails'],
             visitTime: e.data()['visitTime'],
@@ -1130,26 +1145,26 @@ class DatabaseService {
       return await userCollection
           .doc(userId)
           .collection('projectVisits')
+          .where('visitTime', isGreaterThanOrEqualTo: fromDate)
+          .where('visitTime', isLessThanOrEqualTo: toDate)
           .get()
           .then((value) {
         return value.docs.map((e) {
-          if (fromDate.isBefore(e['visitTime'].toDate()) &&
-              toDate.isAfter(e['visitTime'].toDate())) {
-            return ProjectVisitDetails(
-                uid: e.id,
-                projectId: e['uid'],
-                projectName: e['name'],
-                contactPerson: e['contact'],
-                visitDetails: e['visitDetails'],
-                visitPurpose: e['visitPurpose'],
-                userId: e['userId'],
-                managerComments: e['managerComments'],
-                visitTime: e['visitTime']);
-          }
+          return ProjectVisitDetails(
+              uid: e.id,
+              projectId: e['uid'],
+              projectName: e['name'],
+              contactPerson: e['contact'],
+              visitDetails: e['visitDetails'],
+              visitPurpose: e['visitPurpose'],
+              userId: e['userId'],
+              // managerComments: e['managerComments'] ?? '',
+              visitTime: e['visitTime']);
         }).toList();
       });
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+
       return [ProjectVisitDetails(error: e)];
     }
   }

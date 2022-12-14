@@ -298,6 +298,7 @@ class _ReportDetailsState extends State<ReportDetails> {
         child: SizedBox(
           height: _size.height,
           child: ListView.builder(
+              physics: NeverScrollableScrollPhysics(),
               itemCount: widget.bulkUsers.length,
               itemBuilder: (context, index) {
                 return Padding(
@@ -313,92 +314,206 @@ class _ReportDetailsState extends State<ReportDetails> {
                               userId: widget.bulkUsers[index].uid),
                           builder: (context, snapshot) {
                             if (snapshot.hasData) {
-                              print('the snapshot: ${snapshot.data}');
+                              return Column(
+                                children: [
+                                  //Name
+                                  Row(
+                                    children: [
+                                      const Expanded(
+                                        flex: 2,
+                                        child: Text(
+                                          'Name',
+                                          style: textStyle3,
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 3,
+                                        child: Text(
+                                          '${widget.bulkUsers[index].firstName} ${widget.bulkUsers[index].lastName}',
+                                          style: textStyle12,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  //Days worked
+                                  Row(
+                                    children: [
+                                      const Expanded(
+                                        flex: 2,
+                                        child: Text(
+                                          'Working Day',
+                                          style: textStyle3,
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 3,
+                                        child: Text(
+                                          '',
+                                          style: textStyle12,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: _size.height / 5,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          flex: 2,
+                                          child: Row(
+                                            children: [
+                                              const Expanded(
+                                                flex: 2,
+                                                child: Text(
+                                                  'Projects Visited: ',
+                                                  style: textStyle3,
+                                                ),
+                                              ),
+                                              Expanded(
+                                                flex: 3,
+                                                child: Text(
+                                                    '${snapshot.data['projectVisits'].length}'),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 3,
+                                          child: SizedBox(
+                                            width: _size.width - 20,
+                                            child: ListView.builder(
+                                                scrollDirection:
+                                                    Axis.horizontal,
+                                                itemCount: snapshot
+                                                    .data['projectVisits']
+                                                    .length,
+                                                itemBuilder: (context, index) {
+                                                  return Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            5.0),
+                                                    child: Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              10),
+                                                      decoration: BoxDecoration(
+                                                          border: Border.all(),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      15)),
+                                                      child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Text(
+                                                            '${snapshot.data['projectVisits'][index] != null ? snapshot.data['projectVisits'][index].projectName : ''}',
+                                                            style: textStyle12,
+                                                          ),
+                                                          Text(
+                                                            '${snapshot.data['projectVisits'][index] != null ? snapshot.data['projectVisits'][index].visitPurpose : ''}',
+                                                            style: textStyle12,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  );
+                                                }),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: _size.height / 5,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          flex: 2,
+                                          child: Row(
+                                            children: [
+                                              const Expanded(
+                                                flex: 2,
+                                                child: Text(
+                                                  'Client Visited: ',
+                                                  style: textStyle3,
+                                                ),
+                                              ),
+                                              Expanded(
+                                                flex: 3,
+                                                child: Text(
+                                                    '${snapshot.data['clientVisits'].length}'),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 3,
+                                          child: SizedBox(
+                                            width: _size.width - 20,
+                                            child: ListView.builder(
+                                                scrollDirection:
+                                                    Axis.horizontal,
+                                                itemCount: snapshot
+                                                    .data['clientVisits']
+                                                    .length,
+                                                itemBuilder: (context, index) {
+                                                  return Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            5.0),
+                                                    child: Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              10),
+                                                      decoration: BoxDecoration(
+                                                          border: Border.all(),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      15)),
+                                                      child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Text(
+                                                            '${snapshot.data['clientVisits'][index].clientName}',
+                                                            style: textStyle12,
+                                                          ),
+                                                          Text(
+                                                            '${snapshot.data['clientVisits'][index].visitPurpose}',
+                                                            style: textStyle12,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  );
+                                                }),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              );
+                            } else {
+                              return const Center(
+                                child: Text(
+                                  'No Visits were found!',
+                                  style: textStyle2,
+                                ),
+                              );
                             }
-                            return Column(
-                              children: [
-                                //Name
-                                Row(
-                                  children: [
-                                    const Expanded(
-                                      flex: 2,
-                                      child: Text(
-                                        'Name',
-                                        style: textStyle3,
-                                      ),
-                                    ),
-                                    Expanded(
-                                      flex: 3,
-                                      child: Text(
-                                        '${widget.bulkUsers[index].firstName} ${widget.bulkUsers[index].lastName}',
-                                        style: textStyle12,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                                //Days worked
-                                Row(
-                                  children: [
-                                    const Expanded(
-                                      flex: 2,
-                                      child: Text(
-                                        'Working Day',
-                                        style: textStyle3,
-                                      ),
-                                    ),
-                                    Expanded(
-                                      flex: 3,
-                                      child: Text(
-                                        '',
-                                        style: textStyle12,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: _size.height / 5,
-                                  child: Row(
-                                    children: [
-                                      const Expanded(
-                                        flex: 2,
-                                        child: Text(
-                                          'Projects Visited',
-                                          style: textStyle3,
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 3,
-                                        child: Text(
-                                          '',
-                                          style: textStyle12,
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: _size.height / 5,
-                                  child: Row(
-                                    children: [
-                                      const Expanded(
-                                        flex: 2,
-                                        child: Text(
-                                          'Clients Visited',
-                                          style: textStyle3,
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 3,
-                                        child: Text(
-                                          '',
-                                          style: textStyle12,
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            );
                           })),
                 );
               }),
@@ -426,6 +541,10 @@ class _ReportDetailsState extends State<ReportDetails> {
     projectVisits = await db.getTimeRangedProjectVisitsFuture(
         userId: userId, fromDate: widget.fromDate, toDate: widget.toDate);
 
-    Map<String, List<dynamic>> visits = {};
+    Map<String, List<dynamic>> visits = {
+      'clientVisits': clientVisits,
+      'projectVisits': projectVisits,
+    };
+    return visits;
   }
 }

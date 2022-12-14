@@ -341,7 +341,25 @@ class _ShowMapState extends State<ShowMap> {
               infoWindow: InfoWindow(
                   title: '${userData.firstName} ${userData.lastName}',
                   snippet: userData.phoneNumber,
-                  onTap: () {}),
+                  onTap: () {
+                    showDialog(
+                        context: context,
+                        builder: (_) {
+                          StringBuffer userDetails = StringBuffer();
+                          userDetails.write(
+                              'Name: ${userData.firstName} ${userData.lastName}\n');
+                          futureLocation.forEach((key, value) {
+                            userDetails.write('$key: $value\n');
+                          });
+                          return AlertDialog(
+                            title: const Text('Details'),
+                            content: SizedBox(
+                              height: _size.height / 3,
+                              child: Text(userDetails.toString()),
+                            ),
+                          );
+                        });
+                  }),
             ));
 
     if (clientMarkers.isNotEmpty) {
@@ -355,25 +373,6 @@ class _ShowMapState extends State<ShowMap> {
 
     return userMarkers;
   }
-
-  //will get the user image
-  // Future<Uint8List> getImages(String urlPath, int width) async {
-  //   print('the byte data:$urlPath');
-  //   final File markerImageFile =
-  //       await DefaultCacheManager().getSingleFile(urlPath);
-
-  //   final Uint8List markerImageBytes = await markerImageFile.readAsBytes();
-
-  //   final ui.Codec codec =
-  //       await ui.instantiateImageCodec(markerImageBytes, targetHeight: width);
-
-  //   final ui.FrameInfo info = await codec.getNextFrame();
-
-  //   final ByteData byteData =
-  //       await info.image.toByteData(format: ui.ImageByteFormat.png);
-
-  //   return byteData.buffer.asUint8List();
-  // }
 
   void _updateCurrentMarkers() async {
     Map<String, Marker> updatedMarker = {};
@@ -391,7 +390,26 @@ class _ShowMapState extends State<ShowMap> {
                   infoWindow: InfoWindow(
                       title: '${user.firstName} ${user.lastName}',
                       snippet: user.phoneNumber,
-                      onTap: () {}),
+                      onTap: () {
+                        showDialog(
+                            context: context,
+                            builder: (_) {
+                              StringBuffer userDetails = StringBuffer();
+                              userDetails.write(
+                                  'Name: ${user.firstName} ${user.lastName}\n');
+                              futureLocation.forEach((key, value) {
+                                userDetails.write('$key: $value\n');
+                              });
+
+                              return AlertDialog(
+                                title: const Text('Details'),
+                                content: SizedBox(
+                                  height: _size.height / 3,
+                                  child: Text(userDetails.toString()),
+                                ),
+                              );
+                            });
+                      }),
                 ));
       }
 
