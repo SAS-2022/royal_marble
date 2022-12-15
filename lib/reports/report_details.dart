@@ -293,19 +293,27 @@ class _ReportDetailsState extends State<ReportDetails> {
   //build sales report details
   Widget _buildSalesReportDetails() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 25),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
       child: SingleChildScrollView(
         child: SizedBox(
           height: _size.height,
           child: ListView.builder(
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               itemCount: widget.bulkUsers.length,
               itemBuilder: (context, index) {
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(15),
                   child: Container(
-                      padding: const EdgeInsets.all(15),
+                      padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
+                          boxShadow: const [
+                            BoxShadow(
+                                color: Colors.black87,
+                                offset: Offset(-2, 4),
+                                spreadRadius: 2,
+                                blurStyle: BlurStyle.normal)
+                          ],
+                          color: const Color.fromARGB(255, 196, 196, 196),
                           border: Border.all(color: Colors.grey[300]),
                           borderRadius: BorderRadius.circular(10)),
                       height: _size.height / 2,
@@ -341,14 +349,14 @@ class _ReportDetailsState extends State<ReportDetails> {
                                       const Expanded(
                                         flex: 2,
                                         child: Text(
-                                          'Working Day',
+                                          'Working Days',
                                           style: textStyle3,
                                         ),
                                       ),
                                       Expanded(
                                         flex: 3,
                                         child: Text(
-                                          '',
+                                          '${snapshot.data['workingDays'].length}',
                                           style: textStyle12,
                                         ),
                                       )
@@ -396,30 +404,44 @@ class _ReportDetailsState extends State<ReportDetails> {
                                                     padding:
                                                         const EdgeInsets.all(
                                                             5.0),
-                                                    child: Container(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              10),
-                                                      decoration: BoxDecoration(
-                                                          border: Border.all(),
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                      15)),
-                                                      child: Column(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Text(
-                                                            '${snapshot.data['projectVisits'][index] != null ? snapshot.data['projectVisits'][index].projectName : ''}',
-                                                            style: textStyle12,
-                                                          ),
-                                                          Text(
-                                                            '${snapshot.data['projectVisits'][index] != null ? snapshot.data['projectVisits'][index].visitPurpose : ''}',
-                                                            style: textStyle12,
-                                                          ),
-                                                        ],
+                                                    child: Card(
+                                                      elevation: 3,
+                                                      shadowColor: Colors.grey,
+                                                      color:
+                                                          const Color.fromARGB(
+                                                              255,
+                                                              131,
+                                                              197,
+                                                              194),
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(25),
+                                                      ),
+                                                      child: Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .symmetric(
+                                                                horizontal: 10),
+                                                        width: _size.width / 3,
+                                                        child: Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            Text(
+                                                              '${snapshot.data['projectVisits'][index] != null ? snapshot.data['projectVisits'][index].projectName : ''}',
+                                                              style:
+                                                                  textStyle12,
+                                                            ),
+                                                            Text(
+                                                              '${snapshot.data['projectVisits'][index] != null ? snapshot.data['projectVisits'][index].visitPurpose : ''}',
+                                                              style:
+                                                                  textStyle12,
+                                                            ),
+                                                          ],
+                                                        ),
                                                       ),
                                                     ),
                                                   );
@@ -444,7 +466,7 @@ class _ReportDetailsState extends State<ReportDetails> {
                                               const Expanded(
                                                 flex: 2,
                                                 child: Text(
-                                                  'Client Visited: ',
+                                                  'Clients Visited: ',
                                                   style: textStyle3,
                                                 ),
                                               ),
@@ -471,30 +493,44 @@ class _ReportDetailsState extends State<ReportDetails> {
                                                     padding:
                                                         const EdgeInsets.all(
                                                             5.0),
-                                                    child: Container(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              10),
-                                                      decoration: BoxDecoration(
-                                                          border: Border.all(),
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                      15)),
-                                                      child: Column(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Text(
-                                                            '${snapshot.data['clientVisits'][index].clientName}',
-                                                            style: textStyle12,
-                                                          ),
-                                                          Text(
-                                                            '${snapshot.data['clientVisits'][index].visitPurpose}',
-                                                            style: textStyle12,
-                                                          ),
-                                                        ],
+                                                    child: Card(
+                                                      elevation: 3,
+                                                      shadowColor: Colors.grey,
+                                                      color:
+                                                          const Color.fromARGB(
+                                                              255,
+                                                              204,
+                                                              202,
+                                                              243),
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(25),
+                                                      ),
+                                                      child: Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .symmetric(
+                                                                horizontal: 10),
+                                                        width: _size.width / 3,
+                                                        child: Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            Text(
+                                                              '${snapshot.data['clientVisits'][index].clientName}',
+                                                              style:
+                                                                  textStyle12,
+                                                            ),
+                                                            Text(
+                                                              '${snapshot.data['clientVisits'][index].visitPurpose}',
+                                                              style:
+                                                                  textStyle12,
+                                                            ),
+                                                          ],
+                                                        ),
                                                       ),
                                                     ),
                                                   );
@@ -533,6 +569,7 @@ class _ReportDetailsState extends State<ReportDetails> {
   Future _getSalesVisits({String userId}) async {
     List<ClientVisitDetails> clientVisits = [];
     List<ProjectVisitDetails> projectVisits = [];
+    List<dynamic> workingDays = [];
     //get clients visits
     clientVisits = await db.getTimeRangedClientVisitsFuture(
         userId: userId, fromDate: widget.fromDate, toDate: widget.toDate);
@@ -541,9 +578,22 @@ class _ReportDetailsState extends State<ReportDetails> {
     projectVisits = await db.getTimeRangedProjectVisitsFuture(
         userId: userId, fromDate: widget.fromDate, toDate: widget.toDate);
 
+    for (var clients in clientVisits) {
+      if (!workingDays.contains(clients.visitTime)) {
+        workingDays.add(clients.visitTime);
+      }
+    }
+
+    for (var projects in projectVisits) {
+      if (!workingDays.contains(projects.visitTime)) {
+        workingDays.add(projects.visitTime);
+      }
+    }
+
     Map<String, List<dynamic>> visits = {
       'clientVisits': clientVisits,
       'projectVisits': projectVisits,
+      'workingDays': workingDays
     };
     return visits;
   }

@@ -1128,7 +1128,7 @@ class DatabaseService {
             contactPerson: e.data()['contact'],
             visitPurpose: e.data()['visitPurpose'],
             visitDetails: e.data()['visitDetails'],
-            visitTime: e.data()['visitTime'],
+            visitTime: e.data()['visitTime'].toDate().toString().split(' ')[0],
           );
         }).toList();
       });
@@ -1159,7 +1159,7 @@ class DatabaseService {
               visitPurpose: e['visitPurpose'],
               userId: e['userId'],
               // managerComments: e['managerComments'] ?? '',
-              visitTime: e['visitTime']);
+              visitTime: e['visitTime'].toDate().toString().split(' ')[0]);
         }).toList();
       });
     } catch (e, stackTrace) {

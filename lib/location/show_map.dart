@@ -10,6 +10,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 //import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:provider/provider.dart';
+import 'package:royal_marble/account_settings/users_details.dart';
 import 'package:royal_marble/location/.env.dart';
 import 'package:royal_marble/location/direction_repo.dart';
 import 'package:royal_marble/models/business_model.dart';
@@ -330,37 +331,68 @@ class _ShowMapState extends State<ShowMap> {
   Future<Set<Marker>> _setInitialMarkers(
       {String uuid, double lat, double lng, UserData userData}) async {
     // final Uint8List markIcons = await getImages(userData.imageUrl, 20);
+    List<RichText> _userDetail = [];
+    RichText _richText;
+    _richText = RichText(
+      text: TextSpan(
+        children: [
+          TextSpan(
+              text: 'Name: ${userData.firstName} ${userData.lastName}',
+              style: textStyle3),
+        ],
+      ),
+    );
+    _userDetail.add(_richText);
 
-    listMarkers.putIfAbsent(
-        uuid,
-        () => Marker(
-              markerId: MarkerId(uuid),
-              position: LatLng(lat, lng),
-              icon: BitmapDescriptor.defaultMarkerWithHue(
-                  BitmapDescriptor.hueViolet),
-              infoWindow: InfoWindow(
-                  title: '${userData.firstName} ${userData.lastName}',
-                  snippet: userData.phoneNumber,
-                  onTap: () {
-                    showDialog(
-                        context: context,
-                        builder: (_) {
-                          StringBuffer userDetails = StringBuffer();
-                          userDetails.write(
-                              'Name: ${userData.firstName} ${userData.lastName}\n');
-                          futureLocation.forEach((key, value) {
-                            userDetails.write('$key: $value\n');
-                          });
-                          return AlertDialog(
-                            title: const Text('Details'),
-                            content: SizedBox(
-                              height: _size.height / 3,
-                              child: Text(userDetails.toString()),
-                            ),
-                          );
-                        });
-                  }),
-            ));
+    listMarkers.putIfAbsent(uuid, () {
+      futureLocation.forEach((key, value) {
+        if (key != 'uuid' && value != '') {
+          _richText = RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(text: '$key: ', style: textStyle3),
+                TextSpan(text: '$value', style: textStyle12),
+              ],
+            ),
+          );
+          //print('the userDetail 1: ${_richText.text.toPlainText()}');
+          _userDetail.add(_richText);
+        }
+      });
+      return Marker(
+        markerId: MarkerId(uuid),
+        position: LatLng(lat, lng),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
+        infoWindow: InfoWindow(
+            title: '${userData.firstName} ${userData.lastName}',
+            snippet: userData.phoneNumber,
+            onTap: () {
+              showDialog(
+                  context: context,
+                  builder: (_) {
+                    return SizedBox(
+                      width: _size.width - 100,
+                      height: _size.height / 2,
+                      child: AlertDialog(
+                        title: const Text('Details'),
+                        content: SizedBox(
+                          height: _size.height / 3,
+                          width: double.maxFinite,
+                          child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: _userDetail.length,
+                              itemBuilder: (context, index) {
+                                return RichText(text: _userDetail[index].text);
+                              }),
+                        ),
+                      ),
+                    );
+                  });
+            }),
+      );
+    });
+
+    // for (var det in userDetails) {}
 
     if (clientMarkers.isNotEmpty) {
       listMarkers.addAll(clientMarkers);
@@ -379,38 +411,70 @@ class _ShowMapState extends State<ShowMap> {
     for (var user in userProvider) {
       futureLocation = await db.getUserLocationFuture(usersId: user.uid);
       if (futureLocation['uuid'] != null) {
-        updatedMarker.putIfAbsent(
-            futureLocation['uuid'],
-            () => Marker(
-                  markerId: MarkerId(futureLocation['uuid']),
-                  position:
-                      LatLng(futureLocation['lat'], futureLocation['lng']),
-                  icon: BitmapDescriptor.defaultMarkerWithHue(
-                      BitmapDescriptor.hueViolet),
-                  infoWindow: InfoWindow(
-                      title: '${user.firstName} ${user.lastName}',
-                      snippet: user.phoneNumber,
-                      onTap: () {
-                        showDialog(
-                            context: context,
-                            builder: (_) {
-                              StringBuffer userDetails = StringBuffer();
-                              userDetails.write(
-                                  'Name: ${user.firstName} ${user.lastName}\n');
-                              futureLocation.forEach((key, value) {
-                                userDetails.write('$key: $value\n');
-                              });
+        updatedMarker.putIfAbsent(futureLocation['uuid'], () {
+          List<RichText> _userDetail = [];
+          RichText _richText;
+          _richText = RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                    text: 'Name: ${user.firstName} ${user.lastName}\n',
+                    style: textStyle3),
+              ],
+            ),
+          );
+          _userDetail.add(_richText);
+          futureLocation.forEach((key, value) {
+            if (key != 'uuid' && value != '') {
+              _richText = RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(text: '$key: ', style: textStyle3),
+                    TextSpan(text: '$value', style: textStyle12),
+                  ],
+                ),
+              );
 
-                              return AlertDialog(
-                                title: const Text('Details'),
-                                content: SizedBox(
-                                  height: _size.height / 3,
-                                  child: Text(userDetails.toString()),
-                                ),
-                              );
-                            });
-                      }),
-                ));
+              _userDetail.add(_richText);
+            }
+          });
+
+          return Marker(
+            markerId: MarkerId(futureLocation['uuid']),
+            position: LatLng(futureLocation['lat'], futureLocation['lng']),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+                BitmapDescriptor.hueViolet),
+            infoWindow: InfoWindow(
+                title: '${user.firstName} ${user.lastName}',
+                snippet: '${user.phoneNumber}',
+                onTap: () {
+                  showDialog(
+                      context: context,
+                      builder: (_) {
+                        return SizedBox(
+                          width: _size.width - 100,
+                          height: _size.height / 2,
+                          child: AlertDialog(
+                            title: const Text('Details'),
+                            content: SizedBox(
+                              height: _size.height / 3,
+                              width: double.maxFinite,
+                              child: ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: _userDetail.length,
+                                  itemBuilder: (context, index) {
+                                    print(
+                                        'the userDetail: ${_userDetail[index].children}');
+                                    return RichText(
+                                        text: _userDetail[index].text);
+                                  }),
+                            ),
+                          ),
+                        );
+                      });
+                }),
+          );
+        });
       }
 
       if (clientMarkers.isNotEmpty) {
