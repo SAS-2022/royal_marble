@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as Path;
+import 'package:provider/provider.dart';
+import 'package:royal_marble/account_settings/helpers.dart';
 import 'package:royal_marble/location/google_map_navigation.dart';
 import 'package:royal_marble/location/http_navigation.dart';
 import 'package:royal_marble/models/user_model.dart';
@@ -93,6 +95,29 @@ class _UserDetailsState extends State<UserDetails> {
       appBar: AppBar(
         title: const Text('Profile Page'),
         backgroundColor: const Color.fromARGB(255, 191, 180, 66),
+        actions: [
+          //Button to add helpers
+          widget.currentUser.roles.contains('isNormalUser')
+              ? Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: TextButton(
+                      onPressed: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => HelperProvider(
+                              currentUser: widget.currentUser,
+                            ),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        'Helpers',
+                        style: textStyle2,
+                      )),
+                )
+              : const SizedBox.shrink()
+        ],
       ),
       body: Stack(children: [
         SingleChildScrollView(

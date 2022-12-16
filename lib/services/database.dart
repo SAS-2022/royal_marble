@@ -19,6 +19,8 @@ class DatabaseService {
       FirebaseFirestore.instance.collection('projects');
   final CollectionReference timeSheetCollection =
       FirebaseFirestore.instance.collection('time_sheet');
+  final CollectionReference helperCollection =
+      FirebaseFirestore.instance.collection('helper');
 
   //Update the user data
   Future<String> updateUser({
@@ -290,6 +292,7 @@ class DatabaseService {
             assignedProject: data['assignedProject'],
             distanceToProject: data['distanceToProject'],
             currentLocation: data['currentLocation'],
+            assingedHelpers: data['assignedHelpers'] ?? [],
             imageUrl: data['imageUrl']);
       });
     } catch (e, stackTrace) {
@@ -316,6 +319,7 @@ class DatabaseService {
       distanceToProject: data['distanceToProject'],
       currentLocation: data['currentLocation'],
       imageUrl: data['imageUrl'],
+      assingedHelpers: data['assignedHelpers'] ?? [],
       location: data['location'],
     );
   }
@@ -351,6 +355,7 @@ class DatabaseService {
         currentLocation: data['currentLocation'],
         imageUrl: data['imageUrl'],
         permissionStatus: data['locationPermission'],
+        assingedHelpers: data['assignedHelpers'] ?? [],
         location: data['location'],
       );
     }).toList();
@@ -375,6 +380,7 @@ class DatabaseService {
               homeAddress: data['homeAddress'],
               distanceToProject: data['distanceToProject'],
               imageUrl: data['imageUrl'],
+              assingedHelpers: data['assignedHelpers'] ?? [],
               currentLocation: data['currentLocation']);
         }).toList();
       });
@@ -1207,6 +1213,61 @@ class DatabaseService {
           visitTime: data['visitTime']);
 
       return result;
+    }).toList();
+  }
+
+  //Helper collection allows to add, read, update and delete helpers
+  Future<String> addNewHelper(
+      {String firstName, String lastName, String mobileNumber}) async {
+    try {
+      await helperCollection.add({
+        'firstName': firstName,
+        'lastName': lastName,
+        'mobileNumber': mobileNumber,
+      }).then((value) => 'Helper Added Sucessfully');
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return 'Error Adding Helper: $e';
+    }
+  }
+
+  Future<String> updateHelper(
+      {String uid,
+      String firstName,
+      String lastName,
+      String mobileNumber}) async {
+    try {
+      return await helperCollection.doc(uid).update({
+        'firstName': firstName,
+        'lastName': lastName,
+        'mobileNumber': mobileNumber,
+      }).then((value) => 'Helper Updated Sucessfully');
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return 'Error Updating Helper: $e';
+    }
+  }
+
+  Future<void> deleteHelper({String uid}) async {
+    try {
+      await helperCollection.doc(uid).delete();
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+    }
+  }
+
+  Stream<List<Helpers>> streamAllHelpers() {
+    return helperCollection.snapshots().map(_mapAllHelpersData);
+  }
+
+  List<Helpers> _mapAllHelpersData(QuerySnapshot snapshot) {
+    return snapshot.docs.map((value) {
+      var data = value.data() as Map<String, dynamic>;
+      return Helpers(
+          uid: value.id,
+          firstName: data['firstName'],
+          lastName: data['lastName'],
+          mobileNumber: data['mobileNumber']);
     }).toList();
   }
 }

@@ -15,6 +15,7 @@ class UserData {
   bool isActive;
   String imageUrl;
   String permissionStatus;
+  List<String> assingedHelpers;
   String error;
 
   UserData({
@@ -34,6 +35,7 @@ class UserData {
     this.distanceToProject,
     this.imageUrl,
     this.permissionStatus,
+    this.assingedHelpers,
     this.error,
   });
 
@@ -41,4 +43,17 @@ class UserData {
   String toString() {
     return 'UserData(uid: $uid, firstName: $firstName, lastName: $lastName, emailAddress: $emailAddress, phoneNumber: $phoneNumber, homeAddress: $homeAddress, currentLocation: $currentLocation, roles: $roles, nationality: $nationality, assignedProject: $assignedProject, company: $company, isActive: $isActive, error: $error)';
   }
+}
+
+class Helpers {
+  String uid;
+  String firstName;
+  String lastName;
+  String mobileNumber;
+  Helpers({
+    this.uid,
+    this.firstName,
+    this.lastName,
+    this.mobileNumber,
+  });
 }

@@ -128,10 +128,13 @@ class _ReportDetailsState extends State<ReportDetails> {
                                     'arrivedAt': value['arriving_at'],
                                     'leftAt': value['leaving_at'],
                                     'projectName': value['projectName'],
-                                    'workType': value['workCompleted']
-                                        ['workType'],
-                                    'squareMeters': value['workCompleted']
-                                        ['sqaureMeters']
+                                    'workType': value['workCompleted'] != null
+                                        ? value['workCompleted']['workType']
+                                        : '',
+                                    'squareMeters': value['workCompleted'] !=
+                                            null
+                                        ? value['workCompleted']['sqaureMeters']
+                                        : ''
                                   });
                                 });
 
@@ -241,12 +244,21 @@ class _ReportDetailsState extends State<ReportDetails> {
                                                   cells: [
                                                     DataCell(Text(
                                                         '${e['firstName']} ${e['lastName']}')),
-                                                    DataCell(Text(
-                                                        DateFormat('hh:mm a')
-                                                            .format(arrived))),
-                                                    DataCell(Text(
-                                                        DateFormat('hh:mm a')
-                                                            .format(left))),
+                                                    arrived != null
+                                                        ? DataCell(Text(
+                                                            DateFormat(
+                                                                    'hh:mm a')
+                                                                .format(
+                                                                    arrived)))
+                                                        : const DataCell(
+                                                            Text('')),
+                                                    left != null
+                                                        ? DataCell(Text(
+                                                            DateFormat(
+                                                                    'hh:mm a')
+                                                                .format(left)))
+                                                        : const DataCell(
+                                                            Text('')),
                                                     DataCell(Text(
                                                         '${e['projectName']}')),
                                                     DataCell(Text(

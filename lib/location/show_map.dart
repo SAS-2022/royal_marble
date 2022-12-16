@@ -337,8 +337,8 @@ class _ShowMapState extends State<ShowMap> {
       text: TextSpan(
         children: [
           TextSpan(
-              text: 'Name: ${userData.firstName} ${userData.lastName}',
-              style: textStyle3),
+              text: '${userData.firstName} ${userData.lastName}',
+              style: textStyle10),
         ],
       ),
     );
@@ -350,7 +350,7 @@ class _ShowMapState extends State<ShowMap> {
           _richText = RichText(
             text: TextSpan(
               children: [
-                TextSpan(text: '$key: ', style: textStyle3),
+                TextSpan(text: '${key.toUpperCase()}: ', style: textStyle3),
                 TextSpan(text: '$value', style: textStyle12),
               ],
             ),
@@ -418,8 +418,8 @@ class _ShowMapState extends State<ShowMap> {
             text: TextSpan(
               children: [
                 TextSpan(
-                    text: 'Name: ${user.firstName} ${user.lastName}\n',
-                    style: textStyle3),
+                    text: '${user.firstName} ${user.lastName}\n',
+                    style: textStyle10),
               ],
             ),
           );
@@ -429,7 +429,7 @@ class _ShowMapState extends State<ShowMap> {
               _richText = RichText(
                 text: TextSpan(
                   children: [
-                    TextSpan(text: '$key: ', style: textStyle3),
+                    TextSpan(text: '${key.toUpperCase()}: ', style: textStyle3),
                     TextSpan(text: '$value', style: textStyle12),
                   ],
                 ),
