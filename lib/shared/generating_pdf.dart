@@ -31,6 +31,8 @@ Future<Uint8List> generateReport(
   const baseColor = PdfColors.amber;
 
   Future<Map<String, List<Map>>> generateTableDate() async {
+    var totalHours;
+    var totalMin;
     for (var index = 0; index < data.length; index++) {
       var arrived = data[index]['arrivedAt'] != null
           ? DateTime.parse(data[index]['arrivedAt'])
@@ -38,17 +40,21 @@ Future<Uint8List> generateReport(
       var left = data[index]['leftAt'] != null
           ? DateTime.parse(data[index]['leftAt'])
           : null;
-      var diff = left.difference(arrived);
-      var totalHours = diff.inHours;
-      var totalMin = diff.inMinutes % 60;
+      if (left != null && arrived != null) {
+        var diff = left.difference(arrived);
+        totalHours = diff.inHours;
+        totalMin = diff.inMinutes % 60;
+      }
+
       var thisDate = '${arrived.day}-${arrived.month}-${arrived.year}';
       //will update the list if the day is alreayd added
 
       if (days[thisDate] != null) {
         days[thisDate].add({
           'name': '${data[index]['firstName']} ${data[index]['lastName']}',
-          'arrived': DateFormat('hh:mm a').format(arrived),
-          'left': DateFormat('hh:mm a').format(left),
+          'arrived':
+              arrived != null ? DateFormat('hh:mm a').format(arrived) : '',
+          'left': left != null ? DateFormat('hh:mm a').format(left) : '',
           'project': data[index]['projectName'],
           'totalHours': '$totalHours:$totalMin',
           'workType': '${data[index]['workType']}',
@@ -62,8 +68,11 @@ Future<Uint8List> generateReport(
                 {
                   'name':
                       '${data[index]['firstName']} ${data[index]['lastName']}',
-                  'arrived': DateFormat('hh:mm a').format(arrived),
-                  'left': DateFormat('hh:mm a').format(left),
+                  'arrived': arrived != null
+                      ? DateFormat('hh:mm a').format(arrived)
+                      : '',
+                  'left':
+                      left != null ? DateFormat('hh:mm a').format(left) : '',
                   'project': data[index]['projectName'],
                   'totalHours': '$totalHours:$totalMin',
                   'workType': '${data[index]['workType']}',

@@ -44,11 +44,16 @@ class _HelpersPageState extends State<HelpersPage> {
   TextEditingController helperLastName = TextEditingController();
   TextEditingController helperPhone = TextEditingController();
   final _snackBarWidget = SnackBarWidget();
+  bool _isLoading = false;
+  List<dynamic> assignedHelpers = [];
 
   @override
   void initState() {
     super.initState();
     _snackBarWidget.context = context;
+    if (widget.currentUser.assingedHelpers != null) {
+      assignedHelpers = widget.currentUser.assingedHelpers;
+    }
   }
 
   @override
@@ -61,6 +66,28 @@ class _HelpersPageState extends State<HelpersPage> {
           'Assign Helpers',
         ),
         backgroundColor: const Color.fromARGB(255, 191, 180, 66),
+        actions: [
+          //Save changes
+          TextButton(
+              onPressed: () async {
+                //will save the new helpers to the current user
+                if (assignedHelpers.length <= 2) {
+                  var result = await db.updateUserWithHelpers(
+                      uid: widget.currentUser.uid, helpers: assignedHelpers);
+                  Navigator.pop(context);
+                  _snackBarWidget.content = result;
+                } else {
+                  _snackBarWidget.content =
+                      'Helpers should be at least one and no more than 2';
+                }
+
+                _snackBarWidget.showSnack();
+              },
+              child: const Text(
+                'Save',
+                style: textStyle2,
+              ))
+        ],
       ),
       body: _buildHelperPageBody(),
     );
@@ -103,26 +130,48 @@ class _HelpersPageState extends State<HelpersPage> {
                           decoration: BoxDecoration(
                               border: Border.all(),
                               borderRadius: BorderRadius.circular(25)),
-                          child: widget.currentUser.assingedHelpers.isNotEmpty
+                          child: assignedHelpers.isNotEmpty
                               ? ListView.builder(
-                                  itemCount:
-                                      widget.currentUser.assingedHelpers.length,
+                                  itemCount: assignedHelpers.length,
                                   itemBuilder: (context, index) {
                                     return FutureBuilder(
+                                        future: db.readSingleHelper(
+                                            uid: assignedHelpers[index]),
                                         builder: (context, snapshot) {
-                                      if (snapshot.hasData) {
-                                        return ListTile(
-                                          title: Text(
-                                              '${snapshot.data['firstName']} ${snapshot.data['lastName']}'),
-                                          subtitle: Text(
-                                              '${snapshot.data['mobileNumber']}'),
-                                        );
-                                      } else {
-                                        return const Center(
-                                          child: Loading(),
-                                        );
-                                      }
-                                    });
+                                          if (snapshot.hasData) {
+                                            return Padding(
+                                              padding:
+                                                  const EdgeInsets.all(5.0),
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                    color: Colors.blueGrey[300],
+                                                    border: Border.all(),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            15)),
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    //will remove this item
+                                                    setState(() {
+                                                      assignedHelpers
+                                                          .removeAt(index);
+                                                    });
+                                                  },
+                                                  child: ListTile(
+                                                    title: Text(
+                                                        '${snapshot.data.firstName} ${snapshot.data.lastName}'),
+                                                    subtitle: Text(
+                                                        '${snapshot.data.mobileNumber}'),
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          } else {
+                                            return const Center(
+                                              child: Loading(),
+                                            );
+                                          }
+                                        });
                                   })
                               : const Center(
                                   child: Text(
@@ -156,7 +205,8 @@ class _HelpersPageState extends State<HelpersPage> {
                                   Border.all(width: 1.0, color: Colors.grey),
                             ),
                             child: helperProvider != null &&
-                                    helperProvider.isNotEmpty
+                                    helperProvider.isNotEmpty &&
+                                    !_isLoading
                                 ? DropdownButtonHideUnderline(
                                     child: DropdownButtonFormField<Helpers>(
                                       decoration:
@@ -174,14 +224,18 @@ class _HelpersPageState extends State<HelpersPage> {
                                           setState(() {
                                             selectedHelper = val;
                                             _helperSelected = true;
-                                            print(
-                                                'the helper Id: ${selectedHelper.uid}');
+
                                             helperFirstName.text =
                                                 selectedHelper.firstName;
                                             helperLastName.text =
                                                 selectedHelper.lastName;
                                             helperPhone.text =
                                                 selectedHelper.mobileNumber;
+                                            if (!assignedHelpers
+                                                .contains(selectedHelper.uid)) {
+                                              assignedHelpers
+                                                  .add(selectedHelper.uid);
+                                            }
                                           });
                                         }
                                       },
@@ -418,7 +472,9 @@ class _HelpersPageState extends State<HelpersPage> {
                                                         setState(() {
                                                           _helperSelected =
                                                               false;
+                                                          _isLoading = true;
                                                         });
+
                                                         var result = await db
                                                             .updateHelper(
                                                                 uid:
@@ -433,6 +489,10 @@ class _HelpersPageState extends State<HelpersPage> {
                                                                 mobileNumber:
                                                                     helperPhone
                                                                         .text);
+                                                        selectedHelper = null;
+                                                        setState(() {
+                                                          _isLoading = false;
+                                                        });
 
                                                         Navigator.pop(context);
                                                         _snackBarWidget

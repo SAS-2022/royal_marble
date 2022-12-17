@@ -100,6 +100,7 @@ class _ReportDetailsState extends State<ReportDetails> {
           height: _size.height - 10,
           child: widget.fromDate != null && widget.toDate != null
               ? ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
                   itemCount: dateRange.length,
                   itemBuilder: ((context, index) {
                     String dateName =
@@ -142,6 +143,7 @@ class _ReportDetailsState extends State<ReportDetails> {
 
                                 return Container(
                                   width: _size.width,
+                                  color: Colors.grey[300],
                                   padding: const EdgeInsets.all(5),
                                   child: Column(
                                     crossAxisAlignment:
@@ -156,8 +158,9 @@ class _ReportDetailsState extends State<ReportDetails> {
                                         ),
                                       ),
                                       //Display the list of employees that were on site
-                                      SingleChildScrollView(
-                                        scrollDirection: Axis.vertical,
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10),
                                         child: SingleChildScrollView(
                                           scrollDirection: Axis.horizontal,
                                           child: DataTable(

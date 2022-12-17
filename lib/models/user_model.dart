@@ -15,7 +15,7 @@ class UserData {
   bool isActive;
   String imageUrl;
   String permissionStatus;
-  List<String> assingedHelpers;
+  List<dynamic> assingedHelpers;
   String error;
 
   UserData({

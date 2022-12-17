@@ -166,6 +166,19 @@ class DatabaseService {
     }
   }
 
+  //Update a user with helpers
+  Future<String> updateUserWithHelpers(
+      {String uid, List<dynamic> helpers}) async {
+    try {
+      return await userCollection
+          .doc(uid)
+          .update({'assignedHelpers': helpers}).then((value) => 'Completed');
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return 'Error: $e';
+    }
+  }
+
   //assign user to a project
   Future<String> assignUsersToProject(
       {List<UserData> userIds, ProjectData project}) async {
@@ -1220,7 +1233,7 @@ class DatabaseService {
   Future<String> addNewHelper(
       {String firstName, String lastName, String mobileNumber}) async {
     try {
-      await helperCollection.add({
+      return await helperCollection.add({
         'firstName': firstName,
         'lastName': lastName,
         'mobileNumber': mobileNumber,
@@ -1245,6 +1258,22 @@ class DatabaseService {
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
       return 'Error Updating Helper: $e';
+    }
+  }
+
+  //Read helper data
+  Future<Helpers> readSingleHelper({String uid}) async {
+    try {
+      return await helperCollection.doc(uid).get().then((value) {
+        var data = value.data() as Map<String, dynamic>;
+        return Helpers(
+            firstName: data['firstName'],
+            lastName: data['lastName'],
+            mobileNumber: data['mobileNumber']);
+      });
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return Helpers();
     }
   }
 
