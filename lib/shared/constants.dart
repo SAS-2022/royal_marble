@@ -92,6 +92,13 @@ const textStyle14 = TextStyle(
   color: Colors.blueGrey,
 );
 
+const textStyle15 = TextStyle(
+  fontSize: 19,
+  fontFamily: 'San Fransisco',
+  fontWeight: FontWeight.bold,
+  color: Colors.red,
+);
+
 const timerTextStyle = TextStyle(
     color: Color.fromARGB(255, 54, 76, 171),
     fontSize: 40,

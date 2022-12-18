@@ -35,6 +35,7 @@ class _WorkCompletedState extends State<WorkCompleted> {
   String workType;
   double squareMeteres;
   Size _size;
+  bool _canPop = false;
   DatabaseService db = DatabaseService();
   final _snackBarWidget = SnackBarWidget();
 
@@ -42,18 +43,48 @@ class _WorkCompletedState extends State<WorkCompleted> {
   void initState() {
     super.initState();
     _snackBarWidget.context = context;
-    print('the checkin: ${widget.checkIn} - ${widget.checkOut}');
   }
 
   @override
   Widget build(BuildContext context) {
     _size = MediaQuery.of(context).size;
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Completed Work'),
-        backgroundColor: const Color.fromARGB(255, 191, 180, 66),
+    return WillPopScope(
+      onWillPop: () async {
+        _canPop = await showDialog(
+            context: context,
+            builder: (_) {
+              return AlertDialog(
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pop(context, false);
+                      },
+                      child: const Text('No')),
+                  TextButton(
+                      onPressed: () async {
+                        Navigator.pop(context, true);
+                      },
+                      child: const Text('Yes'))
+                ],
+                title: const Text(
+                  'Warning!!!',
+                  style: textStyle15,
+                  textAlign: TextAlign.center,
+                ),
+                content: const Text(
+                    'Are you sure you want to leave without registering your work, this may result in an unpaid day.'),
+              );
+            });
+        print('can pop: $_canPop');
+        return _canPop;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Completed Work'),
+          backgroundColor: const Color.fromARGB(255, 191, 180, 66),
+        ),
+        body: _buildWorkCompleteForm(),
       ),
-      body: _buildWorkCompleteForm(),
     );
   }
 

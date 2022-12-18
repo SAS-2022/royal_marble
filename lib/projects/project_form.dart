@@ -190,7 +190,7 @@ class _ProjectFormState extends State<ProjectForm> {
     }
     return widget.selectedProject.uid != null
         ? Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 35),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
             child: SingleChildScrollView(
               child: Form(
                 key: _formKey,
@@ -354,6 +354,7 @@ class _ProjectFormState extends State<ProjectForm> {
                     const SizedBox(
                       height: 15,
                     ),
+                    //Project contact person
                     _editContent
                         ? TextFormField(
                             autofocus: false,
@@ -449,6 +450,7 @@ class _ProjectFormState extends State<ProjectForm> {
                     const SizedBox(
                       height: 15,
                     ),
+                    //Project email address
                     _editContent
                         ? TextFormField(
                             autofocus: false,
@@ -503,6 +505,7 @@ class _ProjectFormState extends State<ProjectForm> {
                     const SizedBox(
                       height: 15,
                     ),
+                    //Project location
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
@@ -581,33 +584,50 @@ class _ProjectFormState extends State<ProjectForm> {
                                       child: SizedBox(
                                         height: _size.width / 2,
                                         width: _size.width / 2,
-                                        child: ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                                backgroundColor: !_isAtSite
-                                                    ? Colors.green[400]
-                                                    : Colors.red[600],
-                                                shape: const CircleBorder()),
-                                            onPressed: !_checkInOutLoading
-                                                ? () async {
-                                                    setState(() {
-                                                      _checkInOutLoading = true;
-                                                    });
-                                                    await checkInOut(snapshot);
-                                                    setState(() {
-                                                      _checkInOutLoading =
-                                                          false;
-                                                    });
-                                                  }
-                                                : null,
-                                            child: !_isAtSite
-                                                ? const Text(
-                                                    'Check In',
-                                                    style: textStyle2,
-                                                  )
-                                                : const Text(
-                                                    'Check Out',
-                                                    style: textStyle2,
-                                                  )),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black
+                                                      .withOpacity(0.3),
+                                                  spreadRadius: 6,
+                                                  blurRadius: 10,
+                                                  offset: const Offset(0, 3),
+                                                )
+                                              ]),
+                                          child: ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                  elevation: 3,
+                                                  backgroundColor: !_isAtSite
+                                                      ? Colors.green[400]
+                                                      : Colors.red[600],
+                                                  shape: const CircleBorder()),
+                                              onPressed: !_checkInOutLoading
+                                                  ? () async {
+                                                      setState(() {
+                                                        _checkInOutLoading =
+                                                            true;
+                                                      });
+                                                      await checkInOut(
+                                                          snapshot);
+                                                      setState(() {
+                                                        _checkInOutLoading =
+                                                            false;
+                                                      });
+                                                      Navigator.pop(context);
+                                                    }
+                                                  : null,
+                                              child: !_isAtSite
+                                                  ? const Text(
+                                                      'Check In',
+                                                      style: textStyle2,
+                                                    )
+                                                  : const Text(
+                                                      'Check Out',
+                                                      style: textStyle2,
+                                                    )),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -655,7 +675,9 @@ class _ProjectFormState extends State<ProjectForm> {
                                           if (selectedUser.assignedProject !=
                                                   null &&
                                               selectedUser
-                                                  .assignedProject.isNotEmpty) {
+                                                  .assignedProject.isNotEmpty &&
+                                              !selectedUser.roles
+                                                  .contains('isSupervisor')) {
                                             showDialog(
                                                 context: context,
                                                 builder: (_) => AlertDialog(
@@ -856,7 +878,6 @@ class _ProjectFormState extends State<ProjectForm> {
                                     _isLoading = true;
                                   });
                                   if (_editContent) {
-                                    print('the new data: $newProject');
                                     if (_formKey.currentState.validate()) {
                                       _formKey.currentState.save();
                                       var result = await db.updateProjectData(

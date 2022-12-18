@@ -40,7 +40,6 @@ class _WrapperState extends State<Wrapper> {
             value: db.getUserPerId(uid: userData.uid),
             initialData: UserData(),
             catchError: (context, err) {
-              print('the error: $err');
               return UserData();
             },
           ),
@@ -48,7 +47,6 @@ class _WrapperState extends State<Wrapper> {
             value: db.getAllProjects(),
             initialData: [],
             catchError: (context, err) {
-              print('the error: $err');
               return [];
             },
           ),
@@ -60,7 +58,6 @@ class _WrapperState extends State<Wrapper> {
             value: db.getTimeSheetData(uid: today),
             initialData: null,
             catchError: (context, err) {
-              print('Error obtaining time sheet');
               return null;
             },
           )

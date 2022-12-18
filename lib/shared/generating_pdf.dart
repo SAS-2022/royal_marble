@@ -22,6 +22,7 @@ Future<Uint8List> generateReport(
   ];
   Map<String, List<Map>> days = {};
   Map<String, List<Map<dynamic, dynamic>>> userTimeTable = {};
+  int pageRowNumber = 0;
 
   final document = pw.Document();
   final theme = pw.ThemeData.withFont(
@@ -29,6 +30,7 @@ Future<Uint8List> generateReport(
     bold: await PdfGoogleFonts.openSansBold(),
   );
   const baseColor = PdfColors.amber;
+  List<pw.Widget> pageWidgets = [];
 
   Future<Map<String, List<Map>>> generateTableDate() async {
     var totalHours;
@@ -61,6 +63,7 @@ Future<Uint8List> generateReport(
           'meters': '${data[index]['squareMeters']}',
         });
       }
+
       //will add a day if it doesn't exist in the map
       days.putIfAbsent(
           thisDate,
@@ -129,14 +132,15 @@ Future<Uint8List> generateReport(
           (i) {
             List<String> list = [
               userTimeTable[key][i]['name'],
-              userTimeTable[key][i]['arrived'],
-              userTimeTable[key][i]['left'],
+              userTimeTable[key][i]['arrived'] ?? '',
+              userTimeTable[key][i]['left'] ?? '',
               userTimeTable[key][i]['project'],
               userTimeTable[key][i]['totalHours'],
               userTimeTable[key][i]['workType'],
               userTimeTable[key][i]['meters']
             ];
-            //print('the list $list');
+            pageRowNumber = list.length + userTimeTable.length;
+
             return list;
           },
         ),
@@ -153,19 +157,20 @@ Future<Uint8List> generateReport(
       ),
     );
   });
+  pageWidgets.add(
+    pw.Text(
+      'Attendance Report',
+      style: const pw.TextStyle(color: baseColor, fontSize: 36),
+    ),
+  );
+  pageWidgets.add(pw.Divider(thickness: 4));
+  pageWidgets.add(pw.ListView(children: table));
 
-  document.addPage(pw.Page(
+  document.addPage(pw.MultiPage(
     pageFormat: pdfPageFormat,
     theme: theme,
     build: (context) {
-      return pw.Column(children: [
-        pw.Text(
-          'Attendance Report',
-          style: const pw.TextStyle(color: baseColor, fontSize: 36),
-        ),
-        pw.Divider(thickness: 4),
-        pw.ListView(children: table),
-      ]);
+      return pageWidgets;
     },
   ));
 

@@ -632,7 +632,6 @@ class DatabaseService {
       List<String> selectedUserIds,
       List<UserData> removedUsers}) async {
     try {
-      print('the project Id: ${project.uid}');
       //update the project data first
       var result = await projectCollection
           .doc(project.uid)
