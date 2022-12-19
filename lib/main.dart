@@ -1,37 +1,30 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
-//import 'package:background_geolocation_firebase/background_geolocation_firebase.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
-//import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:royal_marble/services/auth.dart';
-//import 'package:royal_marble/services/database.dart';
-//import 'package:royal_marble/shared/calculate_distance.dart';
 import 'package:royal_marble/shared/constants.dart';
-//import 'package:royal_marble/shared/loading.dart';
 import 'package:royal_marble/wrapper.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'models/user_model.dart';
-//import 'package:background_fetch/background_fetch.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 @pragma('vm:entry-point')
 void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
   SharedPreferences _pref = await SharedPreferences.getInstance();
-  print('[BackgroundGeolocation HeadlessTask]: $headlessEvent');
   // Implement a 'case' for only those events you're interested in.
   switch (headlessEvent.name) {
     case bg.Event.BOOT:
       bg.State state = await bg.BackgroundGeolocation.state;
-      print("didDeviceReboot: ${state.didDeviceReboot}");
       break;
     case bg.Event.MOTIONCHANGE:
       bg.Location location = headlessEvent.event;
@@ -46,7 +39,6 @@ void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
       break;
     case bg.Event.LOCATION:
       bg.Location location = headlessEvent.event;
-
       if (_pref.getString('userId') != null) {
         var userId = _pref.getString('userId');
         //get the current location of the user when they are moving
@@ -78,10 +70,21 @@ void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
 }
 
 void main() async {
+  //Initiate firebase
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  //Initiate Sentry
+  await SentryFlutter.init(
+    (options) {
+      options.dsn =
+          'https://0a1354ab77cb4dfbaed15697fb5a67e0@o4504353262010368.ingest.sentry.io/4504353263255552';
+      // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
+      // We recommend adjusting this value in production.
+      options.tracesSampleRate = 1.0;
+    },
+    appRunner: () => runApp(const MyApp()),
+  );
 
-  runApp(const MyApp());
   bg.BackgroundGeolocation.registerHeadlessTask(
       backgroundGeolocationHeadlessTask);
 }

@@ -31,9 +31,11 @@ class _WorkCompletedState extends State<WorkCompleted> {
   final List<String> _workType = [
     'Installing System',
     'Installing Tiles',
+    'Others'
   ];
   String workType;
   double squareMeteres;
+  String others;
   Size _size;
   bool _canPop = false;
   DatabaseService db = DatabaseService();
@@ -75,7 +77,7 @@ class _WorkCompletedState extends State<WorkCompleted> {
                     'Are you sure you want to leave without registering your work, this may result in an unpaid day.'),
               );
             });
-        print('can pop: $_canPop');
+
         return _canPop;
       },
       child: Scaffold(
@@ -120,7 +122,7 @@ class _WorkCompletedState extends State<WorkCompleted> {
                     value: workType,
                     hint: const Center(
                       child: Text(
-                        'Select User',
+                        'Select Work Type',
                       ),
                     ),
                     onChanged: (String val) {
@@ -160,6 +162,53 @@ class _WorkCompletedState extends State<WorkCompleted> {
               const SizedBox(
                 height: 15,
               ),
+              //in case others was chosed we need to know to specify more
+              workType == 'Others'
+                  ? Padding(
+                      padding: const EdgeInsets.only(bottom: 15),
+                      child: Row(
+                        children: [
+                          const Expanded(
+                            flex: 2,
+                            child: Text(
+                              'Specify Details',
+                              style: textStyle5,
+                            ),
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: TextFormField(
+                              maxLength: 30,
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: Colors.grey[100],
+                                enabledBorder: const OutlineInputBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(15.0)),
+                                    borderSide: BorderSide(color: Colors.grey)),
+                                focusedBorder: const OutlineInputBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(15.0)),
+                                    borderSide: BorderSide(color: Colors.blue)),
+                              ),
+                              validator: (value) {
+                                if (value == null) {
+                                  return 'value cannot be empty';
+                                }
+                                return null;
+                              },
+                              onChanged: (value) {
+                                if (value != null) {
+                                  others = value.trim();
+                                }
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+
               //how many sqaure meteres were completed
               Row(
                 children: [
@@ -194,7 +243,7 @@ class _WorkCompletedState extends State<WorkCompleted> {
                         return null;
                       },
                       onChanged: (value) {
-                        if (value != null) {
+                        if (value != null && value.isNotEmpty) {
                           squareMeteres = double.parse(value);
                         }
                       },
@@ -232,6 +281,7 @@ class _WorkCompletedState extends State<WorkCompleted> {
                       var result;
                       if (_formKey.currentState.validate()) {
                         //save the work achieved to the worker's timesheet
+
                         result = await db.updateWorkerTimeSheet(
                             isAtSite: widget.isAtSite,
                             currentUser: widget.currentUser,
@@ -240,14 +290,13 @@ class _WorkCompletedState extends State<WorkCompleted> {
                             today: widget.timeSheetId,
                             checkOut: widget.checkOut,
                             checkIn: widget.checkIn,
-                            workType: workType,
+                            workType: workType != 'Others' ? workType : others,
                             squareMeters: squareMeteres);
 
                         _snackBarWidget.content = result;
                         _snackBarWidget.showSnack();
                       }
 
-                      Navigator.pop(context);
                       Navigator.pop(context);
                     }),
               )

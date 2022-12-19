@@ -629,6 +629,7 @@ class DatabaseService {
   //we will update each user with the assigned project and its coordinates
   Future<String> updateProjectWithWorkers(
       {ProjectData project,
+      List<UserData> addedUsers,
       List<String> selectedUserIds,
       List<UserData> removedUsers}) async {
     try {
@@ -646,32 +647,73 @@ class DatabaseService {
         //check which users were removed to remove them
         if (removedUsers != null && removedUsers.isNotEmpty) {
           for (var user in removedUsers) {
-            await userCollection
-                .doc(user.uid)
-                .update({'assignedProject': {}})
-                .then((value) => print(
-                    'the user ${user.firstName} ${user.lastName} was removed'))
-                .catchError((err) => print(
-                    'Error remove user ${user.firstName} ${user.lastName}'));
+            if (user.roles.contains('isSupervisor')) {
+              await userCollection
+                  .doc(user.uid)
+                  .update({
+                    'assignedProject': FieldValue.arrayRemove(
+                      [
+                        {
+                          'id': project.uid,
+                          'name': project.projectName,
+                          'projectAddress': project.projectAddress,
+                          'radius': project.radius,
+                        }
+                      ],
+                    )
+                  })
+                  .then((value) => print(
+                      'the user ${user.firstName} ${user.lastName} was removed'))
+                  .catchError((err) => print(
+                      'Error remove user ${user.firstName} ${user.lastName}'));
+            } else {
+              await userCollection
+                  .doc(user.uid)
+                  .update({'assignedProject': {}})
+                  .then((value) => print(
+                      'the user ${user.firstName} ${user.lastName} was removed'))
+                  .catchError((err) => print(
+                      'Error remove user ${user.firstName} ${user.lastName}'));
+            }
           }
         }
         //add new users
-        for (var user in selectedUserIds) {
-          userResult = await userCollection
-              .doc(user)
-              .update({
-                'assignedProject': {
-                  'id': project.uid,
-                  'name': project.projectName,
-                  'projectAddress': project.projectAddress,
-                  'radius': project.radius,
-                }
-              })
-              .then((value) => 'Completed')
-              .catchError((err) {
-                print('Error updating users: $err');
-                return err;
-              });
+        for (var user in addedUsers) {
+          if (user.roles.contains('isSupervisor')) {
+            userResult = await userCollection
+                .doc(user.uid)
+                .update({
+                  'assignedProject': FieldValue.arrayUnion([
+                    {
+                      'id': project.uid,
+                      'name': project.projectName,
+                      'projectAddress': project.projectAddress,
+                      'radius': project.radius,
+                    }
+                  ])
+                })
+                .then((value) => 'Completed')
+                .catchError((err) {
+                  print('Error updating users: $err');
+                  return err;
+                });
+          } else {
+            userResult = await userCollection
+                .doc(user.uid)
+                .update({
+                  'assignedProject': {
+                    'id': project.uid,
+                    'name': project.projectName,
+                    'projectAddress': project.projectAddress,
+                    'radius': project.radius,
+                  }
+                })
+                .then((value) => 'Completed')
+                .catchError((err) {
+                  print('Error updating users: $err');
+                  return err;
+                });
+          }
         }
 
         return userResult;
@@ -686,7 +728,9 @@ class DatabaseService {
 
   //removing users from a selected project
   Future<String> removeUserFromProject(
-      {ProjectData selectedProject, String userId}) async {
+      {ProjectData selectedProject,
+      String userId,
+      UserData removedUser}) async {
     var result;
     try {
       //first remove user id from the project
@@ -707,18 +751,41 @@ class DatabaseService {
 
       //now we need to remove the assigned project from the user's document
       var assignedProject =
-          await userCollection.doc(userId).get().then((value) {
+          await userCollection.doc(removedUser.uid).get().then((value) {
         var data = value.data() as Map<String, dynamic>;
         return data['assignedProject'];
       });
 
-      if (assignedProject['id'] == selectedProject.uid) {
-        result = await userCollection
-            .doc(userId)
-            .update({'assignedProject': {}})
-            .then((value) => 'Deleted User')
-            .catchError((err) => 'Error: $err');
+      if (removedUser.roles.contains('isSupervisor')) {
+        for (var project in assignedProject) {
+          if (project['id'] == selectedProject.uid) {
+            result = await userCollection
+                .doc(userId)
+                .update({
+                  'assignedProject': FieldValue.arrayRemove([
+                    {
+                      'id': selectedProject.uid,
+                      'name': selectedProject.projectName,
+                      'projectAddress': selectedProject.projectAddress,
+                      'radius': selectedProject.radius,
+                    }
+                  ])
+                })
+                .then((value) => 'Deleted User')
+                .catchError((err) => 'Error: $err');
+          }
+          print('the result: $result');
+        }
+      } else {
+        if (assignedProject['id'] == selectedProject.uid) {
+          result = await userCollection
+              .doc(userId)
+              .update({'assignedProject': {}})
+              .then((value) => 'Deleted User')
+              .catchError((err) => 'Error: $err');
+        }
       }
+
       return result;
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);

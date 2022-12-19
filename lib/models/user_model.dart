@@ -9,7 +9,7 @@ class UserData {
   Map<String, dynamic> location;
   List<dynamic> roles;
   Map<String, dynamic> nationality;
-  Map<String, dynamic> assignedProject;
+  var assignedProject;
   var distanceToProject;
   String company;
   bool isActive;

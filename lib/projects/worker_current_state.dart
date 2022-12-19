@@ -208,7 +208,8 @@ class _WorkerWidgetState extends State<WorkerWidget> {
           if (result == 'Delete') {
             await db.removeUserFromProject(
                 selectedProject: widget.currentProject,
-                userId: _userProvider.uid);
+                userId: _userProvider.uid,
+                removedUser: _userProvider);
 
             return true;
           }
@@ -247,15 +248,41 @@ class _WorkerWidgetState extends State<WorkerWidget> {
           ),
           trailing: Container(
             width: 20,
-            decoration: BoxDecoration(
-                color: _userProvider.distanceToProject != null &&
-                        _userProvider.distanceToProject <=
-                            _userProvider.assignedProject['radius']
-                    ? Colors.green
-                    : Colors.yellow),
+            decoration: BoxDecoration(color: getColorDistance()),
           ),
         ),
       ),
     );
+  }
+
+  //Define color based on distance
+  Color getColorDistance() {
+    Color currentColor;
+    if (_userProvider.roles != null) {
+      if (_userProvider.roles.contains('isSupervisor')) {
+        if (_userProvider.assignedProject != null) {
+          for (var project in _userProvider.assignedProject) {
+            if (project['id'] == widget.currentProject.uid) {
+              if (_userProvider.distanceToProject != null &&
+                  _userProvider.distanceToProject <= project['radius']) {
+                currentColor = Colors.green;
+              } else {
+                currentColor = Colors.yellow;
+              }
+            }
+          }
+        }
+      } else {
+        if (_userProvider.distanceToProject != null &&
+            _userProvider.distanceToProject <=
+                _userProvider.assignedProject['radius']) {
+          currentColor = Colors.green;
+        } else {
+          currentColor = Colors.yellow;
+        }
+      }
+    }
+
+    return currentColor;
   }
 }

@@ -16,6 +16,7 @@ import '../models/user_model.dart';
 import '../services/database.dart';
 import '../shared/snack_bar.dart';
 import 'package:intl/intl.dart';
+import 'package:sentry/sentry.dart';
 
 class ProjectForm extends StatefulWidget {
   const ProjectForm(
@@ -65,6 +66,7 @@ class _ProjectFormState extends State<ProjectForm> {
   @override
   void initState() {
     super.initState();
+
     _snackBarWidget.context = context;
     if (!widget.isNewProject) {
       newProject = widget.selectedProject;
@@ -168,6 +170,15 @@ class _ProjectFormState extends State<ProjectForm> {
     Future.delayed(const Duration(milliseconds: 500), () {
       if (widget.allWorkers != null && widget.allWorkers.isNotEmpty) {
         for (var worker in widget.allWorkers) {
+          if (worker.assignedProject != null) {
+            if (worker.assignedProject.runtimeType == List) {
+              for (var project in worker.assignedProject) {
+                if (project['id'] == widget.selectedProject.uid) {
+                  workerOnThisProject.add(worker);
+                }
+              }
+            }
+          }
           if (worker.assignedProject != null &&
               worker.assignedProject['id'] == widget.selectedProject.uid) {
             workerOnThisProject.add(worker);
@@ -903,6 +914,7 @@ class _ProjectFormState extends State<ProjectForm> {
                                           await db.updateProjectWithWorkers(
                                               project: widget.selectedProject,
                                               selectedUserIds: userIds,
+                                              addedUsers: addedUsers,
                                               removedUsers: removedUsers);
 
                                       if (result == 'Completed') {
@@ -1310,39 +1322,44 @@ class _ProjectFormState extends State<ProjectForm> {
 
   //calculates the distance between two points
   Future<DateTime> _calculateDistance(LatLng myLocation) async {
-    CalculateDistance _calculate = CalculateDistance();
-    var dt = DateTime.now();
-    String dateFormat = DateFormat('hh:mm a').format(dt);
-    var result = _calculate.distanceBetweenTwoPoints(
-        myLocation.latitude,
-        myLocation.longitude,
-        widget.selectedProject.projectAddress['Lat'],
-        widget.selectedProject.projectAddress['Lng']);
-    //will check if the worker has arrived to the site
-    if (result != null && result * 1000 <= widget.selectedProject.radius) {
-      if (_isAtSite) {
-        _snackBarWidget.content =
-            'Have a great day, you have checked out.\nTime: $dateFormat\n';
-        _snackBarWidget.showSnack();
+    try {
+      CalculateDistance _calculate = CalculateDistance();
+      var dt = DateTime.now();
+      String dateFormat = DateFormat('hh:mm a').format(dt);
+      var result = _calculate.distanceBetweenTwoPoints(
+          myLocation.latitude,
+          myLocation.longitude,
+          widget.selectedProject.projectAddress['Lat'],
+          widget.selectedProject.projectAddress['Lng']);
+      //will check if the worker has arrived to the site
+      if (result != null && result * 1000 <= widget.selectedProject.radius) {
+        if (_isAtSite) {
+          _snackBarWidget.content =
+              'Have a great day, you have checked out.\nTime: $dateFormat\n';
+          _snackBarWidget.showSnack();
+        } else {
+          _snackBarWidget.content =
+              'Wonderful, you have arrived to your assigned location.\nTime: $dateFormat\n';
+          _snackBarWidget.showSnack();
+        }
+
+        if (mounted) {
+          setState(() {
+            _isAtSite = !_isAtSite;
+          });
+        }
       } else {
+        dt = null;
         _snackBarWidget.content =
-            'Wonderful, you have arrived to your assigned location.\nTime: $dateFormat\n';
+            'You have ${((result * 1000) - widget.selectedProject.radius).round()} meters to arrive to your destination.';
         _snackBarWidget.showSnack();
       }
 
-      if (mounted) {
-        setState(() {
-          _isAtSite = !_isAtSite;
-        });
-      }
-    } else {
-      dt = null;
-      _snackBarWidget.content =
-          'You have ${((result * 1000) - widget.selectedProject.radius).round()} meters to arrive to your destination.';
-      _snackBarWidget.showSnack();
+      return dt;
+    } catch (e, stackTrace) {
+      await Sentry.captureException(e, stackTrace: stackTrace);
+      return e;
     }
-
-    return dt;
   }
 
   //will allow the working to checkin or checkout
