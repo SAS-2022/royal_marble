@@ -746,7 +746,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     //List of projects assigned two
                     FutureBuilder(
-                        future: getUserAssignedProject(),
+                        future: getSupervisorAssignedProjects(),
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             if (snapshot.connectionState ==
@@ -758,144 +758,165 @@ class _HomeScreenState extends State<HomeScreen> {
                               );
                             } else {
                               return SizedBox(
-                                  width: _size.width - 100,
+                                  width: _size.width,
                                   height: (_size.height / 2) - 100,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 15, vertical: 15),
-                                    child: GestureDetector(
-                                      onTap: () async {
-                                        //once tapped shall navigate to a page that will show assigned workers
-                                        //will present a dialog on the things that could be done
-                                        await Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (_) => ProjectGrid(
-                                                      currentUser: userProvider,
-                                                      selectedProject:
-                                                          snapshot.data,
-                                                    )));
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.all(12),
-                                        height: 80,
-                                        width: _size.width / 2,
-                                        decoration: BoxDecoration(
-                                            color: userProvider
-                                                            .distanceToProject !=
-                                                        null &&
-                                                    userProvider
-                                                            .distanceToProject <=
-                                                        snapshot.data.radius
-                                                ? Colors.green
-                                                : Colors.yellowAccent,
-                                            boxShadow: [
-                                              BoxShadow(
-                                                  color: Colors.grey[500],
-                                                  offset: const Offset(-4, 4),
-                                                  spreadRadius: 1)
-                                            ],
-                                            border: Border.all(width: 2),
-                                            borderRadius:
-                                                BorderRadius.circular(55)),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                const Expanded(
-                                                  flex: 1,
-                                                  child: Text(
-                                                    'Name: ',
-                                                    style: textStyle3,
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  flex: 2,
-                                                  child: Text(
-                                                    snapshot.data.projectName
-                                                        .toUpperCase(),
-                                                    style: textStyle5,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                const Expanded(
-                                                  flex: 1,
-                                                  child: Text(
-                                                    'Details: ',
-                                                    style: textStyle3,
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  flex: 2,
-                                                  child: snapshot
-                                                              .data
-                                                              .projectDetails
-                                                              .length >
-                                                          60
-                                                      ? Text(
-                                                          '${snapshot.data.projectDetails.toString().characters.take(60)}...',
+                                  child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: snapshot.data.length,
+                                      itemBuilder: (context, index) {
+                                        return Padding(
+                                          padding: const EdgeInsets.only(
+                                              top: 10,
+                                              bottom: 10,
+                                              left: 5,
+                                              right: 15),
+                                          child: GestureDetector(
+                                            onTap: () async {
+                                              //once tapped shall navigate to a page that will show assigned workers
+                                              //will present a dialog on the things that could be done
+                                              await Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (_) =>
+                                                          ProjectGrid(
+                                                            currentUser:
+                                                                userProvider,
+                                                            selectedProject:
+                                                                snapshot.data[
+                                                                    index],
+                                                          )));
+                                            },
+                                            child: Container(
+                                              padding: const EdgeInsets.all(12),
+                                              height: 80,
+                                              width: _size.width / 1.5,
+                                              decoration: BoxDecoration(
+                                                  color: userProvider
+                                                                  .distanceToProject !=
+                                                              null &&
+                                                          userProvider
+                                                                  .distanceToProject <=
+                                                              snapshot
+                                                                  .data[index]
+                                                                  .radius
+                                                      ? Colors.green
+                                                      : Colors.yellowAccent,
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                        color: Colors.grey[500],
+                                                        offset:
+                                                            const Offset(-4, 4),
+                                                        spreadRadius: 1)
+                                                  ],
+                                                  border: Border.all(width: 2),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          55)),
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceEvenly,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      const Expanded(
+                                                        flex: 1,
+                                                        child: Text(
+                                                          'Name: ',
+                                                          style: textStyle3,
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        flex: 2,
+                                                        child: Text(
+                                                          snapshot.data[index]
+                                                              .projectName
+                                                              .toUpperCase(),
                                                           style: textStyle5,
-                                                        )
-                                                      : Text(snapshot
-                                                          .data.projectDetails),
-                                                ),
-                                              ],
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      const Expanded(
+                                                        flex: 1,
+                                                        child: Text(
+                                                          'Details: ',
+                                                          style: textStyle3,
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        flex: 2,
+                                                        child: snapshot
+                                                                    .data[index]
+                                                                    .projectDetails
+                                                                    .length >
+                                                                60
+                                                            ? Text(
+                                                                '${snapshot.data.projectDetails.toString().characters.take(60)}...',
+                                                                style:
+                                                                    textStyle5,
+                                                              )
+                                                            : Text(snapshot
+                                                                .data[index]
+                                                                .projectDetails),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      const Expanded(
+                                                        flex: 1,
+                                                        child: Text(
+                                                          'On Site: ',
+                                                          style: textStyle3,
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        flex: 2,
+                                                        child: Text(
+                                                          userProvider.distanceToProject !=
+                                                                      null &&
+                                                                  userProvider
+                                                                          .distanceToProject <=
+                                                                      snapshot
+                                                                          .data[
+                                                                              index]
+                                                                          .radius
+                                                              ? 'Yes'
+                                                              : 'No',
+                                                          style: textStyle5,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      const Expanded(
+                                                        flex: 1,
+                                                        child: Text(
+                                                          'Assigned Workers: ',
+                                                          style: textStyle3,
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        flex: 2,
+                                                        child: Text(
+                                                          '${snapshot.data[index].assignedWorkers.length} workers',
+                                                          style: textStyle5,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
                                             ),
-                                            Row(
-                                              children: [
-                                                const Expanded(
-                                                  flex: 1,
-                                                  child: Text(
-                                                    'On Site: ',
-                                                    style: textStyle3,
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  flex: 2,
-                                                  child: Text(
-                                                    userProvider.distanceToProject !=
-                                                                null &&
-                                                            userProvider
-                                                                    .distanceToProject <=
-                                                                snapshot
-                                                                    .data.radius
-                                                        ? 'Yes'
-                                                        : 'No',
-                                                    style: textStyle5,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                const Expanded(
-                                                  flex: 1,
-                                                  child: Text(
-                                                    'Assigned Workers: ',
-                                                    style: textStyle3,
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  flex: 2,
-                                                  child: Text(
-                                                    '${snapshot.data.assignedWorkers.length} workers',
-                                                    style: textStyle5,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ));
+                                          ),
+                                        );
+                                      }));
                             }
                           } else {
                             return SizedBox(
@@ -1072,6 +1093,29 @@ class _HomeScreenState extends State<HomeScreen> {
               ));
   }
 
+  //For supervisors
+  Future<List<ProjectData>> getSupervisorAssignedProjects() async {
+    List<ProjectData> allProjects = [];
+    if (userProvider != null && userProvider.assignedProject != null) {
+      // if (userProvider.roles.contains('isSupervisor')) {
+
+      // } else {
+      //   result = await db.getPorjectByIdFuture(
+      //       projectId: userProvider.assignedProject['id']);
+      // }
+
+      for (var project in userProvider.assignedProject) {
+        var result = await db.getPorjectByIdFuture(projectId: project['id']);
+        if (result != null) {
+          allProjects.add(result);
+        }
+      }
+    }
+    print('the result: $allProjects');
+    return allProjects;
+  }
+
+  //For normal Users
   Future<ProjectData> getUserAssignedProject() async {
     var result;
     if (userProvider != null && userProvider.assignedProject != null) {
@@ -1096,7 +1140,7 @@ class _HomeScreenState extends State<HomeScreen> {
             await ph.Permission.location.status.onError((error, stackTrace) {
           return error;
         });
-        print('the permission: ${permissionStatus}');
+
         if (permissionStatus.isGranted) {
           if (ph.Permission.location == ph.Permission.locationWhenInUse ||
               ph.Permission.location == ph.Permission.location) {
@@ -1104,10 +1148,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 .request();
           }
           //update database with permission status
-          if (userProvider != null) {
-            var result = await db.updateUserPermissionStatus(
+          if (userProvider != null && userProvider.uid != null) {
+            await db.updateUserPermissionStatus(
                 uid: userProvider.uid, permissionStatus: permissionStatus);
-            print('the result: $result');
           }
 
           getCurrentLocation();
@@ -1119,15 +1162,13 @@ class _HomeScreenState extends State<HomeScreen> {
           await ph.openAppSettings();
           //update data base with permission status
           if (userProvider != null) {
-            var result = await db.updateUserPermissionStatus(
+            await db.updateUserPermissionStatus(
                 uid: userProvider.uid, permissionStatus: permissionStatus);
-            print('the result: $result');
           }
         } else {
           _snackBarWidget.content = 'Location Permission: $permissionStatus';
           _snackBarWidget.showSnack();
         }
-        print('the status: $permissionStatus');
       }
     } catch (e) {
       print('Error obtaining permission: $e');
