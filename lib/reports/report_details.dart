@@ -140,6 +140,8 @@ class _ReportDetailsState extends State<ReportDetails> {
                                 });
 
                                 generateddata.addAll(singleUserMap);
+                                generateddata.sort((v1, v2) =>
+                                    v1['arrivedAt'].compareTo(v2['arrivedAt']));
 
                                 return Container(
                                   width: _size.width,

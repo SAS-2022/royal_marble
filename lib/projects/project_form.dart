@@ -170,18 +170,20 @@ class _ProjectFormState extends State<ProjectForm> {
     Future.delayed(const Duration(milliseconds: 500), () {
       if (widget.allWorkers != null && widget.allWorkers.isNotEmpty) {
         for (var worker in widget.allWorkers) {
-          if (worker.assignedProject != null) {
-            if (worker.assignedProject.runtimeType == List) {
-              for (var project in worker.assignedProject) {
-                if (project['id'] == widget.selectedProject.uid) {
-                  workerOnThisProject.add(worker);
-                }
+          if (worker.assignedProject != null &&
+              worker.assignedProject.runtimeType == List) {
+            for (var project in worker.assignedProject) {
+              if (project['id'] == widget.selectedProject.uid) {
+                workerOnThisProject.add(worker);
               }
             }
           }
+
           if (worker.assignedProject != null &&
-              worker.assignedProject['id'] == widget.selectedProject.uid) {
-            workerOnThisProject.add(worker);
+              worker.assignedProject.runtimeType != List) {
+            if (worker.assignedProject['id'] == widget.selectedProject.uid) {
+              workerOnThisProject.add(worker);
+            }
           }
 
           setState(() {});

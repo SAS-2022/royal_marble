@@ -885,13 +885,11 @@ PODS:
   - printing (1.0.0):
     - Flutter
   - PromisesObjC (2.1.1)
-  - Sentry (7.22.0):
-    - Sentry/Core (= 7.22.0)
-  - Sentry/Core (7.22.0)
+  - Sentry/HybridSDK (7.31.3)
   - sentry_flutter (0.0.1):
     - Flutter
     - FlutterMacOS
-    - Sentry (~> 7.22.0)
+    - Sentry/HybridSDK (= 7.31.3)
   - shared_preferences_ios (0.0.1):
     - Flutter
   - uri_to_file (0.0.1):
@@ -1072,8 +1070,8 @@ SPEC CHECKSUMS:
   permission_handler_apple: 44366e37eaf29454a1e7b1b7d736c2cceaeb17ce
   printing: eafa00acb682c0ca029d4d98d0798f55a1e27102
   PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
-  Sentry: 30b51086ca9aac23337880152e95538f7e177f7f
-  sentry_flutter: eaca55af5c951f4be6c4b1daddce1744c37d8476
+  Sentry: 08884c523575ec0f6690d94ed3ccb0246a1600bf
+  sentry_flutter: 91ebe7757a166b34ff432a0d550d22cd010d44d2
   shared_preferences_ios: 548a61f8053b9b8a49ac19c1ffbc8b92c50d68ad
   uri_to_file: c4726881848febf4806f0a5707bd12903e02b0f0
   url_launcher_ios: 839c58cdb4279282219f5e248c3321761ff3c4de
