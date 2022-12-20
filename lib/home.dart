@@ -479,7 +479,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ? Padding(
                 padding: const EdgeInsets.all(25),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     //List of projects assigned two
                     FutureBuilder(
@@ -495,7 +495,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               );
                             } else {
                               return SizedBox(
-                                  width: _size.width - 100,
+                                  width: _size.width,
                                   height: (_size.height / 2) - 100,
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
@@ -1111,7 +1111,7 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       }
     }
-    print('the result: $allProjects');
+
     return allProjects;
   }
 

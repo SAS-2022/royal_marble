@@ -26,7 +26,7 @@ class VisitDetailsClass extends StatefulWidget {
 
 class _VisitDetailsClassState extends State<VisitDetailsClass> {
   Size _size;
-  bool _edit = false;
+  bool _editContent = false;
 
   String visitDetails;
   String managerComments;
@@ -59,14 +59,18 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
           actions: [
             //create an edit button to edit content
             TextButton(
+                style: TextButton.styleFrom(
+                    backgroundColor: !_editContent
+                        ? const Color.fromARGB(255, 191, 180, 66)
+                        : Colors.grey[500]),
                 onPressed: () {
                   setState(() {
-                    _edit = !_edit;
+                    _editContent = !_editContent;
                   });
                 },
-                child: const Text(
+                child: Text(
                   'Edit',
-                  style: buttonStyle,
+                  style: !_editContent ? textStyle2 : textStyle4,
                 ))
           ],
         ),
@@ -169,13 +173,10 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
                 ),
               ),
             ),
-
-            //visit details
-
             const SizedBox(
               height: 15,
             ),
-            //visit purpose
+            //visit details
             SizedBox(
               height: _size.height / 4,
               child: Card(
@@ -194,12 +195,12 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
                       ),
                       Expanded(
                         flex: 2,
-                        child: !_edit
+                        child: !_editContent
                             ? Text(
                                 visitDetails,
                                 style: textStyle5,
                               )
-                            : widget.selectedUser.uid == visitUser
+                            : widget.currentUser.uid == visitUser
                                 ? TextFormField(
                                     initialValue: visitDetails,
                                     maxLines: 7,
@@ -253,7 +254,7 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
                       ),
                       Expanded(
                         flex: 2,
-                        child: !_edit
+                        child: !_editContent
                             ? Text(
                                 managerComments,
                                 style: textStyle5,

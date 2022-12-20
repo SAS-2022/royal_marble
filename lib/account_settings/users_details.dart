@@ -881,18 +881,26 @@ class _UserDetailsState extends State<UserDetails> {
                     flex: 2,
                     child: GestureDetector(
                       onTap: () async {
-                        if (Platform.isIOS) {
-                        } else {
-                          await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => GoogleMapNavigation(
-                                        lat: _myLocation['Lat'],
-                                        lng: _myLocation['Lng'],
-                                        getLocation: selecteMapLocation,
-                                        navigate: false,
-                                      )));
-                        }
+                        await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => GoogleMapNavigation(
+                                      getLocation: selecteMapLocation,
+                                      navigate: false,
+                                    )));
+                        // if (Platform.isIOS) {
+
+                        // } else {
+                        //   await Navigator.push(
+                        //       context,
+                        //       MaterialPageRoute(
+                        //           builder: (_) => GoogleMapNavigation(
+                        //                 lat: _myLocation['Lat'],
+                        //                 lng: _myLocation['Lng'],
+                        //                 getLocation: selecteMapLocation,
+                        //                 navigate: false,
+                        //               )));
+                        // }
                       },
                       child: Container(
                         decoration: BoxDecoration(

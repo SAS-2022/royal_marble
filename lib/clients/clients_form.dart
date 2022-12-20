@@ -80,14 +80,18 @@ class _ClientFormState extends State<ClientForm> {
         actions: [
           !widget.isNewClient
               ? TextButton(
+                  style: TextButton.styleFrom(
+                      backgroundColor: !_editContent
+                          ? const Color.fromARGB(255, 191, 180, 66)
+                          : Colors.grey[500]),
                   onPressed: () {
                     setState(() {
                       _editContent = !_editContent;
                     });
                   },
-                  child: const Text(
+                  child: Text(
                     'Edit',
-                    style: buttonStyle,
+                    style: !_editContent ? textStyle2 : textStyle4,
                   ))
               : const SizedBox.shrink()
         ],
@@ -205,49 +209,10 @@ class _ClientFormState extends State<ClientForm> {
                       signed: true, decimal: true),
                   inputBorder: const OutlineInputBorder(),
                   onSaved: (PhoneNumber number) {
-                    print('the number: $number');
                     newClient.phoneNumber = number;
                   },
                 ),
 
-                // TextFormField(
-                //   autofocus: false,
-                //   initialValue: '',
-                //   style: textStyle5,
-                //   keyboardType: TextInputType.number,
-                //   inputFormatters: <TextInputFormatter>[
-                //     FilteringTextInputFormatter.digitsOnly,
-                //   ],
-                //   decoration: InputDecoration(
-                //     filled: true,
-                //     label: const Text('Client Phone'),
-                //     hintText: 'Ex: 05 123 12345',
-                //     fillColor: Colors.grey[100],
-                //     enabledBorder: const OutlineInputBorder(
-                //         borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                //         borderSide: BorderSide(color: Colors.grey)),
-                //     focusedBorder: const OutlineInputBorder(
-                //         borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                //         borderSide: BorderSide(color: Colors.green)),
-                //   ),
-                //   validator: (val) {
-                //     Pattern pattern = r'^(?:[05]8)?[0-9]{10}$';
-                //     var regexp = RegExp(pattern.toString());
-                //     if (val.isEmpty) {
-                //       return 'Phone cannot be empty';
-                //     }
-                //     if (!regexp.hasMatch(val)) {
-                //       return 'Phone number does not match a UAE number';
-                //     } else {
-                //       return null;
-                //     }
-                //   },
-                //   onChanged: (val) {
-                //     setState(() {
-                //       newClient.phoneNumber = val.trim();
-                //     });
-                //   },
-                // ),
                 const SizedBox(
                   height: 15,
                 ),

@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:royal_marble/models/business_model.dart';
@@ -145,14 +144,18 @@ class _ProjectFormState extends State<ProjectForm> {
           !widget.isNewProject
               ? widget.currentUser.roles.contains('isAdmin')
                   ? TextButton(
+                      style: TextButton.styleFrom(
+                          backgroundColor: !_editContent
+                              ? const Color.fromARGB(255, 191, 180, 66)
+                              : Colors.grey[500]),
                       onPressed: () {
                         setState(() {
                           _editContent = !_editContent;
                         });
                       },
-                      child: const Text(
+                      child: Text(
                         'Edit',
-                        style: buttonStyle,
+                        style: !_editContent ? textStyle2 : textStyle4,
                       ))
                   : const SizedBox.shrink()
               : const SizedBox.shrink()
