@@ -157,101 +157,146 @@ class _WorkerWidgetState extends State<WorkerWidget> {
     _size = MediaQuery.of(context).size;
 
     _selectUserRole();
-    return SingleChildScrollView(
-      child: Dismissible(
-        key: Key(_userProvider.uid),
-        direction: DismissDirection.endToStart,
-        background: Padding(
-          padding: const EdgeInsets.all(5.0),
-          child: Container(
-            color: Colors.red,
-            child: Align(
-              alignment: Alignment.centerRight,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        SingleChildScrollView(
+          child: Dismissible(
+            key: Key(_userProvider.uid),
+            direction: DismissDirection.endToStart,
+            background: Padding(
+              padding: const EdgeInsets.all(5.0),
               child: Container(
-                padding: const EdgeInsets.only(right: 5.0),
-                child: const Text(
-                  'Remove',
-                  style: textStyle3,
+                color: Colors.red,
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Container(
+                    padding: const EdgeInsets.only(right: 5.0),
+                    child: const Text(
+                      'Remove',
+                      style: textStyle3,
+                    ),
+                  ),
                 ),
+              ),
+            ),
+            confirmDismiss: ((val) async {
+              var result;
+              //will call a function to confirm that the admin wants to remove this user
+              result = await showDialog(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                        title: const Text('Removing Worker'),
+                        content: const Text(
+                            'Are you sure you want to remove this worker from the project, this cannot be undone?'),
+                        actions: [
+                          TextButton(
+                              onPressed: () {
+                                Navigator.pop(context, 'no delete');
+                              },
+                              child: const Text('No')),
+                          TextButton(
+                              onPressed: () {
+                                if (mounted) {
+                                  Navigator.pop(context, 'Delete');
+                                }
+                              },
+                              child: const Text('Yes'))
+                        ],
+                      )).then((val) {
+                result = val;
+                return val;
+              });
+
+              if (result == 'Delete') {
+                await db.removeUserFromProject(
+                    selectedProject: widget.currentProject,
+                    userId: _userProvider.uid,
+                    removedUser: _userProvider);
+
+                return true;
+              }
+
+              return null;
+            }),
+            onDismissed: (direction) async {
+              //The following code with remove user from the project
+              _snackBarWidget.content =
+                  'User have been removed from this project';
+              _snackBarWidget.showSnack();
+            },
+            child: ListTile(
+              leading: _userProvider.imageUrl == null
+                  ? const CircleAvatar(
+                      radius: 30,
+                      child: Icon(
+                        Icons.person,
+                        size: 50,
+                      ),
+                    )
+                  : CircleAvatar(
+                      radius: 30,
+                      backgroundImage: NetworkImage(
+                        _userProvider.imageUrl,
+                        scale: 2,
+                      )),
+              title: Text(
+                  '${_userProvider.firstName} ${_userProvider.lastName} - $role'),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Mobile: ${_userProvider.phoneNumber}'),
+                  Text(
+                      'Distance To Site: ${_userProvider.distanceToProject != null ? _userProvider.distanceToProject.toStringAsFixed(2) : ''}'),
+                ],
+              ),
+              trailing: Container(
+                width: 20,
+                decoration: BoxDecoration(color: getColorDistance()),
               ),
             ),
           ),
         ),
-        confirmDismiss: ((val) async {
-          var result;
-          //will call a function to confirm that the admin wants to remove this user
-          result = await showDialog(
-              context: context,
-              builder: (_) => AlertDialog(
-                    title: const Text('Removing Worker'),
-                    content: const Text(
-                        'Are you sure you want to remove this worker from the project, this cannot be undone?'),
-                    actions: [
-                      TextButton(
-                          onPressed: () {
-                            Navigator.pop(context, 'no delete');
-                          },
-                          child: const Text('No')),
-                      TextButton(
-                          onPressed: () {
-                            if (mounted) {
-                              Navigator.pop(context, 'Delete');
-                            }
-                          },
-                          child: const Text('Yes'))
-                    ],
-                  )).then((val) {
-            result = val;
-            return val;
-          });
-
-          if (result == 'Delete') {
-            await db.removeUserFromProject(
-                selectedProject: widget.currentProject,
-                userId: _userProvider.uid,
-                removedUser: _userProvider);
-
-            return true;
-          }
-
-          return null;
-        }),
-        onDismissed: (direction) async {
-          //The following code with remove user from the project
-          _snackBarWidget.content = 'User have been removed from this project';
-          _snackBarWidget.showSnack();
-        },
-        child: ListTile(
-          leading: _userProvider.imageUrl == null
-              ? const CircleAvatar(
-                  radius: 30,
-                  child: Icon(
-                    Icons.person,
-                    size: 50,
-                  ),
-                )
-              : CircleAvatar(
-                  radius: 30,
-                  backgroundImage: NetworkImage(
-                    _userProvider.imageUrl,
-                    scale: 2,
-                  )),
-          title: Text(
-              '${_userProvider.firstName} ${_userProvider.lastName} - $role'),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Mobile: ${_userProvider.phoneNumber}'),
-              Text(
-                  'Distance To Site: ${_userProvider.distanceToProject != null ? _userProvider.distanceToProject.toStringAsFixed(2) : ''}')
-            ],
-          ),
-          trailing: Container(
-            width: 20,
-            decoration: BoxDecoration(color: getColorDistance()),
-          ),
-        ),
-      ),
+        _userProvider.assingedHelpers != null &&
+                _userProvider.assingedHelpers.isNotEmpty
+            ? Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Container(
+                    alignment: Alignment.centerRight,
+                    height: 80,
+                    width: _size.width / 2,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(25),
+                        border: Border.all()),
+                    child: ListView.builder(
+                        itemCount: _userProvider.assingedHelpers.length,
+                        itemBuilder: (context, index) {
+                          return FutureBuilder(
+                              future: db.readSingleHelper(
+                                  uid: _userProvider.assingedHelpers[index]),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 30, top: 5, bottom: 5),
+                                    child: ListTile(
+                                      leading: Text('${index + 1}'),
+                                      minLeadingWidth: 0,
+                                      contentPadding: const EdgeInsets.all(2),
+                                      title: Text(
+                                          '${snapshot.data.firstName} ${snapshot.data.lastName}'),
+                                      subtitle:
+                                          Text('${snapshot.data.mobileNumber}'),
+                                    ),
+                                  );
+                                } else {
+                                  return const SizedBox.shrink();
+                                }
+                              });
+                        })),
+              )
+            : const SizedBox.shrink()
+      ],
     );
   }
 
