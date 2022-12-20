@@ -215,15 +215,16 @@ class _SplashScreenState extends State<SplashScreen> {
                 child: Image.asset('assets/images/logo_2.jpg'),
               ),
               Positioned(
-                bottom: _size.height / 5,
+                top: _size.height / 6,
                 child: SizedBox(
-                  width: _size.width - 30,
+                  width: _size.width,
                   child: Center(
                     child: AnimatedTextKit(
                       animatedTexts: [
                         WavyAnimatedText(
-                          'Please wait...',
-                          textStyle: textStyle2,
+                          'Loading...',
+                          textAlign: TextAlign.center,
+                          textStyle: textStyle17,
                         ),
                       ],
                     ),
@@ -239,11 +240,15 @@ class _SplashScreenState extends State<SplashScreen> {
                       height: _size.height / 8,
                       width: _size.width,
                       child: TextLiquidFill(
+                        textAlign: TextAlign.center,
+                        waveDuration: const Duration(seconds: 4),
+                        loadUntil: 0.9,
+                        boxWidth: _size.width,
                         text: 'Welcome To Royal Marble',
                         waveColor: const Color.fromARGB(255, 191, 180, 66),
                         boxBackgroundColor: Colors.black,
                         textStyle: textStyle16,
-                        boxHeight: 100.0,
+                        boxHeight: 110.0,
                       ),
                     ),
                   )),
