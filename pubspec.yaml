@@ -53,6 +53,7 @@ dependencies:
   #flutter_cache_manager: ^3.3.0
   intl_phone_number_input: ^0.7.1
   timer_builder: ^2.0.0
+  animated_text_kit: ^4.2.2
  
 
 dev_dependencies:

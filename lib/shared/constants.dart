@@ -99,6 +99,12 @@ const textStyle15 = TextStyle(
   color: Colors.red,
 );
 
+const textStyle16 = TextStyle(
+  fontSize: 30,
+  fontFamily: 'San Fransisco',
+  fontWeight: FontWeight.bold,
+);
+
 const timerTextStyle = TextStyle(
     color: Color.fromARGB(255, 54, 76, 171),
     fontSize: 40,

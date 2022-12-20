@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -124,19 +125,34 @@ class _SplashScreenState extends State<SplashScreen> {
   final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
   String identifier;
   Size _size;
+  bool _changeLogo = true;
+  Timer _logoTimer;
+  Timer _screenTimer;
 
   @override
   void initState() {
     super.initState();
     _getDeviceInfo();
     _getLocationAccess();
-    Timer(
-      const Duration(seconds: 5),
+    _logoTimer = Timer(const Duration(seconds: 1), () {
+      setState(() {
+        _changeLogo = !_changeLogo;
+      });
+    });
+    _screenTimer = Timer(
+      const Duration(seconds: 7),
       () => Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const Wrapper()),
           ModalRoute.withName('/home')),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _logoTimer.cancel();
+    _screenTimer.cancel();
   }
 
   //Check if location is enabled
@@ -172,6 +188,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     _size = MediaQuery.of(context).size;
+    print('the size: width: ${_size.width} height: ${_size.height}');
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
@@ -198,13 +215,38 @@ class _SplashScreenState extends State<SplashScreen> {
                 child: Image.asset('assets/images/logo_2.jpg'),
               ),
               Positioned(
-                bottom: 50,
-                left: _size.width / 2 + 50,
-                child: const Text(
-                  'Please wait...',
-                  style: textStyle2,
+                bottom: _size.height / 5,
+                child: SizedBox(
+                  width: _size.width - 30,
+                  child: Center(
+                    child: AnimatedTextKit(
+                      animatedTexts: [
+                        WavyAnimatedText(
+                          'Please wait...',
+                          textStyle: textStyle2,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              )
+              ),
+              AnimatedPositioned(
+                  bottom: _changeLogo ? -50 : 50,
+                  duration: const Duration(seconds: 1),
+                  curve: Curves.fastOutSlowIn,
+                  child: Center(
+                    child: SizedBox(
+                      height: _size.height / 8,
+                      width: _size.width,
+                      child: TextLiquidFill(
+                        text: 'Welcome To Royal Marble',
+                        waveColor: const Color.fromARGB(255, 191, 180, 66),
+                        boxBackgroundColor: Colors.black,
+                        textStyle: textStyle16,
+                        boxHeight: 100.0,
+                      ),
+                    ),
+                  )),
             ],
           )
         ],
