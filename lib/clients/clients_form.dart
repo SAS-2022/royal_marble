@@ -301,6 +301,15 @@ class _ClientFormState extends State<ClientForm> {
                       onPressed: () async {
                         if (_formKey.currentState.validate()) {
                           _formKey.currentState.save();
+                          print('the myLocation 1: $_myLocation');
+
+                          if (_myLocation == null ||
+                              _myLocation.isEmpty ||
+                              _myLocation['Lat'] == '') {
+                            _snackBarWidget.content = 'Location is needed';
+                            _snackBarWidget.showSnack();
+                            return;
+                          }
                           setState(() {
                             _loading = true;
                           });
@@ -735,5 +744,6 @@ class _ClientFormState extends State<ClientForm> {
       _myLocation = {'Lat': '', 'Lng': ''};
     }
     setState(() {});
+    print('the myLocation: $_myLocation');
   }
 }
