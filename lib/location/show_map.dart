@@ -10,13 +10,13 @@ import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 //import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:provider/provider.dart';
-import 'package:royal_marble/account_settings/users_details.dart';
 import 'package:royal_marble/location/.env.dart';
 import 'package:royal_marble/location/direction_repo.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/projects/project_form.dart';
 import 'package:royal_marble/shared/constants.dart';
 import 'package:royal_marble/shared/snack_bar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/directions.dart';
 import '../models/user_model.dart';
 import '../services/database.dart';
@@ -51,6 +51,8 @@ class _ShowMapState extends State<ShowMap> {
   var lat = 0.0, long = 0.0;
   var _getMyCurrentLocation;
   Set<Circle> _circules = HashSet<Circle>();
+  SharedPreferences _preferredTab;
+  int _prefTab = 0;
   var db = DatabaseService();
   // PickResult selectedPlace;
   String apiKey;
@@ -79,6 +81,7 @@ class _ShowMapState extends State<ShowMap> {
   @override
   void initState() {
     super.initState();
+    getSharedPreferences();
     _center = LatLng(widget.currentUser.homeAddress['Lat'],
         widget.currentUser.homeAddress['Lng']);
     _getApiKey();
@@ -99,6 +102,16 @@ class _ShowMapState extends State<ShowMap> {
     if (!widget.addProject) {
       _timer.cancel();
     }
+  }
+
+  Future<void> getSharedPreferences() async {
+    _preferredTab = await SharedPreferences.getInstance();
+    if (_preferredTab != null && _preferredTab.getInt('tab') != null) {
+      _prefTab = _preferredTab.getInt('tab');
+    } else {
+      _prefTab = 0;
+    }
+    print('the _prefTab: $_prefTab');
   }
 
   Future<void> _identifyMapMarkers() async {
@@ -682,18 +695,27 @@ class _ShowMapState extends State<ShowMap> {
       backgroundColor: const Color.fromARGB(255, 186, 184, 152),
       width: _size.width / 2,
       child: DefaultTabController(
+        initialIndex: _prefTab,
         length: 2,
         child: Padding(
           padding: EdgeInsets.only(top: _size.height / 15, right: 10),
           child: Column(
             children: [
-              const SizedBox(
+              SizedBox(
                 child: TabBar(
+                    onTap: ((value) async {
+                      _preferredTab = await SharedPreferences.getInstance();
+                      _prefTab = value;
+                      _preferredTab.setInt('tab', value);
+
+                      print(
+                          'the _prefTab 1: $_prefTab, ${_preferredTab.getInt('tab')}');
+                    }),
                     labelStyle: textStyle5,
                     labelColor: Colors.black,
                     unselectedLabelColor: Colors.white,
                     indicatorColor: Colors.black,
-                    tabs: [
+                    tabs: const [
                       Tab(
                         text: 'Users',
                       ),
