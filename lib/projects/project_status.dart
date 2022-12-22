@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/shared/constants.dart';
 import 'package:royal_marble/shared/loading.dart';
+import 'package:royal_marble/shared/snack_bar.dart';
 
 import '../models/business_model.dart';
 
@@ -18,10 +19,12 @@ class _ProjectStatusState extends State<ProjectStatus> {
   bool _loading = false;
   ProjectData editedProject;
   DatabaseService db = DatabaseService();
+  SnackBarWidget _snackBarWidget = SnackBarWidget();
 
   @override
   void initState() {
     super.initState();
+    _snackBarWidget.context = context;
     if (widget.selectedProject != null) {
       editedProject = widget.selectedProject;
     }
@@ -208,6 +211,16 @@ class _ProjectStatusState extends State<ProjectStatus> {
                       onPressed:
                           widget.selectedProject.projectStatus != 'potential'
                               ? () async {
+                                  //Cannot put project on hold if workers are still assigned to it
+                                  if (widget.selectedProject.assignedWorkers !=
+                                          null &&
+                                      widget.selectedProject.assignedWorkers
+                                          .isNotEmpty) {
+                                    _snackBarWidget.content =
+                                        'You have workers assigned to this projects, remove them before holding it';
+                                    _snackBarWidget.showSnack();
+                                    return;
+                                  }
                                   setState(() {
                                     _loading = true;
                                   });
@@ -238,13 +251,28 @@ class _ProjectStatusState extends State<ProjectStatus> {
                       onPressed:
                           widget.selectedProject.projectStatus != 'closed'
                               ? () async {
+                                  //Cannot close project if workers are still assigned to it
+                                  if (widget.selectedProject.assignedWorkers !=
+                                          null &&
+                                      widget.selectedProject.assignedWorkers
+                                          .isNotEmpty) {
+                                    _snackBarWidget.content =
+                                        'You have workers assigned to this projects, remove them before closing it';
+                                    _snackBarWidget.showSnack();
+                                    return;
+                                  }
+
                                   setState(() {
                                     _loading = true;
                                   });
+
                                   editedProject.projectStatus = 'closed';
+
                                   //will change project status
                                   await db.updateProjectStatus(
                                       project: editedProject);
+
+                                  //should remove any workers currently on the project
 
                                   Navigator.pop(context);
                                 }

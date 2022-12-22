@@ -62,38 +62,92 @@ class _HelpersPageState extends State<HelpersPage> {
     helperProvider = Provider.of<List<Helpers>>(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Assign Helpers',
-        ),
+        title: widget.currentUser.roles.contains('isAdmin')
+            ? const Text(
+                'Assign Helpers',
+              )
+            : const Text(
+                'Assigned Helpers',
+              ),
         backgroundColor: const Color.fromARGB(255, 191, 180, 66),
         actions: [
           //Save changes
-          TextButton(
-              onPressed: () async {
-                //will save the new helpers to the current user
-                if (assignedHelpers.length <= 2) {
-                  var result = await db.updateUserWithHelpers(
-                      uid: widget.currentUser.uid, helpers: assignedHelpers);
-                  Navigator.pop(context);
-                  _snackBarWidget.content = result;
-                } else {
-                  _snackBarWidget.content =
-                      'Helpers should be at least one and no more than 2';
-                }
+          widget.currentUser.roles.contains('isAdmin')
+              ? TextButton(
+                  onPressed: () async {
+                    //will save the new helpers to the current user
+                    if (assignedHelpers.length <= 2) {
+                      var result = await db.updateUserWithHelpers(
+                          uid: widget.currentUser.uid,
+                          helpers: assignedHelpers);
+                      Navigator.pop(context);
+                      _snackBarWidget.content = result;
+                    } else {
+                      _snackBarWidget.content =
+                          'Helpers should be at least one and no more than 2';
+                    }
 
-                _snackBarWidget.showSnack();
-              },
-              child: const Text(
-                'Save',
-                style: textStyle2,
-              ))
+                    _snackBarWidget.showSnack();
+                  },
+                  child: const Text(
+                    'Save',
+                    style: textStyle2,
+                  ))
+              : const SizedBox.shrink()
         ],
       ),
-      body: _buildHelperPageBody(),
+      body: widget.currentUser.roles.contains('isAdmin')
+          ? _buildHelperAdminPageBody()
+          : _buildHelperNormalPageBody(),
     );
   }
 
-  Widget _buildHelperPageBody() {
+  Widget _buildHelperNormalPageBody() {
+    return Padding(
+      padding: const EdgeInsets.all(30),
+      child: SingleChildScrollView(
+        child: SizedBox(
+          height: _size.height,
+          child: ListView.builder(
+              itemCount: assignedHelpers.length,
+              itemBuilder: (context, index) {
+                return FutureBuilder(
+                    future: db.readSingleHelper(uid: assignedHelpers[index]),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: Loading(),
+                          );
+                        } else {
+                          return ListTile(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20)),
+                            tileColor: Colors.blueGrey[200],
+                            leading: Text((index + 1).toString()),
+                            title: Text(
+                                '${snapshot.data.firstName} ${snapshot.data.lastName}'),
+                            subtitle: Text('${snapshot.data.mobileNumber}'),
+                          );
+                        }
+                      } else if (snapshot.hasError) {
+                        return Center(
+                          child: Text('Error: ${snapshot.error}'),
+                        );
+                      } else {
+                        return const Center(
+                          child: Loading(),
+                        );
+                      }
+                    });
+              }),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHelperAdminPageBody() {
     return Padding(
       padding: const EdgeInsets.all(15.0),
       child: StreamBuilder(
@@ -139,33 +193,41 @@ class _HelpersPageState extends State<HelpersPage> {
                                             uid: assignedHelpers[index]),
                                         builder: (context, snapshot) {
                                           if (snapshot.hasData) {
-                                            return Padding(
-                                              padding:
-                                                  const EdgeInsets.all(5.0),
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                    color: Colors.blueGrey[300],
-                                                    border: Border.all(),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            15)),
-                                                child: GestureDetector(
-                                                  onTap: () {
-                                                    //will remove this item
-                                                    setState(() {
-                                                      assignedHelpers
-                                                          .removeAt(index);
-                                                    });
-                                                  },
-                                                  child: ListTile(
-                                                    title: Text(
-                                                        '${snapshot.data.firstName} ${snapshot.data.lastName}'),
-                                                    subtitle: Text(
-                                                        '${snapshot.data.mobileNumber}'),
+                                            if (snapshot.connectionState ==
+                                                ConnectionState.waiting) {
+                                              return const Center(
+                                                child: Loading(),
+                                              );
+                                            } else {
+                                              return Padding(
+                                                padding:
+                                                    const EdgeInsets.all(5.0),
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                      color:
+                                                          Colors.blueGrey[300],
+                                                      border: Border.all(),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              15)),
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      //will remove this item
+                                                      setState(() {
+                                                        assignedHelpers
+                                                            .removeAt(index);
+                                                      });
+                                                    },
+                                                    child: ListTile(
+                                                      title: Text(
+                                                          '${snapshot.data.firstName} ${snapshot.data.lastName}'),
+                                                      subtitle: Text(
+                                                          '${snapshot.data.mobileNumber}'),
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                            );
+                                              );
+                                            }
                                           } else {
                                             return const Center(
                                               child: Loading(),

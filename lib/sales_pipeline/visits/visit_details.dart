@@ -108,8 +108,12 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
                   flex: 2,
                   child: Text(
                     widget.currentVisit != null
-                        ? widget.currentVisit.clientName.toUpperCase()
-                        : widget.projectVisit.projectName.toUpperCase(),
+                        ? widget.currentVisit.clientName != null
+                            ? widget.currentVisit.clientName.toUpperCase()
+                            : ' '
+                        : widget.projectVisit.projectName != null
+                            ? widget.projectVisit.projectName.toUpperCase()
+                            : ' ',
                     style: textStyle5,
                   ),
                 )

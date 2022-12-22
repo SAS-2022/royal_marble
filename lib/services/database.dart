@@ -617,6 +617,7 @@ class DatabaseService {
     try {
       return await projectCollection.doc(project.uid).update({
         'status': project.projectStatus,
+        'assignedWorkers': project.assignedWorkers,
       }).then((value) => 'Completed');
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
@@ -774,7 +775,6 @@ class DatabaseService {
                 .then((value) => 'Deleted User')
                 .catchError((err) => 'Error: $err');
           }
-          print('the result: $result');
         }
       } else {
         if (assignedProject['id'] == selectedProject.uid) {

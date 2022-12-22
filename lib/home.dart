@@ -212,7 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
           child: SizedBox(
-            height: _size.height / 2.6,
+            height: _size.height / 2.5,
             child:
                 Column(mainAxisAlignment: MainAxisAlignment.start, children: [
               const Text(
@@ -1128,7 +1128,6 @@ class _HomeScreenState extends State<HomeScreen> {
             projectId: userProvider.assignedProject['id']);
       }
     }
-    print('the result: $result');
     return result;
   }
 

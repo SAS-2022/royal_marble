@@ -13,7 +13,7 @@ class SnackBarWidget {
         duration: const Duration(seconds: 4),
         elevation: 15,
         behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.only(bottom: 8, left: 5, right: 5),
+        margin: const EdgeInsets.only(bottom: 50, left: 5, right: 5),
         backgroundColor: Colors.black,
         shape: const StadiumBorder(),
       ),
