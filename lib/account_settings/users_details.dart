@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:path/path.dart' as Path;
 import 'package:royal_marble/account_settings/helpers.dart';
+import 'package:royal_marble/account_settings/helpers_list.dart';
 import 'package:royal_marble/location/google_map_navigation.dart';
 import 'package:royal_marble/location/http_navigation.dart';
 import 'package:royal_marble/models/user_model.dart';
@@ -123,7 +124,28 @@ class _UserDetailsState extends State<UserDetails> {
                         style: textStyle2,
                       )),
                 )
-              : const SizedBox.shrink()
+              : const SizedBox.shrink(),
+          //in case the current user is a mson in order to view his helpers
+          widget.myAccount && widget.currentUser.roles.contains('isNormalUser')
+              ? Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: TextButton(
+                      onPressed: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => HelpersList(
+                              currentUser: widget.currentUser,
+                            ),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        'Helpers',
+                        style: textStyle2,
+                      )),
+                )
+              : const SizedBox.shrink(),
         ],
       ),
       body: Stack(children: [

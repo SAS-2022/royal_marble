@@ -1375,6 +1375,22 @@ class DatabaseService {
     }
   }
 
+  Future<List<Helpers>> getAssignedHelper() async {
+    try {
+      return helperCollection.get().then((value) => value.docs.map((e) {
+            var data = e.data() as Map<String, dynamic>;
+            return Helpers(
+                uid: e.id,
+                firstName: data['firstName'],
+                lastName: data['lastName'],
+                mobileNumber: data['mobileNumber']);
+          }).toList());
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return [];
+    }
+  }
+
   Stream<List<Helpers>> streamAllHelpers() {
     return helperCollection.snapshots().map(_mapAllHelpersData);
   }

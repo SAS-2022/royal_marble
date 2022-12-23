@@ -57,8 +57,7 @@ class _HelpersPageState extends State<HelpersPage> {
   void initState() {
     super.initState();
     _snackBarWidget.context = context;
-    print(
-        'the current User: ${widget.currentUser.firstName} selectred: ${widget.selectedUsers.firstName}');
+
     if (widget.selectedUsers.assingedHelpers != null) {
       assignedHelpers = widget.selectedUsers.assingedHelpers;
     }
