@@ -9,26 +9,31 @@ import 'package:royal_marble/shared/loading.dart';
 import '../shared/snack_bar.dart';
 
 class HelperProvider extends StatelessWidget {
-  const HelperProvider({Key key, this.currentUser}) : super(key: key);
+  const HelperProvider({Key key, this.currentUser, this.selectedUser})
+      : super(key: key);
   final UserData currentUser;
+  final UserData selectedUser;
   @override
   Widget build(BuildContext context) {
     return StreamProvider<List<Helpers>>.value(
-      initialData: [],
+      initialData: const [],
       value: DatabaseService().streamAllHelpers(),
       catchError: ((context, error) {
         return [];
       }),
       child: HelpersPage(
         currentUser: currentUser,
+        selectedUsers: selectedUser,
       ),
     );
   }
 }
 
 class HelpersPage extends StatefulWidget {
-  const HelpersPage({Key key, this.currentUser}) : super(key: key);
+  const HelpersPage({Key key, this.currentUser, this.selectedUsers})
+      : super(key: key);
   final UserData currentUser;
+  final UserData selectedUsers;
   @override
   State<HelpersPage> createState() => _HelpersPageState();
 }
@@ -51,8 +56,10 @@ class _HelpersPageState extends State<HelpersPage> {
   void initState() {
     super.initState();
     _snackBarWidget.context = context;
-    if (widget.currentUser.assingedHelpers != null) {
-      assignedHelpers = widget.currentUser.assingedHelpers;
+    print(
+        'the current User: ${widget.currentUser.firstName} selectred: ${widget.selectedUsers.firstName}');
+    if (widget.selectedUsers.assingedHelpers != null) {
+      assignedHelpers = widget.selectedUsers.assingedHelpers;
     }
   }
 
@@ -78,7 +85,7 @@ class _HelpersPageState extends State<HelpersPage> {
                     //will save the new helpers to the current user
                     if (assignedHelpers.length <= 2) {
                       var result = await db.updateUserWithHelpers(
-                          uid: widget.currentUser.uid,
+                          uid: widget.selectedUsers.uid,
                           helpers: assignedHelpers);
                       Navigator.pop(context);
                       _snackBarWidget.content = result;
@@ -171,7 +178,7 @@ class _HelpersPageState extends State<HelpersPage> {
                       ),
                       //Selected User
                       Text(
-                        '${widget.currentUser.firstName} ${widget.currentUser.lastName}',
+                        '${widget.selectedUsers.firstName} ${widget.selectedUsers.lastName}',
                         style: textStyle4,
                       ),
 

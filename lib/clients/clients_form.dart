@@ -301,7 +301,6 @@ class _ClientFormState extends State<ClientForm> {
                       onPressed: () async {
                         if (_formKey.currentState.validate()) {
                           _formKey.currentState.save();
-                          print('the myLocation 1: $_myLocation');
 
                           if (_myLocation == null ||
                               _myLocation.isEmpty ||

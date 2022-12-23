@@ -6,8 +6,8 @@ import 'package:royal_marble/shared/constants.dart';
 import '../models/user_model.dart';
 
 class UserList extends StatefulWidget {
-  const UserList({Key key}) : super(key: key);
-
+  const UserList({Key key, this.currentUser}) : super(key: key);
+  final UserData currentUser;
   @override
   State<UserList> createState() => _UserListState();
 }
@@ -76,9 +76,10 @@ class _UserListState extends State<UserList> {
                                             context,
                                             MaterialPageRoute(
                                               builder: (_) => UserDetails(
-                                                currentUser:
-                                                    nonActiveUser[index],
+                                                currentUser: widget.currentUser,
                                                 myAccount: false,
+                                                selectedUser:
+                                                    nonActiveUser[index],
                                               ),
                                             ),
                                           );
@@ -162,8 +163,10 @@ class _UserListState extends State<UserList> {
                                                 MaterialPageRoute(
                                                   builder: (_) => UserDetails(
                                                     currentUser:
-                                                        listOfUsers[index],
+                                                        widget.currentUser,
                                                     myAccount: false,
+                                                    selectedUser:
+                                                        listOfUsers[index],
                                                   ),
                                                 ),
                                               );

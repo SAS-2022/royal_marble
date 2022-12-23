@@ -19,7 +19,9 @@ class _UserGridState extends State<UserGrid> {
     return StreamProvider<List<UserData>>.value(
       value: db.getNonAdminUsers(),
       initialData: const [],
-      child: const UserList(),
+      child: UserList(
+        currentUser: widget.currentUser,
+      ),
     );
   }
 }

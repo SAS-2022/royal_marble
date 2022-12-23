@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:path/path.dart' as Path;
-import 'package:provider/provider.dart';
 import 'package:royal_marble/account_settings/helpers.dart';
 import 'package:royal_marble/location/google_map_navigation.dart';
 import 'package:royal_marble/location/http_navigation.dart';
@@ -17,9 +17,11 @@ import 'package:royal_marble/shared/snack_bar.dart';
 import '../shared/country_picker.dart';
 
 class UserDetails extends StatefulWidget {
-  const UserDetails({Key key, this.currentUser, this.myAccount})
+  const UserDetails(
+      {Key key, this.currentUser, this.myAccount, this.selectedUser})
       : super(key: key);
   final UserData currentUser;
+  final UserData selectedUser;
   final bool myAccount;
 
   @override
@@ -48,11 +50,13 @@ class _UserDetailsState extends State<UserDetails> {
     'Admin'
   ];
   bool _isUpdating = false;
+
   @override
   void initState() {
     super.initState();
     _snackBarWidget.context = context;
-    if (widget.currentUser != null) {
+
+    if (widget.currentUser != null && widget.selectedUser == null) {
       newUserData.firstName = widget.currentUser.firstName;
       newUserData.lastName = widget.currentUser.lastName;
       newUserData.phoneNumber = widget.currentUser.phoneNumber;
@@ -65,9 +69,10 @@ class _UserDetailsState extends State<UserDetails> {
       }
 
       //show the current user role
-      if (widget.currentUser.roles != null &&
-          widget.currentUser.roles.isNotEmpty) {
-        switch (widget.currentUser.roles.first.toString()) {
+      if (widget.selectedUser != null &&
+          widget.selectedUser.roles != null &&
+          widget.selectedUser.roles.isNotEmpty) {
+        switch (widget.selectedUser.roles.first.toString()) {
           case 'isNormalUser':
             selectedRoles = 'Mason';
             break;
@@ -97,7 +102,8 @@ class _UserDetailsState extends State<UserDetails> {
         backgroundColor: const Color.fromARGB(255, 191, 180, 66),
         actions: [
           //Button to add helpers
-          widget.currentUser.roles.contains('isNormalUser')
+          widget.selectedUser != null &&
+                  widget.selectedUser.roles.contains('isNormalUser')
               ? Padding(
                   padding: const EdgeInsets.only(right: 12),
                   child: TextButton(
@@ -107,6 +113,7 @@ class _UserDetailsState extends State<UserDetails> {
                           MaterialPageRoute(
                             builder: (_) => HelperProvider(
                               currentUser: widget.currentUser,
+                              selectedUser: widget.selectedUser,
                             ),
                           ),
                         );
@@ -225,7 +232,7 @@ class _UserDetailsState extends State<UserDetails> {
                     Expanded(
                       flex: 3,
                       child: Text(
-                        widget.currentUser.firstName,
+                        widget.selectedUser.firstName,
                         style: textStyle12,
                       ),
                     )
@@ -246,7 +253,7 @@ class _UserDetailsState extends State<UserDetails> {
                     Expanded(
                       flex: 3,
                       child: Text(
-                        widget.currentUser.lastName,
+                        widget.selectedUser.lastName,
                         style: textStyle12,
                       ),
                     )
@@ -267,7 +274,7 @@ class _UserDetailsState extends State<UserDetails> {
                     Expanded(
                       flex: 3,
                       child: Text(
-                        widget.currentUser.phoneNumber,
+                        widget.selectedUser.phoneNumber,
                         style: textStyle12,
                       ),
                     )
@@ -288,7 +295,7 @@ class _UserDetailsState extends State<UserDetails> {
                     Expanded(
                       flex: 3,
                       child: Text(
-                        widget.currentUser.emailAddress,
+                        widget.selectedUser.emailAddress,
                         style: textStyle12,
                       ),
                     )
@@ -308,7 +315,7 @@ class _UserDetailsState extends State<UserDetails> {
                     ),
                     Expanded(
                       child: Text(
-                        widget.currentUser.nationality['countryName'],
+                        widget.selectedUser.nationality['countryName'],
                         style: textStyle12,
                       ),
                     )
@@ -329,7 +336,7 @@ class _UserDetailsState extends State<UserDetails> {
                     Expanded(
                       flex: 3,
                       child: Text(
-                        widget.currentUser.company,
+                        widget.selectedUser.company,
                         style: textStyle12,
                       ),
                     )
@@ -351,7 +358,7 @@ class _UserDetailsState extends State<UserDetails> {
                       flex: 3,
                       child: GestureDetector(
                         onTap: () async {
-                          if (widget.currentUser.homeAddress != null) {
+                          if (widget.selectedUser.homeAddress != null) {
                             if (Platform.isIOS) {
                               _httpNavigation.context = context;
                               _httpNavigation.lat = _myLocation['Lat'];
@@ -371,8 +378,8 @@ class _UserDetailsState extends State<UserDetails> {
                           }
                         },
                         child: Text(
-                          widget.currentUser.homeAddress != null
-                              ? widget.currentUser.homeAddress['addressName']
+                          widget.selectedUser.homeAddress != null
+                              ? widget.selectedUser.homeAddress['addressName']
                               : 'Address not found',
                           style: textStyle12,
                         ),
@@ -395,7 +402,7 @@ class _UserDetailsState extends State<UserDetails> {
                     Expanded(
                       flex: 3,
                       child: Text(
-                        widget.currentUser.isActive.toString(),
+                        widget.selectedUser.isActive.toString(),
                         style: textStyle12,
                       ),
                     )
@@ -521,7 +528,7 @@ class _UserDetailsState extends State<UserDetails> {
               ),
               ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: widget.currentUser.isActive
+                      backgroundColor: widget.selectedUser.isActive
                           ? Colors.red[400]
                           : Colors.green[400],
                       fixedSize: Size(_size.width / 2, 45),
@@ -529,8 +536,8 @@ class _UserDetailsState extends State<UserDetails> {
                           borderRadius: BorderRadius.circular(25))),
                   onPressed: () async {
                     var result = await db.activateDeactivateUser(
-                        uid: widget.currentUser.uid,
-                        active: !widget.currentUser.isActive);
+                        uid: widget.selectedUser.uid,
+                        active: !widget.selectedUser.isActive);
                     if (result == 'Completed') {
                       Navigator.pop(context);
                     } else {
@@ -539,7 +546,7 @@ class _UserDetailsState extends State<UserDetails> {
                       _snackBarWidget.showSnack();
                     }
                   },
-                  child: widget.currentUser.isActive
+                  child: widget.selectedUser.isActive
                       ? const Text(
                           'Deactivate',
                           style: textStyle2,
@@ -566,18 +573,18 @@ class _UserDetailsState extends State<UserDetails> {
               ),
               ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: widget.currentUser.isActive
+                      backgroundColor: widget.selectedUser.isActive
                           ? Colors.grey[300]
                           : Colors.red[400],
                       fixedSize: Size(_size.width / 2, 45),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25))),
-                  onPressed: widget.currentUser.isActive
+                  onPressed: widget.selectedUser.isActive
                       ? null
                       : () async {
                           //will delete the selected user
                           var result =
-                              await db.deleteUser(uid: widget.currentUser.uid);
+                              await db.deleteUser(uid: widget.selectedUser.uid);
 
                           _snackBarWidget.content = result;
                           _snackBarWidget.showSnack();
@@ -888,19 +895,6 @@ class _UserDetailsState extends State<UserDetails> {
                                       getLocation: selecteMapLocation,
                                       navigate: false,
                                     )));
-                        // if (Platform.isIOS) {
-
-                        // } else {
-                        //   await Navigator.push(
-                        //       context,
-                        //       MaterialPageRoute(
-                        //           builder: (_) => GoogleMapNavigation(
-                        //                 lat: _myLocation['Lat'],
-                        //                 lng: _myLocation['Lng'],
-                        //                 getLocation: selecteMapLocation,
-                        //                 navigate: false,
-                        //               )));
-                        // }
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -945,14 +939,16 @@ class _UserDetailsState extends State<UserDetails> {
                         ? null
                         : () async {
                             if (_formKey.currentState.validate() &&
-                                _myLocation.isNotEmpty &&
-                                pickedImage != null) {
+                                _myLocation.isNotEmpty) {
                               setState(() {
                                 _isUpdating = true;
                               });
-                              String imageUrl =
-                                  await _uploadImage(file: pickedImage);
-                              newUserData.imageUrl = imageUrl;
+                              if (pickedImage != null) {
+                                String imageUrl =
+                                    await _uploadImage(file: pickedImage);
+                                newUserData.imageUrl = imageUrl;
+                              }
+
                               var result = await db.updateCurrentUser(
                                   uid: widget.currentUser.uid,
                                   newUsers: newUserData);
