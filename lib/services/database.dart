@@ -235,6 +235,28 @@ class DatabaseService {
         .map(_allUserLocationDataFromSnapshot);
   }
 
+  //Future for getting all masons
+  Future<List<UserData>> getAllMasonsFuture() async {
+    try {
+      return userCollection
+          .where('roles', arrayContains: 'isNormalUser')
+          .get()
+          .then((value) {
+        return value.docs.map((e) {
+          var data = e.data() as Map<String, dynamic>;
+          return UserData(
+              uid: e.id,
+              firstName: data['firstName'],
+              lastName: data['lastName'],
+              assingedHelpers: data['assignedHelpers']);
+        }).toList();
+      });
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return [];
+    }
+  }
+
   Future<Map<String, dynamic>> getUserLocationFuture({String usersId}) async {
     return await userCollection
         .doc(usersId)
@@ -1333,6 +1355,7 @@ class DatabaseService {
       return await helperCollection.doc(uid).get().then((value) {
         var data = value.data() as Map<String, dynamic>;
         return Helpers(
+            uid: value.id,
             firstName: data['firstName'],
             lastName: data['lastName'],
             mobileNumber: data['mobileNumber']);
@@ -1347,6 +1370,7 @@ class DatabaseService {
     try {
       await helperCollection.doc(uid).delete();
     } catch (e, stackTrace) {
+      print('Error deleting helper: $e');
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
     }
   }

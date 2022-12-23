@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -206,6 +207,9 @@ class _HelpersPageState extends State<HelpersPage> {
                                                 child: Loading(),
                                               );
                                             } else {
+                                              if (snapshot.data.uid == null) {
+                                                return const SizedBox.shrink();
+                                              }
                                               return Padding(
                                                 padding:
                                                     const EdgeInsets.all(5.0),
@@ -358,6 +362,10 @@ class _HelpersPageState extends State<HelpersPage> {
                                         borderRadius:
                                             BorderRadius.circular(25))),
                                 onPressed: () async {
+                                  setState(() {
+                                    selectedHelper = null;
+                                  });
+
                                   await addHelper();
                                 },
                                 child: const Text(
@@ -501,9 +509,19 @@ class _HelpersPageState extends State<HelpersPage> {
                                                                       .circular(
                                                                           25))),
                                                       onPressed: () async {
-                                                        await db.deleteHelper(
-                                                            uid: selectedHelper
-                                                                .uid);
+                                                        String helperId =
+                                                            selectedHelper.uid;
+                                                        setState(() {
+                                                          selectedHelper = null;
+                                                          // _isLoading = true;
+                                                        });
+                                                        await deleteHelper(
+                                                            helperId: helperId);
+                                                        if (mounted) {
+                                                          setState(() {
+                                                            _isLoading = false;
+                                                          });
+                                                        }
                                                       },
                                                       child: const Text(
                                                         'Delete',
@@ -736,4 +754,41 @@ class _HelpersPageState extends State<HelpersPage> {
   //Add new Helpers
 
   //Delete a Helper
+  Future<void> deleteHelper({String helperId}) async {
+    //remove the helper from the list of assigned users
+    print('the assinged User: $assignedHelpers - $helperId');
+    if (assignedHelpers.contains(helperId)) {
+      assignedHelpers.remove(helperId);
+    }
+    //this function will remove selected helper from all users and from the database
+    //Loop over mason and remove the following helper from them
+    var masons = await db.getAllMasonsFuture();
+
+    if (masons != null && masons.isNotEmpty) {
+      //loop over all the mason
+      for (UserData mason in masons) {
+        if (mason.assingedHelpers != null && mason.assingedHelpers.isNotEmpty) {
+          //loop over the helpers in each mason
+
+          for (var id in mason.assingedHelpers) {
+            if (id == helperId) {
+              //remove this helper's id from this mason
+              await db.userCollection.doc(mason.uid).update({
+                'assignedHelpers': FieldValue.arrayRemove([id])
+              }).catchError((err) {
+                print('An error deletig helper: $err');
+              });
+            } else {
+              continue;
+            }
+          }
+        }
+      }
+    }
+    //after removing this helper from all masons
+    //Delete the helper
+    print('the assinged User: $assignedHelpers');
+
+    await db.deleteHelper(uid: helperId);
+  }
 }

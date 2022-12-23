@@ -67,28 +67,28 @@ class _UserDetailsState extends State<UserDetails> {
       if (newUserData.homeAddress != null) {
         _myLocation = newUserData.homeAddress;
       }
+    }
 
-      //show the current user role
-      if (widget.selectedUser != null &&
-          widget.selectedUser.roles != null &&
-          widget.selectedUser.roles.isNotEmpty) {
-        switch (widget.selectedUser.roles.first.toString()) {
-          case 'isNormalUser':
-            selectedRoles = 'Mason';
-            break;
-          case 'isSupervisor':
-            selectedRoles = 'Supervisor';
-            break;
-          case 'isSiteEngineer':
-            selectedRoles = 'Site Engineer';
-            break;
-          case 'isAdmin':
-            selectedRoles = 'Admin';
-            break;
-          case 'isSales':
-            selectedRoles = 'Sales';
-            break;
-        }
+    //show the current user role
+    if (widget.selectedUser != null &&
+        widget.selectedUser.roles != null &&
+        widget.selectedUser.roles.isNotEmpty) {
+      switch (widget.selectedUser.roles.first.toString()) {
+        case 'isNormalUser':
+          selectedRoles = 'Mason';
+          break;
+        case 'isSupervisor':
+          selectedRoles = 'Supervisor';
+          break;
+        case 'isSiteEngineer':
+          selectedRoles = 'Site Engineer';
+          break;
+        case 'isAdmin':
+          selectedRoles = 'Admin';
+          break;
+        case 'isSales':
+          selectedRoles = 'Sales';
+          break;
       }
     }
   }
@@ -197,7 +197,7 @@ class _UserDetailsState extends State<UserDetails> {
                   shape: BoxShape.circle,
                   border: Border.all(),
                 ),
-                child: newUserData.imageUrl == null
+                child: widget.selectedUser.imageUrl == null
                     ? const Center(
                         child: Text(
                           'No Photo',
@@ -206,7 +206,7 @@ class _UserDetailsState extends State<UserDetails> {
                       )
                     : CircleAvatar(
                         backgroundImage: NetworkImage(
-                        newUserData.imageUrl,
+                        widget.selectedUser.imageUrl,
                         scale: 2,
                       )),
               ),

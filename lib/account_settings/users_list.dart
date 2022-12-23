@@ -45,10 +45,11 @@ class _UserListState extends State<UserList> {
               )
             : Column(
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 15, vertical: 20),
                     child: Text(
-                      'List of non-active users who have registered to the company',
+                      'Non-active users at Royal Marble. Total: ${nonActiveUser.length}',
                       style: textStyle6,
                     ),
                   ),
@@ -56,7 +57,7 @@ class _UserListState extends State<UserList> {
                     children: [
                       SizedBox(
                         height: nonActiveUser.isNotEmpty
-                            ? (size.height / 2) - 10
+                            ? (size.height / 3) - 10
                             : size.height / 6,
                         child: nonActiveUser.isNotEmpty
                             ? ListView.builder(
@@ -131,11 +132,11 @@ class _UserListState extends State<UserList> {
                       ),
                       Column(
                         children: [
-                          const Padding(
-                            padding: EdgeInsets.symmetric(
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 15, vertical: 20),
                             child: Text(
-                              'List of active users for the company',
+                              'Active users at Royal Marble. Total: ${listOfUsers.length}',
                               style: textStyle6,
                             ),
                           ),
