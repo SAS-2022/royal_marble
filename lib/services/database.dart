@@ -119,7 +119,7 @@ class DatabaseService {
   Future<String> assignUserRole({String selectedRole, String uid}) async {
     var roles = '';
     switch (selectedRole) {
-      case 'Worker':
+      case 'Mason':
         roles = 'isNormalUser';
         break;
       case 'Supervisor':

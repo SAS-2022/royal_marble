@@ -517,7 +517,7 @@ class _UserDetailsState extends State<UserDetails> {
                     if (selectedRoles != null) {
                       result = await db.assignUserRole(
                           selectedRole: selectedRoles,
-                          uid: widget.currentUser.uid);
+                          uid: widget.selectedUser.uid);
                     }
                     if (result == 'Completed') {
                       Navigator.pop(context);
