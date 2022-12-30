@@ -360,6 +360,14 @@ class _ShowMapState extends State<ShowMap> {
     listMarkers.putIfAbsent(uuid, () {
       futureLocation.forEach((key, value) {
         if (key != 'uuid' && value != '') {
+          if (key == 'time') {
+            //we will change the value
+            var newValue = value.toString().split('T');
+            var newTime = newValue[1].split('.')[0];
+            var simplifiedTime = DateTime.parse('${newValue[0]}T$newTime');
+            simplifiedTime = simplifiedTime.add(const Duration(hours: 3));
+            value = simplifiedTime;
+          }
           _richText = RichText(
             text: TextSpan(
               children: [
@@ -368,7 +376,6 @@ class _ShowMapState extends State<ShowMap> {
               ],
             ),
           );
-          //print('the userDetail 1: ${_richText.text.toPlainText()}');
           _userDetail.add(_richText);
         }
       });
@@ -439,6 +446,14 @@ class _ShowMapState extends State<ShowMap> {
           _userDetail.add(_richText);
           futureLocation.forEach((key, value) {
             if (key != 'uuid' && value != '') {
+              if (key == 'time') {
+                //we will change the value
+                var newValue = value.toString().split('T');
+                var newTime = newValue[1].split('.')[0];
+                var simplifiedTime = DateTime.parse('${newValue[0]}T$newTime');
+                simplifiedTime = simplifiedTime.add(const Duration(hours: 3));
+                value = simplifiedTime;
+              }
               _richText = RichText(
                 text: TextSpan(
                   children: [
