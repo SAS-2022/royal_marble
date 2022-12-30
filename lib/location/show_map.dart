@@ -71,6 +71,7 @@ class _ShowMapState extends State<ShowMap> {
   LatLng _selectedLocation;
   Timer _timer;
   bool _loading = true;
+  double _mapZoom = 17.0;
 
   // var markerId = MarkerId('one');
   Marker marker1 = Marker(
@@ -111,7 +112,6 @@ class _ShowMapState extends State<ShowMap> {
     } else {
       _prefTab = 0;
     }
-    print('the _prefTab: $_prefTab');
   }
 
   Future<void> _identifyMapMarkers() async {
@@ -285,7 +285,7 @@ class _ShowMapState extends State<ShowMap> {
     });
     _center = LatLng(lat, long);
     _mapController.animateCamera(CameraUpdate.newCameraPosition(
-        CameraPosition(target: _center, zoom: 13.5)));
+        CameraPosition(target: _center, zoom: _mapZoom)));
     return currentLocation;
   }
 
@@ -588,7 +588,7 @@ class _ShowMapState extends State<ShowMap> {
                           )
                       },
                       initialCameraPosition:
-                          CameraPosition(target: _center, zoom: 13.0),
+                          CameraPosition(target: _center, zoom: _mapZoom),
                       markers: listMarkers != null && listMarkers.isNotEmpty
                           ? Set.of(listMarkers.values)
                           : noMarkers,
@@ -656,7 +656,51 @@ class _ShowMapState extends State<ShowMap> {
                             );
                           },
                         ),
-                        Text(clientSector ?? 'All', style: textStyle4),
+                        SizedBox(
+                          width: _size.width / 3,
+                          height: 40,
+                          child: Row(
+                            children: [
+                              const Expanded(
+                                flex: 1,
+                                child: Text(
+                                  'Zoom: ',
+                                  style: textStyle4,
+                                ),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: TextFormField(
+                                  textAlign: TextAlign.center,
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.grey[100],
+                                    enabledBorder: const OutlineInputBorder(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(15.0)),
+                                        borderSide:
+                                            BorderSide(color: Colors.grey)),
+                                    focusedBorder: const OutlineInputBorder(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(15.0)),
+                                        borderSide:
+                                            BorderSide(color: Colors.green)),
+                                  ),
+                                  initialValue: _mapZoom.toString(),
+                                  onChanged: (val) {
+                                    if (val != null && val.isNotEmpty) {
+                                      if (double.parse(val) >= 0) {
+                                        setState(() {
+                                          _mapZoom = double.parse(val);
+                                        });
+                                      }
+                                    }
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ]),
                     ),
                   ),
@@ -789,7 +833,8 @@ class _ShowMapState extends State<ShowMap> {
                                     _mapController.animateCamera(
                                         CameraUpdate.newCameraPosition(
                                             CameraPosition(
-                                                target: _center, zoom: 13.5)));
+                                                target: _center,
+                                                zoom: _mapZoom)));
                                     Navigator.pop(context);
                                   } else {
                                     locationStatus = 'No Collection';
@@ -853,7 +898,8 @@ class _ShowMapState extends State<ShowMap> {
                                     _mapController.animateCamera(
                                         CameraUpdate.newCameraPosition(
                                             CameraPosition(
-                                                target: _center, zoom: 13.5)));
+                                                target: _center,
+                                                zoom: _mapZoom)));
                                     Navigator.pop(context);
                                   },
                                   child: Container(
