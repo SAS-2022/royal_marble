@@ -230,6 +230,13 @@ class _ShowMapState extends State<ShowMap> {
                           ),
                           onPressed: () async {
                             if (projectData.uid != null) {
+                              if (projectData.assignedWorkers != null &&
+                                  projectData.assignedWorkers.isNotEmpty) {
+                                _snackBarWidget.content =
+                                    'Please remove workers before deletion';
+                                _snackBarWidget.showSnack();
+                                return;
+                              }
                               await db.deleteProject(
                                   projectId: projectData.uid);
                               Navigator.pop(context);
