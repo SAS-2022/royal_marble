@@ -93,6 +93,7 @@ class _ReportDetailsState extends State<ReportDetails> {
     if (generateddata.isNotEmpty) {
       generateddata = [];
     }
+
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(20.0),

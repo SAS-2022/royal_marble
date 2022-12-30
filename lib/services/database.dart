@@ -1019,15 +1019,33 @@ class DatabaseService {
       return await timeSheetCollection.doc(uid).get().then((value) {
         Map<String, dynamic> reportList = {};
         var result = value.data() as Map<String, dynamic>;
-        var keys = result.keys;
+        if (result.keys != null) {
+          var keys = result.keys;
+          var data = <String, dynamic>{};
+          for (var key in keys) {
+            if (result[key]['roles'] == reportSection) {
+              //we need to add the data of the related user
+              data.addAll({
+                key: {
+                  'arriving_at': result[key]['arriving_at'],
+                  'leaving_at': result[key]['leaving_at'],
+                  'isOnSite': result[key]['isOnSite'],
+                  'firstName': result[key]['firstName'],
+                  'lastName': result[key]['lastName'],
+                  'projectId': result[key]['projectId'],
+                  'projectName': result[key]['projectName'],
+                  'roles': result[key]['roles'],
+                  'workCompleted': result[key]['workCompleted']
+                }
+              });
 
-        for (var key in keys) {
-          if (result[key]['roles'] == reportSection) {
-            reportList.addAll({'id': value.id, 'data': value.data()});
+              reportList.addAll({'id': value.id, 'data': data});
+            }
           }
-        }
 
-        return reportList;
+          return reportList;
+        }
+        return null;
       });
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
