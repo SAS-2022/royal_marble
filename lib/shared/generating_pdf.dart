@@ -1,5 +1,3 @@
-import 'dart:math';
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -29,13 +27,15 @@ Future<Uint8List> generateReport(
     base: await PdfGoogleFonts.openSansRegular(),
     bold: await PdfGoogleFonts.openSansBold(),
   );
-  const baseColor = PdfColors.amber;
+  const baseColor = PdfColors.brown600;
   List<pw.Widget> pageWidgets = [];
 
   Future<Map<String, List<Map>>> generateTableDate() async {
     var totalHours;
     var totalMin;
     for (var index = 0; index < data.length; index++) {
+      totalHours = 0;
+      totalMin = 0;
       var arrived = data[index]['arrivedAt'] != null
           ? DateTime.parse(data[index]['arrivedAt'])
           : null;
@@ -55,12 +55,16 @@ Future<Uint8List> generateReport(
         days[thisDate].add({
           'name': '${data[index]['firstName']} ${data[index]['lastName']}',
           'arrived':
-              arrived != null ? DateFormat('hh:mm a').format(arrived) : '',
-          'left': left != null ? DateFormat('hh:mm a').format(left) : '',
+              arrived != null ? DateFormat('hh:mm a').format(arrived) : 'None',
+          'left': left != null ? DateFormat('hh:mm a').format(left) : 'None',
           'project': data[index]['projectName'],
           'totalHours': '$totalHours:$totalMin',
-          'workType': '${data[index]['workType']}',
-          'meters': '${data[index]['squareMeters']}',
+          'workType': data[index]['workType'] != null
+              ? '${data[index]['workType']}'
+              : 'None',
+          'meters': data[index]['squareMeters'] != null
+              ? '${data[index]['squareMeters']}'
+              : '0.00',
         });
       }
 
@@ -90,13 +94,13 @@ Future<Uint8List> generateReport(
   Map<int, pw.TableColumnWidth> widths = {};
 
   widths = {
-    0: const pw.FractionColumnWidth(0.5),
-    1: const pw.FractionColumnWidth(0.1),
-    2: const pw.FractionColumnWidth(0.1),
-    3: const pw.FractionColumnWidth(0.15),
-    4: const pw.FractionColumnWidth(0.1),
-    5: const pw.FractionColumnWidth(0.15),
-    6: const pw.FractionColumnWidth(0.1),
+    0: const pw.FractionColumnWidth(0.3),
+    1: const pw.FractionColumnWidth(0.14),
+    2: const pw.FractionColumnWidth(0.14),
+    3: const pw.FractionColumnWidth(0.12),
+    4: const pw.FractionColumnWidth(0.11),
+    5: const pw.FractionColumnWidth(0.12),
+    6: const pw.FractionColumnWidth(0.12),
   };
 
   List<pw.Table> table = [];
@@ -109,13 +113,13 @@ Future<Uint8List> generateReport(
         data: [
           [key]
         ],
-        columnWidths: widths,
+        //columnWidths: widths,
         headerStyle: pw.TextStyle(
             color: PdfColors.white, fontWeight: pw.FontWeight.bold),
-        headerDecoration: const pw.BoxDecoration(color: PdfColors.amber700),
+        headerDecoration: const pw.BoxDecoration(color: PdfColors.brown200),
         rowDecoration: const pw.BoxDecoration(
           border: pw.Border(
-            bottom: pw.BorderSide(color: PdfColors.amber700, width: 0.5),
+            bottom: pw.BorderSide(color: PdfColors.brown800, width: 1),
           ),
         ),
         cellAlignment: pw.Alignment.center,
@@ -146,10 +150,10 @@ Future<Uint8List> generateReport(
         ),
         headerStyle: pw.TextStyle(
             color: PdfColors.white, fontWeight: pw.FontWeight.bold),
-        headerDecoration: const pw.BoxDecoration(color: PdfColors.amber400),
+        headerDecoration: const pw.BoxDecoration(color: PdfColors.blueGrey600),
         rowDecoration: const pw.BoxDecoration(
           border: pw.Border(
-            bottom: pw.BorderSide(color: PdfColors.amber400, width: 0.5),
+            bottom: pw.BorderSide(color: PdfColors.brown800, width: 0.5),
           ),
         ),
         cellAlignment: pw.Alignment.center,
@@ -157,12 +161,14 @@ Future<Uint8List> generateReport(
       ),
     );
   });
-  pageWidgets.add(
-    pw.Text(
+  pageWidgets.add(pw.SizedBox(
+    width: pdfPageFormat.width - 10,
+    child: pw.Text(
       'Attendance Report',
+      textAlign: pw.TextAlign.center,
       style: const pw.TextStyle(color: baseColor, fontSize: 36),
     ),
-  );
+  ));
   pageWidgets.add(pw.Divider(thickness: 4));
   pageWidgets.add(pw.ListView(children: table));
 
