@@ -16,6 +16,7 @@ import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/projects/project_form.dart';
 import 'package:royal_marble/shared/constants.dart';
 import 'package:royal_marble/shared/snack_bar.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/directions.dart';
 import '../models/user_model.dart';
@@ -372,7 +373,7 @@ class _ShowMapState extends State<ShowMap> {
             var newValue = value.toString().split('T');
             var newTime = newValue[1].split('.')[0];
             var simplifiedTime = DateTime.parse('${newValue[0]}T$newTime');
-            simplifiedTime = simplifiedTime.add(const Duration(hours: 3));
+            simplifiedTime = simplifiedTime.add(const Duration(hours: 4));
             value = simplifiedTime;
           }
           _richText = RichText(
@@ -458,7 +459,7 @@ class _ShowMapState extends State<ShowMap> {
                 var newValue = value.toString().split('T');
                 var newTime = newValue[1].split('.')[0];
                 var simplifiedTime = DateTime.parse('${newValue[0]}T$newTime');
-                simplifiedTime = simplifiedTime.add(const Duration(hours: 3));
+                simplifiedTime = simplifiedTime.add(const Duration(hours: 4));
                 value = simplifiedTime;
               }
               _richText = RichText(
@@ -498,8 +499,6 @@ class _ShowMapState extends State<ShowMap> {
                                   shrinkWrap: true,
                                   itemCount: _userDetail.length,
                                   itemBuilder: (context, index) {
-                                    print(
-                                        'the userDetail: ${_userDetail[index].children}');
                                     return RichText(
                                         text: _userDetail[index].text);
                                   }),
@@ -773,9 +772,6 @@ class _ShowMapState extends State<ShowMap> {
                       _preferredTab = await SharedPreferences.getInstance();
                       _prefTab = value;
                       _preferredTab.setInt('tab', value);
-
-                      print(
-                          'the _prefTab 1: $_prefTab, ${_preferredTab.getInt('tab')}');
                     }),
                     labelStyle: textStyle5,
                     labelColor: Colors.black,
@@ -938,7 +934,7 @@ class _ShowMapState extends State<ShowMap> {
   Future<void> _getLocationName(coordinates) async {
     await placemarkFromCoordinates(coordinates.latitude, coordinates.longitude)
         .catchError((err) {
-      print('Error obtaining location name: $err');
+      Sentry.captureException(err);
     }).then((value) {
       if (Platform.isIOS) {
         locationName = '${value[0]}';
