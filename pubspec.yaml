@@ -55,6 +55,8 @@ dependencies:
   timer_builder: ^2.0.0
   animated_text_kit: ^4.2.2
   excel: ^2.0.1
+  path_provider: ^2.0.11
+  open_filex: ^4.3.2
  
 
 dev_dependencies:

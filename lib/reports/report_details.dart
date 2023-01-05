@@ -6,6 +6,8 @@ import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/shared/constants.dart';
+import 'package:royal_marble/shared/export_excel.dart';
+import 'package:royal_marble/shared/file_viewer.dart';
 import 'package:royal_marble/shared/generating_pdf.dart';
 import 'package:royal_marble/shared/loading.dart';
 import 'package:royal_marble/shared/pdf_builder.dart';
@@ -52,20 +54,35 @@ class _ReportDetailsState extends State<ReportDetails> {
               onPressed: () async {
                 var pageFormat = PdfPageFormat(_size.width, _size.height);
                 if (generateddata != null && generateddata.isNotEmpty) {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => PdfPreview(
-                        maxPageWidth: _size.width - 10,
-                        build: (format) =>
-                            fileTypes[0].builder(pdfFormat, generateddata),
+                  ExportExcel _export = ExportExcel();
+
+                  _export.timeTable = generateddata;
+                  var file = _export.createExcelTables();
+
+                  if (file != null) {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => FileViewer(
+                          file: file,
+                        ),
                       ),
-                    ),
-                  );
+                    );
+                  }
+                  // await Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (_) => PdfPreview(
+                  //       maxPageWidth: _size.width - 10,
+                  //       build: (format) =>
+                  //           fileTypes[0].builder(pdfFormat, generateddata),
+                  //     ),
+                  //   ),
+                  // );
                 }
               },
               child: const Text(
-                'PDF',
+                'Export',
                 style: buttonStyle,
               ))
         ],
