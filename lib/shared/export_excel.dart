@@ -1,58 +1,134 @@
-import 'dart:io';
-import 'package:path/path.dart';
-import 'package:excel/excel.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:royal_marble/shared/loading.dart';
+import 'package:royal_marble/shared/save_launch_file.dart';
+import 'package:syncfusion_flutter_xlsio/xlsio.dart' hide Column;
 
-class ExportExcel {
-  List<dynamic> timeTable = [];
-  File excelFile;
-  var excel = Excel.createExcel();
+class CreateExcelFile extends StatefulWidget {
+  const CreateExcelFile({Key key, this.generatedDate}) : super(key: key);
+  final List<dynamic> generatedDate;
 
-  //Declaring a cell style
-  CellStyle cellStyle = CellStyle(
-      bold: true,
-      italic: false,
-      textWrapping: TextWrapping.WrapText,
-      fontFamily: getFontFamily(FontFamily.Comic_Sans_MS),
-      rotation: 0);
+  @override
+  State<CreateExcelFile> createState() => _CreateExcelFileState();
+}
 
-  Future<File> createExcelTables() async {
-    var sheet = excel['timeSheet'];
+class _CreateExcelFileState extends State<CreateExcelFile> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Excel File'),
+        backgroundColor: const Color.fromARGB(255, 54, 214, 75),
+      ),
+      body: _buildExcelFileBody(),
+    );
+  }
 
-    var cell = sheet.cell(CellIndex.indexByString('A1'));
-    cell.value =
-        'The Following table shows the attandance of the selected workers';
-    cell.cellStyle = cellStyle;
+  Widget _buildExcelFileBody() {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.lightBlue,
+                disabledForegroundColor: Colors.grey,
+              ),
+              onPressed: generateExcel,
+              child: const Text('Generate Excel'),
+            )
+          ],
+        ),
+      ),
+    );
+  }
 
-    for (int index = 0; index < timeTable.length; index++) {
-      var _colIndex = 2;
+  Future<void> generateExcel() async {
+    //create workbook
+    final Workbook workbook = Workbook();
+    //accessing the workbook with the index
+    final Worksheet sheet = workbook.worksheets[0];
+    sheet.showGridlines = true;
+    //enable sheet calculations
+    sheet.enableSheetCalculations();
+    var totalHours;
+    var totalMin;
 
-      for (var val in timeTable[index].values) {
-        var cell1 = sheet.cell(
-          CellIndex.indexByColumnRow(columnIndex: _colIndex, rowIndex: index),
-        );
-        cell1.value = val;
+    //add sheet title
+    sheet.getRangeByIndex(1, 1).setText('Employees Timetable');
 
-        _colIndex++;
+    //add title for excel sheet first
+    sheet.getRangeByIndex(3, 1).columnWidth = 20;
+    sheet.getRangeByIndex(3, 1).setText('Employee Name');
+    sheet.getRangeByIndex(3, 2).columnWidth = 30;
+    sheet.getRangeByIndex(3, 2).setText('Arrived At');
+    sheet.getRangeByIndex(3, 3).columnWidth = 30;
+    sheet.getRangeByIndex(3, 3).setText('Left At');
+    sheet.getRangeByIndex(3, 4).columnWidth = 10;
+    sheet.getRangeByIndex(3, 4).setText('Project');
+    sheet.getRangeByIndex(3, 5).columnWidth = 10;
+    sheet.getRangeByIndex(3, 5).setText('Total Hours');
+    sheet.getRangeByIndex(3, 6).columnWidth = 10;
+    sheet.getRangeByIndex(3, 6).setText('Work Type');
+    sheet.getRangeByIndex(3, 7).columnWidth = 10;
+    sheet.getRangeByIndex(3, 7).setText('Meters');
+
+    final Range range1 = sheet.getRangeByName('A1: G1');
+    final Range range2 = sheet.getRangeByName('A3: G3');
+    range1.cellStyle.fontSize = 20;
+    range1.cellStyle.bold = true;
+    range1.cellStyle.hAlign = HAlignType.left;
+
+    range2.cellStyle.fontSize = 14;
+    range2.cellStyle.bold = true;
+
+    //loop over generated list in order to add the data
+    for (var i = 0; i < widget.generatedDate.length; i++) {
+      //calculate total hours and minutes
+      totalHours = 0;
+      totalMin = 0;
+      var arrived = widget.generatedDate[i]['arrivedAt'] != null
+          ? DateTime.parse(widget.generatedDate[i]['arrivedAt'])
+          : null;
+      var left = widget.generatedDate[i]['leftAt'] != null
+          ? DateTime.parse(widget.generatedDate[i]['leftAt'])
+          : null;
+      if (left != null && arrived != null) {
+        var diff = left.difference(arrived);
+        totalHours = diff.inHours;
+        totalMin = diff.inMinutes % 60;
       }
+
+      sheet.getRangeByIndex(3 + i + 1, 1).setText(
+          '${widget.generatedDate[i]['firstName']} ${widget.generatedDate[i]['lastName']}');
+      sheet
+          .getRangeByIndex(3 + i + 1, 2)
+          .setText('${widget.generatedDate[i]['arrivedAt']}');
+      sheet
+          .getRangeByIndex(3 + i + 1, 3)
+          .setText('${widget.generatedDate[i]['leftAt']}');
+      sheet
+          .getRangeByIndex(3 + i + 1, 4)
+          .setText('${widget.generatedDate[i]['projectName']}');
+      sheet.getRangeByIndex(3 + i + 1, 5).setText('$totalHours:$totalMin');
+      sheet
+          .getRangeByIndex(3 + i + 1, 6)
+          .setText('${widget.generatedDate[i]['workType']}');
+      sheet
+          .getRangeByIndex(3 + i + 1, 7)
+          .setText('${widget.generatedDate[i]['squareMeters']}');
     }
 
-    //get the local path
-    final directory = await getApplicationDocumentsDirectory()
-        .catchError((err) => print('Error getting directory: $err'));
-    final path = directory.path;
+    //Save the file
+    final List<int> bytes = workbook.saveAsStream();
+    //dispose workbook
 
-    String outputFile = '$path/timesheet.xlsx';
-    excelFile = File(outputFile);
-    List<int> fileBytes = excel.save();
+    workbook.dispose();
 
-    if (fileBytes != null) {
-      excelFile
-        ..createSync(recursive: true)
-        ..writeAsBytes(fileBytes)
-            .catchError((err) => print('Error writing excel file: $err'));
-    }
-
-    return excelFile;
+    //save and launch file
+    await saveAndLaunchFile(bytes, 'Timesheet.xlsx');
   }
 }

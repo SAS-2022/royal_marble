@@ -52,33 +52,97 @@ class _ReportDetailsState extends State<ReportDetails> {
           //Generate document pdf
           TextButton(
               onPressed: () async {
+                //show dialog that will allow you to chose between excel and pdf
+                showDialog(
+                    context: context,
+                    builder: (_) {
+                      return AlertDialog(
+                        content: SizedBox(
+                          height: _size.height / 5,
+                          child: Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  //Pdf Generator
+                                  Expanded(
+                                    child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                const Color.fromARGB(
+                                                    255, 232, 8, 8),
+                                            fixedSize:
+                                                Size(_size.width / 2, 30),
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(25))),
+                                        onPressed: () async {
+                                          await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) => PdfPreview(
+                                                maxPageWidth: _size.width - 10,
+                                                build: (format) => fileTypes[0]
+                                                    .builder(pdfFormat,
+                                                        generateddata),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        child: const Text('PDF Generator')),
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+
+                                  //Excel Generator
+                                  Expanded(
+                                    child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                const Color.fromARGB(
+                                                    255, 54, 214, 75),
+                                            fixedSize:
+                                                Size(_size.width / 2, 30),
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(25))),
+                                        onPressed: () async {
+                                          await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) => CreateExcelFile(
+                                                generatedDate: generateddata,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        child: const Text('Excel Generator')),
+                                  )
+                                ]),
+                          ),
+                        ),
+                      );
+                    });
+
                 var pageFormat = PdfPageFormat(_size.width, _size.height);
                 if (generateddata != null && generateddata.isNotEmpty) {
-                  ExportExcel _export = ExportExcel();
+                  // ExportExcel _export = ExportExcel();
 
-                  _export.timeTable = generateddata;
-                  var file = _export.createExcelTables();
+                  // _export.timeTable = generateddata;
+                  // var file = _export.createExcelTables();
 
-                  if (file != null) {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => FileViewer(
-                          file: file,
-                        ),
-                      ),
-                    );
-                  }
-                  // await Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (_) => PdfPreview(
-                  //       maxPageWidth: _size.width - 10,
-                  //       build: (format) =>
-                  //           fileTypes[0].builder(pdfFormat, generateddata),
+                  // if (file != null) {
+                  //   await Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //       builder: (_) => FileViewer(
+                  //         file: file,
+                  //       ),
                   //     ),
-                  //   ),
-                  // );
+                  //   );
+                  // }
+
                 }
               },
               child: const Text(
