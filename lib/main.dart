@@ -133,7 +133,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     _getDeviceInfo();
-    _getLocationAccess();
+    // _getLocationAccess();
     _logoTimer = Timer(const Duration(seconds: 1), () {
       setState(() {
         _changeLogo = !_changeLogo;
@@ -156,19 +156,19 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   //Check if location is enabled
-  Future<void> _getLocationAccess() async {
-    var status;
-    if (await Permission.location.serviceStatus.isEnabled) {
-      await Geolocator.requestPermission();
-    } else {
-      status = await Permission.location.status;
-      if (status.isGranted) {
-      } else {
-        status =
-            await [Permission.location, Permission.locationAlways].request();
-      }
-    }
-  }
+  // Future<void> _getLocationAccess() async {
+  //   var status;
+  //   if (await Permission.location.serviceStatus.isEnabled) {
+  //     await Geolocator.requestPermission();
+  //   } else {
+  //     status = await Permission.location.status;
+  //     if (status.isGranted) {
+  //     } else {
+  //       status =
+  //           await [Permission.location, Permission.locationAlways].request();
+  //     }
+  //   }
+  // }
 
   //Get device info
   Future _getDeviceInfo() async {

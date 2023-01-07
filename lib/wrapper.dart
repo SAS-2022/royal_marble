@@ -31,7 +31,7 @@ class _WrapperState extends State<Wrapper> {
   @override
   Widget build(BuildContext context) {
     var userData = Provider.of<UserData>(context);
-    if (userData == null) {
+    if (userData == null || userData.uid == null) {
       return const SignInScreen();
     } else {
       return MultiProvider(

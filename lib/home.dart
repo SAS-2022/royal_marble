@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart' as geo;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:permission_handler/permission_handler.dart' as ph;
 import 'package:provider/provider.dart';
@@ -21,6 +20,7 @@ import 'package:royal_marble/shared/constants.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
 import 'package:royal_marble/shared/loading.dart';
+import 'package:royal_marble/shared/location_requirement.dart';
 import 'package:royal_marble/shared/snack_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timer_builder/timer_builder.dart';
@@ -74,7 +74,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-
     _snackBarWidget.context = context;
     _enabled = true;
     _persistEnabled = true;
@@ -82,11 +81,11 @@ class _HomeScreenState extends State<HomeScreen> {
     _motionActivity = 'UNKNOWN';
     _odometer = '0';
     _getLocationPermission();
-    _onClickEnable(_enabled);
-    Future.delayed(const Duration(seconds: 5), () => _setUserId());
 
-    _timer = Timer.periodic(const Duration(seconds: 30), (timer) {
-      if (permissionStatus.isDenied ||
+    Future.delayed(const Duration(seconds: 5), () => _setUserId());
+    _timer = Timer.periodic(const Duration(seconds: 25), (timer) {
+      if (permissionStatus == null ||
+          permissionStatus.isDenied ||
           permissionStatus.isLimited ||
           permissionStatus.isPermanentlyDenied ||
           permissionStatus.isRestricted) {
@@ -107,7 +106,6 @@ class _HomeScreenState extends State<HomeScreen> {
             DateTime.parse(timeSheetProvider[userProvider.uid]['arriving_at']);
 
         difference = now.difference(startingTime).toString().split('.')[0];
-        // print('the start time: $diff');
       } else if (timeSheetProvider[userProvider.uid]['leaving_at'] != null) {
         difference = 'Have A Nice Day';
       }
@@ -167,7 +165,13 @@ class _HomeScreenState extends State<HomeScreen> {
               allUsers: allUsers,
             )
           : const Loading(),
-      body: _selectView(),
+      body: permissionStatus == null ||
+              permissionStatus.isDenied ||
+              permissionStatus.isLimited ||
+              permissionStatus.isRestricted ||
+              permissionStatus.isPermanentlyDenied
+          ? const LocationRequirement()
+          : _selectView(),
       resizeToAvoidBottomInset: false,
     );
   }
@@ -248,7 +252,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 }
                               : userProvider.roles.contains('isSales')
                                   ? () async {
-                                      print('we are here');
                                       await Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -1151,14 +1154,16 @@ class _HomeScreenState extends State<HomeScreen> {
             await db.updateUserPermissionStatus(
                 uid: userProvider.uid, permissionStatus: permissionStatus);
           }
-
+          _onClickEnable(_enabled);
           getCurrentLocation();
         } else if (permissionStatus.isDenied ||
             permissionStatus.isRestricted ||
             permissionStatus.isPermanentlyDenied ||
             permissionStatus.isLimited ||
             permissionStatus == PermissionStatus.denied) {
-          await ph.openAppSettings();
+          //Will show an alert dialog to request User Access Permission
+          requestUserAccessPermission();
+
           //update data base with permission status
           if (userProvider != null) {
             await db.updateUserPermissionStatus(
@@ -1172,6 +1177,34 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       print('Error obtaining permission: $e');
     }
+  }
+
+  //Alert Dialog
+  requestUserAccessPermission() {
+    showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+              title: const Text(
+                'Requesting Location Permission',
+                style: textStyle4,
+              ),
+              content: const Text(
+                'Royal Marble collects location and motion data to make tracking, check In, check Out features possible even when the app is closed or not in use',
+                style: textStyle3,
+              ),
+              actions: [
+                TextButton(
+                    onPressed: () async {
+                      await ph.openAppSettings();
+                    },
+                    child: const Text('Allow')),
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context, rootNavigator: true).pop();
+                    },
+                    child: const Text('Deny'))
+              ],
+            ));
   }
 
   //fetch location while running in background
@@ -1321,12 +1354,14 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       }
 
-      bg.State state = await bg.BackgroundGeolocation.state;
-      if (state.trackingMode == 1) {
-        bg.BackgroundGeolocation.start().then(callback);
-      } else {
-        bg.BackgroundGeolocation.startGeofences().then(callback);
-      }
+      bg.BackgroundGeolocation.start().then(callback);
+
+      // bg.State state = await bg.BackgroundGeolocation.state;
+      // if (state.trackingMode == 1) {
+      //   bg.BackgroundGeolocation.start().then(callback);
+      // } else {
+      //   bg.BackgroundGeolocation.startGeofences().then(callback);
+      // }
     } else {
       callback(bg.State state) {
         setState(() {

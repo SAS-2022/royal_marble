@@ -3,6 +3,7 @@ import 'package:royal_marble/auth/forgot_pass.dart';
 import 'package:royal_marble/auth/register.dart';
 import 'package:royal_marble/services/auth.dart';
 import 'package:royal_marble/shared/loading.dart';
+import 'package:permission_handler/permission_handler.dart' as ph;
 
 import '../shared/constants.dart';
 import '../wrapper.dart';
@@ -25,9 +26,17 @@ class _SignInState extends State<SignInScreen> {
   String error;
   bool _isLoading = false;
   Size size;
+  ph.PermissionStatus permissionStatus;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     size = MediaQuery.of(context).size;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sign In'),
