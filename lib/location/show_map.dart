@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:collection';
-// import 'dart:developer';
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
@@ -8,11 +7,11 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-//import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:royal_marble/location/.env.dart';
 import 'package:royal_marble/location/direction_repo.dart';
 import 'package:royal_marble/models/business_model.dart';
+import 'package:royal_marble/projects/mockup_form.dart';
 import 'package:royal_marble/projects/project_form.dart';
 import 'package:royal_marble/shared/constants.dart';
 import 'package:royal_marble/shared/snack_bar.dart';
@@ -30,10 +29,12 @@ class ShowMap extends StatefulWidget {
     this.currentUser,
     this.listOfMarkers,
     this.addProject,
+    this.addMockup,
   }) : super(key: key);
   final UserData currentUser;
   final String listOfMarkers;
   final bool addProject;
+  final bool addMockup;
   @override
   _ShowMapState createState() => _ShowMapState();
 }
@@ -123,6 +124,9 @@ class _ShowMapState extends State<ShowMap> {
         break;
       case 'Add Project':
         title = 'Add Project';
+        break;
+      case 'Add Mockup':
+        title = 'Add Mockup';
         break;
     }
   }
@@ -315,7 +319,9 @@ class _ShowMapState extends State<ShowMap> {
           backgroundColor: const Color.fromARGB(255, 191, 180, 66),
         ),
         body: _buildLocationSelection(),
-        endDrawer: widget.addProject ? null : _buildMarkersDrawer(),
+        endDrawer: widget.addProject || widget.addMockup
+            ? null
+            : _buildMarkersDrawer(),
       ),
     );
   }
@@ -420,8 +426,6 @@ class _ShowMapState extends State<ShowMap> {
       );
     });
 
-    // for (var det in userDetails) {}
-
     if (clientMarkers.isNotEmpty) {
       listMarkers.addAll(clientMarkers);
     }
@@ -430,7 +434,6 @@ class _ShowMapState extends State<ShowMap> {
         _loading = false;
       });
     }
-
     return userMarkers;
   }
 
@@ -541,7 +544,7 @@ class _ShowMapState extends State<ShowMap> {
                         });
                       },
                       onLongPress: (coordinates) async {
-                        //assing circule
+                        //passing circle
                         if (coordinates != null) {
                           var betterName = '';
                           await _getLocationName(coordinates);
@@ -557,15 +560,34 @@ class _ShowMapState extends State<ShowMap> {
                             'Lng': coordinates.longitude,
                             'addressName': betterName
                           };
-
-                          await Navigator.push(context,
-                              MaterialPageRoute(builder: (_) {
-                            return ProjectForm(
-                              projectLocation: projectLocation,
-                              isNewProject: true,
-                              currentUser: widget.currentUser,
+                          if (widget.addMockup) {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) {
+                                  return MockupForm(
+                                    projectLocation: projectLocation,
+                                    isNewMockup: widget.addMockup,
+                                    currentUser: widget.currentUser,
+                                  );
+                                },
+                              ),
                             );
-                          }));
+                          }
+                          if (widget.addProject) {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) {
+                                  return ProjectForm(
+                                    projectLocation: projectLocation,
+                                    isNewProject: widget.addProject,
+                                    currentUser: widget.currentUser,
+                                  );
+                                },
+                              ),
+                            );
+                          }
                         }
                       },
                       onTap: (coordinates) {
@@ -634,7 +656,7 @@ class _ShowMapState extends State<ShowMap> {
                         borderRadius: BorderRadius.circular(15.0),
                         color: Colors.grey[200]),
                     child: Padding(
-                      padding: const EdgeInsets.all(12.0),
+                      padding: const EdgeInsets.all(8.0),
                       child: Row(children: [
                         Text(
                           '$title: ',
@@ -708,7 +730,7 @@ class _ShowMapState extends State<ShowMap> {
             ],
           ),
         ),
-        widget.addProject
+        widget.addProject || widget.addMockup
             ? Positioned(
                 bottom: 15,
                 left: 15,
@@ -726,7 +748,7 @@ class _ShowMapState extends State<ShowMap> {
                   ),
                 ))
             : const SizedBox.shrink(),
-        _loading && !widget.addProject
+        _loading && !widget.addProject && !widget.addMockup
             ? SizedBox(
                 height: _size.height,
                 child: Column(

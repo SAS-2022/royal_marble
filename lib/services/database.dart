@@ -21,6 +21,8 @@ class DatabaseService {
       FirebaseFirestore.instance.collection('time_sheet');
   final CollectionReference helperCollection =
       FirebaseFirestore.instance.collection('helper');
+  final CollectionReference mockupCollection =
+      FirebaseFirestore.instance.collection('mockup');
 
   //Update the user data
   Future<String> updateUser({
@@ -582,6 +584,7 @@ class DatabaseService {
     }
   }
 
+  //Projects Section
   //create a project with location
   Future<String> addNewProject({ProjectData project}) async {
     try {
@@ -912,6 +915,117 @@ class DatabaseService {
       return 'Error Deleting: $e';
     }
   }
+
+  //Mock-up Section
+  //Add new mockup
+  Future<String> addNewMockup({MockupData mockup}) async {
+    try {
+      return await mockupCollection.add({
+        'name': mockup.mockupName,
+        'details': mockup.mockUpDetails,
+        'address': mockup.mockUpAddress,
+        'radius': mockup.radius,
+        'contractor': mockup.contactorCompany,
+        'contactPerson': mockup.contactPerson,
+        'phoneNumber': {
+          'phoneNumber': mockup.phoneNumber.phoneNumber,
+          'isoCode': mockup.phoneNumber.isoCode,
+          'dialCode': mockup.phoneNumber.dialCode,
+        },
+        'emailAddress': mockup.emailAddress,
+        'salesInCharge': mockup.userId,
+        'assignedWorkers': mockup.assignedWorkers,
+        'status': mockup.mockupStatus,
+      }).then((value) => 'Completed');
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return 'Error: $e';
+    }
+  }
+
+  //update mockup
+  Future<String> updateMockupData({MockupData mockup}) async {
+    try {
+      return await projectCollection.doc(mockup.uid).update({
+        'name': mockup.mockupName,
+        'details': mockup.mockUpDetails,
+        'address': mockup.mockUpAddress,
+        'radius': mockup.radius,
+        'contractor': mockup.contactorCompany,
+        'contactPerson': mockup.contactPerson,
+        'phoneNumber': {
+          'phoneNumber': mockup.phoneNumber.phoneNumber,
+          'isoCode': mockup.phoneNumber.isoCode,
+          'dialCode': mockup.phoneNumber.dialCode,
+        },
+        'emailAddress': mockup.emailAddress,
+        'salesInCharge': mockup.userId,
+        'assignedWorkers': mockup.assignedWorkers,
+        'status': mockup.mockupStatus,
+      }).then((value) => 'Completed');
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return 'Error: $e';
+    }
+  }
+
+  //read mockup
+  //Get projects through streams and Futures
+  Stream<List<MockupData>> getAllMockups() {
+    return mockupCollection.snapshots().map(_listMockupDataFromSnapshot);
+  }
+
+  Stream<MockupData> getMockupById({String projectId}) {
+    return mockupCollection
+        .doc(projectId)
+        .snapshots()
+        .map(_mockupDataFromSnapshot);
+  }
+
+  List<MockupData> _listMockupDataFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.map((snapshot) {
+      var data = snapshot.data() as Map<String, dynamic>;
+      return MockupData(
+          uid: snapshot.id,
+          mockupName: data['name'],
+          mockUpDetails: data['details'],
+          mockUpAddress: data['address'],
+          radius: data['radius'],
+          contactorCompany: data['contractor'],
+          contactPerson: data['contactPerson'],
+          emailAddress: data['emailAddress'],
+          phoneNumber: PhoneNumber(
+              phoneNumber: data['phoneNumber']['phoneNumber'],
+              isoCode: data['phoneNumber']['isoCode'],
+              dialCode: data['phoneNumber']['dialCode']),
+          userId: data['salesInCharge'],
+          mockupStatus: data['status'],
+          assignedWorkers: data['assignedWorkers']);
+    }).toList();
+  }
+
+  MockupData _mockupDataFromSnapshot(DocumentSnapshot snapshot) {
+    var data = snapshot.data() as Map<String, dynamic>;
+    return MockupData(
+      uid: snapshot.id,
+      mockupName: data['name'],
+      mockUpDetails: data['details'],
+      mockUpAddress: data['address'],
+      radius: data['radius'],
+      contactorCompany: data['contractor'],
+      contactPerson: data['contactPerson'],
+      emailAddress: data['emailAddress'],
+      phoneNumber: PhoneNumber(
+          phoneNumber: data['phoneNumber']['phoneNumber'],
+          isoCode: data['phoneNumber']['isoCode'],
+          dialCode: data['phoneNumber']['dialCode']),
+      userId: data['salesInCharge'],
+      mockupStatus: data['status'],
+      assignedWorkers: data['assignedWorkers'],
+    );
+  }
+
+  //Delete mockup
 
   //generating time sheet report
   //Adding a new entry to the collection

@@ -11,12 +11,14 @@ class MapProviders extends StatelessWidget {
       this.currentUser,
       this.listOfMarkers,
       this.allUsers,
-      this.addNewProject})
+      this.addNewProject,
+      this.addNewMockup})
       : super(key: key);
   final UserData currentUser;
   final String listOfMarkers;
   final List<UserData> allUsers;
   final bool addNewProject;
+  final bool addNewMockup;
   final db = DatabaseService();
   @override
   Widget build(BuildContext context) {
@@ -35,10 +37,10 @@ class MapProviders extends StatelessWidget {
             catchError: (context, err) => [UserData(error: err)]),
       ],
       child: ShowMap(
-        currentUser: currentUser,
-        listOfMarkers: listOfMarkers,
-        addProject: addNewProject,
-      ),
+          currentUser: currentUser,
+          listOfMarkers: listOfMarkers,
+          addProject: addNewProject,
+          addMockup: addNewMockup),
     );
   }
 }

@@ -12,8 +12,10 @@ class CreateExcelFile extends StatefulWidget {
 }
 
 class _CreateExcelFileState extends State<CreateExcelFile> {
+  Size _size;
   @override
   Widget build(BuildContext context) {
+    _size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Excel File'),
@@ -27,20 +29,37 @@ class _CreateExcelFileState extends State<CreateExcelFile> {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: Colors.lightBlue,
-                disabledForegroundColor: Colors.grey,
-              ),
-              onPressed: generateExcel,
-              child: const Text('Generate Excel'),
-            )
-          ],
+        child: SizedBox(
+          height: _size.height - 200,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              SizedBox(
+                width: _size.width - 20,
+                height: 50,
+                child: ElevatedButton(
+                  style: ButtonStyle(
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                    ),
+                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                      (Set<MaterialState> states) {
+                        if (states.contains(MaterialState.pressed)) {
+                          return const Color.fromARGB(255, 103, 48, 11);
+                        }
+                        return const Color.fromARGB(255, 13, 74, 21);
+                      },
+                    ),
+                  ),
+                  onPressed: generateExcel,
+                  child: const Text('Generate Excel'),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

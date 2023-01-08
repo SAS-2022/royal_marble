@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:background_geolocation_firebase/background_geolocation_firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,6 +23,7 @@ import 'package:flutter_background_geolocation/flutter_background_geolocation.da
 import 'package:royal_marble/shared/loading.dart';
 import 'package:royal_marble/shared/location_requirement.dart';
 import 'package:royal_marble/shared/snack_bar.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timer_builder/timer_builder.dart';
 
@@ -69,6 +71,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String _distanceMotion;
   String _locationJSON;
   Timer _timer;
+  bool _loadingPermission = false;
+  ph.PermissionStatus permissionActivity;
   ph.PermissionStatus permissionStatus;
 
   @override
@@ -81,15 +85,22 @@ class _HomeScreenState extends State<HomeScreen> {
     _motionActivity = 'UNKNOWN';
     _odometer = '0';
     _getLocationPermission();
-
     Future.delayed(const Duration(seconds: 5), () => _setUserId());
-    _timer = Timer.periodic(const Duration(seconds: 25), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 15), (timer) {
       if (permissionStatus == null ||
           permissionStatus.isDenied ||
           permissionStatus.isLimited ||
           permissionStatus.isPermanentlyDenied ||
           permissionStatus.isRestricted) {
         _getLocationPermission();
+      }
+
+      if (permissionActivity == null ||
+          permissionActivity.isDenied ||
+          permissionActivity.isLimited ||
+          permissionActivity.isPermanentlyDenied ||
+          permissionActivity.isRestricted) {
+        _requestMotionPermission();
       }
     });
   }
@@ -159,13 +170,19 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('Main Page'),
         backgroundColor: const Color.fromARGB(255, 191, 180, 66),
       ),
-      drawer: allUsers != null && allUsers.isNotEmpty
+      drawer: allUsers != null && allUsers.isNotEmpty ||
+              permissionStatus == null ||
+              permissionActivity == null ||
+              permissionActivity.isPermanentlyDenied ||
+              permissionStatus.isPermanentlyDenied
           ? ProfileDrawer(
               currentUser: userProvider,
               allUsers: allUsers,
             )
           : const Loading(),
       body: permissionStatus == null ||
+              permissionActivity == null ||
+              permissionActivity.isPermanentlyDenied ||
               permissionStatus.isDenied ||
               permissionStatus.isLimited ||
               permissionStatus.isRestricted ||
@@ -1100,13 +1117,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<List<ProjectData>> getSupervisorAssignedProjects() async {
     List<ProjectData> allProjects = [];
     if (userProvider != null && userProvider.assignedProject != null) {
-      // if (userProvider.roles.contains('isSupervisor')) {
-
-      // } else {
-      //   result = await db.getPorjectByIdFuture(
-      //       projectId: userProvider.assignedProject['id']);
-      // }
-
       for (var project in userProvider.assignedProject) {
         var result = await db.getPorjectByIdFuture(projectId: project['id']);
         if (result != null) {
@@ -1142,19 +1152,14 @@ class _HomeScreenState extends State<HomeScreen> {
             await ph.Permission.location.status.onError((error, stackTrace) {
           return error;
         });
-
         if (permissionStatus.isGranted) {
-          if (ph.Permission.location == ph.Permission.locationWhenInUse ||
-              ph.Permission.location == ph.Permission.location) {
-            await [ph.Permission.location, ph.Permission.locationAlways]
-                .request();
-          }
           //update database with permission status
           if (userProvider != null && userProvider.uid != null) {
             await db.updateUserPermissionStatus(
                 uid: userProvider.uid, permissionStatus: permissionStatus);
           }
           _onClickEnable(_enabled);
+          _requestMotionPermission();
           getCurrentLocation();
         } else if (permissionStatus.isDenied ||
             permissionStatus.isRestricted ||
@@ -1175,7 +1180,62 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       }
     } catch (e) {
-      print('Error obtaining permission: $e');
+      Sentry.captureException(e);
+    }
+  }
+
+  Future<void> _requestMotionPermission() async {
+    permissionActivity = await ph.Permission.activityRecognition.status
+        .onError((error, stackTrace) {
+      return error;
+    });
+
+    if (permissionActivity.isDenied ||
+        permissionActivity.isLimited ||
+        permissionActivity.isPermanentlyDenied ||
+        permissionActivity.isRestricted) {
+      if (Platform.isAndroid) {
+        var status = await [ph.Permission.activityRecognition]
+            .request()
+            .then((value) => value)
+            .onError((error, stackTrace) {
+          print('Error requesting permission activity: $error');
+          return error;
+        }).whenComplete(() => print('Permssion activity completed'));
+
+        if (status[ph.Permission.activityRecognition] ==
+            ph.PermissionStatus.permanentlyDenied) {
+          showDialog(
+              context: context,
+              builder: (_) => AlertDialog(
+                    title: const Text('Motion Sensor'),
+                    content: const Text(
+                        'Royal Marble requires access to fitness and activity permission in order to function properly'),
+                    backgroundColor: const Color.fromARGB(255, 60, 111, 125),
+                    actions: [
+                      ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(255, 7, 45, 97),
+                            fixedSize: Size(_size.width - 100, 50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                          ),
+                          onPressed: () async {
+                            await ph.openAppSettings();
+                          },
+                          child: const Text(
+                            'Open Phone Settings',
+                            style: textStyle2,
+                          )),
+                    ],
+                  ));
+          ph.openAppSettings();
+        }
+      } else {
+        await ph.Permission.sensors.request();
+      }
     }
   }
 
@@ -1195,7 +1255,13 @@ class _HomeScreenState extends State<HomeScreen> {
               actions: [
                 TextButton(
                     onPressed: () async {
-                      await ph.openAppSettings();
+                      await [
+                        ph.Permission.location,
+                        ph.Permission.locationAlways,
+                        ph.Permission.activityRecognition
+                      ].request();
+
+                      Navigator.of(context, rootNavigator: true).pop();
                     },
                     child: const Text('Allow')),
                 TextButton(
@@ -1354,14 +1420,12 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       }
 
-      bg.BackgroundGeolocation.start().then(callback);
-
-      // bg.State state = await bg.BackgroundGeolocation.state;
-      // if (state.trackingMode == 1) {
-      //   bg.BackgroundGeolocation.start().then(callback);
-      // } else {
-      //   bg.BackgroundGeolocation.startGeofences().then(callback);
-      // }
+      bg.State state = await bg.BackgroundGeolocation.state;
+      if (state.trackingMode == 1) {
+        bg.BackgroundGeolocation.start().then(callback);
+      } else {
+        bg.BackgroundGeolocation.startGeofences().then(callback);
+      }
     } else {
       callback(bg.State state) {
         setState(() {

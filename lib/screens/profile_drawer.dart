@@ -146,7 +146,7 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                               children: [
                                 ListTile(
                                   leading: const Icon(Icons.add_location),
-                                  title: const Text('Add New Project'),
+                                  title: const Text('New Project'),
                                   enabled: true,
                                   onTap: () async {
                                     await Navigator.push(
@@ -156,7 +156,27 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                                                   currentUser:
                                                       widget.currentUser,
                                                   addNewProject: true,
+                                                  addNewMockup: false,
                                                   listOfMarkers: 'Add Project',
+                                                )));
+                                  },
+                                ),
+
+                                //For mock ups only
+                                ListTile(
+                                  leading: const Icon(Icons.add_location),
+                                  title: const Text('New Mock-up'),
+                                  enabled: true,
+                                  onTap: () async {
+                                    await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (_) => MapProviders(
+                                                  currentUser:
+                                                      widget.currentUser,
+                                                  addNewProject: false,
+                                                  addNewMockup: true,
+                                                  listOfMarkers: 'Add Mockup',
                                                 )));
                                   },
                                 ),
@@ -239,6 +259,7 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                                                 currentUser: widget.currentUser,
                                                 listOfMarkers: 'users',
                                                 addNewProject: false,
+                                                addNewMockup: false,
                                               )),
                                     );
                                   },

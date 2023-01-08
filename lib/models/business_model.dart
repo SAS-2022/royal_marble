@@ -60,6 +60,43 @@ class ProjectData {
   }
 }
 
+class MockupData {
+  String uid;
+  String mockupName;
+  String mockUpDetails;
+  Map<String, dynamic> mockUpAddress;
+  double radius;
+  String contactorCompany;
+  String contactPerson;
+  PhoneNumber phoneNumber;
+  String emailAddress;
+  List<dynamic> projectVisits;
+  String userId;
+  List<dynamic> assignedWorkers;
+  String mockupStatus;
+  String error;
+  MockupData(
+      {this.uid,
+      this.mockupName,
+      this.mockUpDetails,
+      this.mockUpAddress,
+      this.radius,
+      this.contactorCompany,
+      this.contactPerson,
+      this.phoneNumber,
+      this.emailAddress,
+      this.projectVisits,
+      this.userId,
+      this.assignedWorkers,
+      this.mockupStatus,
+      this.error});
+
+  @override
+  String toString() {
+    return 'MockupData(uid: $uid, mockupName: $mockupName, mockUpDetails: $mockUpDetails, mockUpAddress: $mockUpAddress, radius: $radius, contactorCompany: $contactorCompany, contactPerson: $contactPerson, phoneNumber: $phoneNumber, emailAddress: $emailAddress, projectVisits: $projectVisits, userId: $userId, assignedWorkers: $assignedWorkers, mockupStatus: $mockupStatus, error: $error)';
+  }
+}
+
 class ClientVisitDetails {
   String uid;
   String userId;

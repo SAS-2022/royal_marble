@@ -17,33 +17,33 @@ import '../shared/snack_bar.dart';
 import 'package:intl/intl.dart';
 import 'package:sentry/sentry.dart';
 
-class ProjectForm extends StatefulWidget {
-  const ProjectForm({
-    Key key,
-    this.selectedProject,
-    this.isNewProject,
-    this.allWorkers,
-    this.projectLocation,
-    this.assignCirule,
-    this.currentUser,
-  }) : super(key: key);
+class MockupForm extends StatefulWidget {
+  const MockupForm(
+      {Key key,
+      this.selectedMockUp,
+      this.allWorkers,
+      this.projectLocation,
+      this.assignCirule,
+      this.currentUser,
+      this.isNewMockup})
+      : super(key: key);
   final UserData currentUser;
-  final ProjectData selectedProject;
+  final MockupData selectedMockUp;
   final Map<String, dynamic> projectLocation;
-  final bool isNewProject;
+  final bool isNewMockup;
   final List<UserData> allWorkers;
   final Function assignCirule;
 
   @override
-  State<ProjectForm> createState() => _ProjectFormState();
+  State<MockupForm> createState() => _MockupFormState();
 }
 
-class _ProjectFormState extends State<ProjectForm> {
+class _MockupFormState extends State<MockupForm> {
   bool _editContent = false;
   Size _size;
   final _formKey = GlobalKey<FormState>();
   Map<String, dynamic> _myLocation = {};
-  ProjectData newProject = ProjectData();
+  MockupData newMockup = MockupData();
   final db = DatabaseService();
   final _snackBarWidget = SnackBarWidget();
   UserData selectedUser;
@@ -67,18 +67,18 @@ class _ProjectFormState extends State<ProjectForm> {
     super.initState();
 
     _snackBarWidget.context = context;
-    if (!widget.isNewProject) {
-      newProject = widget.selectedProject;
+    if (!widget.isNewMockup) {
+      newMockup = widget.selectedMockUp;
 
       phoneNumber = PhoneNumber(
-        phoneNumber: widget.selectedProject.phoneNumber.phoneNumber,
-        isoCode: widget.selectedProject.phoneNumber.isoCode,
-        dialCode: widget.selectedProject.phoneNumber.dialCode,
+        phoneNumber: widget.selectedMockUp.phoneNumber.phoneNumber,
+        isoCode: widget.selectedMockUp.phoneNumber.isoCode,
+        dialCode: widget.selectedMockUp.phoneNumber.dialCode,
       );
 
       _checkAssignedWorkers = checkProjectWorkers();
     } else {
-      newProject.projectStatus = 'potential';
+      newMockup.mockupStatus = 'potential';
       selectMapLocation(
           locationAddress: LatLng(
               widget.projectLocation['Lat'], widget.projectLocation['Lng']),
@@ -89,8 +89,8 @@ class _ProjectFormState extends State<ProjectForm> {
               .toString());
     }
 
-    if (newProject.projectStatus != null) {
-      switch (newProject.projectStatus) {
+    if (newMockup.mockupStatus != null) {
+      switch (newMockup.mockupStatus) {
         case 'active':
           _statusColor = const Color.fromARGB(255, 148, 218, 83);
           break;
@@ -119,7 +119,7 @@ class _ProjectFormState extends State<ProjectForm> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text('Project Form'),
+            const Text('Mock-Up Form'),
             //Project status
             Padding(
               padding: const EdgeInsets.only(left: 15),
@@ -131,7 +131,7 @@ class _ProjectFormState extends State<ProjectForm> {
                   borderRadius: BorderRadius.circular(25),
                 ),
                 child: Text(
-                  newProject.projectStatus.toUpperCase(),
+                  newMockup.mockupStatus.toUpperCase(),
                   style: textStyle12,
                   textAlign: TextAlign.center,
                 ),
@@ -141,7 +141,7 @@ class _ProjectFormState extends State<ProjectForm> {
         ),
         backgroundColor: const Color.fromARGB(255, 191, 180, 66),
         actions: [
-          !widget.isNewProject
+          !widget.isNewMockup
               ? widget.currentUser.roles.contains('isAdmin')
                   ? TextButton(
                       style: TextButton.styleFrom(
@@ -163,9 +163,9 @@ class _ProjectFormState extends State<ProjectForm> {
       ),
       body: _isLoading
           ? const Center(child: Loading())
-          : !widget.isNewProject
-              ? _buildProjectBody()
-              : _buildNewProjectForm(),
+          : !widget.isNewMockup
+              ? _buildMockupBody()
+              : _buildNewMockupForm(),
     );
   }
 
@@ -176,7 +176,7 @@ class _ProjectFormState extends State<ProjectForm> {
           if (worker.assignedProject != null &&
               worker.assignedProject.runtimeType == List) {
             for (var project in worker.assignedProject) {
-              if (project['id'] == widget.selectedProject.uid) {
+              if (project['id'] == widget.selectedMockUp.uid) {
                 workerOnThisProject.add(worker);
               }
             }
@@ -184,7 +184,7 @@ class _ProjectFormState extends State<ProjectForm> {
 
           if (worker.assignedProject != null &&
               worker.assignedProject.runtimeType != List) {
-            if (worker.assignedProject['id'] == widget.selectedProject.uid) {
+            if (worker.assignedProject['id'] == widget.selectedMockUp.uid) {
               workerOnThisProject.add(worker);
             }
           }
@@ -200,11 +200,11 @@ class _ProjectFormState extends State<ProjectForm> {
   }
 
   //will allow to build a current project
-  Widget _buildProjectBody() {
+  Widget _buildMockupBody() {
     if (widget.allWorkers.isNotEmpty) {
       selectedUser = widget.allWorkers[0];
     }
-    return widget.selectedProject.uid != null
+    return widget.selectedMockUp.uid != null
         ? Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
             child: SingleChildScrollView(
@@ -223,7 +223,7 @@ class _ProjectFormState extends State<ProjectForm> {
                     _editContent
                         ? TextFormField(
                             autofocus: false,
-                            initialValue: widget.selectedProject.projectName,
+                            initialValue: widget.selectedMockUp.mockupName,
                             style: textStyle5,
                             textCapitalization: TextCapitalization.sentences,
                             decoration: InputDecoration(
@@ -245,7 +245,7 @@ class _ProjectFormState extends State<ProjectForm> {
                                 : null,
                             onChanged: (val) {
                               setState(() {
-                                newProject.projectName = val.trim();
+                                newMockup.mockupName = val.trim();
                               });
                             },
                           )
@@ -260,7 +260,7 @@ class _ProjectFormState extends State<ProjectForm> {
                             Expanded(
                               flex: 2,
                               child: Text(
-                                widget.selectedProject.projectName,
+                                widget.selectedMockUp.mockupName,
                                 style: textStyle3,
                               ),
                             )
@@ -272,7 +272,7 @@ class _ProjectFormState extends State<ProjectForm> {
                     _editContent
                         ? TextFormField(
                             autofocus: false,
-                            initialValue: widget.selectedProject.projectDetails,
+                            initialValue: widget.selectedMockUp.mockUpDetails,
                             style: textStyle5,
                             textCapitalization: TextCapitalization.sentences,
                             maxLines: 3,
@@ -295,7 +295,7 @@ class _ProjectFormState extends State<ProjectForm> {
                                 : null,
                             onChanged: (val) {
                               setState(() {
-                                newProject.projectDetails = val.trim();
+                                newMockup.mockUpDetails = val.trim();
                               });
                             },
                           )
@@ -310,7 +310,7 @@ class _ProjectFormState extends State<ProjectForm> {
                             Expanded(
                               flex: 2,
                               child: Text(
-                                widget.selectedProject.projectDetails,
+                                widget.selectedMockUp.mockUpDetails,
                                 style: textStyle3,
                               ),
                             )
@@ -324,7 +324,7 @@ class _ProjectFormState extends State<ProjectForm> {
                         ? TextFormField(
                             autofocus: false,
                             initialValue:
-                                widget.selectedProject.contactorCompany,
+                                widget.selectedMockUp.contactorCompany,
                             style: textStyle5,
                             textCapitalization: TextCapitalization.sentences,
                             decoration: InputDecoration(
@@ -346,7 +346,7 @@ class _ProjectFormState extends State<ProjectForm> {
                                 : null,
                             onChanged: (val) {
                               setState(() {
-                                newProject.contactorCompany = val.trim();
+                                newMockup.contactorCompany = val.trim();
                               });
                             },
                           )
@@ -361,7 +361,7 @@ class _ProjectFormState extends State<ProjectForm> {
                             Expanded(
                               flex: 2,
                               child: Text(
-                                widget.selectedProject.contactorCompany,
+                                widget.selectedMockUp.contactorCompany,
                                 style: textStyle3,
                               ),
                             )
@@ -374,7 +374,7 @@ class _ProjectFormState extends State<ProjectForm> {
                     _editContent
                         ? TextFormField(
                             autofocus: false,
-                            initialValue: widget.selectedProject.contactPerson,
+                            initialValue: widget.selectedMockUp.contactPerson,
                             style: textStyle5,
                             textCapitalization: TextCapitalization.sentences,
                             decoration: InputDecoration(
@@ -396,7 +396,7 @@ class _ProjectFormState extends State<ProjectForm> {
                                 : null,
                             onChanged: (val) {
                               setState(() {
-                                newProject.contactPerson = val.trim();
+                                newMockup.contactPerson = val.trim();
                               });
                             },
                           )
@@ -411,7 +411,7 @@ class _ProjectFormState extends State<ProjectForm> {
                             Expanded(
                               flex: 2,
                               child: Text(
-                                widget.selectedProject.contactPerson,
+                                widget.selectedMockUp.contactPerson,
                                 style: textStyle3,
                               ),
                             )
@@ -442,7 +442,7 @@ class _ProjectFormState extends State<ProjectForm> {
                                 signed: true, decimal: true),
                             inputBorder: const OutlineInputBorder(),
                             onSaved: (PhoneNumber number) {
-                              newProject.phoneNumber = number;
+                              newMockup.phoneNumber = number;
                             },
                           )
                         : Row(children: [
@@ -470,7 +470,7 @@ class _ProjectFormState extends State<ProjectForm> {
                     _editContent
                         ? TextFormField(
                             autofocus: false,
-                            initialValue: widget.selectedProject.emailAddress,
+                            initialValue: widget.selectedMockUp.emailAddress,
                             style: textStyle5,
                             decoration: InputDecoration(
                               filled: true,
@@ -498,7 +498,7 @@ class _ProjectFormState extends State<ProjectForm> {
                             },
                             onChanged: (val) {
                               setState(() {
-                                newProject.emailAddress = val.trim();
+                                newMockup.emailAddress = val.trim();
                               });
                             },
                           )
@@ -513,7 +513,7 @@ class _ProjectFormState extends State<ProjectForm> {
                             Expanded(
                               flex: 2,
                               child: Text(
-                                widget.selectedProject.emailAddress,
+                                widget.selectedMockUp.emailAddress,
                                 style: textStyle3,
                               ),
                             )
@@ -542,27 +542,26 @@ class _ProjectFormState extends State<ProjectForm> {
                               if (Platform.isIOS) {
                                 //will start google navigation for the current project location
                                 _httpNavigation.context = context;
-                                _httpNavigation.lat = widget
-                                    .selectedProject.projectAddress['Lat'];
-                                _httpNavigation.lng = widget
-                                    .selectedProject.projectAddress['Lng'];
+                                _httpNavigation.lat =
+                                    widget.selectedMockUp.mockUpAddress['Lat'];
+                                _httpNavigation.lng =
+                                    widget.selectedMockUp.mockUpAddress['Lng'];
                                 _httpNavigation.startNaviagtionGoogleMap();
                               } else {
                                 await Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (_) => GoogleMapNavigation(
-                                              lat: widget.selectedProject
-                                                  .projectAddress['Lat'],
-                                              lng: widget.selectedProject
-                                                  .projectAddress['Lng'],
+                                              lat: widget.selectedMockUp
+                                                  .mockUpAddress['Lat'],
+                                              lng: widget.selectedMockUp
+                                                  .mockUpAddress['Lng'],
                                               navigate: true,
                                             )));
                               }
                             },
                             child: Text(
-                              widget
-                                  .selectedProject.projectAddress['addressName']
+                              widget.selectedMockUp.mockUpAddress['addressName']
                                   .toString(),
                               style: textStyle3,
                             ),
@@ -896,8 +895,8 @@ class _ProjectFormState extends State<ProjectForm> {
                                   if (_editContent) {
                                     if (_formKey.currentState.validate()) {
                                       _formKey.currentState.save();
-                                      var result = await db.updateProjectData(
-                                        project: newProject,
+                                      var result = await db.updateMockupData(
+                                        mockup: newMockup,
                                       );
                                       Navigator.pop(context);
                                     } else {
@@ -915,24 +914,24 @@ class _ProjectFormState extends State<ProjectForm> {
                                         userIds.add(element.uid);
                                       }
 
-                                      var result =
-                                          await db.updateProjectWithWorkers(
-                                              project: widget.selectedProject,
-                                              selectedUserIds: userIds,
-                                              addedUsers: addedUsers,
-                                              removedUsers: removedUsers);
+                                      // var result =
+                                      //     await db.updateProjectWithWorkers(
+                                      //         project: widget.selectedProject,
+                                      //         selectedUserIds: userIds,
+                                      //         addedUsers: addedUsers,
+                                      //         removedUsers: removedUsers);
 
-                                      if (result == 'Completed') {
-                                        Navigator.pop(context);
-                                      } else {
-                                        _snackBarWidget.content =
-                                            'failed to update account, please contact developer';
-                                        _snackBarWidget.showSnack();
-                                      }
+                                      // if (result == 'Completed') {
+                                      //   Navigator.pop(context);
+                                      // } else {
+                                      //   _snackBarWidget.content =
+                                      //       'failed to update account, please contact developer';
+                                      //   _snackBarWidget.showSnack();
+                                      // }
                                     } else {
                                       if (_formKey.currentState.validate()) {
-                                        var result = await db.updateProjectData(
-                                            project: newProject);
+                                        var result = await db.updateMockupData(
+                                            mockup: newMockup);
 
                                         if (result == 'Completed') {
                                           Navigator.pop(context);
@@ -965,7 +964,7 @@ class _ProjectFormState extends State<ProjectForm> {
   }
 
   //will allow building a new project form
-  Widget _buildNewProjectForm() {
+  Widget _buildNewMockupForm() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 35),
       child: SingleChildScrollView(
@@ -975,7 +974,7 @@ class _ProjectFormState extends State<ProjectForm> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               const Text(
-                'The following form will allow you to add a new project, all required field should be filled before you can proceed',
+                'The following form will allow you to add a new mock-up, all required field should be filled before you can proceed',
                 style: textStyle6,
               ),
               const SizedBox(
@@ -988,7 +987,7 @@ class _ProjectFormState extends State<ProjectForm> {
                 textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(
                   filled: true,
-                  label: const Text('Project Name'),
+                  label: const Text('Mockup Name'),
                   hintText: 'Ex: Villa Mr. X',
                   fillColor: Colors.grey[100],
                   enabledBorder: const OutlineInputBorder(
@@ -999,10 +998,10 @@ class _ProjectFormState extends State<ProjectForm> {
                       borderSide: BorderSide(color: Colors.green)),
                 ),
                 validator: (val) =>
-                    val.isEmpty ? 'Project name cannot be empty' : null,
+                    val.isEmpty ? 'Mockup name cannot be empty' : null,
                 onChanged: (val) {
                   setState(() {
-                    newProject.projectName = val.trim();
+                    newMockup.mockupName = val.trim();
                   });
                 },
               ),
@@ -1018,7 +1017,7 @@ class _ProjectFormState extends State<ProjectForm> {
                 maxLines: 3,
                 decoration: InputDecoration(
                   filled: true,
-                  label: const Text('Project Details'),
+                  label: const Text('Mockup Details'),
                   hintText: 'Ex: The project is about',
                   fillColor: Colors.grey[100],
                   enabledBorder: const OutlineInputBorder(
@@ -1029,10 +1028,10 @@ class _ProjectFormState extends State<ProjectForm> {
                       borderSide: BorderSide(color: Colors.green)),
                 ),
                 validator: (val) =>
-                    val.isEmpty ? 'Project details cannot be empty' : null,
+                    val.isEmpty ? 'Mock-up details cannot be empty' : null,
                 onChanged: (val) {
                   setState(() {
-                    newProject.projectDetails = val.trim();
+                    newMockup.mockUpDetails = val.trim();
                   });
                 },
               ),
@@ -1062,7 +1061,7 @@ class _ProjectFormState extends State<ProjectForm> {
                     val.isEmpty ? 'Contractor section cannot be empty' : null,
                 onChanged: (val) {
                   setState(() {
-                    newProject.contactorCompany = val.trim();
+                    newMockup.contactorCompany = val.trim();
                   });
                 },
               ),
@@ -1091,7 +1090,7 @@ class _ProjectFormState extends State<ProjectForm> {
                     val.isEmpty ? 'Contact person cannot be empty' : null,
                 onChanged: (val) {
                   setState(() {
-                    newProject.contactPerson = val.trim();
+                    newMockup.contactPerson = val.trim();
                   });
                 },
               ),
@@ -1118,47 +1117,9 @@ class _ProjectFormState extends State<ProjectForm> {
                     signed: true, decimal: true),
                 inputBorder: const OutlineInputBorder(),
                 onSaved: (PhoneNumber number) {
-                  newProject.phoneNumber = number;
+                  newMockup.phoneNumber = number;
                 },
               ),
-              // TextFormField(
-              //   autofocus: false,
-              //   initialValue: '',
-              //   style: textStyle5,
-              //   keyboardType: TextInputType.number,
-              //   inputFormatters: <TextInputFormatter>[
-              //     FilteringTextInputFormatter.digitsOnly,
-              //   ],
-              //   decoration: InputDecoration(
-              //     filled: true,
-              //     label: const Text('Contact Phone'),
-              //     hintText: 'Ex: 05 123 12345',
-              //     fillColor: Colors.grey[100],
-              //     enabledBorder: const OutlineInputBorder(
-              //         borderRadius: BorderRadius.all(Radius.circular(15.0)),
-              //         borderSide: BorderSide(color: Colors.grey)),
-              //     focusedBorder: const OutlineInputBorder(
-              //         borderRadius: BorderRadius.all(Radius.circular(15.0)),
-              //         borderSide: BorderSide(color: Colors.green)),
-              //   ),
-              //   validator: (val) {
-              //     Pattern pattern = r'^(?:[05]8)?[0-9]{10}$';
-              //     var regexp = RegExp(pattern.toString());
-              //     if (val.isEmpty) {
-              //       return 'Phone cannot be empty';
-              //     }
-              //     if (!regexp.hasMatch(val)) {
-              //       return 'Phone number does not match a UAE number';
-              //     } else {
-              //       return null;
-              //     }
-              //   },
-              //   onChanged: (val) {
-              //     setState(() {
-              //       newProject.phoneNumber = val.trim();
-              //     });
-              //   },
-              // ),
               const SizedBox(
                 height: 15,
               ),
@@ -1190,7 +1151,7 @@ class _ProjectFormState extends State<ProjectForm> {
                 },
                 onChanged: (val) {
                   setState(() {
-                    newProject.emailAddress = val.trim();
+                    newMockup.emailAddress = val.trim();
                   });
                 },
               ),
@@ -1218,7 +1179,7 @@ class _ProjectFormState extends State<ProjectForm> {
                       setState(() {
                         FocusScope.of(context).requestFocus(FocusNode());
                         radius = val;
-                        newProject.radius = radius;
+                        newMockup.radius = radius;
                       });
                     },
                     validator: (val) =>
@@ -1289,8 +1250,7 @@ class _ProjectFormState extends State<ProjectForm> {
                         setState(() {
                           _isLoading = true;
                         });
-                        var result =
-                            await db.addNewProject(project: newProject);
+                        var result = await db.addNewMockup(mockup: newMockup);
                         if (result == 'Completed') {
                           Navigator.pop(context);
                         } else {
@@ -1320,7 +1280,7 @@ class _ProjectFormState extends State<ProjectForm> {
         'Lat': locationAddress.latitude,
         'Lng': locationAddress.longitude,
       };
-      newProject.projectAddress = _myLocation;
+      newMockup.mockUpAddress = _myLocation;
       setState(() {});
     }
   }
@@ -1334,10 +1294,10 @@ class _ProjectFormState extends State<ProjectForm> {
       var result = _calculate.distanceBetweenTwoPoints(
           myLocation.latitude,
           myLocation.longitude,
-          widget.selectedProject.projectAddress['Lat'],
-          widget.selectedProject.projectAddress['Lng']);
+          widget.selectedMockUp.mockUpAddress['Lat'],
+          widget.selectedMockUp.mockUpAddress['Lng']);
       //will check if the worker has arrived to the site
-      if (result != null && result * 1000 <= widget.selectedProject.radius) {
+      if (result != null && result * 1000 <= widget.selectedMockUp.radius) {
         if (_isAtSite) {
           _snackBarWidget.content =
               'Have a great day, you have checked out.\nTime: $dateFormat\n';
@@ -1356,7 +1316,7 @@ class _ProjectFormState extends State<ProjectForm> {
       } else {
         dt = null;
         _snackBarWidget.content =
-            'You have ${((result * 1000) - widget.selectedProject.radius).round()} meters to arrive to your destination.';
+            'You have ${((result * 1000) - widget.selectedMockUp.radius).round()} meters to arrive to your destination.';
         _snackBarWidget.showSnack();
       }
 
@@ -1390,7 +1350,7 @@ class _ProjectFormState extends State<ProjectForm> {
                   isAtSite: _isAtSite,
                   currentUser: widget.currentUser,
                   timeSheetId: '${result.day}-${result.month}-${result.year}',
-                  selectedProject: widget.selectedProject,
+                  // selectedProject: widget.selectedMockUp,
                   checkIn: todayTimeSheet['data'][widget.currentUser.uid]
                       ['arriving_at'],
                   checkOut: result.toString()),
@@ -1405,7 +1365,7 @@ class _ProjectFormState extends State<ProjectForm> {
                     isAtSite: _isAtSite,
                     currentUser: widget.currentUser,
                     userRole: widget.currentUser.roles.first,
-                    selectedProject: widget.selectedProject,
+                    // selectedProject: widget.selectedProject,
                     today: '${result.day}-${result.month}-${result.year}',
                     checkOut: todayTimeSheet['data'][widget.currentUser.uid]
                         ['leaving_at'],
@@ -1414,7 +1374,7 @@ class _ProjectFormState extends State<ProjectForm> {
                 timeSheetUpdated = await db.updateWorkerTimeSheet(
                     isAtSite: _isAtSite,
                     currentUser: widget.currentUser,
-                    selectedProject: widget.selectedProject,
+                    // selectedProject: widget.selectedProject,
                     userRole: widget.currentUser.roles.first,
                     today: '${result.day}-${result.month}-${result.year}',
                     checkIn: todayTimeSheet['data'][widget.currentUser.uid]
@@ -1426,7 +1386,7 @@ class _ProjectFormState extends State<ProjectForm> {
               timeSheetUpdated = await db.updateWorkerTimeSheet(
                 isAtSite: _isAtSite,
                 currentUser: widget.currentUser,
-                selectedProject: widget.selectedProject,
+                //  selectedProject: widget.selectedProject,
                 userRole: widget.currentUser.roles.first,
                 today: '${result.day}-${result.month}-${result.year}',
                 checkIn: result.toString(),
@@ -1439,7 +1399,7 @@ class _ProjectFormState extends State<ProjectForm> {
                   userRole: widget.currentUser.roles.first,
                   isAtSite: _isAtSite,
                   currentUser: widget.currentUser,
-                  selectedProject: widget.selectedProject,
+                  //selectedProject: widget.selectedProject,
                   today: '${result.day}-${result.month}-${result.year}',
                   checkIn: result.toString());
             } else {
@@ -1447,7 +1407,7 @@ class _ProjectFormState extends State<ProjectForm> {
                   userRole: widget.currentUser.roles.first,
                   isAtSite: _isAtSite,
                   currentUser: widget.currentUser,
-                  selectedProject: widget.selectedProject,
+                  //selectedProject: widget.selectedProject,
                   today: '${result.day}-${result.month}-${result.year}',
                   checkOut: result.toString());
             }
