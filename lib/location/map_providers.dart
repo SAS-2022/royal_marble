@@ -30,6 +30,13 @@ class MapProviders extends StatelessWidget {
             initialData: [],
             catchError: (context, err) => [ProjectData(error: err)]),
 
+        //a provider to get mockups
+        StreamProvider<List<MockupData>>.value(
+          value: db.getAllMockups(),
+          initialData: [],
+          catchError: ((context, error) => [MockupData(error: error)]),
+        ),
+
         //a provider for users
         StreamProvider<List<UserData>>.value(
             value: db.getAllUsers(),

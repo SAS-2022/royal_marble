@@ -36,6 +36,7 @@ class _WrapperState extends State<Wrapper> {
     } else {
       return MultiProvider(
         providers: [
+          //a provider to show current user
           StreamProvider<UserData>.value(
             value: db.getUserPerId(uid: userData.uid),
             initialData: UserData(),
@@ -43,6 +44,7 @@ class _WrapperState extends State<Wrapper> {
               return UserData();
             },
           ),
+          //a provider to show all projects
           StreamProvider<List<ProjectData>>.value(
             value: db.getAllProjects(),
             initialData: [],
@@ -50,10 +52,18 @@ class _WrapperState extends State<Wrapper> {
               return [];
             },
           ),
+          //a provider to get mockups
+          StreamProvider<List<MockupData>>.value(
+            value: db.getAllMockups(),
+            initialData: [],
+            catchError: ((context, error) => [MockupData(error: error)]),
+          ),
+          //a provider to show all users
           StreamProvider<List<UserData>>.value(
               value: db.getAllUsers(),
               initialData: [],
               catchError: (context, err) => [UserData(error: err)]),
+          //a provider for the timesheet
           StreamProvider<Map<String, dynamic>>.value(
             value: db.getTimeSheetData(uid: today),
             initialData: null,

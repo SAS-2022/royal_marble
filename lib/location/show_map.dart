@@ -11,7 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:royal_marble/location/.env.dart';
 import 'package:royal_marble/location/direction_repo.dart';
 import 'package:royal_marble/models/business_model.dart';
-import 'package:royal_marble/projects/mockup_form.dart';
+import 'package:royal_marble/mockups/mockup_form.dart';
 import 'package:royal_marble/projects/project_form.dart';
 import 'package:royal_marble/shared/constants.dart';
 import 'package:royal_marble/shared/snack_bar.dart';
@@ -47,6 +47,7 @@ class _ShowMapState extends State<ShowMap> {
   Map<String, dynamic> locationProvider;
   var projectProvider;
   var userProvider;
+  var mockupProvider;
   List<ClientData> clientProvider;
   Directions _info;
   String title = '';
@@ -85,12 +86,13 @@ class _ShowMapState extends State<ShowMap> {
   void initState() {
     super.initState();
     getSharedPreferences();
+
     _center = LatLng(widget.currentUser.homeAddress['Lat'],
         widget.currentUser.homeAddress['Lng']);
     _getApiKey();
     _getMyCurrentLocation = _determinePosition();
     _identifyMapMarkers();
-    if (!widget.addProject) {
+    if (widget.listOfMarkers == 'users') {
       noMarkers.add(marker1);
       _snackBarWidget.context = context;
       _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
@@ -102,7 +104,7 @@ class _ShowMapState extends State<ShowMap> {
   @override
   void dispose() {
     super.dispose();
-    if (!widget.addProject) {
+    if (widget.listOfMarkers == 'users') {
       _timer.cancel();
     }
   }
@@ -192,8 +194,8 @@ class _ShowMapState extends State<ShowMap> {
     });
   }
 
-  //create a circle to assign on the map
-  void _setCirclesLocations() {
+  //create a circle to assign the project location on the map
+  void _setProjectCirclesLocations() {
     _circules.clear();
     for (var project in projectProvider) {
       _circules.add(Circle(
@@ -214,7 +216,34 @@ class _ShowMapState extends State<ShowMap> {
     }
   }
 
-  void _showDialog({String title, String content, ProjectData projectData}) {
+  //create a circle to assign the mockup location on the map
+  void _setMockupCirclesLocations() {
+    _circules.clear();
+    for (var mockup in mockupProvider) {
+      _circules.add(Circle(
+          consumeTapEvents: true,
+          onTap: () {
+            _showDialog(
+                title: mockup.mockupName,
+                content: mockup.mockupDetails,
+                mockupData: mockup);
+          },
+          circleId: CircleId(mockup.uid),
+          center:
+              LatLng(mockup.mockupAddress['Lat'], mockup.mockupAddress['Lng']),
+          radius: mockup.radius,
+          fillColor:
+              const ui.Color.fromARGB(255, 93, 204, 133).withOpacity(0.3),
+          strokeWidth: 3,
+          strokeColor: const ui.Color.fromARGB(255, 12, 97, 6)));
+    }
+  }
+
+  void _showDialog(
+      {String title,
+      String content,
+      ProjectData projectData,
+      MockupData mockupData}) {
     showDialog(
         context: context,
         builder: (_) {
@@ -223,7 +252,7 @@ class _ShowMapState extends State<ShowMap> {
             content: Text(content),
             actions: [
               //Delete the project
-              projectData != null
+              projectData != null || mockupData != null
                   ? Center(
                       child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
@@ -234,7 +263,9 @@ class _ShowMapState extends State<ShowMap> {
                             ),
                           ),
                           onPressed: () async {
-                            if (projectData.uid != null) {
+                            //will check if we are deleting a project or a mockup
+                            if (projectData != null &&
+                                projectData.uid != null) {
                               if (projectData.assignedWorkers != null &&
                                   projectData.assignedWorkers.isNotEmpty) {
                                 _snackBarWidget.content =
@@ -244,6 +275,19 @@ class _ShowMapState extends State<ShowMap> {
                               }
                               await db.deleteProject(
                                   projectId: projectData.uid);
+                              Navigator.pop(context);
+                            }
+
+                            //will check if we are deleting a project or a mockup
+                            if (mockupData != null && mockupData.uid != null) {
+                              if (mockupData.assignedWorkers != null &&
+                                  mockupData.assignedWorkers.isNotEmpty) {
+                                _snackBarWidget.content =
+                                    'Please remove workers before deletion';
+                                _snackBarWidget.showSnack();
+                                return;
+                              }
+                              await db.deleteMockup(mockupId: mockupData.uid);
                               Navigator.pop(context);
                             }
                           },
@@ -299,9 +343,13 @@ class _ShowMapState extends State<ShowMap> {
     _size = MediaQuery.of(context).size;
     projectProvider = Provider.of<List<ProjectData>>(context);
     userProvider = Provider.of<List<UserData>>(context);
+    mockupProvider = Provider.of<List<MockupData>>(context);
     //Assign project proivder to circules
     if (projectProvider != null && projectProvider.isNotEmpty) {
-      _setCirclesLocations();
+      _setProjectCirclesLocations();
+    }
+    if (mockupProvider != null && mockupProvider.isNotEmpty) {
+      _setMockupCirclesLocations();
     }
     if (widget.listOfMarkers == 'users' &&
         userProvider != null &&
@@ -641,92 +689,100 @@ class _ShowMapState extends State<ShowMap> {
                     ),
                   ),
                 ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20.0, 25.0, 0, 0),
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  elevation: _elevation,
-                  child: Container(
-                    width: MediaQuery.of(context).size.width - 100,
-                    height: 50,
-                    decoration: BoxDecoration(
-                        border: Border.all(),
-                        borderRadius: BorderRadius.circular(15.0),
-                        color: Colors.grey[200]),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(children: [
-                        Text(
-                          '$title: ',
-                          style: textStyle4,
+              widget.listOfMarkers == 'users'
+                  ? Padding(
+                      padding: const EdgeInsets.fromLTRB(20.0, 25.0, 0, 0),
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15.0),
                         ),
-                        Text(
-                          '${userProvider.length}',
-                          style: textStyle4,
-                        ),
-                        LayoutBuilder(
-                          builder: (context, constraints) {
-                            return SizedBox(
-                              height: constraints.maxHeight - 1,
-                              child: const VerticalDivider(
-                                color: Colors.black,
-                                thickness: 1.0,
+                        elevation: _elevation,
+                        child: Container(
+                          width: MediaQuery.of(context).size.width - 80,
+                          height: 50,
+                          decoration: BoxDecoration(
+                              border: Border.all(),
+                              borderRadius: BorderRadius.circular(15.0),
+                              color: Colors.grey[200]),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(children: [
+                              Text(
+                                '$title: ',
+                                style: textStyle4,
                               ),
-                            );
-                          },
-                        ),
-                        SizedBox(
-                          width: _size.width / 3,
-                          height: 40,
-                          child: Row(
-                            children: [
-                              const Expanded(
-                                flex: 1,
-                                child: Text(
-                                  'Zoom: ',
-                                  style: textStyle4,
+                              Text(
+                                '${userProvider.length}',
+                                style: textStyle4,
+                              ),
+                              LayoutBuilder(
+                                builder: (context, constraints) {
+                                  return SizedBox(
+                                    height: constraints.maxHeight - 1,
+                                    child: const VerticalDivider(
+                                      color: Colors.black,
+                                      thickness: 1.0,
+                                    ),
+                                  );
+                                },
+                              ),
+                              SizedBox(
+                                width: _size.width / 3,
+                                height: 40,
+                                child: Row(
+                                  children: [
+                                    const Expanded(
+                                      flex: 1,
+                                      child: Text(
+                                        'Zoom: ',
+                                        style: textStyle4,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 1,
+                                      child: TextFormField(
+                                        textAlign: TextAlign.center,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.grey[100],
+                                          enabledBorder:
+                                              const OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                          Radius.circular(
+                                                              15.0)),
+                                                  borderSide: BorderSide(
+                                                      color: Colors.grey)),
+                                          focusedBorder:
+                                              const OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                          Radius.circular(
+                                                              15.0)),
+                                                  borderSide: BorderSide(
+                                                      color: Colors.green)),
+                                        ),
+                                        initialValue: _mapZoom.toString(),
+                                        onChanged: (val) {
+                                          if (val != null && val.isNotEmpty) {
+                                            if (double.parse(val) >= 0) {
+                                              setState(() {
+                                                _mapZoom = double.parse(val);
+                                              });
+                                            }
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              Expanded(
-                                flex: 1,
-                                child: TextFormField(
-                                  textAlign: TextAlign.center,
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Colors.grey[100],
-                                    enabledBorder: const OutlineInputBorder(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(15.0)),
-                                        borderSide:
-                                            BorderSide(color: Colors.grey)),
-                                    focusedBorder: const OutlineInputBorder(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(15.0)),
-                                        borderSide:
-                                            BorderSide(color: Colors.green)),
-                                  ),
-                                  initialValue: _mapZoom.toString(),
-                                  onChanged: (val) {
-                                    if (val != null && val.isNotEmpty) {
-                                      if (double.parse(val) >= 0) {
-                                        setState(() {
-                                          _mapZoom = double.parse(val);
-                                        });
-                                      }
-                                    }
-                                  },
-                                ),
-                              ),
-                            ],
+                            ]),
                           ),
                         ),
-                      ]),
-                    ),
-                  ),
-                ),
-              ),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
             ],
           ),
         ),

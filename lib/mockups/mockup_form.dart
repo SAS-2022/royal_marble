@@ -78,7 +78,7 @@ class _MockupFormState extends State<MockupForm> {
 
       _checkAssignedWorkers = checkProjectWorkers();
     } else {
-      newMockup.mockupStatus = 'potential';
+      newMockup.mockupStatus = 'active';
       selectMapLocation(
           locationAddress: LatLng(
               widget.projectLocation['Lat'], widget.projectLocation['Lng']),
@@ -122,10 +122,10 @@ class _MockupFormState extends State<MockupForm> {
             const Text('Mock-Up Form'),
             //Project status
             Padding(
-              padding: const EdgeInsets.only(left: 15),
+              padding: const EdgeInsets.only(left: 8),
               child: Container(
                 padding: const EdgeInsets.all(4),
-                width: _size.width / 3.5,
+                width: _size.width / 3.6,
                 decoration: BoxDecoration(
                   color: _statusColor,
                   borderRadius: BorderRadius.circular(25),
@@ -272,7 +272,7 @@ class _MockupFormState extends State<MockupForm> {
                     _editContent
                         ? TextFormField(
                             autofocus: false,
-                            initialValue: widget.selectedMockUp.mockUpDetails,
+                            initialValue: widget.selectedMockUp.mockupDetails,
                             style: textStyle5,
                             textCapitalization: TextCapitalization.sentences,
                             maxLines: 3,
@@ -295,7 +295,7 @@ class _MockupFormState extends State<MockupForm> {
                                 : null,
                             onChanged: (val) {
                               setState(() {
-                                newMockup.mockUpDetails = val.trim();
+                                newMockup.mockupDetails = val.trim();
                               });
                             },
                           )
@@ -310,7 +310,7 @@ class _MockupFormState extends State<MockupForm> {
                             Expanded(
                               flex: 2,
                               child: Text(
-                                widget.selectedMockUp.mockUpDetails,
+                                widget.selectedMockUp.mockupDetails,
                                 style: textStyle3,
                               ),
                             )
@@ -421,13 +421,8 @@ class _MockupFormState extends State<MockupForm> {
                     ),
                     _editContent
                         ? InternationalPhoneNumberInput(
-                            onInputChanged: (PhoneNumber number) {
-                              print(
-                                  '${number.phoneNumber} - ${number.isoCode}');
-                            },
-                            onInputValidated: (bool value) {
-                              print(value);
-                            },
+                            onInputChanged: (PhoneNumber number) {},
+                            onInputValidated: (bool value) {},
                             selectorConfig: const SelectorConfig(
                               selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
                             ),
@@ -543,9 +538,9 @@ class _MockupFormState extends State<MockupForm> {
                                 //will start google navigation for the current project location
                                 _httpNavigation.context = context;
                                 _httpNavigation.lat =
-                                    widget.selectedMockUp.mockUpAddress['Lat'];
+                                    widget.selectedMockUp.mockupAddress['Lat'];
                                 _httpNavigation.lng =
-                                    widget.selectedMockUp.mockUpAddress['Lng'];
+                                    widget.selectedMockUp.mockupAddress['Lng'];
                                 _httpNavigation.startNaviagtionGoogleMap();
                               } else {
                                 await Navigator.push(
@@ -553,15 +548,15 @@ class _MockupFormState extends State<MockupForm> {
                                     MaterialPageRoute(
                                         builder: (_) => GoogleMapNavigation(
                                               lat: widget.selectedMockUp
-                                                  .mockUpAddress['Lat'],
+                                                  .mockupAddress['Lat'],
                                               lng: widget.selectedMockUp
-                                                  .mockUpAddress['Lng'],
+                                                  .mockupAddress['Lng'],
                                               navigate: true,
                                             )));
                               }
                             },
                             child: Text(
-                              widget.selectedMockUp.mockUpAddress['addressName']
+                              widget.selectedMockUp.mockupAddress['addressName']
                                   .toString(),
                               style: textStyle3,
                             ),
@@ -572,6 +567,7 @@ class _MockupFormState extends State<MockupForm> {
                     const SizedBox(
                       height: 15,
                     ),
+                    //User check in and Check out
                     //will allow the worker to check in the project they just arrived to
                     widget.currentUser.roles.contains('isNormalUser') ||
                             widget.currentUser.roles
@@ -658,7 +654,7 @@ class _MockupFormState extends State<MockupForm> {
                               );
                             })
                         : const SizedBox.shrink(),
-
+                    //Assigning users to mockup
                     //this feature is only available for admin users
                     widget.currentUser.roles.contains('isAdmin')
                         ? !_editContent
@@ -687,52 +683,9 @@ class _MockupFormState extends State<MockupForm> {
                                       if (val != null) {
                                         setState(() {
                                           selectedUser = val;
-                                          if (selectedUser.assignedProject !=
-                                                  null &&
-                                              selectedUser
-                                                  .assignedProject.isNotEmpty &&
-                                              !selectedUser.roles
-                                                  .contains('isSupervisor')) {
-                                            showDialog(
-                                                context: context,
-                                                builder: (_) => AlertDialog(
-                                                      backgroundColor:
-                                                          Colors.red[100],
-                                                      shape:
-                                                          RoundedRectangleBorder(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          35)),
-                                                      title: const Text(
-                                                        'Warning',
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                      ),
-                                                      content: Text(
-                                                        '${selectedUser.firstName} ${selectedUser.lastName} is already assigned to project ${selectedUser.assignedProject['name']}.\nPlease remove the user from the first project before adding to a new one?',
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                      ),
-                                                      actions: [
-                                                        Center(
-                                                          child: TextButton(
-                                                              onPressed: () {
-                                                                Navigator.pop(
-                                                                    context);
-                                                              },
-                                                              child: const Text(
-                                                                'Ok',
-                                                                style:
-                                                                    textStyle3,
-                                                              )),
-                                                        ),
-                                                      ],
-                                                    ));
-                                          } else {
-                                            if (!addedUsers.contains(val)) {
-                                              addedUsers.add(val);
-                                            }
+
+                                          if (!addedUsers.contains(val)) {
+                                            addedUsers.add(val);
                                           }
                                         });
                                       }
@@ -877,7 +830,7 @@ class _MockupFormState extends State<MockupForm> {
                                 })
                             : const SizedBox.shrink()
                         : const SizedBox.shrink(),
-
+                    //Submit button to update changes or to update workers on mockup
                     widget.currentUser.roles.contains('isAdmin')
                         ? Center(
                             child: ElevatedButton(
@@ -913,21 +866,13 @@ class _MockupFormState extends State<MockupForm> {
                                       for (var element in addedUsers) {
                                         userIds.add(element.uid);
                                       }
-
-                                      // var result =
-                                      //     await db.updateProjectWithWorkers(
-                                      //         project: widget.selectedProject,
-                                      //         selectedUserIds: userIds,
-                                      //         addedUsers: addedUsers,
-                                      //         removedUsers: removedUsers);
-
-                                      // if (result == 'Completed') {
-                                      //   Navigator.pop(context);
-                                      // } else {
-                                      //   _snackBarWidget.content =
-                                      //       'failed to update account, please contact developer';
-                                      //   _snackBarWidget.showSnack();
-                                      // }
+                                      var result =
+                                          await db.updateMockupWithWorkers(
+                                              mockup: widget.selectedMockUp,
+                                              selectedUserIds: userIds,
+                                              addedUsers: addedUsers,
+                                              removedUsers: removedUsers);
+                                      Navigator.pop(context);
                                     } else {
                                       if (_formKey.currentState.validate()) {
                                         var result = await db.updateMockupData(
@@ -1031,7 +976,7 @@ class _MockupFormState extends State<MockupForm> {
                     val.isEmpty ? 'Mock-up details cannot be empty' : null,
                 onChanged: (val) {
                   setState(() {
-                    newMockup.mockUpDetails = val.trim();
+                    newMockup.mockupDetails = val.trim();
                   });
                 },
               ),
@@ -1280,7 +1225,7 @@ class _MockupFormState extends State<MockupForm> {
         'Lat': locationAddress.latitude,
         'Lng': locationAddress.longitude,
       };
-      newMockup.mockUpAddress = _myLocation;
+      newMockup.mockupAddress = _myLocation;
       setState(() {});
     }
   }
@@ -1294,8 +1239,8 @@ class _MockupFormState extends State<MockupForm> {
       var result = _calculate.distanceBetweenTwoPoints(
           myLocation.latitude,
           myLocation.longitude,
-          widget.selectedMockUp.mockUpAddress['Lat'],
-          widget.selectedMockUp.mockUpAddress['Lng']);
+          widget.selectedMockUp.mockupAddress['Lat'],
+          widget.selectedMockUp.mockupAddress['Lng']);
       //will check if the worker has arrived to the site
       if (result != null && result * 1000 <= widget.selectedMockUp.radius) {
         if (_isAtSite) {

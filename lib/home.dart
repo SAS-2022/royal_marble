@@ -9,6 +9,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:permission_handler/permission_handler.dart' as ph;
 import 'package:provider/provider.dart';
+import 'package:royal_marble/mockups/mockup_grid.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/projects/project_grid.dart';
@@ -44,6 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
   UserData userProvider;
   Map<String, dynamic> timeSheetProvider;
   List<ProjectData> allProjectProvider = [];
+  List<MockupData> allMockupProvider = [];
   Future assignedProject;
   final Completer<GoogleMapController> _googleMapController = Completer();
   LatLng currentLocation;
@@ -58,7 +60,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Size _size;
   List<String> activeProjects = [];
   List<String> potentialProjects = [];
-  // List<ProjectData> assignedProject = [];
+  List<String> activeMockups = [];
+
   List<dynamic> messages = [];
   //required for location tracking
   bool _isMoving;
@@ -163,6 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
     userProvider = Provider.of<UserData>(context);
     allUsers = Provider.of<List<UserData>>(context);
     allProjectProvider = Provider.of<List<ProjectData>>(context);
+    allMockupProvider = Provider.of<List<MockupData>>(context);
     timeSheetProvider = Provider.of<Map<String, dynamic>>(context);
     _size = MediaQuery.of(context).size;
     return Scaffold(
@@ -226,143 +230,23 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildAdminHomeScreen() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        //Project Section Adding and viewing project
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-          child: SizedBox(
-            height: _size.height / 2.5,
-            child:
-                Column(mainAxisAlignment: MainAxisAlignment.start, children: [
-              const Text(
-                'Current projects and the team working in each on of them',
-                style: textStyle6,
-              ),
-              const SizedBox(
-                height: 15,
-              ),
-              Container(
-                padding: const EdgeInsets.all(10),
-                height: _size.height / 3.5,
-                width: _size.width - 20,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: allProjectProvider.length,
-                  itemBuilder: ((context, index) {
-                    if (allProjectProvider[index].projectStatus == 'active') {
-                      if (!activeProjects
-                          .contains(allProjectProvider[index].uid)) {
-                        activeProjects.add(allProjectProvider[index].uid);
-                      }
-
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: GestureDetector(
-                          onTap: userProvider.roles.contains('isAdmin')
-                              ? () async {
-                                  //once tapped shall navigate to a page that will show assigned workers
-                                  //will present a dialog on the things that could be done
-                                  await _showProjectDialog(
-                                      projectData: allProjectProvider[index]);
-                                }
-                              : userProvider.roles.contains('isSales')
-                                  ? () async {
-                                      await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (_) => ProjectGrid(
-                                                    currentUser: userProvider,
-                                                    selectedProject:
-                                                        allProjectProvider[
-                                                            index],
-                                                  )));
-                                    }
-                                  : null,
-                          child: Container(
-                            padding: const EdgeInsets.all(5),
-                            width: _size.width / 2,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: const Color.fromARGB(255, 148, 218, 83),
-                              boxShadow: [
-                                BoxShadow(
-                                    color: Colors.grey[500],
-                                    offset: const Offset(-3, 3),
-                                    spreadRadius: 2)
-                              ],
-                              border: Border.all(width: 1),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  child: Text(
-                                    allProjectProvider[index]
-                                        .projectName
-                                        .toUpperCase(),
-                                    style: textStyle4,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 15,
-                                ),
-                                Column(
-                                  children: [
-                                    const Text(
-                                      'Workers: ',
-                                      style: textStyle3,
-                                    ),
-                                    Text(
-                                      allProjectProvider[index]
-                                                  .assignedWorkers !=
-                                              null
-                                          ? allProjectProvider[index]
-                                              .assignedWorkers
-                                              .length
-                                              .toString()
-                                          : 'None',
-                                      style: textStyle12,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  }),
-                ),
-              ),
-              const SizedBox(
-                height: 25,
-              ),
-              Center(
-                child: Text(
-                    'Total Active Projects: ${activeProjects.length} project'),
-              )
-            ]),
-          ),
-        ),
-        const Divider(
-          height: 2,
-          thickness: 3,
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-          child: SizedBox(
-            height: _size.height / 2.8,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          //Project Section Adding and viewing project
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+            child: SizedBox(
+              height: _size.height / 2.4,
+              child:
+                  Column(mainAxisAlignment: MainAxisAlignment.start, children: [
                 const Text(
-                  'Potential Project that are still under negotiation',
+                  'Active Projects',
+                  style: textStyle10,
+                ),
+                const Text(
+                  'Current projects and the team working in each on of them',
                   style: textStyle6,
                 ),
                 const SizedBox(
@@ -370,18 +254,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 Container(
                   padding: const EdgeInsets.all(10),
-                  height: _size.height / 3.8,
+                  height: _size.height / 3.5,
                   width: _size.width - 20,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: allProjectProvider.length,
                     itemBuilder: ((context, index) {
-                      if (allProjectProvider[index].projectStatus ==
-                          'potential') {
-                        if (!potentialProjects
+                      if (allProjectProvider[index].projectStatus == 'active') {
+                        if (!activeProjects
                             .contains(allProjectProvider[index].uid)) {
-                          potentialProjects.add(allProjectProvider[index].uid);
+                          activeProjects.add(allProjectProvider[index].uid);
                         }
+
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 15),
                           child: GestureDetector(
@@ -405,15 +289,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     )));
                                       }
                                     : null,
-                            onLongPress: () {
-                              //if long pressed it will show a dialog that will allow you to edit or delete project
-                            },
                             child: Container(
                               padding: const EdgeInsets.all(5),
                               width: _size.width / 2,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: const Color.fromARGB(255, 214, 163, 238),
+                                color: const Color.fromARGB(255, 148, 218, 83),
                                 boxShadow: [
                                   BoxShadow(
                                       color: Colors.grey[500],
@@ -473,23 +354,293 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 Center(
                   child: Text(
-                      'Total Projects: ${potentialProjects.length} project'),
+                      'Total Active Projects: ${activeProjects.length} project'),
                 )
-              ],
+              ]),
             ),
           ),
-        ),
-        userProvider.isActive != null && userProvider.isActive
-            ? const SizedBox.shrink()
-            : const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 40),
-                child: Center(
-                    child: Text(
-                  'Current User is still not active, please contact your admin to activate your account!',
-                  style: textStyle4,
-                )),
+          const Divider(
+            height: 2,
+            thickness: 3,
+          ),
+          //Builds the list of potential project
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+            child: SizedBox(
+              height: _size.height / 2.5,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Potential Projects',
+                    style: textStyle10,
+                  ),
+                  const Text(
+                    'Potential Project that are still under negotiation',
+                    style: textStyle6,
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    height: _size.height / 3.8,
+                    width: _size.width - 20,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: allProjectProvider.length,
+                      itemBuilder: ((context, index) {
+                        if (allProjectProvider[index].projectStatus ==
+                            'potential') {
+                          if (!potentialProjects
+                              .contains(allProjectProvider[index].uid)) {
+                            potentialProjects
+                                .add(allProjectProvider[index].uid);
+                          }
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 15),
+                            child: GestureDetector(
+                              onTap: userProvider.roles.contains('isAdmin')
+                                  ? () async {
+                                      //once tapped shall navigate to a page that will show assigned workers
+                                      //will present a dialog on the things that could be done
+                                      await _showProjectDialog(
+                                          projectData:
+                                              allProjectProvider[index]);
+                                    }
+                                  : userProvider.roles.contains('isSales')
+                                      ? () async {
+                                          await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (_) => ProjectGrid(
+                                                        currentUser:
+                                                            userProvider,
+                                                        selectedProject:
+                                                            allProjectProvider[
+                                                                index],
+                                                      )));
+                                        }
+                                      : null,
+                              onLongPress: () {
+                                //if long pressed it will show a dialog that will allow you to edit or delete project
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(5),
+                                width: _size.width / 2,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color:
+                                      const Color.fromARGB(255, 214, 163, 238),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.grey[500],
+                                        offset: const Offset(-3, 3),
+                                        spreadRadius: 2)
+                                  ],
+                                  border: Border.all(width: 1),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      child: Text(
+                                        allProjectProvider[index]
+                                            .projectName
+                                            .toUpperCase(),
+                                        style: textStyle4,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 15,
+                                    ),
+                                    Column(
+                                      children: [
+                                        const Text(
+                                          'Workers: ',
+                                          style: textStyle3,
+                                        ),
+                                        Text(
+                                          allProjectProvider[index]
+                                                      .assignedWorkers !=
+                                                  null
+                                              ? allProjectProvider[index]
+                                                  .assignedWorkers
+                                                  .length
+                                                  .toString()
+                                              : 'None',
+                                          style: textStyle12,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      }),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 25,
+                  ),
+                  Center(
+                    child: Text('Total Projects: ${potentialProjects.length}'),
+                  )
+                ],
               ),
-      ],
+            ),
+          ),
+          const Divider(
+            height: 2,
+            thickness: 3,
+          ),
+          //Builds the list of mockup samples
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+            child: SizedBox(
+              height: _size.height / 2.5,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Active Mock-Ups',
+                    style: textStyle10,
+                  ),
+                  const Text(
+                    'Mock-Up samples that needs to be installed',
+                    style: textStyle6,
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    height: _size.height / 3.8,
+                    width: _size.width - 20,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: allMockupProvider.length,
+                      itemBuilder: ((context, index) {
+                        if (allMockupProvider[index].mockupStatus == 'active') {
+                          if (!activeMockups
+                              .contains(allMockupProvider[index].uid)) {
+                            activeMockups.add(allMockupProvider[index].uid);
+                          }
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 15),
+                            child: GestureDetector(
+                              onTap: userProvider.roles.contains('isAdmin')
+                                  ? () async {
+                                      //once tapped shall navigate to a page that will show assigned workers
+                                      //will present a dialog on the things that could be done
+                                      await _showProjectDialog(
+                                          mockupData: allMockupProvider[index]);
+                                    }
+                                  : userProvider.roles.contains('isSales')
+                                      ? () async {
+                                          // await Navigator.push(
+                                          //     context,
+                                          //     MaterialPageRoute(
+                                          //         builder: (_) => ProjectGrid(
+                                          //               currentUser: userProvider,
+                                          //               selectedProject:
+                                          //                   allProjectProvider[
+                                          //                       index],
+                                          //             )));
+                                        }
+                                      : null,
+                              onLongPress: () {
+                                //if long pressed it will show a dialog that will allow you to edit or delete project
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(5),
+                                width: _size.width / 2,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color:
+                                      const Color.fromARGB(255, 214, 163, 238),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.grey[500],
+                                        offset: const Offset(-3, 3),
+                                        spreadRadius: 2)
+                                  ],
+                                  border: Border.all(width: 1),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      child: Text(
+                                        allMockupProvider[index]
+                                            .mockupName
+                                            .toUpperCase(),
+                                        style: textStyle4,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 15,
+                                    ),
+                                    Column(
+                                      children: [
+                                        const Text(
+                                          'Workers: ',
+                                          style: textStyle3,
+                                        ),
+                                        Text(
+                                          allMockupProvider[index]
+                                                      .assignedWorkers !=
+                                                  null
+                                              ? allMockupProvider[index]
+                                                  .assignedWorkers
+                                                  .length
+                                                  .toString()
+                                              : 'None',
+                                          style: textStyle12,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      }),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 25,
+                  ),
+                  Center(
+                    child: Text('Total Mock-Ups: ${activeMockups.length}'),
+                  )
+                ],
+              ),
+            ),
+          ),
+          userProvider.isActive != null && userProvider.isActive
+              ? const SizedBox.shrink()
+              : const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 40),
+                  child: Center(
+                      child: Text(
+                    'Current User is still not active, please contact your admin to activate your account!',
+                    style: textStyle4,
+                  )),
+                ),
+        ],
+      ),
     );
   }
 
@@ -1438,113 +1589,230 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _showProjectDialog({ProjectData projectData}) async {
-    await showDialog(
-        context: context,
-        builder: (_) {
-          return AlertDialog(
-            title: const Text('Project Options'),
-            content: SizedBox(
-              height: _size.height / 3.5,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 15),
-                    child: Text(
-                      'The following options will allow you to assgin and remove workers from a project',
-                      style: textStyle6,
+  Future<void> _showProjectDialog(
+      {ProjectData projectData, MockupData mockupData}) async {
+    if (projectData != null) {
+      await showDialog(
+          context: context,
+          builder: (_) {
+            return AlertDialog(
+              title: const Text('Project Options'),
+              content: SizedBox(
+                height: _size.height / 3.5,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 15),
+                      child: Text(
+                        'The following options will allow you to assgin and remove workers from a project',
+                        style: textStyle6,
+                      ),
                     ),
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      projectData.projectStatus == 'active'
-                          ? Padding(
-                              padding: const EdgeInsets.only(bottom: 10),
-                              child: SizedBox(
-                                width: _size.width / 2,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.black,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(25.0),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        projectData.projectStatus == 'active'
+                            ? Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: SizedBox(
+                                  width: _size.width / 2,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.black,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(25.0),
+                                      ),
                                     ),
+                                    onPressed: () async {
+                                      //Navigate to a page to assign workers
+                                      await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (_) => ProjectGrid(
+                                                    selectedProject:
+                                                        projectData,
+                                                    currentUser: userProvider,
+                                                  )));
+                                    },
+                                    child: const Text('Assign Workers'),
                                   ),
-                                  onPressed: () async {
-                                    //Navigate to a page to assign workers
-                                    await Navigator.push(
+                                ),
+                              )
+                            : const SizedBox.shrink(),
+                        projectData.projectStatus == 'active'
+                            ? Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: SizedBox(
+                                  width: _size.width / 2,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.red[400],
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(25.0),
+                                      ),
+                                    ),
+                                    onPressed: () async {
+                                      //Navigate to a page to assign workers
+                                      await Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (_) => ProjectGrid(
-                                                  selectedProject: projectData,
-                                                  currentUser: userProvider,
-                                                )));
-                                  },
-                                  child: const Text('Assign Workers'),
-                                ),
-                              ),
-                            )
-                          : const SizedBox.shrink(),
-                      projectData.projectStatus == 'active'
-                          ? Padding(
-                              padding: const EdgeInsets.only(bottom: 10),
-                              child: SizedBox(
-                                width: _size.width / 2,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red[400],
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(25.0),
-                                    ),
-                                  ),
-                                  onPressed: () async {
-                                    //Navigate to a page to assign workers
-                                    await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => WorkerCurrentStream(
-                                          selectedProject: projectData,
+                                          builder: (_) => WorkerCurrentStream(
+                                            selectedProject: projectData,
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  },
-                                  child: const Text('View Workers State'),
+                                      );
+                                    },
+                                    child: const Text('View Workers State'),
+                                  ),
                                 ),
+                              )
+                            : const SizedBox.shrink(),
+                        //define project status
+                        SizedBox(
+                          width: _size.width / 2,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.black,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25.0),
                               ),
-                            )
-                          : const SizedBox.shrink(),
-                      //define project status
-                      SizedBox(
-                        width: _size.width / 2,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.black,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25.0),
                             ),
-                          ),
-                          onPressed: () async {
-                            //Navigate to a page to assign workers
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ProjectStatus(
-                                  selectedProject: projectData,
+                            onPressed: () async {
+                              //Navigate to a page to assign workers
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ProjectStatus(
+                                    selectedProject: projectData,
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
-                          child: const Text('Change Status'),
+                              );
+                            },
+                            child: const Text('Change Status'),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
-        });
+            );
+          });
+    }
+    if (mockupData != null) {
+      await showDialog(
+          context: context,
+          builder: (_) {
+            return AlertDialog(
+              title: const Text('Mock-Up Options'),
+              content: SizedBox(
+                height: _size.height / 3.5,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 15),
+                      child: Text(
+                        'The following options will allow you to assgin and remove workers from a mockup',
+                        style: textStyle6,
+                      ),
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        mockupData.mockupStatus == 'active'
+                            ? Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: SizedBox(
+                                  width: _size.width / 2,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.black,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(25.0),
+                                      ),
+                                    ),
+                                    onPressed: () async {
+                                      //Navigate to a page to assign workers
+                                      await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (_) => MockupGrid(
+                                                    selectedMockup: mockupData,
+                                                    currentUser: userProvider,
+                                                  )));
+                                    },
+                                    child: const Text('Assign Workers'),
+                                  ),
+                                ),
+                              )
+                            : const SizedBox.shrink(),
+                        mockupData.mockupStatus == 'active'
+                            ? Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: SizedBox(
+                                  width: _size.width / 2,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.red[400],
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(25.0),
+                                      ),
+                                    ),
+                                    onPressed: () async {
+                                      //Navigate to a page to assign workers
+                                      await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => WorkerCurrentStream(
+                                            selectedProject: projectData,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: const Text('View Workers State'),
+                                  ),
+                                ),
+                              )
+                            : const SizedBox.shrink(),
+                        //define project status
+                        SizedBox(
+                          width: _size.width / 2,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.black,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25.0),
+                              ),
+                            ),
+                            onPressed: () async {
+                              //Navigate to a page to assign workers
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ProjectStatus(
+                                    selectedProject: projectData,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: const Text('Change Status'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          });
+    }
   }
 }

@@ -10,6 +10,7 @@ class UserData {
   List<dynamic> roles;
   Map<String, dynamic> nationality;
   var assignedProject;
+  var assignedMockups;
   var distanceToProject;
   String company;
   bool isActive;
@@ -32,6 +33,7 @@ class UserData {
     this.company,
     this.isActive,
     this.assignedProject,
+    this.assignedMockups,
     this.distanceToProject,
     this.imageUrl,
     this.permissionStatus,

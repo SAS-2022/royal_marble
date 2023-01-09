@@ -63,8 +63,8 @@ class ProjectData {
 class MockupData {
   String uid;
   String mockupName;
-  String mockUpDetails;
-  Map<String, dynamic> mockUpAddress;
+  String mockupDetails;
+  Map<String, dynamic> mockupAddress;
   double radius;
   String contactorCompany;
   String contactPerson;
@@ -78,8 +78,8 @@ class MockupData {
   MockupData(
       {this.uid,
       this.mockupName,
-      this.mockUpDetails,
-      this.mockUpAddress,
+      this.mockupDetails,
+      this.mockupAddress,
       this.radius,
       this.contactorCompany,
       this.contactPerson,
@@ -93,7 +93,7 @@ class MockupData {
 
   @override
   String toString() {
-    return 'MockupData(uid: $uid, mockupName: $mockupName, mockUpDetails: $mockUpDetails, mockUpAddress: $mockUpAddress, radius: $radius, contactorCompany: $contactorCompany, contactPerson: $contactPerson, phoneNumber: $phoneNumber, emailAddress: $emailAddress, projectVisits: $projectVisits, userId: $userId, assignedWorkers: $assignedWorkers, mockupStatus: $mockupStatus, error: $error)';
+    return 'MockupData(uid: $uid, mockupName: $mockupName, mockUpDetails: $mockupDetails, mockUpAddress: $mockupAddress, radius: $radius, contactorCompany: $contactorCompany, contactPerson: $contactPerson, phoneNumber: $phoneNumber, emailAddress: $emailAddress, projectVisits: $projectVisits, userId: $userId, assignedWorkers: $assignedWorkers, mockupStatus: $mockupStatus, error: $error)';
   }
 }
 

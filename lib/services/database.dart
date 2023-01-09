@@ -327,6 +327,7 @@ class DatabaseService {
             company: data['company'],
             homeAddress: data['homeAddress'],
             assignedProject: data['assignedProject'],
+            assignedMockups: data['assignedMockup'],
             distanceToProject: data['distanceToProject'],
             currentLocation: data['currentLocation'],
             assingedHelpers: data['assignedHelpers'] ?? [],
@@ -353,6 +354,7 @@ class DatabaseService {
       company: data['company'],
       homeAddress: data['homeAddress'],
       assignedProject: data['assignedProject'],
+      assignedMockups: data['assignedMockup'],
       distanceToProject: data['distanceToProject'],
       currentLocation: data['currentLocation'],
       imageUrl: data['imageUrl'],
@@ -388,6 +390,7 @@ class DatabaseService {
         company: data['company'],
         homeAddress: data['homeAddress'],
         assignedProject: data['assignedProject'],
+        assignedMockups: data['assignedMockup'],
         distanceToProject: data['distanceToProject'],
         currentLocation: data['currentLocation'],
         imageUrl: data['imageUrl'],
@@ -415,6 +418,8 @@ class DatabaseService {
               roles: data['roles'],
               company: data['company'],
               homeAddress: data['homeAddress'],
+              assignedProject: data['assignedProject'],
+              assignedMockups: data['assignedMockup'],
               distanceToProject: data['distanceToProject'],
               imageUrl: data['imageUrl'],
               assingedHelpers: data['assignedHelpers'] ?? [],
@@ -922,8 +927,8 @@ class DatabaseService {
     try {
       return await mockupCollection.add({
         'name': mockup.mockupName,
-        'details': mockup.mockUpDetails,
-        'address': mockup.mockUpAddress,
+        'details': mockup.mockupDetails,
+        'address': mockup.mockupAddress,
         'radius': mockup.radius,
         'contractor': mockup.contactorCompany,
         'contactPerson': mockup.contactPerson,
@@ -948,8 +953,8 @@ class DatabaseService {
     try {
       return await projectCollection.doc(mockup.uid).update({
         'name': mockup.mockupName,
-        'details': mockup.mockUpDetails,
-        'address': mockup.mockUpAddress,
+        'details': mockup.mockupDetails,
+        'address': mockup.mockupAddress,
         'radius': mockup.radius,
         'contractor': mockup.contactorCompany,
         'contactPerson': mockup.contactPerson,
@@ -969,15 +974,154 @@ class DatabaseService {
     }
   }
 
+  //update mockup with assigned users
+  //we will update the mockup with a list of users ids
+  //we will update each user with the assigned mockup and its coordinates
+  Future<String> updateMockupWithWorkers(
+      {MockupData mockup,
+      List<UserData> addedUsers,
+      List<String> selectedUserIds,
+      List<UserData> removedUsers}) async {
+    try {
+      //update the project data first
+      var result = await mockupCollection
+          .doc(mockup.uid)
+          .update({
+            'assignedWorkers': selectedUserIds,
+          })
+          .then((value) => 'Completed')
+          .catchError((err) => 'Error: $err');
+
+      if (result == 'Completed') {
+        var userResult;
+        //check which users were removed to remove them
+        if (removedUsers != null && removedUsers.isNotEmpty) {
+          for (var user in removedUsers) {
+            if (user.roles.contains('isSupervisor')) {
+              await userCollection
+                  .doc(user.uid)
+                  .update({
+                    'assignedMockup': FieldValue.arrayRemove(
+                      [
+                        {
+                          'id': mockup.uid,
+                          'name': mockup.mockupName,
+                          'projectAddress': mockup.mockupAddress,
+                          'radius': mockup.radius,
+                        }
+                      ],
+                    )
+                  })
+                  .then((value) => print(
+                      'the user ${user.firstName} ${user.lastName} was removed'))
+                  .catchError((err) => print(
+                      'Error remove user ${user.firstName} ${user.lastName}'));
+            } else {
+              await userCollection
+                  .doc(user.uid)
+                  .update({'assignedMockup': {}})
+                  .then((value) => print(
+                      'the user ${user.firstName} ${user.lastName} was removed'))
+                  .catchError((err) => print(
+                      'Error remove user ${user.firstName} ${user.lastName}'));
+            }
+          }
+        }
+        //add new users
+        for (var user in addedUsers) {
+          userResult = await userCollection
+              .doc(user.uid)
+              .update({
+                'assignedMockup': FieldValue.arrayUnion([
+                  {
+                    'id': mockup.uid,
+                    'name': mockup.mockupName,
+                    'projectAddress': mockup.mockupName,
+                    'radius': mockup.radius,
+                  }
+                ])
+              })
+              .then((value) => 'Completed')
+              .catchError((err) {
+                print('Error updating users: $err');
+                return err;
+              });
+        }
+
+        return userResult;
+      } else {
+        return '[Failed]: $result';
+      }
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return 'Error: $e';
+    }
+  }
+
+  //removing users from a selected mockup
+  Future<String> removeUserFromMockup(
+      {MockupData selectedMockup, String userId, UserData removedUser}) async {
+    var result;
+    try {
+      //first remove user id from the project
+      List<dynamic> mockupAssignedUsers =
+          await mockupCollection.doc(selectedMockup.uid).get().then((value) {
+        var data = value.data() as Map<String, dynamic>;
+        return data['assignedWorkers'];
+      });
+      //will remove current user
+      if (mockupAssignedUsers != null && mockupAssignedUsers.isNotEmpty) {
+        mockupAssignedUsers.removeWhere((element) => element == userId);
+        //now assign the new list to the project
+        await mockupCollection
+            .doc(selectedMockup.uid)
+            .update({'assignedWorkers': mockupAssignedUsers}).catchError(
+                (err) => print('Could not update project assigned workers'));
+      }
+
+      //now we need to remove the assigned project from the user's document
+      var assignedMockup =
+          await userCollection.doc(removedUser.uid).get().then((value) {
+        var data = value.data() as Map<String, dynamic>;
+        return data['assignedMockup'];
+      });
+
+      for (var mockup in assignedMockup) {
+        if (mockup['id'] == selectedMockup.uid) {
+          result = await userCollection
+              .doc(userId)
+              .update({
+                'assignedMockup': FieldValue.arrayRemove([
+                  {
+                    'id': selectedMockup.uid,
+                    'name': selectedMockup.mockupName,
+                    'projectAddress': selectedMockup.mockupAddress,
+                    'radius': selectedMockup.radius,
+                  }
+                ])
+              })
+              .then((value) => 'Deleted User')
+              .catchError((err) => 'Error: $err');
+        }
+      }
+
+      return result;
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      print('An error removing users: $e');
+      return 'Error: $e';
+    }
+  }
+
   //read mockup
   //Get projects through streams and Futures
   Stream<List<MockupData>> getAllMockups() {
     return mockupCollection.snapshots().map(_listMockupDataFromSnapshot);
   }
 
-  Stream<MockupData> getMockupById({String projectId}) {
+  Stream<MockupData> getMockupById({String mockupId}) {
     return mockupCollection
-        .doc(projectId)
+        .doc(mockupId)
         .snapshots()
         .map(_mockupDataFromSnapshot);
   }
@@ -988,8 +1132,8 @@ class DatabaseService {
       return MockupData(
           uid: snapshot.id,
           mockupName: data['name'],
-          mockUpDetails: data['details'],
-          mockUpAddress: data['address'],
+          mockupDetails: data['details'],
+          mockupAddress: data['address'],
           radius: data['radius'],
           contactorCompany: data['contractor'],
           contactPerson: data['contactPerson'],
@@ -1009,8 +1153,8 @@ class DatabaseService {
     return MockupData(
       uid: snapshot.id,
       mockupName: data['name'],
-      mockUpDetails: data['details'],
-      mockUpAddress: data['address'],
+      mockupDetails: data['details'],
+      mockupAddress: data['address'],
       radius: data['radius'],
       contactorCompany: data['contractor'],
       contactPerson: data['contactPerson'],
@@ -1026,6 +1170,17 @@ class DatabaseService {
   }
 
   //Delete mockup
+  Future<String> deleteMockup({String mockupId}) async {
+    try {
+      return await mockupCollection
+          .doc(mockupId)
+          .delete()
+          .then((value) => 'Deleted');
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return 'Error Deleting: $e';
+    }
+  }
 
   //generating time sheet report
   //Adding a new entry to the collection
