@@ -10,6 +10,7 @@ import 'package:location/location.dart';
 import 'package:permission_handler/permission_handler.dart' as ph;
 import 'package:provider/provider.dart';
 import 'package:royal_marble/mockups/mockup_grid.dart';
+import 'package:royal_marble/mockups/mockup_status.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/projects/project_grid.dart';
@@ -1783,7 +1784,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               )
                             : const SizedBox.shrink(),
-                        //define project status
+                        //define mockup status
                         SizedBox(
                           width: _size.width / 2,
                           child: ElevatedButton(
@@ -1798,8 +1799,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => ProjectStatus(
-                                    selectedProject: projectData,
+                                  builder: (_) => MockupStatus(
+                                    selectedMockup: mockupData,
                                   ),
                                 ),
                               );

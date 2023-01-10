@@ -1036,7 +1036,7 @@ class DatabaseService {
                   {
                     'id': mockup.uid,
                     'name': mockup.mockupName,
-                    'projectAddress': mockup.mockupName,
+                    'projectAddress': mockup.mockupAddress,
                     'radius': mockup.radius,
                   }
                 ])
@@ -1052,6 +1052,19 @@ class DatabaseService {
       } else {
         return '[Failed]: $result';
       }
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return 'Error: $e';
+    }
+  }
+
+  //Update the mockup status
+  Future<String> updateMockupStatus({MockupData mockup}) async {
+    try {
+      return await mockupCollection.doc(mockup.uid).update({
+        'status': mockup.mockupStatus,
+        'assignedWorkers': mockup.assignedWorkers,
+      }).then((value) => 'Completed');
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
       return 'Error: $e';
@@ -1087,6 +1100,9 @@ class DatabaseService {
       });
 
       for (var mockup in assignedMockup) {
+        print('the mockup: ${mockup['id']} - ${selectedMockup.uid} - $userId');
+        print(
+            'the mockup: ${selectedMockup.uid} ${selectedMockup.mockupName} ${selectedMockup.mockupAddress} ${selectedMockup.radius}');
         if (mockup['id'] == selectedMockup.uid) {
           result = await userCollection
               .doc(userId)

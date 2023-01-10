@@ -18,7 +18,6 @@ class WorkerCurrentStream extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('the selectedProject: $selectedProject');
     return MultiProvider(
       providers: [
         selectedProject != null
@@ -41,6 +40,7 @@ class WorkerCurrentStream extends StatelessWidget {
       ],
       child: WorkerCurrentState(
         selectedProject: selectedProject,
+        selectedMockup: selectedMockup,
       ),
     );
   }
