@@ -10,21 +10,34 @@ import 'package:royal_marble/shared/snack_bar.dart';
 import '../models/user_model.dart';
 
 class WorkerCurrentStream extends StatelessWidget {
-  const WorkerCurrentStream({Key key, this.selectedProject}) : super(key: key);
+  const WorkerCurrentStream(
+      {Key key, this.selectedProject, this.selectedMockup})
+      : super(key: key);
   final ProjectData selectedProject;
+  final MockupData selectedMockup;
 
   @override
   Widget build(BuildContext context) {
+    print('the selectedProject: $selectedProject');
     return MultiProvider(
       providers: [
-        StreamProvider<ProjectData>.value(
-          initialData: ProjectData(),
-          value:
-              DatabaseService().getProjectById(projectId: selectedProject.uid),
-          catchError: ((context, error) {
-            return ProjectData(error: error);
-          }),
-        ),
+        selectedProject != null
+            ? StreamProvider<ProjectData>.value(
+                initialData: ProjectData(),
+                value: DatabaseService()
+                    .getProjectById(projectId: selectedProject.uid),
+                catchError: ((context, error) {
+                  return ProjectData(error: error);
+                }),
+              )
+            : StreamProvider<MockupData>.value(
+                initialData: MockupData(),
+                value: DatabaseService()
+                    .getMockupById(mockupId: selectedMockup.uid),
+                catchError: ((context, error) {
+                  return MockupData(error: error);
+                }),
+              ),
       ],
       child: WorkerCurrentState(
         selectedProject: selectedProject,
@@ -34,8 +47,10 @@ class WorkerCurrentStream extends StatelessWidget {
 }
 
 class WorkerCurrentState extends StatefulWidget {
-  const WorkerCurrentState({Key key, this.selectedProject}) : super(key: key);
+  const WorkerCurrentState({Key key, this.selectedProject, this.selectedMockup})
+      : super(key: key);
   final ProjectData selectedProject;
+  final MockupData selectedMockup;
 
   @override
   State<WorkerCurrentState> createState() => _WorkerCurrentStateState();
@@ -43,23 +58,31 @@ class WorkerCurrentState extends StatefulWidget {
 
 class _WorkerCurrentStateState extends State<WorkerCurrentState> {
   Size _size;
-  ProjectData _projectProvider;
+  ProjectData _projectProvider = ProjectData();
+  MockupData _mockupProvider = MockupData();
   DatabaseService db = DatabaseService();
 
   @override
   Widget build(BuildContext context) {
     _size = MediaQuery.of(context).size;
-    _projectProvider = Provider.of<ProjectData>(context);
+    if (widget.selectedProject != null) {
+      _projectProvider = Provider.of<ProjectData>(context);
+    } else {
+      _mockupProvider = Provider.of<MockupData>(context);
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Worker State'),
         backgroundColor: const Color.fromARGB(255, 191, 180, 66),
       ),
-      body: _buildWorkerStateBody(),
+      body: _projectProvider.uid != null
+          ? _buildWorkerStateBodyProject()
+          : _buildWorkerStateBodyMockup(),
     );
   }
 
-  Widget _buildWorkerStateBody() {
+  Widget _buildWorkerStateBodyProject() {
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -109,11 +132,64 @@ class _WorkerCurrentStateState extends State<WorkerCurrentState> {
       ),
     );
   }
+
+  Widget _buildWorkerStateBodyMockup() {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 15),
+            child: SizedBox(
+              height: _size.height - 120,
+              child: _mockupProvider.assignedWorkers != null &&
+                      _mockupProvider.assignedWorkers.isNotEmpty
+                  ? ListView.builder(
+                      itemCount: _mockupProvider.assignedWorkers.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 15),
+                          child: StreamBuilder<UserData>(
+                              stream: null,
+                              builder: (context, snapshot) {
+                                return StreamProvider<UserData>.value(
+                                  initialData: UserData(),
+                                  value: db.getUserPerId(
+                                      uid: _mockupProvider
+                                          .assignedWorkers[index]),
+                                  catchError: ((context, error) =>
+                                      UserData(error: error)),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        border: Border.all(width: 2),
+                                        borderRadius:
+                                            BorderRadius.circular(15)),
+                                    child: WorkerWidget(
+                                      currentMockup: widget.selectedMockup,
+                                    ),
+                                  ),
+                                );
+                              }),
+                        );
+                      })
+                  : const Center(
+                      child: Text(
+                        'No Workers were assigned to this project!',
+                        style: textStyle3,
+                      ),
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class WorkerWidget extends StatefulWidget {
-  const WorkerWidget({Key key, this.currentProject}) : super(key: key);
+  const WorkerWidget({Key key, this.currentProject, this.currentMockup})
+      : super(key: key);
   final ProjectData currentProject;
+  final MockupData currentMockup;
 
   @override
   State<WorkerWidget> createState() => _WorkerWidgetState();
@@ -209,10 +285,17 @@ class _WorkerWidgetState extends State<WorkerWidget> {
               });
 
               if (result == 'Delete') {
-                await db.removeUserFromProject(
-                    selectedProject: widget.currentProject,
-                    userId: _userProvider.uid,
-                    removedUser: _userProvider);
+                if (widget.currentProject != null) {
+                  await db.removeUserFromProject(
+                      selectedProject: widget.currentProject,
+                      userId: _userProvider.uid,
+                      removedUser: _userProvider);
+                } else {
+                  await db.removeUserFromMockup(
+                      selectedMockup: widget.currentMockup,
+                      userId: _userProvider.uid,
+                      removedUser: _userProvider);
+                }
 
                 return true;
               }
@@ -252,7 +335,10 @@ class _WorkerWidgetState extends State<WorkerWidget> {
               ),
               trailing: Container(
                 width: 20,
-                decoration: BoxDecoration(color: getColorDistance()),
+                decoration: BoxDecoration(
+                    color: widget.currentProject != null
+                        ? getColorDistanceProject()
+                        : null),
               ),
             ),
           ),
@@ -301,7 +387,7 @@ class _WorkerWidgetState extends State<WorkerWidget> {
   }
 
   //Define color based on distance
-  Color getColorDistance() {
+  Color getColorDistanceProject() {
     Color currentColor;
     if (_userProvider.roles != null) {
       if (_userProvider.roles.contains('isSupervisor')) {

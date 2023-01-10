@@ -1772,7 +1772,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         context,
                                         MaterialPageRoute(
                                           builder: (_) => WorkerCurrentStream(
-                                            selectedProject: projectData,
+                                            selectedProject: null,
+                                            selectedMockup: mockupData,
                                           ),
                                         ),
                                       );
