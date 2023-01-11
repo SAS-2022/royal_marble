@@ -72,7 +72,9 @@ class _WrapperState extends State<Wrapper> {
             },
           )
         ],
-        child: const HomeScreen(),
+        child: HomeScreen(
+          currentUser: userData,
+        ),
       );
     }
   }

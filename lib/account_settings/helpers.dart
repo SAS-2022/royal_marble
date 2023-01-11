@@ -755,7 +755,6 @@ class _HelpersPageState extends State<HelpersPage> {
   //Delete a Helper
   Future<void> deleteHelper({String helperId}) async {
     //remove the helper from the list of assigned users
-    print('the assinged User: $assignedHelpers - $helperId');
     if (assignedHelpers.contains(helperId)) {
       assignedHelpers.remove(helperId);
     }

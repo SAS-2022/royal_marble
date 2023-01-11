@@ -32,7 +32,8 @@ import 'package:timer_builder/timer_builder.dart';
 JsonEncoder encoder = const JsonEncoder.withIndent("     ");
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key key}) : super(key: key);
+  const HomeScreen({Key key, this.currentUser}) : super(key: key);
+  final UserData currentUser;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -62,8 +63,9 @@ class _HomeScreenState extends State<HomeScreen> {
   List<String> activeProjects = [];
   List<String> potentialProjects = [];
   List<String> activeMockups = [];
-
   List<dynamic> messages = [];
+  Future _getAssignedProjects;
+  Future _getAssignedMockup;
   //required for location tracking
   bool _isMoving;
   bool _enabled;
@@ -653,9 +655,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    const Text(
+                      'Assigned Projects',
+                      style: textStyle10,
+                    ),
                     //List of projects assigned two
                     FutureBuilder(
-                        future: getUserAssignedProject(),
+                        future: _getAssignedProjects,
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             if (snapshot.connectionState ==
@@ -668,7 +674,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             } else {
                               return SizedBox(
                                   width: _size.width,
-                                  height: (_size.height / 2) - 100,
+                                  height: (_size.height / 3) - 100,
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 15, vertical: 15),
@@ -708,7 +714,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ],
                                             border: Border.all(width: 2),
                                             borderRadius:
-                                                BorderRadius.circular(55)),
+                                                BorderRadius.circular(15)),
                                         child: Column(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceEvenly,
@@ -812,10 +818,155 @@ class _HomeScreenState extends State<HomeScreen> {
                           } else {
                             return SizedBox(
                               width: _size.width,
-                              height: (_size.height / 2) - 100,
+                              height: (_size.height / 3) - 100,
                               child: const Center(
                                 child: Text(
                                   'No Assigned Projects',
+                                  style: textStyle4,
+                                ),
+                              ),
+                            );
+                          }
+                        }),
+
+                    const Divider(
+                      height: 15,
+                      thickness: 3,
+                    ),
+                    //List of assigned mockup projcects
+                    const Text(
+                      'Assigned Mock-Up',
+                      style: textStyle10,
+                    ),
+                    //List of projects assigned two
+                    FutureBuilder(
+                        future: _getAssignedMockup,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            if (snapshot.connectionState ==
+                                    ConnectionState.waiting ||
+                                snapshot.connectionState ==
+                                    ConnectionState.none) {
+                              return const Center(
+                                child: Loading(),
+                              );
+                            } else {
+                              return SizedBox(
+                                  width: _size.width,
+                                  height: (_size.height / 3) - 100,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 15, vertical: 15),
+                                    child: GestureDetector(
+                                      onTap: () async {
+                                        //once tapped shall navigate to a page that will show assigned workers
+                                        //will present a dialog on the things that could be done
+                                        await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (_) => MockupGrid(
+                                                      currentUser: userProvider,
+                                                      selectedMockup:
+                                                          snapshot.data,
+                                                    )));
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.all(12),
+                                        height: 80,
+                                        width: _size.width / 2,
+                                        decoration: BoxDecoration(
+                                            color: const Color.fromARGB(
+                                                255, 12, 182, 197),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                  color: Colors.grey[500],
+                                                  offset: const Offset(-4, 4),
+                                                  spreadRadius: 1)
+                                            ],
+                                            border: Border.all(width: 2),
+                                            borderRadius:
+                                                BorderRadius.circular(15)),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                const Expanded(
+                                                  flex: 1,
+                                                  child: Text(
+                                                    'Name: ',
+                                                    style: textStyle3,
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  flex: 2,
+                                                  child: Text(
+                                                    snapshot.data.mockupName
+                                                        .toUpperCase(),
+                                                    style: textStyle5,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                const Expanded(
+                                                  flex: 1,
+                                                  child: Text(
+                                                    'Details: ',
+                                                    style: textStyle3,
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  flex: 2,
+                                                  child: snapshot
+                                                              .data
+                                                              .mockupDetails
+                                                              .length >
+                                                          60
+                                                      ? Text(
+                                                          '${snapshot.data.mockupDetails.toString().characters.take(60)}...',
+                                                          style: textStyle5,
+                                                        )
+                                                      : Text(snapshot
+                                                          .data.mockupDetails),
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                const Expanded(
+                                                  flex: 1,
+                                                  child: Text(
+                                                    'Assigned Workers: ',
+                                                    style: textStyle3,
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  flex: 2,
+                                                  child: Text(
+                                                    '${snapshot.data.assignedWorkers.length} workers',
+                                                    style: textStyle5,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ));
+                            }
+                          } else {
+                            return SizedBox(
+                              width: _size.width,
+                              height: (_size.height / 3) - 100,
+                              child: const Center(
+                                child: Text(
+                                  'No Assigned Mockups',
                                   style: textStyle4,
                                 ),
                               ),
@@ -846,38 +997,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
-
-                    //Messages from Admin
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20, left: 15),
-                      child: Column(children: [
-                        const Text(
-                          'Please note this section is dedicated for messages from your manager',
-                          style: textStyle6,
-                        ),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        messages.isEmpty
-                            ? SizedBox(
-                                height: (_size.height / 2) - 50,
-                                child: ListView.builder(
-                                    itemCount: messages.length,
-                                    itemBuilder: (context, index) {
-                                      return const ListTile(
-                                        title: Text('Message Title'),
-                                        subtitle: Text('Message Details'),
-                                      );
-                                    }),
-                              )
-                            : const Center(
-                                child: Text(
-                                  'Currently you have no message',
-                                  style: textStyle3,
-                                ),
-                              )
-                      ]),
-                    )
                   ],
                 ),
               )
@@ -931,7 +1050,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             } else {
                               return SizedBox(
                                   width: _size.width,
-                                  height: (_size.height / 2) - 100,
+                                  height: (_size.height / 3) - 100,
                                   child: ListView.builder(
                                       scrollDirection: Axis.horizontal,
                                       itemCount: snapshot.data.length,
@@ -1093,7 +1212,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           } else {
                             return SizedBox(
                               width: _size.width,
-                              height: (_size.height / 2) - 100,
+                              height: (_size.height / 3) - 100,
                               child: const Center(
                                 child: Text(
                                   'No Assigned Projects',
@@ -1103,6 +1222,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             );
                           }
                         }),
+
+                    const Divider(
+                      height: 15,
+                      thickness: 3,
+                    ),
+                    //Assigned mockup sections
 
                     const Divider(
                       height: 15,
@@ -1280,17 +1405,42 @@ class _HomeScreenState extends State<HomeScreen> {
     return allProjects;
   }
 
-  //For normal Users
+  //Get user assigned project
   Future<ProjectData> getUserAssignedProject() async {
     var result;
+
     if (userProvider != null && userProvider.assignedProject != null) {
       if (userProvider.roles.contains('isSupervisor')) {
         for (var project in userProvider.assignedProject) {
           result = await db.getPorjectByIdFuture(projectId: project['id']);
         }
       } else {
-        result = await db.getPorjectByIdFuture(
-            projectId: userProvider.assignedProject['id']);
+        if (userProvider.assignedProject['id'] != null) {
+          result = await db.getPorjectByIdFuture(
+              projectId: userProvider.assignedProject['id']);
+        }
+      }
+    }
+    return result;
+  }
+
+  //Get user assigned mockup
+  Future<MockupData> getUserAssignedMockup() async {
+    var result;
+    print('the mockup id:  ${userProvider.assignedMockups}');
+    if (userProvider != null && userProvider.assignedMockups != null) {
+      if (userProvider.roles.contains('isSupervisor')) {
+        for (var mockup in userProvider.assignedMockups) {
+          result = await db.getMockupByIdFuture(mockupId: mockup['id']);
+        }
+      } else {
+        if (userProvider.assignedMockups != null &&
+            userProvider.assignedMockups.isNotEmpty) {
+          for (var mockup in userProvider.assignedMockups) {
+            result = await db.getMockupByIdFuture(mockupId: mockup['id']);
+            print('the assigned Mockup: $result');
+          }
+        }
       }
     }
     return result;
@@ -1556,6 +1706,11 @@ class _HomeScreenState extends State<HomeScreen> {
         Future.delayed(const Duration(seconds: 10), () => initPlatformState());
       }
     } else {
+      _getAssignedProjects = getUserAssignedProject();
+      _getAssignedMockup = getUserAssignedMockup();
+
+      setState(() {});
+
       Future.delayed(const Duration(seconds: 7), () => detectMotion());
       Future.delayed(const Duration(seconds: 10), () => initPlatformState());
     }

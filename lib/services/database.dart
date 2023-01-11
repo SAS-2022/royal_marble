@@ -1142,6 +1142,36 @@ class DatabaseService {
         .map(_mockupDataFromSnapshot);
   }
 
+  Future<MockupData> getMockupByIdFuture({String mockupId}) async {
+    try {
+      var result = await mockupCollection.doc(mockupId).get().then((data) {
+        var result = MockupData(
+            uid: data.id,
+            mockupName: data['name'],
+            mockupDetails: data['details'],
+            mockupAddress: data['address'],
+            radius: data['radius'],
+            contactorCompany: data['contractor'],
+            contactPerson: data['contactPerson'],
+            emailAddress: data['emailAddress'],
+            phoneNumber: PhoneNumber(
+                phoneNumber: data['phoneNumber']['phoneNumber'],
+                isoCode: data['phoneNumber']['isoCode'],
+                dialCode: data['phoneNumber']['dialCode']),
+            userId: data['salesInCharge'],
+            mockupStatus: data['status'],
+            assignedWorkers: data['assignedWorkers']);
+        return result;
+      });
+
+      return result;
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      print('An error obtaining project: $e');
+      return MockupData(error: e);
+    }
+  }
+
   List<MockupData> _listMockupDataFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((snapshot) {
       var data = snapshot.data() as Map<String, dynamic>;
