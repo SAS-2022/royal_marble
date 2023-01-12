@@ -61,6 +61,7 @@ class _ProjectFormState extends State<ProjectForm> {
   PhoneNumber phoneNumber = PhoneNumber(isoCode: 'AE');
   TextEditingController _phoneController = TextEditingController();
   Color _statusColor;
+  bool _alreadyCheckedIn = false;
 
   @override
   void initState() {
@@ -592,71 +593,92 @@ class _ProjectFormState extends State<ProjectForm> {
                                 }
                               }
 
-                              return Stack(
-                                children: [
-                                  Center(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(12),
-                                      child: SizedBox(
-                                        height: _size.width / 2,
-                                        width: _size.width / 2,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black
-                                                      .withOpacity(0.3),
-                                                  spreadRadius: 6,
-                                                  blurRadius: 10,
-                                                  offset: const Offset(0, 3),
-                                                )
-                                              ]),
-                                          child: ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                  elevation: 3,
-                                                  backgroundColor: !_isAtSite
-                                                      ? Colors.green[400]
-                                                      : Colors.red[600],
-                                                  shape: const CircleBorder()),
-                                              onPressed: !_checkInOutLoading
-                                                  ? () async {
-                                                      setState(() {
-                                                        _checkInOutLoading =
-                                                            true;
-                                                      });
-                                                      await checkInOut(
-                                                          snapshot);
-                                                      setState(() {
-                                                        _checkInOutLoading =
-                                                            false;
-                                                      });
-                                                      Navigator.pop(context);
-                                                    }
-                                                  : null,
-                                              child: !_isAtSite
-                                                  ? const Text(
-                                                      'Check In',
-                                                      style: textStyle2,
-                                                    )
-                                                  : const Text(
-                                                      'Check Out',
-                                                      style: textStyle2,
-                                                    )),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  _checkInOutLoading
-                                      ? Center(
-                                          child: SizedBox(
+                              return !_alreadyCheckedIn
+                                  ? Stack(
+                                      children: [
+                                        Center(
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(12),
+                                            child: SizedBox(
                                               height: _size.width / 2,
                                               width: _size.width / 2,
-                                              child: const Loading()),
-                                        )
-                                      : const SizedBox.shrink()
-                                ],
-                              );
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.black
+                                                            .withOpacity(0.3),
+                                                        spreadRadius: 6,
+                                                        blurRadius: 10,
+                                                        offset:
+                                                            const Offset(0, 3),
+                                                      )
+                                                    ]),
+                                                child: ElevatedButton(
+                                                    style: ElevatedButton.styleFrom(
+                                                        elevation: 3,
+                                                        backgroundColor:
+                                                            !_isAtSite
+                                                                ? Colors
+                                                                    .green[400]
+                                                                : Colors
+                                                                    .red[600],
+                                                        shape:
+                                                            const CircleBorder()),
+                                                    onPressed:
+                                                        !_checkInOutLoading
+                                                            ? () async {
+                                                                setState(() {
+                                                                  _checkInOutLoading =
+                                                                      true;
+                                                                });
+                                                                print(
+                                                                    'the sanpshot: $snapshot');
+                                                                await checkInOut(
+                                                                    snapshot);
+                                                                setState(() {
+                                                                  _checkInOutLoading =
+                                                                      false;
+                                                                });
+                                                                Navigator.pop(
+                                                                    context);
+                                                              }
+                                                            : null,
+                                                    child: !_isAtSite
+                                                        ? const Text(
+                                                            'Check In',
+                                                            style: textStyle2,
+                                                          )
+                                                        : const Text(
+                                                            'Check Out',
+                                                            style: textStyle2,
+                                                          )),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        _checkInOutLoading
+                                            ? Center(
+                                                child: SizedBox(
+                                                    height: _size.width / 2,
+                                                    width: _size.width / 2,
+                                                    child: const Loading()),
+                                              )
+                                            : const SizedBox.shrink()
+                                      ],
+                                    )
+                                  : Padding(
+                                      padding: const EdgeInsets.all(12.0),
+                                      child: Center(
+                                        child: Text(
+                                          'You are still checked in at ${snapshot.data['data'][widget.currentUser.uid]['projectName']}, please checkout from there before proceeding here.',
+                                          style: textStyle15,
+                                          textAlign: TextAlign.center,
+                                          softWrap: true,
+                                        ),
+                                      ),
+                                    );
                             })
                         : const SizedBox.shrink(),
 
@@ -1457,13 +1479,25 @@ class _ProjectFormState extends State<ProjectForm> {
     }
   }
 
-  Future<Map<String, dynamic>> _completedWork() async {}
-
   Future checkCurrentUserStatus() async {
     String currentDate =
         '${DateTime.now().day}-${DateTime.now().month}-${DateTime.now().year}';
 
     var result = await db.getCurrentTimeSheet(today: currentDate);
+    if (result['data'][widget.currentUser.uid] != null) {
+      if (result['data'][widget.currentUser.uid]['isOnSite'] &&
+          widget.selectedProject.uid ==
+              result['data'][widget.currentUser.uid]['projectId']) {
+        _alreadyCheckedIn = false;
+      } else {
+        if (result['data'][widget.currentUser.uid]['leaving_at'] != null) {
+          _alreadyCheckedIn = false;
+        } else {
+          _alreadyCheckedIn = true;
+        }
+      }
+    }
+
     return result;
   }
 }

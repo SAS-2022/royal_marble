@@ -1234,6 +1234,7 @@ class DatabaseService {
       {UserData currentUser,
       String today,
       ProjectData selectedProject,
+      MockupData selectedMockup,
       bool isAtSite,
       String checkIn,
       String checkOut,
@@ -1243,8 +1244,12 @@ class DatabaseService {
         currentUser.uid: {
           'firstName': currentUser.firstName,
           'lastName': currentUser.lastName,
-          'projectId': selectedProject.uid,
-          'projectName': selectedProject.projectName,
+          'projectId': selectedProject != null
+              ? selectedProject.uid
+              : selectedMockup.uid,
+          'projectName': selectedProject != null
+              ? selectedProject.projectName
+              : selectedMockup.mockupName,
           'arriving_at': checkIn,
           'leaving_at': checkOut,
           'isOnSite': isAtSite,
@@ -1263,6 +1268,7 @@ class DatabaseService {
     String userRole,
     String today,
     ProjectData selectedProject,
+    MockupData selectedMockup,
     bool isAtSite,
     String checkIn,
     String checkOut,
@@ -1274,8 +1280,12 @@ class DatabaseService {
         currentUser.uid: {
           'firstName': currentUser.firstName,
           'lastName': currentUser.lastName,
-          'projectId': selectedProject.uid,
-          'projectName': selectedProject.projectName,
+          'projectId': selectedProject != null
+              ? selectedProject.uid
+              : selectedMockup.uid,
+          'projectName': selectedProject != null
+              ? selectedProject.projectName
+              : selectedMockup.mockupName,
           'arriving_at': checkIn,
           'leaving_at': checkOut,
           'isOnSite': isAtSite,

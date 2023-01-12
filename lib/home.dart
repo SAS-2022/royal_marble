@@ -114,6 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String getSystemTime() {
     var now = DateTime.now();
     DateTime startingTime;
+    DateTime leavingTime;
     var difference = 'Good Morning';
     if (timeSheetProvider != null &&
         timeSheetProvider.containsKey(userProvider.uid)) {
@@ -124,6 +125,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
         difference = now.difference(startingTime).toString().split('.')[0];
       } else if (timeSheetProvider[userProvider.uid]['leaving_at'] != null) {
+        startingTime =
+            DateTime.parse(timeSheetProvider[userProvider.uid]['arriving_at']);
+        // leavingTime =
+        //     DateTime.parse(timeSheetProvider[userProvider.uid]['leaving_at']);
+        // print('the difference in time: $leavingTime');
+        // difference =
+        //     leavingTime.difference(startingTime).toString().split('.')[0];
+
         difference = 'Have A Nice Day';
       }
     }

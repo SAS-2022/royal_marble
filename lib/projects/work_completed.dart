@@ -237,7 +237,7 @@ class _WorkCompletedState extends State<WorkCompleted> {
                             borderSide: BorderSide(color: Colors.blue)),
                       ),
                       validator: (value) {
-                        if (value == null) {
+                        if (value == null || value.isEmpty) {
                           return 'value cannot be empty';
                         }
                         return null;
@@ -295,9 +295,11 @@ class _WorkCompletedState extends State<WorkCompleted> {
 
                         _snackBarWidget.content = result;
                         _snackBarWidget.showSnack();
+                        Navigator.pop(context);
+                      } else {
+                        _snackBarWidget.content = 'Values cannot be left empty';
+                        _snackBarWidget.showSnack();
                       }
-
-                      Navigator.pop(context);
                     }),
               )
             ],
