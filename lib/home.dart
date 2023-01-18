@@ -124,18 +124,32 @@ class _HomeScreenState extends State<HomeScreen> {
             DateTime.parse(timeSheetProvider[userProvider.uid]['arriving_at']);
 
         difference = now.difference(startingTime).toString().split('.')[0];
-      } else if (timeSheetProvider[userProvider.uid]['leaving_at'] != null) {
+      }
+      if (timeSheetProvider[userProvider.uid]['arriving_at'] != null &&
+          timeSheetProvider[userProvider.uid]['leaving_at'] != null) {
         startingTime =
             DateTime.parse(timeSheetProvider[userProvider.uid]['arriving_at']);
-        // leavingTime =
-        //     DateTime.parse(timeSheetProvider[userProvider.uid]['leaving_at']);
-        // print('the difference in time: $leavingTime');
-        // difference =
-        //     leavingTime.difference(startingTime).toString().split('.')[0];
+        leavingTime =
+            DateTime.parse(timeSheetProvider[userProvider.uid]['leaving_at']);
 
-        difference = 'Have A Nice Day';
+        if (leavingTime.isAfter(startingTime)) {
+          var totalHours =
+              leavingTime.difference(startingTime).toString().split('.')[0];
+          difference = 'You completed: $totalHours\nHave A Nice Day';
+        } else {
+          difference = 'Please contact admin: ERR001';
+        }
+      }
+      if (timeSheetProvider[userProvider.uid]['arriving_at'] == null &&
+          timeSheetProvider[userProvider.uid]['leaving_at'] == null) {
+        difference = 'Please contact admin: ERR002';
       }
     }
+    if (userProvider != null) {
+      difference =
+          'Good Morning,\n${userProvider.firstName} ${userProvider.lastName}';
+    }
+
     return difference;
   }
 
@@ -1044,9 +1058,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
+                    const Text(
+                      'Assigned Projects',
+                      style: textStyle10,
+                    ),
                     //List of projects assigned two
                     FutureBuilder(
-                        future: getSupervisorAssignedProjects(),
+                        future: _getAssignedProjects,
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             if (snapshot.connectionState ==
@@ -1237,6 +1255,146 @@ class _HomeScreenState extends State<HomeScreen> {
                       thickness: 3,
                     ),
                     //Assigned mockup sections
+                    //List of assigned mockup projcects
+                    const Text(
+                      'Assigned Mock-Up',
+                      style: textStyle10,
+                    ),
+                    //List of projects assigned two
+                    FutureBuilder(
+                        future: _getAssignedMockup,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            if (snapshot.connectionState ==
+                                    ConnectionState.waiting ||
+                                snapshot.connectionState ==
+                                    ConnectionState.none) {
+                              return const Center(
+                                child: Loading(),
+                              );
+                            } else {
+                              return SizedBox(
+                                  width: _size.width,
+                                  height: (_size.height / 3) - 100,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 15, vertical: 15),
+                                    child: GestureDetector(
+                                      onTap: () async {
+                                        //once tapped shall navigate to a page that will show assigned workers
+                                        //will present a dialog on the things that could be done
+                                        await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (_) => MockupGrid(
+                                                      currentUser: userProvider,
+                                                      selectedMockup:
+                                                          snapshot.data,
+                                                    )));
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.all(12),
+                                        height: 80,
+                                        width: _size.width / 2,
+                                        decoration: BoxDecoration(
+                                            color: const Color.fromARGB(
+                                                255, 12, 182, 197),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                  color: Colors.grey[500],
+                                                  offset: const Offset(-4, 4),
+                                                  spreadRadius: 1)
+                                            ],
+                                            border: Border.all(width: 2),
+                                            borderRadius:
+                                                BorderRadius.circular(15)),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                const Expanded(
+                                                  flex: 1,
+                                                  child: Text(
+                                                    'Name: ',
+                                                    style: textStyle3,
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  flex: 2,
+                                                  child: Text(
+                                                    snapshot.data.mockupName
+                                                        .toUpperCase(),
+                                                    style: textStyle5,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                const Expanded(
+                                                  flex: 1,
+                                                  child: Text(
+                                                    'Details: ',
+                                                    style: textStyle3,
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  flex: 2,
+                                                  child: snapshot
+                                                              .data
+                                                              .mockupDetails
+                                                              .length >
+                                                          60
+                                                      ? Text(
+                                                          '${snapshot.data.mockupDetails.toString().characters.take(60)}...',
+                                                          style: textStyle5,
+                                                        )
+                                                      : Text(snapshot
+                                                          .data.mockupDetails),
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                const Expanded(
+                                                  flex: 1,
+                                                  child: Text(
+                                                    'Assigned Workers: ',
+                                                    style: textStyle3,
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  flex: 2,
+                                                  child: Text(
+                                                    '${snapshot.data.assignedWorkers.length} workers',
+                                                    style: textStyle5,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ));
+                            }
+                          } else {
+                            return SizedBox(
+                              width: _size.width,
+                              height: (_size.height / 3) - 100,
+                              child: const Center(
+                                child: Text(
+                                  'No Assigned Mockups',
+                                  style: textStyle4,
+                                ),
+                              ),
+                            );
+                          }
+                        }),
 
                     const Divider(
                       height: 15,
@@ -1414,6 +1572,20 @@ class _HomeScreenState extends State<HomeScreen> {
     return allProjects;
   }
 
+  Future<List<ProjectData>> getSupervisorAssignedMockups() async {
+    List<ProjectData> allProjects = [];
+    if (userProvider != null && userProvider.assignedProject != null) {
+      for (var project in userProvider.assignedProject) {
+        var result = await db.getPorjectByIdFuture(projectId: project['id']);
+        if (result != null) {
+          allProjects.add(result);
+        }
+      }
+    }
+
+    return allProjects;
+  }
+
   //Get user assigned project
   Future<ProjectData> getUserAssignedProject() async {
     var result;
@@ -1436,7 +1608,7 @@ class _HomeScreenState extends State<HomeScreen> {
   //Get user assigned mockup
   Future<MockupData> getUserAssignedMockup() async {
     var result;
-    print('the mockup id:  ${userProvider.assignedMockups}');
+
     if (userProvider != null && userProvider.assignedMockups != null) {
       if (userProvider.roles.contains('isSupervisor')) {
         for (var mockup in userProvider.assignedMockups) {
@@ -1447,7 +1619,6 @@ class _HomeScreenState extends State<HomeScreen> {
             userProvider.assignedMockups.isNotEmpty) {
           for (var mockup in userProvider.assignedMockups) {
             result = await db.getMockupByIdFuture(mockupId: mockup['id']);
-            print('the assigned Mockup: $result');
           }
         }
       }

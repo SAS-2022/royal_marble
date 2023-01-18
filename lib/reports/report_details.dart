@@ -182,7 +182,7 @@ class _ReportDetailsState extends State<ReportDetails> {
           height: _size.height - 10,
           child: widget.fromDate != null && widget.toDate != null
               ? ListView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
+                  //physics: const NeverScrollableScrollPhysics(),
                   itemCount: dateRange.length,
                   itemBuilder: ((context, index) {
                     String dateName =

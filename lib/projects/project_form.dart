@@ -633,8 +633,7 @@ class _ProjectFormState extends State<ProjectForm> {
                                                                   _checkInOutLoading =
                                                                       true;
                                                                 });
-                                                                print(
-                                                                    'the sanpshot: $snapshot');
+
                                                                 await checkInOut(
                                                                     snapshot);
                                                                 setState(() {
@@ -1475,7 +1474,21 @@ class _ProjectFormState extends State<ProjectForm> {
             }
           }
         }
+      } else {
+        if (data == null) {
+          _snackBarWidget.content = 'Employee status could not be determined';
+          _snackBarWidget.showSnack();
+        } else {
+          //the distance calculation could not be determined
+          _snackBarWidget.content =
+              'distance to project could not be determined';
+          _snackBarWidget.showSnack();
+        }
       }
+    } else {
+      //the location could not be detected
+      _snackBarWidget.content = 'Location could not be detected';
+      _snackBarWidget.showSnack();
     }
   }
 
