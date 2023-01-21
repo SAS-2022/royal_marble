@@ -174,18 +174,18 @@ class _MockupFormState extends State<MockupForm> {
     Future.delayed(const Duration(milliseconds: 500), () {
       if (widget.allWorkers != null && widget.allWorkers.isNotEmpty) {
         for (var worker in widget.allWorkers) {
-          if (worker.assignedProject != null &&
-              worker.assignedProject.runtimeType == List) {
-            for (var project in worker.assignedProject) {
+          if (worker.assignedMockups != null &&
+              worker.assignedMockups.runtimeType == List) {
+            for (var project in worker.assignedMockups) {
               if (project['id'] == widget.selectedMockUp.uid) {
                 workerOnThisProject.add(worker);
               }
             }
           }
 
-          if (worker.assignedProject != null &&
-              worker.assignedProject.runtimeType != List) {
-            if (worker.assignedProject['id'] == widget.selectedMockUp.uid) {
+          if (worker.assignedMockups != null &&
+              worker.assignedMockups.runtimeType != List) {
+            if (worker.assignedMockups['id'] == widget.selectedMockUp.uid) {
               workerOnThisProject.add(worker);
             }
           }

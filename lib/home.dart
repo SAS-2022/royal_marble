@@ -195,6 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
     allMockupProvider = Provider.of<List<MockupData>>(context);
     timeSheetProvider = Provider.of<Map<String, dynamic>>(context);
     _size = MediaQuery.of(context).size;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Main Page'),
@@ -671,890 +672,826 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildWorkerHomeScreen() {
-    return SingleChildScrollView(
-        child: userProvider.isActive != null && userProvider.isActive
-            ? Padding(
-                padding: const EdgeInsets.all(25),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Assigned Projects',
-                      style: textStyle10,
-                    ),
-                    //List of projects assigned two
-                    FutureBuilder(
-                        future: _getAssignedProjects,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            if (snapshot.connectionState ==
-                                    ConnectionState.waiting ||
-                                snapshot.connectionState ==
-                                    ConnectionState.none) {
-                              return const Center(
-                                child: Loading(),
-                              );
-                            } else {
-                              return SizedBox(
-                                  width: _size.width,
-                                  height: (_size.height / 3) - 100,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 15, vertical: 15),
-                                    child: GestureDetector(
-                                      onTap: () async {
-                                        //once tapped shall navigate to a page that will show assigned workers
-                                        //will present a dialog on the things that could be done
-                                        await Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (_) => ProjectGrid(
-                                                      currentUser: userProvider,
-                                                      selectedProject:
-                                                          snapshot.data,
-                                                    )));
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.all(12),
-                                        height: 80,
-                                        width: _size.width / 2,
-                                        decoration: BoxDecoration(
-                                            color: userProvider
-                                                            .distanceToProject !=
-                                                        null &&
-                                                    userProvider
-                                                            .distanceToProject <=
-                                                        userProvider
-                                                                .assignedProject[
-                                                            'radius']
-                                                ? Colors.green
-                                                : Colors.yellowAccent,
-                                            boxShadow: [
-                                              BoxShadow(
-                                                  color: Colors.grey[500],
-                                                  offset: const Offset(-4, 4),
-                                                  spreadRadius: 1)
-                                            ],
-                                            border: Border.all(width: 2),
-                                            borderRadius:
-                                                BorderRadius.circular(15)),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                const Expanded(
-                                                  flex: 1,
-                                                  child: Text(
-                                                    'Name: ',
-                                                    style: textStyle3,
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  flex: 2,
-                                                  child: Text(
-                                                    snapshot.data.projectName
-                                                        .toUpperCase(),
-                                                    style: textStyle5,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                const Expanded(
-                                                  flex: 1,
-                                                  child: Text(
-                                                    'Details: ',
-                                                    style: textStyle3,
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  flex: 2,
-                                                  child: snapshot
-                                                              .data
-                                                              .projectDetails
-                                                              .length >
-                                                          60
-                                                      ? Text(
-                                                          '${snapshot.data.projectDetails.toString().characters.take(60)}...',
-                                                          style: textStyle5,
-                                                        )
-                                                      : Text(snapshot
-                                                          .data.projectDetails),
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                const Expanded(
-                                                  flex: 1,
-                                                  child: Text(
-                                                    'On Site: ',
-                                                    style: textStyle3,
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  flex: 2,
-                                                  child: Text(
-                                                    userProvider.distanceToProject !=
-                                                                null &&
-                                                            userProvider
-                                                                    .distanceToProject <=
-                                                                userProvider
-                                                                        .assignedProject[
-                                                                    'radius']
-                                                        ? 'Yes'
-                                                        : 'No',
-                                                    style: textStyle5,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                const Expanded(
-                                                  flex: 1,
-                                                  child: Text(
-                                                    'Assigned Workers: ',
-                                                    style: textStyle3,
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  flex: 2,
-                                                  child: Text(
-                                                    '${snapshot.data.assignedWorkers.length} workers',
-                                                    style: textStyle5,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ));
-                            }
-                          } else {
-                            return SizedBox(
-                              width: _size.width,
-                              height: (_size.height / 3) - 100,
-                              child: const Center(
-                                child: Text(
-                                  'No Assigned Projects',
-                                  style: textStyle4,
-                                ),
-                              ),
-                            );
-                          }
-                        }),
-
-                    const Divider(
-                      height: 15,
-                      thickness: 3,
-                    ),
-                    //List of assigned mockup projcects
-                    const Text(
-                      'Assigned Mock-Up',
-                      style: textStyle10,
-                    ),
-                    //List of projects assigned two
-                    FutureBuilder(
-                        future: _getAssignedMockup,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            if (snapshot.connectionState ==
-                                    ConnectionState.waiting ||
-                                snapshot.connectionState ==
-                                    ConnectionState.none) {
-                              return const Center(
-                                child: Loading(),
-                              );
-                            } else {
-                              return SizedBox(
-                                  width: _size.width,
-                                  height: (_size.height / 3) - 100,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 15, vertical: 15),
-                                    child: GestureDetector(
-                                      onTap: () async {
-                                        //once tapped shall navigate to a page that will show assigned workers
-                                        //will present a dialog on the things that could be done
-                                        await Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (_) => MockupGrid(
-                                                      currentUser: userProvider,
-                                                      selectedMockup:
-                                                          snapshot.data,
-                                                    )));
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.all(12),
-                                        height: 80,
-                                        width: _size.width / 2,
-                                        decoration: BoxDecoration(
-                                            color: const Color.fromARGB(
-                                                255, 12, 182, 197),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                  color: Colors.grey[500],
-                                                  offset: const Offset(-4, 4),
-                                                  spreadRadius: 1)
-                                            ],
-                                            border: Border.all(width: 2),
-                                            borderRadius:
-                                                BorderRadius.circular(15)),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                const Expanded(
-                                                  flex: 1,
-                                                  child: Text(
-                                                    'Name: ',
-                                                    style: textStyle3,
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  flex: 2,
-                                                  child: Text(
-                                                    snapshot.data.mockupName
-                                                        .toUpperCase(),
-                                                    style: textStyle5,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                const Expanded(
-                                                  flex: 1,
-                                                  child: Text(
-                                                    'Details: ',
-                                                    style: textStyle3,
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  flex: 2,
-                                                  child: snapshot
-                                                              .data
-                                                              .mockupDetails
-                                                              .length >
-                                                          60
-                                                      ? Text(
-                                                          '${snapshot.data.mockupDetails.toString().characters.take(60)}...',
-                                                          style: textStyle5,
-                                                        )
-                                                      : Text(snapshot
-                                                          .data.mockupDetails),
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                const Expanded(
-                                                  flex: 1,
-                                                  child: Text(
-                                                    'Assigned Workers: ',
-                                                    style: textStyle3,
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  flex: 2,
-                                                  child: Text(
-                                                    '${snapshot.data.assignedWorkers.length} workers',
-                                                    style: textStyle5,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ));
-                            }
-                          } else {
-                            return SizedBox(
-                              width: _size.width,
-                              height: (_size.height / 3) - 100,
-                              child: const Center(
-                                child: Text(
-                                  'No Assigned Mockups',
-                                  style: textStyle4,
-                                ),
-                              ),
-                            );
-                          }
-                        }),
-
-                    const Divider(
-                      height: 15,
-                      thickness: 3,
-                    ),
-                    //Timer for when work starts
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20, left: 15),
-                      child: Container(
-                        height: _size.height / 6,
-                        decoration: BoxDecoration(
-                            border: Border.all(),
-                            borderRadius: BorderRadius.circular(20)),
-                        child: Center(
-                          child: TimerBuilder.periodic(
-                              const Duration(seconds: 1), builder: (context) {
-                            return Text(
-                              getSystemTime(),
-                              style: timerTextStyle,
-                            );
-                          }),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            : Padding(
-                padding: const EdgeInsets.only(left: 25, right: 25, top: 150),
-                child: SizedBox(
-                  height: _size.height,
+    return SizedBox(
+      height: _size.height,
+      child: SingleChildScrollView(
+          child: userProvider.isActive != null && userProvider.isActive
+              ? Padding(
+                  padding: const EdgeInsets.all(25),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    // crossAxisAlignment: CrossAxisAlignment.center,
-                    children: const [
-                      Text(
-                        'Thank you for creating an account',
-                        style: textStyle1,
-                        textAlign: TextAlign.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Assigned Projects',
+                        style: textStyle10,
                       ),
-                      SizedBox(
-                        height: 40,
-                      ),
-                      Text(
-                        'Your account is still under approval, you should be notified once it has been approved.',
-                        style: textStyle4,
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-              ));
-  }
-
-  Widget _buildSupervisorHomeScreen() {
-    return SingleChildScrollView(
-        child: userProvider.isActive != null && userProvider.isActive
-            ? Padding(
-                padding: const EdgeInsets.all(25),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Assigned Projects',
-                      style: textStyle10,
-                    ),
-                    //List of projects assigned two
-                    FutureBuilder(
-                        future: _getAssignedProjects,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            if (snapshot.connectionState ==
-                                    ConnectionState.waiting ||
-                                snapshot.connectionState ==
-                                    ConnectionState.none) {
-                              return const Center(
-                                child: Loading(),
-                              );
-                            } else {
-                              return SizedBox(
-                                  width: _size.width,
-                                  height: (_size.height / 3) - 100,
-                                  child: ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      itemCount: snapshot.data.length,
-                                      itemBuilder: (context, index) {
-                                        return Padding(
-                                          padding: const EdgeInsets.only(
-                                              top: 10,
-                                              bottom: 10,
-                                              left: 5,
-                                              right: 15),
-                                          child: GestureDetector(
-                                            onTap: () async {
-                                              //once tapped shall navigate to a page that will show assigned workers
-                                              //will present a dialog on the things that could be done
-                                              await Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      builder: (_) =>
-                                                          ProjectGrid(
-                                                            currentUser:
-                                                                userProvider,
-                                                            selectedProject:
-                                                                snapshot.data[
-                                                                    index],
-                                                          )));
-                                            },
-                                            child: Container(
-                                              padding: const EdgeInsets.all(12),
-                                              height: 80,
-                                              width: _size.width / 1.5,
-                                              decoration: BoxDecoration(
-                                                  color: userProvider
-                                                                  .distanceToProject !=
-                                                              null &&
+                      //List of projects assigned two
+                      FutureBuilder(
+                          future: _getAssignedProjects,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              if (snapshot.connectionState ==
+                                      ConnectionState.waiting ||
+                                  snapshot.connectionState ==
+                                      ConnectionState.none) {
+                                return const Center(
+                                  child: Loading(),
+                                );
+                              } else {
+                                return SizedBox(
+                                    width: _size.width,
+                                    height: (_size.height / 3) - 100,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 15, vertical: 15),
+                                      child: GestureDetector(
+                                        onTap: () async {
+                                          //once tapped shall navigate to a page that will show assigned workers
+                                          //will present a dialog on the things that could be done
+                                          await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (_) => ProjectGrid(
+                                                        currentUser:
+                                                            userProvider,
+                                                        selectedProject:
+                                                            snapshot.data,
+                                                      )));
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.all(12),
+                                          height: 80,
+                                          width: _size.width / 2,
+                                          decoration: BoxDecoration(
+                                              color: userProvider
+                                                              .distanceToProject !=
+                                                          null &&
+                                                      userProvider
+                                                              .distanceToProject <=
                                                           userProvider
-                                                                  .distanceToProject <=
-                                                              snapshot
-                                                                  .data[index]
-                                                                  .radius
-                                                      ? Colors.green
-                                                      : Colors.yellowAccent,
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                        color: Colors.grey[500],
-                                                        offset:
-                                                            const Offset(-4, 4),
-                                                        spreadRadius: 1)
-                                                  ],
-                                                  border: Border.all(width: 2),
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          55)),
-                                              child: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceEvenly,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
+                                                                  .assignedProject[
+                                                              'radius']
+                                                  ? Colors.green
+                                                  : Colors.yellowAccent,
+                                              boxShadow: [
+                                                BoxShadow(
+                                                    color: Colors.grey[500],
+                                                    offset: const Offset(-4, 4),
+                                                    spreadRadius: 1)
+                                              ],
+                                              border: Border.all(width: 2),
+                                              borderRadius:
+                                                  BorderRadius.circular(15)),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
                                                 children: [
-                                                  Row(
-                                                    children: [
-                                                      const Expanded(
-                                                        flex: 1,
-                                                        child: Text(
-                                                          'Name: ',
-                                                          style: textStyle3,
-                                                        ),
-                                                      ),
-                                                      Expanded(
-                                                        flex: 2,
-                                                        child: Text(
-                                                          snapshot.data[index]
-                                                              .projectName
-                                                              .toUpperCase(),
-                                                          style: textStyle5,
-                                                        ),
-                                                      ),
-                                                    ],
+                                                  const Expanded(
+                                                    flex: 1,
+                                                    child: Text(
+                                                      'Name: ',
+                                                      style: textStyle3,
+                                                    ),
                                                   ),
-                                                  Row(
-                                                    children: [
-                                                      const Expanded(
-                                                        flex: 1,
-                                                        child: Text(
-                                                          'Details: ',
-                                                          style: textStyle3,
-                                                        ),
-                                                      ),
-                                                      Expanded(
-                                                        flex: 2,
-                                                        child: snapshot
-                                                                    .data[index]
-                                                                    .projectDetails
-                                                                    .length >
-                                                                60
-                                                            ? Text(
-                                                                '${snapshot.data.projectDetails.toString().characters.take(60)}...',
-                                                                style:
-                                                                    textStyle5,
-                                                              )
-                                                            : Text(snapshot
-                                                                .data[index]
-                                                                .projectDetails),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  Row(
-                                                    children: [
-                                                      const Expanded(
-                                                        flex: 1,
-                                                        child: Text(
-                                                          'On Site: ',
-                                                          style: textStyle3,
-                                                        ),
-                                                      ),
-                                                      Expanded(
-                                                        flex: 2,
-                                                        child: Text(
-                                                          userProvider.distanceToProject !=
-                                                                      null &&
-                                                                  userProvider
-                                                                          .distanceToProject <=
-                                                                      snapshot
-                                                                          .data[
-                                                                              index]
-                                                                          .radius
-                                                              ? 'Yes'
-                                                              : 'No',
-                                                          style: textStyle5,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  Row(
-                                                    children: [
-                                                      const Expanded(
-                                                        flex: 1,
-                                                        child: Text(
-                                                          'Assigned Workers: ',
-                                                          style: textStyle3,
-                                                        ),
-                                                      ),
-                                                      Expanded(
-                                                        flex: 2,
-                                                        child: Text(
-                                                          '${snapshot.data[index].assignedWorkers.length} workers',
-                                                          style: textStyle5,
-                                                        ),
-                                                      ),
-                                                    ],
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Text(
+                                                      snapshot.data.projectName
+                                                          .toUpperCase(),
+                                                      style: textStyle5,
+                                                    ),
                                                   ),
                                                 ],
                                               ),
-                                            ),
-                                          ),
-                                        );
-                                      }));
-                            }
-                          } else {
-                            return SizedBox(
-                              width: _size.width,
-                              height: (_size.height / 3) - 100,
-                              child: const Center(
-                                child: Text(
-                                  'No Assigned Projects',
-                                  style: textStyle4,
-                                ),
-                              ),
-                            );
-                          }
-                        }),
-
-                    const Divider(
-                      height: 15,
-                      thickness: 3,
-                    ),
-                    //Assigned mockup sections
-                    //List of assigned mockup projcects
-                    const Text(
-                      'Assigned Mock-Up',
-                      style: textStyle10,
-                    ),
-                    //List of projects assigned two
-                    FutureBuilder(
-                        future: _getAssignedMockup,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            if (snapshot.connectionState ==
-                                    ConnectionState.waiting ||
-                                snapshot.connectionState ==
-                                    ConnectionState.none) {
-                              return const Center(
-                                child: Loading(),
-                              );
-                            } else {
-                              return SizedBox(
-                                  width: _size.width,
-                                  height: (_size.height / 3) - 100,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 15, vertical: 15),
-                                    child: GestureDetector(
-                                      onTap: () async {
-                                        //once tapped shall navigate to a page that will show assigned workers
-                                        //will present a dialog on the things that could be done
-                                        await Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (_) => MockupGrid(
-                                                      currentUser: userProvider,
-                                                      selectedMockup:
-                                                          snapshot.data,
-                                                    )));
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.all(12),
-                                        height: 80,
-                                        width: _size.width / 2,
-                                        decoration: BoxDecoration(
-                                            color: const Color.fromARGB(
-                                                255, 12, 182, 197),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                  color: Colors.grey[500],
-                                                  offset: const Offset(-4, 4),
-                                                  spreadRadius: 1)
+                                              Row(
+                                                children: [
+                                                  const Expanded(
+                                                    flex: 1,
+                                                    child: Text(
+                                                      'Details: ',
+                                                      style: textStyle3,
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: snapshot
+                                                                .data
+                                                                .projectDetails
+                                                                .length >
+                                                            60
+                                                        ? Text(
+                                                            '${snapshot.data.projectDetails.toString().characters.take(60)}...',
+                                                            style: textStyle5,
+                                                          )
+                                                        : Text(snapshot.data
+                                                            .projectDetails),
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  const Expanded(
+                                                    flex: 1,
+                                                    child: Text(
+                                                      'On Site: ',
+                                                      style: textStyle3,
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Text(
+                                                      userProvider.distanceToProject !=
+                                                                  null &&
+                                                              userProvider
+                                                                      .distanceToProject <=
+                                                                  userProvider
+                                                                          .assignedProject[
+                                                                      'radius']
+                                                          ? 'Yes'
+                                                          : 'No',
+                                                      style: textStyle5,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  const Expanded(
+                                                    flex: 1,
+                                                    child: Text(
+                                                      'Assigned Workers: ',
+                                                      style: textStyle3,
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Text(
+                                                      '${snapshot.data.assignedWorkers.length} workers',
+                                                      style: textStyle5,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                             ],
-                                            border: Border.all(width: 2),
-                                            borderRadius:
-                                                BorderRadius.circular(15)),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                const Expanded(
-                                                  flex: 1,
-                                                  child: Text(
-                                                    'Name: ',
-                                                    style: textStyle3,
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  flex: 2,
-                                                  child: Text(
-                                                    snapshot.data.mockupName
-                                                        .toUpperCase(),
-                                                    style: textStyle5,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                const Expanded(
-                                                  flex: 1,
-                                                  child: Text(
-                                                    'Details: ',
-                                                    style: textStyle3,
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  flex: 2,
-                                                  child: snapshot
-                                                              .data
-                                                              .mockupDetails
-                                                              .length >
-                                                          60
-                                                      ? Text(
-                                                          '${snapshot.data.mockupDetails.toString().characters.take(60)}...',
-                                                          style: textStyle5,
-                                                        )
-                                                      : Text(snapshot
-                                                          .data.mockupDetails),
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                const Expanded(
-                                                  flex: 1,
-                                                  child: Text(
-                                                    'Assigned Workers: ',
-                                                    style: textStyle3,
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  flex: 2,
-                                                  child: Text(
-                                                    '${snapshot.data.assignedWorkers.length} workers',
-                                                    style: textStyle5,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ));
+                                    ));
+                              }
+                            } else {
+                              return SizedBox(
+                                width: _size.width,
+                                height: (_size.height / 3) - 100,
+                                child: const Center(
+                                  child: Text(
+                                    'No Assigned Projects',
+                                    style: textStyle4,
+                                  ),
+                                ),
+                              );
                             }
-                          } else {
-                            return SizedBox(
-                              width: _size.width,
-                              height: (_size.height / 3) - 100,
-                              child: const Center(
-                                child: Text(
-                                  'No Assigned Mockups',
-                                  style: textStyle4,
-                                ),
-                              ),
-                            );
-                          }
-                        }),
-
-                    const Divider(
-                      height: 15,
-                      thickness: 3,
-                    ),
-                    //Timer for when work starts
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20, left: 15),
-                      child: Container(
-                        height: _size.height / 6,
-                        decoration: BoxDecoration(
-                            border: Border.all(),
-                            borderRadius: BorderRadius.circular(20)),
-                        child: Center(
-                          child: TimerBuilder.periodic(
-                              const Duration(seconds: 1), builder: (context) {
-                            return Text(
-                              getSystemTime(),
-                              style: timerTextStyle,
-                            );
                           }),
-                        ),
-                      ),
-                    ),
 
-                    //Messages from Admin
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20, left: 15),
-                      child: Column(children: [
-                        const Text(
-                          'Please note this section is dedicated for messages from your manager',
-                          style: textStyle6,
-                        ),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        messages.isEmpty
-                            ? SizedBox(
-                                height: (_size.height / 2) - 50,
-                                child: ListView.builder(
-                                    itemCount: messages.length,
-                                    itemBuilder: (context, index) {
-                                      return const ListTile(
-                                        title: Text('Message Title'),
-                                        subtitle: Text('Message Details'),
-                                      );
-                                    }),
-                              )
-                            : const Center(
-                                child: Text(
-                                  'Currently you have no message',
-                                  style: textStyle3,
+                      const Divider(
+                        height: 15,
+                        thickness: 3,
+                      ),
+                      //List of assigned mockup projcects
+                      const Text(
+                        'Assigned Mock-Up',
+                        style: textStyle10,
+                      ),
+                      //List of projects assigned two
+                      FutureBuilder(
+                          future: _getAssignedMockup,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              if (snapshot.connectionState ==
+                                      ConnectionState.waiting ||
+                                  snapshot.connectionState ==
+                                      ConnectionState.none) {
+                                return const Center(
+                                  child: Loading(),
+                                );
+                              } else {
+                                return SizedBox(
+                                    width: _size.width,
+                                    height: (_size.height / 3) - 100,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 15, vertical: 15),
+                                      child: GestureDetector(
+                                        onTap: () async {
+                                          //once tapped shall navigate to a page that will show assigned workers
+                                          //will present a dialog on the things that could be done
+                                          await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (_) => MockupGrid(
+                                                        currentUser:
+                                                            userProvider,
+                                                        selectedMockup:
+                                                            snapshot.data,
+                                                      )));
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.all(12),
+                                          height: 80,
+                                          width: _size.width / 2,
+                                          decoration: BoxDecoration(
+                                              color: const Color.fromARGB(
+                                                  255, 12, 182, 197),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                    color: Colors.grey[500],
+                                                    offset: const Offset(-4, 4),
+                                                    spreadRadius: 1)
+                                              ],
+                                              border: Border.all(width: 2),
+                                              borderRadius:
+                                                  BorderRadius.circular(15)),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  const Expanded(
+                                                    flex: 1,
+                                                    child: Text(
+                                                      'Name: ',
+                                                      style: textStyle3,
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Text(
+                                                      snapshot.data.mockupName
+                                                          .toUpperCase(),
+                                                      style: textStyle5,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  const Expanded(
+                                                    flex: 1,
+                                                    child: Text(
+                                                      'Details: ',
+                                                      style: textStyle3,
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: snapshot
+                                                                .data
+                                                                .mockupDetails
+                                                                .length >
+                                                            60
+                                                        ? Text(
+                                                            '${snapshot.data.mockupDetails.toString().characters.take(60)}...',
+                                                            style: textStyle5,
+                                                          )
+                                                        : Text(snapshot.data
+                                                            .mockupDetails),
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  const Expanded(
+                                                    flex: 1,
+                                                    child: Text(
+                                                      'Assigned Workers: ',
+                                                      style: textStyle3,
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Text(
+                                                      '${snapshot.data.assignedWorkers.length} workers',
+                                                      style: textStyle5,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ));
+                              }
+                            } else {
+                              return SizedBox(
+                                width: _size.width,
+                                height: (_size.height / 3) - 100,
+                                child: const Center(
+                                  child: Text(
+                                    'No Assigned Mockups',
+                                    style: textStyle4,
+                                  ),
                                 ),
-                              )
-                      ]),
-                    )
-                  ],
-                ),
-              )
-            : Padding(
-                padding: const EdgeInsets.only(left: 25, right: 25, top: 150),
-                child: SizedBox(
-                  height: _size.height,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    // crossAxisAlignment: CrossAxisAlignment.center,
-                    children: const [
-                      Text(
-                        'Thank you for creating an account',
-                        style: textStyle1,
-                        textAlign: TextAlign.center,
+                              );
+                            }
+                          }),
+
+                      const Divider(
+                        height: 15,
+                        thickness: 3,
                       ),
-                      SizedBox(
-                        height: 40,
-                      ),
-                      Text(
-                        'Your account is still under approval, you should be notified once it has been approved.',
-                        style: textStyle4,
-                        textAlign: TextAlign.center,
+                      //Timer for when work starts
+                      Padding(
+                        padding: const EdgeInsets.only(top: 20, left: 15),
+                        child: Container(
+                          height: _size.height / 6,
+                          decoration: BoxDecoration(
+                              border: Border.all(),
+                              borderRadius: BorderRadius.circular(20)),
+                          child: Center(
+                            child: TimerBuilder.periodic(
+                                const Duration(seconds: 1), builder: (context) {
+                              return Text(
+                                getSystemTime(),
+                                style: timerTextStyle,
+                              );
+                            }),
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                ),
-              ));
+                )
+              : Padding(
+                  padding: const EdgeInsets.only(left: 25, right: 25, top: 150),
+                  child: SizedBox(
+                    height: _size.height,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      // crossAxisAlignment: CrossAxisAlignment.center,
+                      children: const [
+                        Text(
+                          'Thank you for creating an account',
+                          style: textStyle1,
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(
+                          height: 40,
+                        ),
+                        Text(
+                          'Your account is still under approval, you should be notified once it has been approved.',
+                          style: textStyle4,
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                )),
+    );
   }
 
-  Widget _buildSalesHomeScreen() {
-    return SingleChildScrollView(
-        child: userProvider.isActive != null && userProvider.isActive
-            ? Padding(
-                padding: const EdgeInsets.all(25),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    //List of projects assigned two
-
-                    const Divider(
-                      height: 15,
-                      thickness: 3,
-                    ),
-                    //Messages from Admin
-
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20, left: 15),
-                      child: Column(children: [
-                        const Text(
-                          'Please note this section is dedicated for messages from your manager',
-                          style: textStyle6,
-                        ),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        messages.isEmpty
-                            ? SizedBox(
-                                height: (_size.height / 2) - 50,
-                                child: ListView.builder(
-                                    itemCount: messages.length,
-                                    itemBuilder: (context, index) {
-                                      return const ListTile(
-                                        title: Text('Message Title'),
-                                        subtitle: Text('Message Details'),
-                                      );
-                                    }),
-                              )
-                            : const Center(
-                                child: Text(
-                                  'Currently you have no message',
-                                  style: textStyle3,
-                                ),
-                              )
-                      ]),
-                    )
-                  ],
-                ),
-              )
-            : Padding(
-                padding: const EdgeInsets.only(left: 25, right: 25, top: 150),
-                child: SizedBox(
-                  height: _size.height,
+  Widget _buildSupervisorHomeScreen() {
+    return SizedBox(
+      height: _size.height,
+      child: SingleChildScrollView(
+          child: userProvider.isActive != null && userProvider.isActive
+              ? Padding(
+                  padding: const EdgeInsets.all(25),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
-                    // crossAxisAlignment: CrossAxisAlignment.center,
-                    children: const [
-                      Text(
-                        'Thank you for creating an account',
-                        style: textStyle1,
-                        textAlign: TextAlign.center,
+                    children: [
+                      const Text(
+                        'Assigned Projects',
+                        style: textStyle10,
                       ),
-                      SizedBox(
-                        height: 40,
+                      //List of projects assigned two
+                      FutureBuilder(
+                          future: _getAssignedProjects,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              if (snapshot.connectionState ==
+                                      ConnectionState.waiting ||
+                                  snapshot.connectionState ==
+                                      ConnectionState.none) {
+                                return const Center(
+                                  child: Loading(),
+                                );
+                              } else {
+                                return SizedBox(
+                                    width: _size.width,
+                                    height: (_size.height / 3) - 100,
+                                    child: ListView.builder(
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount: snapshot.data.length,
+                                        itemBuilder: (context, index) {
+                                          return Padding(
+                                            padding: const EdgeInsets.only(
+                                                top: 10,
+                                                bottom: 10,
+                                                left: 5,
+                                                right: 15),
+                                            child: GestureDetector(
+                                              onTap: () async {
+                                                //once tapped shall navigate to a page that will show assigned workers
+                                                //will present a dialog on the things that could be done
+                                                await Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (_) =>
+                                                            ProjectGrid(
+                                                              currentUser:
+                                                                  userProvider,
+                                                              selectedProject:
+                                                                  snapshot.data[
+                                                                      index],
+                                                            )));
+                                              },
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.all(12),
+                                                height: 80,
+                                                width: _size.width / 1.5,
+                                                decoration: BoxDecoration(
+                                                    color: userProvider
+                                                                    .distanceToProject !=
+                                                                null &&
+                                                            userProvider
+                                                                    .distanceToProject <=
+                                                                snapshot
+                                                                    .data[index]
+                                                                    .radius
+                                                        ? Colors.green
+                                                        : Colors.yellowAccent,
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                          color:
+                                                              Colors.grey[500],
+                                                          offset: const Offset(
+                                                              -4, 4),
+                                                          spreadRadius: 1)
+                                                    ],
+                                                    border:
+                                                        Border.all(width: 2),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            55)),
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceEvenly,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        const Expanded(
+                                                          flex: 1,
+                                                          child: Text(
+                                                            'Name: ',
+                                                            style: textStyle3,
+                                                          ),
+                                                        ),
+                                                        Expanded(
+                                                          flex: 2,
+                                                          child: Text(
+                                                            snapshot.data[index]
+                                                                .projectName
+                                                                .toUpperCase(),
+                                                            style: textStyle5,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        const Expanded(
+                                                          flex: 1,
+                                                          child: Text(
+                                                            'Details: ',
+                                                            style: textStyle3,
+                                                          ),
+                                                        ),
+                                                        Expanded(
+                                                          flex: 2,
+                                                          child: snapshot
+                                                                      .data[
+                                                                          index]
+                                                                      .projectDetails
+                                                                      .length >
+                                                                  60
+                                                              ? Text(
+                                                                  '${snapshot.data.projectDetails.toString().characters.take(60)}...',
+                                                                  style:
+                                                                      textStyle5,
+                                                                )
+                                                              : Text(snapshot
+                                                                  .data[index]
+                                                                  .projectDetails),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        const Expanded(
+                                                          flex: 1,
+                                                          child: Text(
+                                                            'On Site: ',
+                                                            style: textStyle3,
+                                                          ),
+                                                        ),
+                                                        Expanded(
+                                                          flex: 2,
+                                                          child: Text(
+                                                            userProvider.distanceToProject !=
+                                                                        null &&
+                                                                    userProvider
+                                                                            .distanceToProject <=
+                                                                        snapshot
+                                                                            .data[index]
+                                                                            .radius
+                                                                ? 'Yes'
+                                                                : 'No',
+                                                            style: textStyle5,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                        const Expanded(
+                                                          flex: 1,
+                                                          child: Text(
+                                                            'Assigned Workers: ',
+                                                            style: textStyle3,
+                                                          ),
+                                                        ),
+                                                        Expanded(
+                                                          flex: 2,
+                                                          child: Text(
+                                                            '${snapshot.data[index].assignedWorkers.length} workers',
+                                                            style: textStyle5,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        }));
+                              }
+                            } else {
+                              return SizedBox(
+                                width: _size.width,
+                                height: (_size.height / 3) - 100,
+                                child: const Center(
+                                  child: Text(
+                                    'No Assigned Projects',
+                                    style: textStyle4,
+                                  ),
+                                ),
+                              );
+                            }
+                          }),
+
+                      const Divider(
+                        height: 15,
+                        thickness: 3,
                       ),
-                      Text(
-                        'Your account is still under approval, you should be notified once it has been approved.',
-                        style: textStyle4,
-                        textAlign: TextAlign.center,
+                      //Assigned mockup sections
+                      //List of assigned mockup projcects
+                      const Text(
+                        'Assigned Mock-Up',
+                        style: textStyle10,
                       ),
+                      //List of projects assigned two
+                      FutureBuilder(
+                          future: _getAssignedMockup,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              if (snapshot.connectionState ==
+                                      ConnectionState.waiting ||
+                                  snapshot.connectionState ==
+                                      ConnectionState.none) {
+                                return const Center(
+                                  child: Loading(),
+                                );
+                              } else {
+                                return SizedBox(
+                                    width: _size.width,
+                                    height: (_size.height / 3) - 100,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 15, vertical: 15),
+                                      child: GestureDetector(
+                                        onTap: () async {
+                                          //once tapped shall navigate to a page that will show assigned workers
+                                          //will present a dialog on the things that could be done
+                                          await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (_) => MockupGrid(
+                                                        currentUser:
+                                                            userProvider,
+                                                        selectedMockup:
+                                                            snapshot.data,
+                                                      )));
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.all(12),
+                                          height: 80,
+                                          width: _size.width / 2,
+                                          decoration: BoxDecoration(
+                                              color: const Color.fromARGB(
+                                                  255, 12, 182, 197),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                    color: Colors.grey[500],
+                                                    offset: const Offset(-4, 4),
+                                                    spreadRadius: 1)
+                                              ],
+                                              border: Border.all(width: 2),
+                                              borderRadius:
+                                                  BorderRadius.circular(15)),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  const Expanded(
+                                                    flex: 1,
+                                                    child: Text(
+                                                      'Name: ',
+                                                      style: textStyle3,
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Text(
+                                                      snapshot.data.mockupName
+                                                          .toUpperCase(),
+                                                      style: textStyle5,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  const Expanded(
+                                                    flex: 1,
+                                                    child: Text(
+                                                      'Details: ',
+                                                      style: textStyle3,
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: snapshot
+                                                                .data
+                                                                .mockupDetails
+                                                                .length >
+                                                            60
+                                                        ? Text(
+                                                            '${snapshot.data.mockupDetails.toString().characters.take(60)}...',
+                                                            style: textStyle5,
+                                                          )
+                                                        : Text(snapshot.data
+                                                            .mockupDetails),
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  const Expanded(
+                                                    flex: 1,
+                                                    child: Text(
+                                                      'Assigned Workers: ',
+                                                      style: textStyle3,
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Text(
+                                                      '${snapshot.data.assignedWorkers.length} workers',
+                                                      style: textStyle5,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ));
+                              }
+                            } else {
+                              return SizedBox(
+                                width: _size.width,
+                                height: (_size.height / 3) - 100,
+                                child: const Center(
+                                  child: Text(
+                                    'No Assigned Mockups',
+                                    style: textStyle4,
+                                  ),
+                                ),
+                              );
+                            }
+                          }),
+
+                      const Divider(
+                        height: 15,
+                        thickness: 3,
+                      ),
+                      //Timer for when work starts
+                      Padding(
+                        padding: const EdgeInsets.only(top: 20, left: 15),
+                        child: Container(
+                          height: _size.height / 6,
+                          decoration: BoxDecoration(
+                              border: Border.all(),
+                              borderRadius: BorderRadius.circular(20)),
+                          child: Center(
+                            child: TimerBuilder.periodic(
+                                const Duration(seconds: 1), builder: (context) {
+                              return Text(
+                                getSystemTime(),
+                                style: timerTextStyle,
+                              );
+                            }),
+                          ),
+                        ),
+                      ),
+
+                      //Messages from Admin
+                      Padding(
+                        padding: const EdgeInsets.only(top: 20, left: 15),
+                        child: Column(children: [
+                          const Text(
+                            'Please note this section is dedicated for messages from your manager',
+                            style: textStyle6,
+                          ),
+                          const SizedBox(
+                            height: 15,
+                          ),
+                          messages.isEmpty
+                              ? SizedBox(
+                                  height: (_size.height / 2) - 50,
+                                  child: ListView.builder(
+                                      itemCount: messages.length,
+                                      itemBuilder: (context, index) {
+                                        return const ListTile(
+                                          title: Text('Message Title'),
+                                          subtitle: Text('Message Details'),
+                                        );
+                                      }),
+                                )
+                              : const Center(
+                                  child: Text(
+                                    'Currently you have no message',
+                                    style: textStyle3,
+                                  ),
+                                )
+                        ]),
+                      )
                     ],
                   ),
-                ),
-              ));
+                )
+              : Padding(
+                  padding: const EdgeInsets.only(left: 25, right: 25, top: 150),
+                  child: SizedBox(
+                    height: _size.height,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      // crossAxisAlignment: CrossAxisAlignment.center,
+                      children: const [
+                        Text(
+                          'Thank you for creating an account',
+                          style: textStyle1,
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(
+                          height: 40,
+                        ),
+                        Text(
+                          'Your account is still under approval, you should be notified once it has been approved.',
+                          style: textStyle4,
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                )),
+    );
   }
 
   //For supervisors
@@ -1629,7 +1566,8 @@ class _HomeScreenState extends State<HomeScreen> {
   //will get the permission to access the location
   Future<void> _getLocationPermission() async {
     try {
-      if (await ph.Permission.location.serviceStatus.isEnabled) {
+      if (await ph.Permission.location.serviceStatus != null &&
+          await ph.Permission.location.serviceStatus.isEnabled) {
         permissionStatus =
             await ph.Permission.location.status.onError((error, stackTrace) {
           return error;
@@ -1660,6 +1598,10 @@ class _HomeScreenState extends State<HomeScreen> {
           _snackBarWidget.content = 'Location Permission: $permissionStatus';
           _snackBarWidget.showSnack();
         }
+      } else {
+        //requestUserAccessPermission();
+
+        _requestMotionPermission();
       }
     } catch (e) {
       Sentry.captureException(e);
@@ -1716,7 +1658,14 @@ class _HomeScreenState extends State<HomeScreen> {
           ph.openAppSettings();
         }
       } else {
-        await ph.Permission.sensors.request();
+        await ph.Permission.sensors
+            .request()
+            .onError((error, stackTrace) {
+              return error;
+            })
+            .then((value) => value)
+            .whenComplete(
+                () => print('Requesting sensor permission is complete'));
       }
     }
   }
@@ -1784,7 +1733,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 currentLocation: currentLocation,
                 distance: distance)
             .then((value) {
-          print('Location updated with Distance');
+          print('Location updated with Distance: $value');
         }).catchError((err) {
           if (err) {
             _snackBarWidget.content = 'Error getting location: $err';

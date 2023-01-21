@@ -218,7 +218,7 @@ class _ShowMapState extends State<ShowMap> {
 
   //create a circle to assign the mockup location on the map
   void _setMockupCirclesLocations() {
-    _circules.clear();
+    // _circules.clear();
     for (var mockup in mockupProvider) {
       _circules.add(Circle(
           consumeTapEvents: true,
