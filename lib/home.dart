@@ -108,6 +108,8 @@ class _HomeScreenState extends State<HomeScreen> {
           permissionActivity.isRestricted) {
         _requestMotionPermission();
       }
+      _getAssignedProjects = getUserAssignedProject();
+      _getAssignedMockup = getUserAssignedMockup();
     });
   }
 
@@ -116,6 +118,10 @@ class _HomeScreenState extends State<HomeScreen> {
     DateTime startingTime;
     DateTime leavingTime;
     var difference = 'Good Morning';
+    if (userProvider != null) {
+      difference =
+          'Good Morning,\n${userProvider.firstName} ${userProvider.lastName}';
+    }
     if (timeSheetProvider != null &&
         timeSheetProvider.containsKey(userProvider.uid)) {
       if (timeSheetProvider[userProvider.uid]['arriving_at'] != null &&
@@ -144,10 +150,6 @@ class _HomeScreenState extends State<HomeScreen> {
           timeSheetProvider[userProvider.uid]['leaving_at'] == null) {
         difference = 'Please contact admin: ERR002';
       }
-    }
-    if (userProvider != null) {
-      difference =
-          'Good Morning,\n${userProvider.firstName} ${userProvider.lastName}';
     }
 
     return difference;
@@ -727,6 +729,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                               .distanceToProject !=
                                                           null &&
                                                       userProvider
+                                                          .assignedProject
+                                                          .isNotEmpty &&
+                                                      userProvider
                                                               .distanceToProject <=
                                                           userProvider
                                                                   .assignedProject[
@@ -804,8 +809,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   Expanded(
                                                     flex: 2,
                                                     child: Text(
-                                                      userProvider.distanceToProject !=
+                                                      userProvider
+                                                                      .distanceToProject !=
                                                                   null &&
+                                                              userProvider
+                                                                  .assignedProject
+                                                                  .isNotEmpty &&
                                                               userProvider
                                                                       .distanceToProject <=
                                                                   userProvider
@@ -1121,6 +1130,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     color: userProvider
                                                                     .distanceToProject !=
                                                                 null &&
+                                                            userProvider
+                                                                .assignedProject
+                                                                .isNotEmpty &&
                                                             userProvider
                                                                     .distanceToProject <=
                                                                 snapshot

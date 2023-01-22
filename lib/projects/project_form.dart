@@ -1393,15 +1393,17 @@ class _ProjectFormState extends State<ProjectForm> {
     Map<String, dynamic> completedWork = {};
     geo.Position userLocation = await geo.Geolocator.getCurrentPosition(
         desiredAccuracy: geo.LocationAccuracy.high);
-
     if (userLocation != null) {
       var result = await _calculateDistance(
           LatLng(userLocation.latitude, userLocation.longitude));
+      print('the result here: $result');
       //we will check if user in at site and record it in the report collection
       if (result != null && data.hasData) {
         var timeSheetUpdated;
         //check if field is available
         var todayTimeSheet = data.data;
+
+        print('the today time sheet: $todayTimeSheet');
         //Code will execute for isNormalUser only when trying to check out
         if (!_isAtSite && widget.currentUser.roles.contains('isNormalUser')) {
           await Navigator.push(
@@ -1497,7 +1499,9 @@ class _ProjectFormState extends State<ProjectForm> {
         '${DateTime.now().day}-${DateTime.now().month}-${DateTime.now().year}';
 
     var result = await db.getCurrentTimeSheet(today: currentDate);
-    if (result['data'][widget.currentUser.uid] != null) {
+
+    if (result['data'] != null &&
+        result['data'][widget.currentUser.uid] != null) {
       if (result['data'][widget.currentUser.uid]['isOnSite'] &&
           widget.selectedProject.uid ==
               result['data'][widget.currentUser.uid]['projectId']) {
