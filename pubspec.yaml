@@ -4,7 +4,7 @@ description: An app that would track the live location of workers.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 
-version: 2.0.0
+version: 3.0.0
 
 environment:
   sdk: ">=2.7.0<3.0.0"
@@ -19,6 +19,7 @@ dependencies:
   cloud_firestore: 3.5.0
   cloud_functions: 3.3.1
   firebase_messaging: 13.0.4
+  firebase_database: 9.1.6
   google_maps_flutter: ^2.2.1
   device_info_plus: ^4.0.0
   sentry_flutter: ^6.18.1

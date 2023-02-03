@@ -1315,7 +1315,7 @@ class _MockupFormState extends State<MockupForm> {
                   isAtSite: _isAtSite,
                   currentUser: widget.currentUser,
                   timeSheetId: '${result.day}-${result.month}-${result.year}',
-                  // selectedProject: widget.selectedMockUp,
+                  selectedMockup: widget.selectedMockUp,
                   checkIn: todayTimeSheet['data'][widget.currentUser.uid]
                       ['arriving_at'],
                   checkOut: result.toString()),

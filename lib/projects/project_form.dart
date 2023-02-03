@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:email_validator/email_validator.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
@@ -103,12 +104,28 @@ class _ProjectFormState extends State<ProjectForm> {
           break;
       }
     }
+    offlineTimeSheetData();
   }
 
   @override
   void dispose() {
     super.dispose();
     _phoneController.dispose();
+  }
+
+  //keep time sheet data even when offline
+  void offlineTimeSheetData() async {
+    final connectedRef = FirebaseDatabase.instance.ref('.info/connected');
+    connectedRef.onValue.listen((event) async {
+      print('the event of Database: ${event.snapshot.value}');
+      final connected = event.snapshot.value as bool ?? false;
+
+      if (connected) {
+        print('Database connected');
+      } else {
+        print('Database disconnected');
+      }
+    });
   }
 
   @override
@@ -583,101 +600,132 @@ class _ProjectFormState extends State<ProjectForm> {
                             future: checkCurrentUserStatus(),
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
-                                if (snapshot.data['data'] != null) {
-                                  if (snapshot.data['data']
-                                          [widget.currentUser.uid] !=
-                                      null) {
-                                    _isAtSite = snapshot.data['data']
-                                        [widget.currentUser.uid]['isOnSite'];
+                                if (snapshot.connectionState ==
+                                    ConnectionState.done) {
+                                  if (snapshot.data['data'] != null) {
+                                    if (snapshot.data['data']
+                                            [widget.currentUser.uid] !=
+                                        null) {
+                                      _isAtSite = snapshot.data['data']
+                                          [widget.currentUser.uid]['isOnSite'];
+                                    }
                                   }
-                                }
-                              }
 
-                              return !_alreadyCheckedIn
-                                  ? Stack(
-                                      children: [
-                                        Center(
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(12),
-                                            child: SizedBox(
-                                              height: _size.width / 2,
-                                              width: _size.width / 2,
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: Colors.black
-                                                            .withOpacity(0.3),
-                                                        spreadRadius: 6,
-                                                        blurRadius: 10,
-                                                        offset:
-                                                            const Offset(0, 3),
-                                                      )
-                                                    ]),
-                                                child: ElevatedButton(
-                                                    style: ElevatedButton.styleFrom(
-                                                        elevation: 3,
-                                                        backgroundColor:
-                                                            !_isAtSite
-                                                                ? Colors
-                                                                    .green[400]
-                                                                : Colors
-                                                                    .red[600],
-                                                        shape:
-                                                            const CircleBorder()),
-                                                    onPressed:
-                                                        !_checkInOutLoading
-                                                            ? () async {
-                                                                setState(() {
-                                                                  _checkInOutLoading =
-                                                                      true;
-                                                                });
-
-                                                                await checkInOut(
-                                                                    snapshot);
-                                                                setState(() {
-                                                                  _checkInOutLoading =
-                                                                      false;
-                                                                });
-                                                                Navigator.pop(
-                                                                    context);
-                                                              }
-                                                            : null,
-                                                    child: !_isAtSite
-                                                        ? const Text(
-                                                            'Check In',
-                                                            style: textStyle2,
+                                  return !_alreadyCheckedIn
+                                      ? Stack(
+                                          children: [
+                                            Center(
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(12),
+                                                child: SizedBox(
+                                                  height: _size.width / 2,
+                                                  width: _size.width / 2,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            color: Colors.black
+                                                                .withOpacity(
+                                                                    0.3),
+                                                            spreadRadius: 6,
+                                                            blurRadius: 10,
+                                                            offset:
+                                                                const Offset(
+                                                                    0, 3),
                                                           )
-                                                        : const Text(
-                                                            'Check Out',
-                                                            style: textStyle2,
-                                                          )),
+                                                        ]),
+                                                    child: ElevatedButton(
+                                                        style: ElevatedButton.styleFrom(
+                                                            elevation: 3,
+                                                            backgroundColor:
+                                                                !_isAtSite
+                                                                    ? Colors.green[
+                                                                        400]
+                                                                    : Colors.red[
+                                                                        600],
+                                                            shape:
+                                                                const CircleBorder()),
+                                                        onPressed:
+                                                            !_checkInOutLoading
+                                                                ? () async {
+                                                                    setState(
+                                                                        () {
+                                                                      _checkInOutLoading =
+                                                                          true;
+                                                                    });
+
+                                                                    await checkInOut(
+                                                                        snapshot);
+                                                                    setState(
+                                                                        () {
+                                                                      _checkInOutLoading =
+                                                                          false;
+                                                                    });
+                                                                    Navigator.pop(
+                                                                        context);
+                                                                  }
+                                                                : null,
+                                                        child: !_isAtSite
+                                                            ? const Text(
+                                                                'Check In',
+                                                                style:
+                                                                    textStyle2,
+                                                              )
+                                                            : const Text(
+                                                                'Check Out',
+                                                                style:
+                                                                    textStyle2,
+                                                              )),
+                                                  ),
+                                                ),
                                               ),
                                             ),
+                                            _checkInOutLoading
+                                                ? Center(
+                                                    child: SizedBox(
+                                                        height: _size.width / 2,
+                                                        width: _size.width / 2,
+                                                        child: const Loading()),
+                                                  )
+                                                : const SizedBox.shrink()
+                                          ],
+                                        )
+                                      : Padding(
+                                          padding: const EdgeInsets.all(12.0),
+                                          child: Center(
+                                            child: Text(
+                                              'You are still checked in at ${snapshot.data['data'][widget.currentUser.uid]['projectName']}, please checkout from there before proceeding here.',
+                                              style: textStyle15,
+                                              textAlign: TextAlign.center,
+                                              softWrap: true,
+                                            ),
                                           ),
-                                        ),
-                                        _checkInOutLoading
-                                            ? Center(
-                                                child: SizedBox(
-                                                    height: _size.width / 2,
-                                                    width: _size.width / 2,
-                                                    child: const Loading()),
-                                              )
-                                            : const SizedBox.shrink()
-                                      ],
-                                    )
-                                  : Padding(
-                                      padding: const EdgeInsets.all(12.0),
-                                      child: Center(
-                                        child: Text(
-                                          'You are still checked in at ${snapshot.data['data'][widget.currentUser.uid]['projectName']}, please checkout from there before proceeding here.',
-                                          style: textStyle15,
-                                          textAlign: TextAlign.center,
-                                          softWrap: true,
-                                        ),
-                                      ),
-                                    );
+                                        );
+                                } else if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  //we are waiting to load here
+                                  return const Center(
+                                    child: Loading(),
+                                  );
+                                } else if (snapshot.connectionState ==
+                                    ConnectionState.none) {
+                                  return const Center(
+                                    child: Text(
+                                        'No internet connection was detected'),
+                                  );
+                                } else {
+                                  return Center(
+                                    child: Text(
+                                        'Un defined error: please contact admin: $snapshot'),
+                                  );
+                                }
+                              } else {
+                                return const Center(
+                                  child: Text('Waiting for data'),
+                                );
+                              }
                             })
                         : const SizedBox.shrink(),
 
@@ -1396,14 +1444,12 @@ class _ProjectFormState extends State<ProjectForm> {
     if (userLocation != null) {
       var result = await _calculateDistance(
           LatLng(userLocation.latitude, userLocation.longitude));
-      print('the result here: $result');
       //we will check if user in at site and record it in the report collection
+      print('the result: $result the data: $data');
       if (result != null && data.hasData) {
         var timeSheetUpdated;
         //check if field is available
         var todayTimeSheet = data.data;
-
-        print('the today time sheet: $todayTimeSheet');
         //Code will execute for isNormalUser only when trying to check out
         if (!_isAtSite && widget.currentUser.roles.contains('isNormalUser')) {
           await Navigator.push(
@@ -1499,7 +1545,6 @@ class _ProjectFormState extends State<ProjectForm> {
         '${DateTime.now().day}-${DateTime.now().month}-${DateTime.now().year}';
 
     var result = await db.getCurrentTimeSheet(today: currentDate);
-
     if (result['data'] != null &&
         result['data'][widget.currentUser.uid] != null) {
       if (result['data'][widget.currentUser.uid]['isOnSite'] &&

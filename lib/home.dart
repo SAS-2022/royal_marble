@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:background_geolocation_firebase/background_geolocation_firebase.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart' as geo;
@@ -80,11 +81,13 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _loadingPermission = false;
   ph.PermissionStatus permissionActivity;
   ph.PermissionStatus permissionStatus;
+  var timeSheetData;
 
   @override
   void initState() {
     super.initState();
     _snackBarWidget.context = context;
+
     _enabled = true;
     _persistEnabled = true;
     _content = '';
@@ -1611,8 +1614,6 @@ class _HomeScreenState extends State<HomeScreen> {
           _snackBarWidget.showSnack();
         }
       } else {
-        //requestUserAccessPermission();
-
         _requestMotionPermission();
       }
     } catch (e) {

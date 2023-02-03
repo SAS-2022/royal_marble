@@ -1276,6 +1276,9 @@ class DatabaseService {
     double squareMeters,
   }) async {
     try {
+      print(
+          'the current User: ${currentUser.uid} - $selectedProject - $selectedMockup');
+
       return await timeSheetCollection.doc(today).update({
         currentUser.uid: {
           'firstName': currentUser.firstName,

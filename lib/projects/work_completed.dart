@@ -12,6 +12,7 @@ class WorkCompleted extends StatefulWidget {
       this.currentUser,
       this.timeSheetId,
       this.selectedProject,
+      this.selectedMockup,
       this.checkIn,
       this.checkOut,
       this.isAtSite})
@@ -19,6 +20,7 @@ class WorkCompleted extends StatefulWidget {
   final UserData currentUser;
   final String timeSheetId;
   final ProjectData selectedProject;
+  final MockupData selectedMockup;
   final String checkIn;
   final String checkOut;
   final bool isAtSite;
@@ -281,12 +283,12 @@ class _WorkCompletedState extends State<WorkCompleted> {
                       var result;
                       if (_formKey.currentState.validate()) {
                         //save the work achieved to the worker's timesheet
-
                         result = await db.updateWorkerTimeSheet(
                             isAtSite: widget.isAtSite,
                             currentUser: widget.currentUser,
                             userRole: widget.currentUser.roles.first,
                             selectedProject: widget.selectedProject,
+                            selectedMockup: widget.selectedMockup,
                             today: widget.timeSheetId,
                             checkOut: widget.checkOut,
                             checkIn: widget.checkIn,
