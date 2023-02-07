@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:background_geolocation_firebase/background_geolocation_firebase.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -82,6 +83,9 @@ class _HomeScreenState extends State<HomeScreen> {
   ph.PermissionStatus permissionActivity;
   ph.PermissionStatus permissionStatus;
   var timeSheetData;
+  final Connectivity _connectivity = Connectivity();
+  StreamSubscription<ConnectivityResult> _connectivitySubsciption;
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
 
   @override
   void initState() {
@@ -114,6 +118,16 @@ class _HomeScreenState extends State<HomeScreen> {
       _getAssignedProjects = getUserAssignedProject();
       _getAssignedMockup = getUserAssignedMockup();
     });
+    //Initiate connectivity
+    initConnectivity();
+    _connectivitySubsciption =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+  }
+
+  @override
+  dispose() {
+    super.dispose();
+    _connectivitySubsciption.cancel();
   }
 
   String getSystemTime() {
@@ -156,6 +170,82 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return difference;
+  }
+
+  //Will check user connectivity to the internet
+  Future<void> initConnectivity() async {
+    ConnectivityResult result;
+    try {
+      result = await _connectivity.checkConnectivity();
+    } catch (e, stackTrace) {
+      await Sentry.captureException(e, stackTrace: stackTrace);
+      return;
+    }
+    //if result was removed from the tree while their is no connection we want
+    //to discard the reply rather than calling setState
+    if (!mounted) {
+      return Future.value(null);
+    }
+    return _updateConnectionStatus(result);
+  }
+
+  //Moniture and list to connection status
+  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    setState(() {
+      _connectionStatus = result;
+      if (_connectionStatus == ConnectivityResult.none) {
+        showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (builder) {
+              return Dialog(
+                backgroundColor: const Color.fromARGB(255, 218, 223, 88),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25)),
+                child: SizedBox(
+                  height: _size.height / 5,
+                  child: Padding(
+                    padding: const EdgeInsets.all(15),
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Expanded(
+                            flex: 1,
+                            child: Text(
+                              'No Internet',
+                              style: textStyle10,
+                            ),
+                          ),
+                          const Expanded(
+                            flex: 2,
+                            child: Text(
+                              'Please check your connection in order to proceed',
+                              textAlign: TextAlign.center,
+                              style: textStyle5,
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: TextButton(
+                              onPressed: () async {
+                                _connectionStatus != ConnectivityResult.none
+                                    ? Navigator.pop(context)
+                                    : null;
+                              },
+                              child: const Text(
+                                'Retry',
+                                style: textStyle3,
+                              ),
+                            ),
+                          )
+                        ]),
+                  ),
+                ),
+              );
+            });
+      }
+    });
   }
 
   //platform massages are asynchrones so we initialize in an async method
@@ -1729,9 +1819,10 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     if (position != null) {
       currentLocation = LatLng(position.latitude, position.longitude);
-
       //check if user is assgined to a project
-      if (userProvider.assignedProject != null && currentLocation != null) {
+      if (userProvider.assignedProject != null &&
+          userProvider.assignedProject.isNotEmpty &&
+          currentLocation != null) {
         distance = (CalculateDistance().distanceBetweenTwoPoints(
                     currentLocation.latitude,
                     currentLocation.longitude,

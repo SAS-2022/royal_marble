@@ -63,13 +63,10 @@ class _MockupFormState extends State<MockupForm> {
   TextEditingController _phoneController = TextEditingController();
   Color _statusColor;
   bool _alreadyCheckedIn = false;
-  DatabaseReference connectedRef =
-      FirebaseDatabase.instance.ref('testing/DB0HsvrqMHm1u1yVDggs/Connected');
 
   @override
   void initState() {
     super.initState();
-
     _snackBarWidget.context = context;
     if (!widget.isNewMockup) {
       newMockup = widget.selectedMockUp;
@@ -106,7 +103,6 @@ class _MockupFormState extends State<MockupForm> {
           break;
       }
     }
-    offlineTimeSheetData();
   }
 
   @override
@@ -116,13 +112,6 @@ class _MockupFormState extends State<MockupForm> {
   }
 
   //keep time sheet data even when offline
-  void offlineTimeSheetData() async {
-    print('we are here: ${connectedRef.limitToFirst(1).onValue}');
-    connectedRef.limitToFirst(1).onValue.listen((DatabaseEvent event) {
-      final data = event.snapshot.value;
-      print('the data obtained: $data');
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -931,23 +920,6 @@ class _MockupFormState extends State<MockupForm> {
                                 )),
                           )
                         : const SizedBox.shrink(),
-
-                    StreamBuilder(
-                        stream: connectedRef.onValue,
-                        builder: (context, AsyncSnapshot<dynamic> snapshot) {
-                          print(
-                              'the connection ref: ${snapshot.data} - ${snapshot.error} - ${snapshot.connectionState}');
-                          if (snapshot.hasData) {
-                            print('Connection is live');
-                            return const Text('Connected');
-                          } else if (snapshot.hasError) {
-                            print('Connection is lost');
-                            return const Text('Disconnected');
-                          } else {
-                            print('Unknown result');
-                            return const Text('Unknown');
-                          }
-                        }),
                   ],
                 ),
               ),
