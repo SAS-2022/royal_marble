@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:royal_marble/shared/loading.dart';
+import 'package:royal_marble/models/user_model.dart';
+import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/shared/save_launch_file.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart' hide Column;
 
 class CreateExcelFile extends StatefulWidget {
-  const CreateExcelFile({Key key, this.generatedDate}) : super(key: key);
+  const CreateExcelFile(
+      {Key key,
+      this.generatedDate,
+      this.reportSection,
+      this.selectedUsers,
+      this.mappedData})
+      : super(key: key);
   final List<dynamic> generatedDate;
+  final Map<dynamic, dynamic> mappedData;
+  final String reportSection;
+  final List<UserData> selectedUsers;
 
   @override
   State<CreateExcelFile> createState() => _CreateExcelFileState();
@@ -13,6 +23,8 @@ class CreateExcelFile extends StatefulWidget {
 
 class _CreateExcelFileState extends State<CreateExcelFile> {
   Size _size;
+  List<UserData> allUsers = [];
+  DatabaseService db = DatabaseService();
   @override
   Widget build(BuildContext context) {
     _size = MediaQuery.of(context).size;
@@ -23,6 +35,20 @@ class _CreateExcelFileState extends State<CreateExcelFile> {
       ),
       body: _buildExcelFileBody(),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    //get all users depending on the report section
+    _getAllUsers();
+  }
+
+  void _getAllUsers() async {
+    if (widget.reportSection != null) {
+      //get users depending on the section
+      allUsers = await db.getUsersPerRole(userRole: widget.reportSection);
+    }
   }
 
   Widget _buildExcelFileBody() {
@@ -66,6 +92,7 @@ class _CreateExcelFileState extends State<CreateExcelFile> {
   }
 
   Future<void> generateExcel() async {
+    var startingDate;
     //create workbook
     final Workbook workbook = Workbook();
     //accessing the workbook with the index
@@ -103,6 +130,11 @@ class _CreateExcelFileState extends State<CreateExcelFile> {
 
     range2.cellStyle.fontSize = 14;
     range2.cellStyle.bold = true;
+    if (widget.generatedDate[0]['arrivedAt'] != null) {
+      startingDate = DateTime.parse(widget.generatedDate[0]['arrivedAt'])
+          .toString()
+          .split(' ')[0];
+    }
 
     //loop over generated list in order to add the data
     for (var i = 0; i < widget.generatedDate.length; i++) {
@@ -112,6 +144,7 @@ class _CreateExcelFileState extends State<CreateExcelFile> {
       var arrived = widget.generatedDate[i]['arrivedAt'] != null
           ? DateTime.parse(widget.generatedDate[i]['arrivedAt'])
           : null;
+
       var left = widget.generatedDate[i]['leftAt'] != null
           ? DateTime.parse(widget.generatedDate[i]['leftAt'])
           : null;
@@ -121,26 +154,39 @@ class _CreateExcelFileState extends State<CreateExcelFile> {
         totalMin = diff.inMinutes % 60;
       }
 
-      sheet.getRangeByIndex(3 + i + 1, 1).setText(
+      sheet.getRangeByIndex(i + 4, 1).setText(
           '${widget.generatedDate[i]['firstName']} ${widget.generatedDate[i]['lastName']}');
+
       sheet
-          .getRangeByIndex(3 + i + 1, 2)
+          .getRangeByIndex(i + 4, 2)
           .setText('${widget.generatedDate[i]['arrivedAt']}');
+
       sheet
-          .getRangeByIndex(3 + i + 1, 3)
+          .getRangeByIndex(i + 4, 3)
           .setText('${widget.generatedDate[i]['leftAt']}');
       sheet
-          .getRangeByIndex(3 + i + 1, 4)
+          .getRangeByIndex(i + 4, 4)
           .setText('${widget.generatedDate[i]['projectName']}');
-      sheet.getRangeByIndex(3 + i + 1, 5).setText('$totalHours:$totalMin');
+      sheet.getRangeByIndex(i + 4, 5).setText('$totalHours:$totalMin');
       sheet
-          .getRangeByIndex(3 + i + 1, 6)
+          .getRangeByIndex(i + 4, 6)
           .setText('${widget.generatedDate[i]['workType']}');
       sheet
-          .getRangeByIndex(3 + i + 1, 7)
+          .getRangeByIndex(i + 4, 7)
           .setText('${widget.generatedDate[i]['squareMeters']}');
+      if (arrived != null) {
+        if (startingDate != arrived.toString().split(' ')[0]) {
+          i++;
+          sheet.getRangeByIndex(i + 4, 1).setText('Date: $startingDate');
+          startingDate = arrived.toString().split(' ')[0];
+        }
+      }
     }
-
+    print('the map: ${widget.mappedData.length}');
+    widget.mappedData.forEach((key, value) {
+      print('the key: $key');
+      print('the value: $value');
+    });
     //Save the file
     final List<int> bytes = workbook.saveAsStream();
     //dispose workbook

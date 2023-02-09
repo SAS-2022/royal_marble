@@ -38,6 +38,8 @@ class _ReportDetailsState extends State<ReportDetails> {
   List<DateTime> dateRange = [];
   var singleUserMap = [];
   var generateddata = [];
+  List<UserData> requiredUsers = [];
+  var mapAllData = {};
   @override
   Widget build(BuildContext context) {
     _size = MediaQuery.of(context).size;
@@ -111,6 +113,10 @@ class _ReportDetailsState extends State<ReportDetails> {
                                             MaterialPageRoute(
                                               builder: (_) => CreateExcelFile(
                                                 generatedDate: generateddata,
+                                                mappedData: mapAllData,
+                                                reportSection:
+                                                    widget.reportSection,
+                                                selectedUsers: requiredUsers,
                                               ),
                                             ),
                                           );
@@ -122,26 +128,6 @@ class _ReportDetailsState extends State<ReportDetails> {
                         ),
                       );
                     });
-
-                var pageFormat = PdfPageFormat(_size.width, _size.height);
-                if (generateddata != null && generateddata.isNotEmpty) {
-                  // ExportExcel _export = ExportExcel();
-
-                  // _export.timeTable = generateddata;
-                  // var file = _export.createExcelTables();
-
-                  // if (file != null) {
-                  //   await Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //       builder: (_) => FileViewer(
-                  //         file: file,
-                  //       ),
-                  //     ),
-                  //   );
-                  // }
-
-                }
               },
               child: const Text(
                 'Export',
@@ -165,6 +151,17 @@ class _ReportDetailsState extends State<ReportDetails> {
           (i) => DateTime(widget.fromDate.year, widget.fromDate.month,
               widget.fromDate.day + (i)));
     }
+
+    //select the users depending on the role required
+    _selectRequiredUsers();
+  }
+
+  void _selectRequiredUsers() {
+    for (var user in widget.bulkUsers) {
+      if (user.roles.contains(widget.reportSection)) {
+        requiredUsers.add(user);
+      }
+    }
   }
 
   //build worker report details
@@ -180,7 +177,6 @@ class _ReportDetailsState extends State<ReportDetails> {
           height: _size.height - 10,
           child: widget.fromDate != null && widget.toDate != null
               ? ListView.builder(
-                  //physics: const NeverScrollableScrollPhysics(),
                   itemCount: dateRange.length,
                   itemBuilder: ((context, index) {
                     String dateName =
@@ -220,8 +216,14 @@ class _ReportDetailsState extends State<ReportDetails> {
                                 });
 
                                 generateddata.addAll(singleUserMap);
-                                generateddata.sort((v1, v2) =>
-                                    v1['arrivedAt'].compareTo(v2['arrivedAt']));
+                                generateddata.sort(
+                                  (v1, v2) => v1['arrivedAt'].compareTo(
+                                    v2['arrivedAt'],
+                                  ),
+                                );
+
+                                //after sorting arrange data with dates as the main key
+                                _organizeDataWithDates();
 
                                 return Container(
                                   width: _size.width,
@@ -385,6 +387,25 @@ class _ReportDetailsState extends State<ReportDetails> {
         ),
       ),
     );
+  }
+
+  void _organizeDataWithDates() {
+    var currentDate;
+    var dateBasedData = [];
+
+    for (var data in generateddata) {
+      currentDate ??= data['arrivedAt'].toString().split(' ')[0];
+
+      if (data['arrivedAt'].toString().split(' ')[0] != currentDate) {
+        currentDate = data['arrivedAt'].toString().split(' ')[0];
+        dateBasedData.clear();
+      }
+      dateBasedData.add(data);
+      print('date based data: $dateBasedData - $currentDate');
+      mapAllData[currentDate] = dateBasedData;
+      print('map all data: ${mapAllData[currentDate]}');
+    }
+    debugPrint('All Data: $mapAllData');
   }
 
   //build sales report details

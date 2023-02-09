@@ -125,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
-  dispose() {
+  void dispose() {
     super.dispose();
     _connectivitySubsciption.cancel();
   }

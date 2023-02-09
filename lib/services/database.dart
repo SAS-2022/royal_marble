@@ -237,6 +237,28 @@ class DatabaseService {
         .map(_allUserLocationDataFromSnapshot);
   }
 
+  //Get users depending on their role
+  Future<List<UserData>> getUsersPerRole({String userRole}) async {
+    try {
+      return userCollection
+          .where('roles', arrayContains: userRole)
+          .get()
+          .then((value) {
+        return value.docs.map((e) {
+          var data = e.data() as Map<String, dynamic>;
+          return UserData(
+            uid: e.id,
+            firstName: data['firstName'],
+            lastName: data['lastName'],
+          );
+        }).toList();
+      });
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return [];
+    }
+  }
+
   //Future for getting all masons
   Future<List<UserData>> getAllMasonsFuture() async {
     try {
