@@ -15,7 +15,18 @@ class UserList extends StatefulWidget {
 class _UserListState extends State<UserList> {
   List<UserData> listOfUsers = [];
   List<UserData> nonActiveUser = [];
+  double listOfUsersHeight = 100.00;
+  final _searchController = TextEditingController();
+  List<UserData> _searchResult = [];
+  bool _emptySearchResults = false;
   Size size;
+
+  @override
+  void initState() {
+    super.initState();
+    _onSearchTextChnaged('');
+  }
+
   @override
   Widget build(BuildContext context) {
     listOfUsers = Provider.of<List<UserData>>(context)
@@ -35,6 +46,16 @@ class _UserListState extends State<UserList> {
   }
 
   Widget _buildUserList() {
+    if (listOfUsers.isNotEmpty && nonActiveUser.isNotEmpty) {
+      listOfUsersHeight = (size.height / 2) - 10;
+    } else if (listOfUsers.isNotEmpty && nonActiveUser.isEmpty) {
+      listOfUsersHeight = size.height - 20;
+    } else if (listOfUsers.isEmpty && nonActiveUser.isNotEmpty) {
+      listOfUsersHeight = size.height / 4;
+    } else {
+      listOfUsersHeight = size.height;
+    }
+
     return SingleChildScrollView(
         child: listOfUsers.isEmpty
             ? const Padding(
@@ -45,93 +66,131 @@ class _UserListState extends State<UserList> {
               )
             : Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 15, vertical: 20),
-                    child: Text(
-                      'Non-active users at Royal Marble. Total: ${nonActiveUser.length}',
-                      style: textStyle6,
-                    ),
-                  ),
                   Column(
                     children: [
-                      SizedBox(
-                        height: nonActiveUser.isNotEmpty
-                            ? (size.height / 3) - 10
-                            : size.height / 6,
-                        child: nonActiveUser.isNotEmpty
-                            ? ListView.builder(
-                                itemCount: nonActiveUser.length,
-                                itemBuilder: (context, index) {
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 15, vertical: 20),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          border: Border.all(),
-                                          borderRadius:
-                                              BorderRadius.circular(25)),
-                                      child: GestureDetector(
-                                        onTap: () async {
-                                          await Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (_) => UserDetails(
-                                                currentUser: widget.currentUser,
-                                                myAccount: false,
-                                                selectedUser:
-                                                    nonActiveUser[index],
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        child: ListTile(
-                                          leading: nonActiveUser[index]
-                                                      .imageUrl ==
-                                                  null
-                                              ? const CircleAvatar(
-                                                  radius: 30,
-                                                  child: Icon(
-                                                    Icons.person,
-                                                    size: 50,
+                      nonActiveUser.isNotEmpty
+                          ? Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 15, vertical: 20),
+                                  child: Text(
+                                    'Non-active users at Royal Marble. Total: ${nonActiveUser.length}',
+                                    style: textStyle6,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: nonActiveUser.isNotEmpty
+                                      ? (size.height / 3) - 10
+                                      : size.height / 6,
+                                  child: nonActiveUser.isNotEmpty
+                                      ? ListView.builder(
+                                          itemCount: nonActiveUser.length,
+                                          itemBuilder: (context, index) {
+                                            return Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 15,
+                                                      vertical: 20),
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                    border: Border.all(),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            25)),
+                                                child: GestureDetector(
+                                                  onTap: () async {
+                                                    await Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (_) =>
+                                                            UserDetails(
+                                                          currentUser: widget
+                                                              .currentUser,
+                                                          myAccount: false,
+                                                          selectedUser:
+                                                              nonActiveUser[
+                                                                  index],
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                  child: ListTile(
+                                                    leading: nonActiveUser[
+                                                                    index]
+                                                                .imageUrl ==
+                                                            null
+                                                        ? const CircleAvatar(
+                                                            radius: 30,
+                                                            child: Icon(
+                                                              Icons.person,
+                                                              size: 50,
+                                                            ),
+                                                          )
+                                                        : CircleAvatar(
+                                                            radius: 30,
+                                                            backgroundImage:
+                                                                NetworkImage(
+                                                              nonActiveUser[
+                                                                      index]
+                                                                  .imageUrl,
+                                                              scale: 2,
+                                                            )),
+                                                    title: Text(
+                                                        '${nonActiveUser[index].firstName} ${nonActiveUser[index].lastName}'),
+                                                    subtitle: SizedBox(
+                                                        height: 60,
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Text(
+                                                                'Email Address: ${nonActiveUser[index].emailAddress}'),
+                                                            Text(
+                                                                'Phone Number: ${nonActiveUser[index].phoneNumber}')
+                                                          ],
+                                                        )),
                                                   ),
-                                                )
-                                              : CircleAvatar(
-                                                  radius: 30,
-                                                  backgroundImage: NetworkImage(
-                                                    nonActiveUser[index]
-                                                        .imageUrl,
-                                                    scale: 2,
-                                                  )),
-                                          title: Text(
-                                              '${nonActiveUser[index].firstName} ${nonActiveUser[index].lastName}'),
-                                          subtitle: SizedBox(
-                                              height: 60,
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                      'Email Address: ${nonActiveUser[index].emailAddress}'),
-                                                  Text(
-                                                      'Phone Number: ${nonActiveUser[index].phoneNumber}')
-                                                ],
-                                              )),
+                                                ),
+                                              ),
+                                            );
+                                          })
+                                      : const Center(
+                                          child: Text(
+                                              'There are no non-active users'),
                                         ),
-                                      ),
-                                    ),
-                                  );
-                                })
-                            : const Center(
-                                child: Text('There are no non-active users'),
-                              ),
-                      ),
+                                ),
+                              ],
+                            )
+                          : const SizedBox.shrink(),
                       const Divider(
                         height: 10,
                         thickness: 3,
                       ),
                       Column(
                         children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 5, horizontal: 15),
+                            child: TextField(
+                              autofocus: false,
+                              controller: _searchController,
+                              decoration: InputDecoration(
+                                hintText: 'Search',
+                                filled: true,
+                                fillColor: Colors.grey[100],
+                                prefixIcon: const Icon(Icons.search),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                  borderSide: const BorderSide(width: 1.0),
+                                ),
+                              ),
+                              onChanged: (val) {
+                                _onSearchTextChnaged(val.toString());
+                              },
+                            ),
+                          ),
                           Padding(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 15, vertical: 20),
@@ -141,13 +200,12 @@ class _UserListState extends State<UserList> {
                             ),
                           ),
                           SizedBox(
-                            height: listOfUsers.isNotEmpty
-                                ? (size.height / 2) - 10
-                                : size.height / 6,
-                            child: listOfUsers.isNotEmpty
+                            height: listOfUsersHeight,
+                            child: _searchResult != null &&
+                                    _searchResult.isNotEmpty
                                 ? ListView.builder(
                                     // shrinkWrap: true,
-                                    itemCount: listOfUsers.length,
+                                    itemCount: _searchResult.length,
                                     itemBuilder: (context, index) {
                                       return Padding(
                                         padding: const EdgeInsets.symmetric(
@@ -167,32 +225,32 @@ class _UserListState extends State<UserList> {
                                                         widget.currentUser,
                                                     myAccount: false,
                                                     selectedUser:
-                                                        listOfUsers[index],
+                                                        _searchResult[index],
                                                   ),
                                                 ),
                                               );
                                             },
                                             child: ListTile(
-                                              leading:
-                                                  listOfUsers[index].imageUrl ==
-                                                          null
-                                                      ? const CircleAvatar(
-                                                          radius: 30,
-                                                          child: Icon(
-                                                            Icons.person,
-                                                            size: 50,
-                                                          ),
-                                                        )
-                                                      : CircleAvatar(
-                                                          radius: 30,
-                                                          backgroundImage:
-                                                              NetworkImage(
-                                                            listOfUsers[index]
-                                                                .imageUrl,
-                                                            scale: 2,
-                                                          )),
+                                              leading: _searchResult[index]
+                                                          .imageUrl ==
+                                                      null
+                                                  ? const CircleAvatar(
+                                                      radius: 30,
+                                                      child: Icon(
+                                                        Icons.person,
+                                                        size: 50,
+                                                      ),
+                                                    )
+                                                  : CircleAvatar(
+                                                      radius: 30,
+                                                      backgroundImage:
+                                                          NetworkImage(
+                                                        _searchResult[index]
+                                                            .imageUrl,
+                                                        scale: 2,
+                                                      )),
                                               title: Text(
-                                                  '${listOfUsers[index].firstName} ${listOfUsers[index].lastName}'),
+                                                  '${_searchResult[index].firstName} ${_searchResult[index].lastName}'),
                                               subtitle: SizedBox(
                                                   height: 60,
                                                   child: Column(
@@ -201,9 +259,9 @@ class _UserListState extends State<UserList> {
                                                             .start,
                                                     children: [
                                                       Text(
-                                                          'Email Address: ${listOfUsers[index].emailAddress}'),
+                                                          'Email Address: ${_searchResult[index].emailAddress}'),
                                                       Text(
-                                                          'Phone Number: ${listOfUsers[index].phoneNumber}')
+                                                          'Phone Number: ${_searchResult[index].phoneNumber}')
                                                     ],
                                                   )),
                                             ),
@@ -221,5 +279,34 @@ class _UserListState extends State<UserList> {
                   ),
                 ],
               ));
+  }
+
+  //will show the User name relative the the typed data in the search field
+  void _onSearchTextChnaged(String text) {
+    var results = [];
+    // _searchResult.clear();
+    if (text.isEmpty) {
+      //waits for the stream provider to load
+      Future.delayed(const Duration(milliseconds: 750), () {
+        setState(() {
+          _searchResult = listOfUsers;
+        });
+      });
+      return;
+    }
+    results = listOfUsers
+        .where((user) => '${user.firstName} ${user.lastName}'
+            .toString()
+            .toLowerCase()
+            .contains(text.toLowerCase()))
+        .toList();
+    setState(() {
+      _searchResult = results;
+      if (_searchResult.isEmpty) {
+        _emptySearchResults = true;
+      } else {
+        _emptySearchResults = false;
+      }
+    });
   }
 }

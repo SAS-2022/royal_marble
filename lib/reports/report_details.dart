@@ -392,7 +392,7 @@ class _ReportDetailsState extends State<ReportDetails> {
   void _organizeDataWithDates() {
     var currentDate;
     var dateBasedData = [];
-
+    mapAllData.clear();
     for (var data in generateddata) {
       currentDate ??= data['arrivedAt'].toString().split(' ')[0];
 
@@ -401,9 +401,7 @@ class _ReportDetailsState extends State<ReportDetails> {
         dateBasedData.clear();
       }
       dateBasedData.add(data);
-      print('date based data: $dateBasedData - $currentDate');
-      mapAllData[currentDate] = dateBasedData;
-      print('map all data: ${mapAllData[currentDate]}');
+      mapAllData.addAll({currentDate: dateBasedData});
     }
     debugPrint('All Data: $mapAllData');
   }

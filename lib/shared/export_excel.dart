@@ -174,19 +174,12 @@ class _CreateExcelFileState extends State<CreateExcelFile> {
       sheet
           .getRangeByIndex(i + 4, 7)
           .setText('${widget.generatedDate[i]['squareMeters']}');
-      if (arrived != null) {
-        if (startingDate != arrived.toString().split(' ')[0]) {
-          i++;
-          sheet.getRangeByIndex(i + 4, 1).setText('Date: $startingDate');
-          startingDate = arrived.toString().split(' ')[0];
-        }
-      }
     }
-    print('the map: ${widget.mappedData.length}');
-    widget.mappedData.forEach((key, value) {
-      print('the key: $key');
-      print('the value: $value');
-    });
+    // print('the map: ${widget.mappedData.length}');
+    // widget.mappedData.forEach((key, value) {
+    //   print('the key: $key');
+    //   print('the value: $value');
+    // });
     //Save the file
     final List<int> bytes = workbook.saveAsStream();
     //dispose workbook

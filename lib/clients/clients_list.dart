@@ -58,10 +58,10 @@ class _ClientListState extends State<ClientList> {
               hintText: 'Search',
               filled: true,
               fillColor: Colors.grey[100],
-              prefixIcon: Icon(Icons.search),
+              prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(15.0),
-                borderSide: BorderSide(width: 1.0),
+                borderSide: const BorderSide(width: 1.0),
               ),
             ),
             onChanged: (val) {
