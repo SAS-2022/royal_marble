@@ -47,9 +47,9 @@ class _UserListState extends State<UserList> {
 
   Widget _buildUserList() {
     if (listOfUsers.isNotEmpty && nonActiveUser.isNotEmpty) {
-      listOfUsersHeight = (size.height / 2) - 10;
+      listOfUsersHeight = (size.height / 2) - 40;
     } else if (listOfUsers.isNotEmpty && nonActiveUser.isEmpty) {
-      listOfUsersHeight = size.height - 20;
+      listOfUsersHeight = size.height - 100;
     } else if (listOfUsers.isEmpty && nonActiveUser.isNotEmpty) {
       listOfUsersHeight = size.height / 4;
     } else {
@@ -209,7 +209,7 @@ class _UserListState extends State<UserList> {
                                     itemBuilder: (context, index) {
                                       return Padding(
                                         padding: const EdgeInsets.symmetric(
-                                            horizontal: 15, vertical: 20),
+                                            horizontal: 15, vertical: 10),
                                         child: Container(
                                           decoration: BoxDecoration(
                                               border: Border.all(),

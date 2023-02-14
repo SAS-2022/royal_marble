@@ -175,11 +175,7 @@ class _CreateExcelFileState extends State<CreateExcelFile> {
           .getRangeByIndex(i + 4, 7)
           .setText('${widget.generatedDate[i]['squareMeters']}');
     }
-    // print('the map: ${widget.mappedData.length}');
-    // widget.mappedData.forEach((key, value) {
-    //   print('the key: $key');
-    //   print('the value: $value');
-    // });
+
     //Save the file
     final List<int> bytes = workbook.saveAsStream();
     //dispose workbook

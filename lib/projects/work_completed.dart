@@ -296,7 +296,10 @@ class _WorkCompletedState extends State<WorkCompleted> {
                             squareMeters: squareMeteres);
 
                         _snackBarWidget.content = result;
-                        _snackBarWidget.showSnack();
+                        if (_snackBarWidget.context != null) {
+                          _snackBarWidget.showSnack();
+                        }
+
                         Navigator.pop(context);
                       } else {
                         _snackBarWidget.content = 'Values cannot be left empty';
