@@ -127,7 +127,7 @@ class _VisitListState extends State<VisitList> with TickerProviderStateMixin {
                                           style: textStyle5,
                                         ),
                                         Text(
-                                          'Visit Details: ${visitProviderClients[index].visitDetails}',
+                                          'Visit Details: ${visitProviderClients[index].visitDetails.substring(0, 50)}',
                                           style: textStyle5,
                                           softWrap: true,
                                         ),

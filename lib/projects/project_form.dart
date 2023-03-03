@@ -1399,12 +1399,26 @@ class _ProjectFormState extends State<ProjectForm> {
     try {
       CalculateDistance _calculate = CalculateDistance();
       var dt = DateTime.now();
+      double result;
       String dateFormat = DateFormat('hh:mm a').format(dt);
-      var result = _calculate.distanceBetweenTwoPoints(
-          myLocation.latitude,
-          myLocation.longitude,
-          widget.selectedProject.projectAddress['Lat'],
-          widget.selectedProject.projectAddress['Lng']);
+      if (widget.selectedProject.projectAddress['Lat'] != null &&
+          widget.selectedProject.projectAddress['Lng'] != null) {
+        result = _calculate.distanceBetweenTwoPoints(
+            myLocation.latitude,
+            myLocation.longitude,
+            widget.selectedProject.projectAddress['Lat'],
+            widget.selectedProject.projectAddress['Lng']);
+      } else {
+        _snackBarWidget.content =
+            'Could not obtain project location, please check your internet connection';
+        _snackBarWidget.showSnack();
+        Sentry.captureMessage(
+            '''User: ${widget.currentUser.firstName} ${widget.currentUser.lastName}\n
+          Project: ${widget.selectedProject.uid}\n
+          Address: ${widget.selectedProject.projectAddress}\n
+          User Location: ${widget.currentUser.currentLocation}''');
+      }
+
       //will check if the worker has arrived to the site
       if (result != null && result * 1000 <= widget.selectedProject.radius) {
         if (_isAtSite) {
@@ -1445,7 +1459,6 @@ class _ProjectFormState extends State<ProjectForm> {
       var result = await _calculateDistance(
           LatLng(userLocation.latitude, userLocation.longitude));
       //we will check if user in at site and record it in the report collection
-      print('the result: $result the data: $data');
       if (result != null && data.hasData) {
         var timeSheetUpdated;
         //check if field is available
@@ -1537,6 +1550,11 @@ class _ProjectFormState extends State<ProjectForm> {
       //the location could not be detected
       _snackBarWidget.content = 'Location could not be detected';
       _snackBarWidget.showSnack();
+      Sentry.captureMessage(
+          '''User: ${widget.currentUser.firstName} ${widget.currentUser.lastName}\n
+          Project: ${widget.selectedProject.uid}\n
+          Address: ${widget.selectedProject.projectAddress}\n
+          User Location: ${widget.currentUser.currentLocation}''');
     }
   }
 

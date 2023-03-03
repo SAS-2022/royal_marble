@@ -62,7 +62,7 @@ class _WrapperState extends State<Wrapper> {
           StreamProvider<List<UserData>>.value(
               value: db.getAllUsers(),
               initialData: [],
-              catchError: (context, err) => [UserData(error: err)]),
+              catchError: (context, err) => [UserData(error: err.toString())]),
           //a provider for the timesheet
           StreamProvider<Map<String, dynamic>>.value(
             value: db.getTimeSheetData(uid: today),

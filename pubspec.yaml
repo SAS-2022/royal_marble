@@ -21,7 +21,7 @@ dependencies:
   firebase_messaging: 13.0.4
   firebase_database: 9.1.6
   google_maps_flutter: ^2.2.1
-  device_info_plus: ^4.0.0
+  device_info_plus: 8.1.0
   sentry_flutter: ^6.18.1
   provider: ^5.0.0
   country_picker: ^2.0.10
@@ -59,6 +59,7 @@ dependencies:
   open_filex: ^4.3.2
   syncfusion_flutter_xlsio: ^20.4.42-beta
   connectivity_plus: ^3.0.2
+ 
 
 dev_dependencies:
   flutter_test:

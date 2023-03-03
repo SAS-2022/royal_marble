@@ -264,7 +264,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _locationJSON = encoder.convert(location.toMap());
         });
       }
-      getCurrentLocation();
+      Future.delayed(const Duration(seconds: 1), (() => getCurrentLocation()));
     });
 
     if (userId != null) {
@@ -1685,7 +1685,8 @@ class _HomeScreenState extends State<HomeScreen> {
           }
           _onClickEnable(_enabled);
           _requestMotionPermission();
-          getCurrentLocation();
+          Future.delayed(
+              const Duration(seconds: 2), (() => getCurrentLocation()));
         } else if (permissionStatus.isDenied ||
             permissionStatus.isRestricted ||
             permissionStatus.isPermanentlyDenied ||
@@ -1706,8 +1707,8 @@ class _HomeScreenState extends State<HomeScreen> {
       } else {
         _requestMotionPermission();
       }
-    } catch (e) {
-      Sentry.captureException(e);
+    } catch (e, stackTrace) {
+      Sentry.captureException(e, stackTrace: stackTrace);
     }
   }
 
@@ -1830,32 +1831,45 @@ class _HomeScreenState extends State<HomeScreen> {
                     userProvider.assignedProject['projectAddress']['Lng'])) *
                 1000 -
             userProvider.assignedProject['radius'];
-
-        db
-            .updateUserLiveLocation(
-                uid: userProvider.uid,
-                currentLocation: currentLocation,
-                distance: distance)
-            .then((value) {
-          print('Location updated with Distance: $value');
-        }).catchError((err) {
-          if (err) {
-            _snackBarWidget.content = 'Error getting location: $err';
-            _snackBarWidget.showSnack();
-          }
-        });
+        if (userProvider.uid != null) {
+          db
+              .updateUserLiveLocation(
+                  uid: userProvider.uid,
+                  currentLocation: currentLocation,
+                  distance: distance)
+              .then((value) {
+            print('Location updated with Distance: $value');
+          }).catchError((err) {
+            if (err) {
+              _snackBarWidget.content = 'Error getting location: $err';
+              _snackBarWidget.showSnack();
+            }
+          });
+        } else {
+          _snackBarWidget.context = context;
+          _snackBarWidget.content =
+              'Please refresh the app, or connect to the internet!';
+          _snackBarWidget.showSnack();
+        }
       } else {
-        db
-            .updateUserLiveLocation(
-                uid: userProvider.uid, currentLocation: currentLocation)
-            .then((value) {
-          print('Location updated without Distance');
-        }).catchError((err) {
-          if (err) {
-            _snackBarWidget.content = 'Error getting location: $err';
-            _snackBarWidget.showSnack();
-          }
-        });
+        if (userProvider.uid != null) {
+          db
+              .updateUserLiveLocation(
+                  uid: userProvider.uid, currentLocation: currentLocation)
+              .then((value) {
+            print('Location updated without Distance');
+          }).catchError((err) {
+            if (err) {
+              _snackBarWidget.content = 'Error getting location: $err';
+              _snackBarWidget.showSnack();
+            }
+          });
+        } else {
+          _snackBarWidget.context = context;
+          _snackBarWidget.content =
+              'Please refresh the app, or connect to the internet!';
+          _snackBarWidget.showSnack();
+        }
       }
     }
   }

@@ -198,21 +198,24 @@ class _ShowMapState extends State<ShowMap> {
   void _setProjectCirclesLocations() {
     _circules.clear();
     for (var project in projectProvider) {
-      _circules.add(Circle(
-          consumeTapEvents: true,
-          onTap: () {
-            _showDialog(
-                title: project.projectName,
-                content: project.projectDetails,
-                projectData: project);
-          },
-          circleId: CircleId(project.uid),
-          center: LatLng(
-              project.projectAddress['Lat'], project.projectAddress['Lng']),
-          radius: project.radius,
-          fillColor: Colors.redAccent.withOpacity(0.3),
-          strokeWidth: 3,
-          strokeColor: Colors.redAccent));
+      if (project.projectStatus != 'closed') {
+        _circules.add(Circle(
+            consumeTapEvents: true,
+            onTap: () {
+              _showDialog(
+                  title: project.projectName,
+                  content:
+                      '${project.projectDetails}\nWorkers: ${project.assignedWorkers.length}\n',
+                  projectData: project);
+            },
+            circleId: CircleId(project.uid),
+            center: LatLng(
+                project.projectAddress['Lat'], project.projectAddress['Lng']),
+            radius: project.radius,
+            fillColor: Colors.redAccent.withOpacity(0.3),
+            strokeWidth: 3,
+            strokeColor: Colors.redAccent));
+      }
     }
   }
 
@@ -220,22 +223,24 @@ class _ShowMapState extends State<ShowMap> {
   void _setMockupCirclesLocations() {
     // _circules.clear();
     for (var mockup in mockupProvider) {
-      _circules.add(Circle(
-          consumeTapEvents: true,
-          onTap: () {
-            _showDialog(
-                title: mockup.mockupName,
-                content: mockup.mockupDetails,
-                mockupData: mockup);
-          },
-          circleId: CircleId(mockup.uid),
-          center:
-              LatLng(mockup.mockupAddress['Lat'], mockup.mockupAddress['Lng']),
-          radius: mockup.radius,
-          fillColor:
-              const ui.Color.fromARGB(255, 93, 204, 133).withOpacity(0.3),
-          strokeWidth: 3,
-          strokeColor: const ui.Color.fromARGB(255, 12, 97, 6)));
+      if (mockup.mockupStatus != 'closed') {
+        _circules.add(Circle(
+            consumeTapEvents: true,
+            onTap: () {
+              _showDialog(
+                  title: mockup.mockupName,
+                  content: mockup.mockupDetails,
+                  mockupData: mockup);
+            },
+            circleId: CircleId(mockup.uid),
+            center: LatLng(
+                mockup.mockupAddress['Lat'], mockup.mockupAddress['Lng']),
+            radius: mockup.radius,
+            fillColor:
+                const ui.Color.fromARGB(255, 93, 204, 133).withOpacity(0.3),
+            strokeWidth: 3,
+            strokeColor: const ui.Color.fromARGB(255, 12, 97, 6)));
+      }
     }
   }
 
