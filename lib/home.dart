@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:background_geolocation_firebase/background_geolocation_firebase.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart' as geo;
@@ -79,7 +78,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String _distanceMotion;
   String _locationJSON;
   Timer _timer;
-  bool _loadingPermission = false;
+  bool _loadingPermission = true;
+  bool _isDialogShowing = false;
   ph.PermissionStatus permissionActivity;
   ph.PermissionStatus permissionStatus;
   var timeSheetData;
@@ -90,8 +90,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    Future.delayed(const Duration(seconds: 2), () {
+      setState(
+        () => _loadingPermission = false,
+      );
+    });
     _snackBarWidget.context = context;
-
     _enabled = true;
     _persistEnabled = true;
     _content = '';
@@ -99,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _odometer = '0';
     _getLocationPermission();
     Future.delayed(const Duration(seconds: 5), () => _setUserId());
-    _timer = Timer.periodic(const Duration(seconds: 15), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
       if (permissionStatus == null ||
           permissionStatus.isDenied ||
           permissionStatus.isLimited ||
@@ -306,15 +310,18 @@ class _HomeScreenState extends State<HomeScreen> {
               allUsers: allUsers,
             )
           : const Loading(),
-      body: permissionStatus == null ||
-              permissionActivity == null ||
-              permissionActivity.isPermanentlyDenied ||
-              permissionStatus.isDenied ||
-              permissionStatus.isLimited ||
-              permissionStatus.isRestricted ||
-              permissionStatus.isPermanentlyDenied
-          ? const LocationRequirement()
-          : _selectView(),
+      body: _loadingPermission
+          ? const Center(
+              child: Loading(),
+            )
+          : permissionStatus == null ||
+                  permissionActivity == null ||
+                  permissionActivity.isPermanentlyDenied ||
+                  permissionStatus.isDenied ||
+                  permissionStatus.isLimited ||
+                  permissionStatus.isRestricted
+              ? const LocationRequirement()
+              : _selectView(),
       resizeToAvoidBottomInset: false,
     );
   }
@@ -1672,11 +1679,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _getLocationPermission() async {
     try {
       if (await ph.Permission.location.serviceStatus != null &&
-          await ph.Permission.location.serviceStatus.isEnabled) {
+          await ph.Permission.location.serviceStatus.isEnabled &&
+          await ph.Permission.locationAlways.isGranted) {
         permissionStatus =
             await ph.Permission.location.status.onError((error, stackTrace) {
           return error;
         });
+
         if (permissionStatus.isGranted) {
           //update database with permission status
           if (userProvider != null && userProvider.uid != null) {
@@ -1687,25 +1696,20 @@ class _HomeScreenState extends State<HomeScreen> {
           _requestMotionPermission();
           Future.delayed(
               const Duration(seconds: 2), (() => getCurrentLocation()));
-        } else if (permissionStatus.isDenied ||
-            permissionStatus.isRestricted ||
-            permissionStatus.isPermanentlyDenied ||
-            permissionStatus.isLimited ||
-            permissionStatus == PermissionStatus.denied) {
-          //Will show an alert dialog to request User Access Permission
-          requestUserAccessPermission();
-
+        } else {
           //update data base with permission status
           if (userProvider != null) {
             await db.updateUserPermissionStatus(
                 uid: userProvider.uid, permissionStatus: permissionStatus);
           }
-        } else {
+          //Will show an alert dialog to request User Access Permission
+          requestUserAccessPermission();
           _snackBarWidget.content = 'Location Permission: $permissionStatus';
           _snackBarWidget.showSnack();
         }
       } else {
-        _requestMotionPermission();
+        //Will show an alert dialog to request User Access Permission if location is not always enabled
+        requestUserAccessPermission();
       }
     } catch (e, stackTrace) {
       Sentry.captureException(e, stackTrace: stackTrace);
@@ -1776,36 +1780,91 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //Alert Dialog
   requestUserAccessPermission() {
-    showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-              title: const Text(
-                'Requesting Location Permission',
-                style: textStyle4,
-              ),
-              content: const Text(
-                'Royal Marble collects location and motion data to make tracking, check In, check Out features possible even when the app is closed or not in use',
-                style: textStyle3,
-              ),
-              actions: [
-                TextButton(
-                    onPressed: () async {
-                      await [
-                        ph.Permission.location,
-                        ph.Permission.locationAlways,
-                        ph.Permission.activityRecognition
-                      ].request();
+    //will check if the dialog is showing or not
+    if (!_isDialogShowing) {
+      setState(() {
+        _isDialogShowing = true;
+      });
 
-                      Navigator.of(context, rootNavigator: true).pop();
-                    },
-                    child: const Text('Allow')),
-                TextButton(
-                    onPressed: () {
-                      Navigator.of(context, rootNavigator: true).pop();
-                    },
-                    child: const Text('Deny'))
-              ],
-            ));
+      showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+                title: const Text(
+                  'Requesting Location Permission',
+                  style: textStyle15,
+                  textAlign: TextAlign.center,
+                ),
+                content: const Text(
+                  'Royal Marble collects location and motion data to make tracking, check In, check Out features possible even when the app is closed or not in use',
+                  style: textStyle3,
+                  textAlign: TextAlign.center,
+                ),
+                actions: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      SizedBox(
+                        width: _size.width / 3,
+                        child: TextButton(
+                            style: TextButton.styleFrom(
+                                elevation: 3,
+                                shadowColor: Colors.black,
+                                backgroundColor: Colors.green,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                )),
+                            onPressed: () async {
+                              var result = await [
+                                ph.Permission.location,
+                                ph.Permission.locationAlways,
+                                ph.Permission.activityRecognition
+                              ].request().then((value) {
+                                return value;
+                              }).onError((error, stackTrace) {
+                                return error;
+                              });
+                              if (result != null &&
+                                  result[ph.Permission.location] ==
+                                      ph.PermissionStatus.granted) {
+                                await ph.openAppSettings();
+                              }
+                              setState(() {
+                                _isDialogShowing = false;
+                              });
+
+                              Navigator.of(context, rootNavigator: true).pop();
+                            },
+                            child: const Text(
+                              'Allow',
+                              style: textStyle2,
+                            )),
+                      ),
+                      SizedBox(
+                        width: _size.width / 3,
+                        child: TextButton(
+                            style: TextButton.styleFrom(
+                                elevation: 3,
+                                shadowColor: Colors.black,
+                                backgroundColor: Colors.red,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                )),
+                            onPressed: () {
+                              setState(() {
+                                _isDialogShowing = false;
+                              });
+                              Navigator.of(context, rootNavigator: true).pop();
+                            },
+                            child: const Text(
+                              'Deny',
+                              style: textStyle2,
+                            )),
+                      )
+                    ],
+                  ),
+                ],
+              ));
+    }
   }
 
   //fetch location while running in background

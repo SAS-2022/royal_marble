@@ -153,21 +153,6 @@ class _SplashScreenState extends State<SplashScreen> {
     _screenTimer.cancel();
   }
 
-  //Check if location is enabled
-  // Future<void> _getLocationAccess() async {
-  //   var status;
-  //   if (await Permission.location.serviceStatus.isEnabled) {
-  //     await Geolocator.requestPermission();
-  //   } else {
-  //     status = await Permission.location.status;
-  //     if (status.isGranted) {
-  //     } else {
-  //       status =
-  //           await [Permission.location, Permission.locationAlways].request();
-  //     }
-  //   }
-  // }
-
   //Get device info
   Future _getDeviceInfo() async {
     try {

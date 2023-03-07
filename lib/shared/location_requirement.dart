@@ -10,14 +10,28 @@ class LocationRequirement extends StatelessWidget {
     Size _size = MediaQuery.of(context).size;
     return Padding(
       padding: const EdgeInsets.all(15.0),
-      child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         //Describe why we need the location
-        const Padding(
-          padding: EdgeInsets.only(top: 60),
-          child: Text(
-            'Royal Marble collects location data and motion data to make tracking, check In, check Out features possible even when the app is closed or not in use',
-            style: textStyle18,
-            textAlign: TextAlign.center,
+        Padding(
+          padding: const EdgeInsets.only(top: 60),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: const [
+              Padding(
+                padding: EdgeInsets.only(bottom: 20),
+                child: Text(
+                  'Royal Marble collects location data and motion data for app functionality',
+                  style: textStyle19,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Text(
+                'Location and Motion make tracking, check In, and check Out features possible even when the app is closed or not in use',
+                style: textStyle18,
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
         ),
         const SizedBox(

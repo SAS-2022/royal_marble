@@ -10,6 +10,7 @@ import 'package:royal_marble/reports/report_grid.dart';
 import 'package:royal_marble/sales_pipeline/visit_forms.dart/visit_form_streams.dart';
 import 'package:royal_marble/services/auth.dart';
 import 'package:royal_marble/services/database.dart';
+import 'package:royal_marble/shared/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileDrawer extends StatefulWidget {
@@ -45,6 +46,23 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                         padding: const EdgeInsets.only(
                             left: 25, top: 20, bottom: 40, right: 35),
                         child: Image.asset('assets/images/logo_1.jpg'),
+                      ),
+                      widget.currentUser != null
+                          ? Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: Center(
+                                child: Text(
+                                  '${widget.currentUser.firstName} ${widget.currentUser.lastName}',
+                                  style: textStyle16,
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                      const Divider(
+                        endIndent: 15,
+                        indent: 15,
+                        height: 5,
+                        thickness: 3,
                       ),
                       //account or profile settings
                       ListTile(
