@@ -28,7 +28,6 @@ class VisitsGrid extends StatelessWidget {
               userId: selectedUser.uid, fromDate: fromDate, toDate: toDate),
           initialData: const [],
           catchError: (context, error) {
-            print('the error client visits: $error');
             return [];
           },
         ),
@@ -37,7 +36,6 @@ class VisitsGrid extends StatelessWidget {
               userId: selectedUser.uid, fromDate: fromDate, toDate: toDate),
           initialData: const [],
           catchError: (context, error) {
-            print('the error project visits: $error');
             return [];
           },
         ),

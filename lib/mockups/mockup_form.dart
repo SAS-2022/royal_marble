@@ -606,10 +606,10 @@ class _MockupFormState extends State<MockupForm> {
                                                       BoxShadow(
                                                         color: Colors.black
                                                             .withOpacity(0.3),
-                                                        spreadRadius: 6,
-                                                        blurRadius: 10,
+                                                        spreadRadius: 5,
+                                                        blurRadius: 2,
                                                         offset:
-                                                            const Offset(0, 3),
+                                                            const Offset(0, 4),
                                                       )
                                                     ]),
                                                 child: ElevatedButton(

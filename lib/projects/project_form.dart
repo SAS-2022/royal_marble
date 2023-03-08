@@ -104,7 +104,7 @@ class _ProjectFormState extends State<ProjectForm> {
           break;
       }
     }
-    offlineTimeSheetData();
+    // offlineTimeSheetData();
   }
 
   @override
@@ -117,7 +117,6 @@ class _ProjectFormState extends State<ProjectForm> {
   void offlineTimeSheetData() async {
     final connectedRef = FirebaseDatabase.instance.ref('.info/connected');
     connectedRef.onValue.listen((event) async {
-      print('the event of Database: ${event.snapshot.value}');
       final connected = event.snapshot.value as bool ?? false;
 
       if (connected) {
@@ -629,11 +628,11 @@ class _ProjectFormState extends State<ProjectForm> {
                                                             color: Colors.black
                                                                 .withOpacity(
                                                                     0.3),
-                                                            spreadRadius: 6,
-                                                            blurRadius: 10,
+                                                            spreadRadius: 5,
+                                                            blurRadius: 2,
                                                             offset:
                                                                 const Offset(
-                                                                    0, 3),
+                                                                    0, 4),
                                                           )
                                                         ]),
                                                     child: ElevatedButton(

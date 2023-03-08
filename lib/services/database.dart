@@ -1529,6 +1529,7 @@ class DatabaseService {
     return userCollection
         .doc(userId)
         .collection('clientVisits')
+        .orderBy('visitTime', descending: false)
         .snapshots()
         .map((event) {
       return event.docs.map((value) {
@@ -1559,6 +1560,7 @@ class DatabaseService {
     return userCollection
         .doc(userId)
         .collection('projectVisits')
+        .orderBy('visitTime', descending: false)
         .snapshots()
         .map((event) {
       return event.docs.map((value) {
