@@ -630,7 +630,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'Lat': locationAddress.latitude,
         'Lng': locationAddress.longitude,
       };
-      print('my location: $myLocation');
       setState(() {});
     }
     return myLocation;

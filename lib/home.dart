@@ -164,12 +164,13 @@ class _HomeScreenState extends State<HomeScreen> {
               leavingTime.difference(startingTime).toString().split('.')[0];
           difference = 'You completed: $totalHours\nHave A Nice Day';
         } else {
-          difference = 'Please contact admin: ERR001';
+          difference =
+              'Already checked In and Checked Out, you are checking in again';
         }
       }
       if (timeSheetProvider[userProvider.uid]['arriving_at'] == null &&
           timeSheetProvider[userProvider.uid]['leaving_at'] == null) {
-        difference = 'Please contact admin: ERR002';
+        difference = 'Please contact admin: ERR001 (null values)';
       }
     }
 
@@ -1128,7 +1129,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                 const Duration(seconds: 1), builder: (context) {
                               return Text(
                                 getSystemTime(),
-                                style: timerTextStyle,
+                                style: getSystemTime().length > 25
+                                    ? timer2TextStyle
+                                    : timerTextStyle,
+                                softWrap: true,
+                                textAlign: TextAlign.center,
                               );
                             }),
                           ),
@@ -1537,7 +1542,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                 const Duration(seconds: 1), builder: (context) {
                               return Text(
                                 getSystemTime(),
-                                style: timerTextStyle,
+                                style: getSystemTime().length > 25
+                                    ? timer2TextStyle
+                                    : timerTextStyle,
+                                softWrap: true,
+                                textAlign: TextAlign.center,
                               );
                             }),
                           ),

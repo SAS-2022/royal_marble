@@ -128,5 +128,10 @@ const timerTextStyle = TextStyle(
     fontSize: 40,
     fontWeight: FontWeight.w700);
 
+const timer2TextStyle = TextStyle(
+    color: Color.fromARGB(255, 54, 76, 171),
+    fontSize: 25,
+    fontWeight: FontWeight.w700);
+
 const buttonStyle =
     TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold, color: Colors.white);
