@@ -91,9 +91,11 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     Future.delayed(const Duration(seconds: 2), () {
-      setState(
-        () => _loadingPermission = false,
-      );
+      if (mounted) {
+        setState(
+          () => _loadingPermission = false,
+        );
+      }
     });
     _snackBarWidget.context = context;
     _enabled = true;
@@ -1190,9 +1192,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           builder: (context, snapshot) {
                             if (snapshot.hasData) {
                               if (snapshot.connectionState ==
-                                      ConnectionState.waiting ||
-                                  snapshot.connectionState ==
-                                      ConnectionState.none) {
+                                  ConnectionState.waiting) {
                                 return const Center(
                                   child: Loading(),
                                 );
@@ -1775,14 +1775,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ph.openAppSettings();
         }
       } else {
-        await ph.Permission.sensors
-            .request()
-            .onError((error, stackTrace) {
-              return error;
-            })
-            .then((value) => value)
-            .whenComplete(
-                () => print('Requesting sensor permission is complete'));
+        await ph.Permission.sensors.request().onError((error, stackTrace) {
+          return error;
+        }).then((value) => value);
       }
     }
   }
@@ -1899,15 +1894,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     userProvider.assignedProject['projectAddress']['Lng'])) *
                 1000 -
             userProvider.assignedProject['radius'];
-        if (userProvider.uid != null) {
+        if (userProvider.uid != null &&
+            currentLocation.latitude != null &&
+            currentLocation.longitude != null) {
           db
               .updateUserLiveLocation(
                   uid: userProvider.uid,
                   currentLocation: currentLocation,
                   distance: distance)
-              .then((value) {
-            print('Location updated with Distance: $value');
-          }).catchError((err) {
+              .then((value) {})
+              .catchError((err) {
             if (err) {
               _snackBarWidget.content = 'Error getting location: $err';
               _snackBarWidget.showSnack();
@@ -1920,7 +1916,9 @@ class _HomeScreenState extends State<HomeScreen> {
           _snackBarWidget.showSnack();
         }
       } else {
-        if (userProvider.uid != null) {
+        if (userProvider.uid != null &&
+            currentLocation.latitude != null &&
+            currentLocation.longitude != null) {
           db
               .updateUserLiveLocation(
                   uid: userProvider.uid, currentLocation: currentLocation)

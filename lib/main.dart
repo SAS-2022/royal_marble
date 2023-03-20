@@ -74,12 +74,12 @@ void main() async {
   await Firebase.initializeApp();
   //Initiate Sentry
   await SentryFlutter.init(
-    (options) {
+    (options) => {
       options.dsn =
-          'https://0a1354ab77cb4dfbaed15697fb5a67e0@o4504353262010368.ingest.sentry.io/4504353263255552';
+          'https://0a1354ab77cb4dfbaed15697fb5a67e0@o4504353262010368.ingest.sentry.io/4504353263255552',
       // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
       // We recommend adjusting this value in production.
-      options.tracesSampleRate = 1.0;
+      options.tracesSampleRate = 0.7,
     },
     appRunner: () => runApp(const MyApp()),
   );

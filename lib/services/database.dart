@@ -78,17 +78,15 @@ class DatabaseService {
   }
 
   //update user location permission status
-  Future<String> updateUserPermissionStatus(
+  Future<void> updateUserPermissionStatus(
       {String uid, ph.PermissionStatus permissionStatus}) async {
     try {
-      print('the status 1: $permissionStatus');
-      return await userCollection
+      await userCollection
           .doc(uid)
           .update({'locationPermission': permissionStatus.toString()}).then(
               (value) => 'Permission Status updated');
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
-      return 'Error: $e';
     }
   }
 
@@ -841,7 +839,6 @@ class DatabaseService {
       return result;
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
-      print('An error removing users: $e');
       return 'Error: $e';
     }
   }
@@ -883,8 +880,7 @@ class DatabaseService {
       return result;
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
-      print('An error obtaining project: $e');
-      return ProjectData(error: e);
+      return ProjectData(error: e.toString());
     }
   }
 

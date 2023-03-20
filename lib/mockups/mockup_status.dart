@@ -195,46 +195,7 @@ class _MockupStatusState extends State<MockupStatus> {
                       child: const Text('Activate'),
                     ),
                   ),
-                  // //for potential projects
-                  // Expanded(
-                  //   flex: 1,
-                  //   child: ElevatedButton(
-                  //     style: ElevatedButton.styleFrom(
-                  //       shape: RoundedRectangleBorder(
-                  //           borderRadius: BorderRadius.circular(0)),
-                  //       backgroundColor:
-                  //           const Color.fromARGB(255, 214, 163, 238),
-                  //       disabledBackgroundColor: Colors.grey,
-                  //     ),
-                  //     onPressed:
-                  //         widget.selectedMockup.mockupStatus != 'potential'
-                  //             ? () async {
-                  //                 //Cannot put project on hold if workers are still assigned to it
-                  //                 if (widget.selectedMockup.assignedWorkers !=
-                  //                         null &&
-                  //                     widget.selectedMockup.assignedWorkers
-                  //                         .isNotEmpty) {
-                  //                   _snackBarWidget.content =
-                  //                       'You have workers assigned to this projects, remove them before holding it';
-                  //                   _snackBarWidget.showSnack();
-                  //                   return;
-                  //                 }
-                  //                 setState(() {
-                  //                   _loading = true;
-                  //                 });
-                  //                 editedProject.mockupStatus = 'potential';
-                  //                 //will change project status
-                  //                 //will change project status
-                  //             await db.updateMockupStatus(
-                  //                 mockup: editedProject);
-
-                  //                 Navigator.pop(context);
-                  //               }
-                  //             : null,
-                  //     child: const Text('Hold'),
-                  //   ),
-                  // ),
-                  //for closed projects
+                  //for closed Mockups
                   Expanded(
                     flex: 1,
                     child: ElevatedButton(
@@ -265,14 +226,11 @@ class _MockupStatusState extends State<MockupStatus> {
                               });
 
                               editedProject.mockupStatus = 'closed';
-
                               //will change project status
                               //will change project status
                               await db.updateMockupStatus(
                                   mockup: editedProject);
-
                               //should remove any workers currently on the project
-
                               Navigator.pop(context);
                             }
                           : null,

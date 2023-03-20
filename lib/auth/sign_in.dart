@@ -220,7 +220,6 @@ class _SignInState extends State<SignInScreen> {
                             });
 
                             result = 'not null';
-
                             result = await _auth.signInWithUserNameandPassword(
                                 emailAddress, password);
 
@@ -233,11 +232,12 @@ class _SignInState extends State<SignInScreen> {
                                 ModalRoute.withName('/home'),
                               );
                             } else {
-                              setState(() {
-                                _isLoading = false;
-
-                                error = 'Wrong user name or password';
-                              });
+                              if (mounted) {
+                                setState(() {
+                                  _isLoading = false;
+                                  error = 'Wrong user name or password';
+                                });
+                              }
                             }
                           } //end form validation
                         },
