@@ -6,17 +6,17 @@ import '../shared/constants.dart';
 import '../shared/loading.dart';
 
 class MockupStatus extends StatefulWidget {
-  const MockupStatus({Key key, this.selectedMockup}) : super(key: key);
-  final MockupData selectedMockup;
+  const MockupStatus({Key? key, this.selectedMockup}) : super(key: key);
+  final MockupData? selectedMockup;
 
   @override
   State<MockupStatus> createState() => _MockupStatusState();
 }
 
 class _MockupStatusState extends State<MockupStatus> {
-  Size _size;
+  Size? _size;
   bool _loading = false;
-  MockupData editedProject;
+  MockupData? editedProject;
   DatabaseService db = DatabaseService();
   SnackBarWidget _snackBarWidget = SnackBarWidget();
 
@@ -74,7 +74,7 @@ class _MockupStatusState extends State<MockupStatus> {
               Expanded(
                 flex: 2,
                 child: Text(
-                  widget.selectedMockup.mockupName,
+                  widget.selectedMockup!.mockupName,
                   style: textStyle4,
                 ),
               )
@@ -93,7 +93,7 @@ class _MockupStatusState extends State<MockupStatus> {
               Expanded(
                 flex: 2,
                 child: Text(
-                  widget.selectedMockup.mockupDetails,
+                  widget.selectedMockup!.mockupDetails,
                   style: textStyle4,
                 ),
               )
@@ -112,7 +112,7 @@ class _MockupStatusState extends State<MockupStatus> {
               Expanded(
                 flex: 2,
                 child: Text(
-                  widget.selectedMockup.contactorCompany,
+                  widget.selectedMockup!.contactorCompany,
                   style: textStyle4,
                 ),
               )
@@ -131,7 +131,7 @@ class _MockupStatusState extends State<MockupStatus> {
               Expanded(
                 flex: 2,
                 child: Text(
-                  widget.selectedMockup.contactPerson,
+                  widget.selectedMockup!.contactPerson,
                   style: textStyle4,
                 ),
               )
@@ -150,7 +150,7 @@ class _MockupStatusState extends State<MockupStatus> {
               Expanded(
                 flex: 2,
                 child: Text(
-                  widget.selectedMockup.phoneNumber.phoneNumber,
+                  widget.selectedMockup!.phoneNumber.phoneNumber!,
                   style: textStyle4,
                 ),
               )
@@ -161,7 +161,7 @@ class _MockupStatusState extends State<MockupStatus> {
             //Will set three button to switch the project status
             SizedBox(
               height: 100,
-              width: _size.width - 10,
+              width: _size!.width - 10,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -179,15 +179,15 @@ class _MockupStatusState extends State<MockupStatus> {
                               bottomLeft: Radius.circular(25)),
                         ),
                       ),
-                      onPressed: widget.selectedMockup.mockupStatus != 'active'
+                      onPressed: widget.selectedMockup!.mockupStatus != 'active'
                           ? () async {
                               setState(() {
                                 _loading = true;
                               });
-                              editedProject.mockupStatus = 'active';
+                              editedProject!.mockupStatus = 'active';
                               //will change project status
                               await db.updateMockupStatus(
-                                  mockup: editedProject);
+                                  mockup: editedProject!);
 
                               Navigator.pop(context);
                             }
@@ -208,12 +208,12 @@ class _MockupStatusState extends State<MockupStatus> {
                               bottomRight: Radius.circular(25)),
                         ),
                       ),
-                      onPressed: widget.selectedMockup.mockupStatus != 'closed'
+                      onPressed: widget.selectedMockup!.mockupStatus != 'closed'
                           ? () async {
                               //Cannot close project if workers are still assigned to it
-                              if (widget.selectedMockup.assignedWorkers !=
+                              if (widget.selectedMockup!.assignedWorkers !=
                                       null &&
-                                  widget.selectedMockup.assignedWorkers
+                                  widget.selectedMockup!.assignedWorkers
                                       .isNotEmpty) {
                                 _snackBarWidget.content =
                                     'You have workers assigned to this projects, remove them before closing it';
@@ -225,11 +225,11 @@ class _MockupStatusState extends State<MockupStatus> {
                                 _loading = true;
                               });
 
-                              editedProject.mockupStatus = 'closed';
+                              editedProject!.mockupStatus = 'closed';
                               //will change project status
                               //will change project status
                               await db.updateMockupStatus(
-                                  mockup: editedProject);
+                                  mockup: editedProject!);
                               //should remove any workers currently on the project
                               Navigator.pop(context);
                             }

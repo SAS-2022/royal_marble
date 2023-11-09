@@ -10,10 +10,10 @@ import 'package:royal_marble/shared/loading.dart';
 import '../shared/snack_bar.dart';
 
 class HelperProvider extends StatelessWidget {
-  const HelperProvider({Key key, this.currentUser, this.selectedUser})
+  const HelperProvider({Key? key, this.currentUser, this.selectedUser})
       : super(key: key);
-  final UserData currentUser;
-  final UserData selectedUser;
+  final UserData? currentUser;
+  final UserData? selectedUser;
   @override
   Widget build(BuildContext context) {
     return StreamProvider<List<Helpers>>.value(
@@ -23,18 +23,18 @@ class HelperProvider extends StatelessWidget {
         return [];
       }),
       child: HelpersPage(
-        currentUser: currentUser,
-        selectedUsers: selectedUser,
+        currentUser: currentUser!,
+        selectedUsers: selectedUser!,
       ),
     );
   }
 }
 
 class HelpersPage extends StatefulWidget {
-  const HelpersPage({Key key, this.currentUser, this.selectedUsers})
+  const HelpersPage({Key? key, this.currentUser, this.selectedUsers})
       : super(key: key);
-  final UserData currentUser;
-  final UserData selectedUsers;
+  final UserData? currentUser;
+  final UserData? selectedUsers;
   @override
   State<HelpersPage> createState() => _HelpersPageState();
 }
@@ -42,10 +42,10 @@ class HelpersPage extends StatefulWidget {
 class _HelpersPageState extends State<HelpersPage> {
   DatabaseService db = DatabaseService();
   final _formKey = GlobalKey<FormState>();
-  List<Helpers> helperProvider;
-  Helpers selectedHelper;
+  List<Helpers>? helperProvider;
+  Helpers? selectedHelper;
   bool _helperSelected = false;
-  Size _size;
+  Size? _size;
   TextEditingController helperFirstName = TextEditingController();
   TextEditingController helperLastName = TextEditingController();
   TextEditingController helperPhone = TextEditingController();
@@ -58,8 +58,8 @@ class _HelpersPageState extends State<HelpersPage> {
     super.initState();
     _snackBarWidget.context = context;
 
-    if (widget.selectedUsers.assingedHelpers != null) {
-      assignedHelpers = widget.selectedUsers.assingedHelpers;
+    if (widget.selectedUsers!.assingedHelpers != null) {
+      assignedHelpers = widget.selectedUsers!.assingedHelpers;
     }
   }
 
@@ -69,7 +69,7 @@ class _HelpersPageState extends State<HelpersPage> {
     helperProvider = Provider.of<List<Helpers>>(context);
     return Scaffold(
       appBar: AppBar(
-        title: widget.currentUser.roles.contains('isAdmin')
+        title: widget.currentUser!.roles.contains('isAdmin')
             ? const Text(
                 'Assign Helpers',
               )
@@ -79,13 +79,13 @@ class _HelpersPageState extends State<HelpersPage> {
         backgroundColor: const Color.fromARGB(255, 191, 180, 66),
         actions: [
           //Save changes
-          widget.currentUser.roles.contains('isAdmin')
+          widget.currentUser!.roles.contains('isAdmin')
               ? TextButton(
                   onPressed: () async {
                     //will save the new helpers to the current user
                     if (assignedHelpers.length <= 2) {
                       var result = await db.updateUserWithHelpers(
-                          uid: widget.selectedUsers.uid,
+                          uid: widget.selectedUsers!.uid,
                           helpers: assignedHelpers);
                       Navigator.pop(context);
                       _snackBarWidget.content = result;
@@ -103,7 +103,7 @@ class _HelpersPageState extends State<HelpersPage> {
               : const SizedBox.shrink()
         ],
       ),
-      body: widget.currentUser.roles.contains('isAdmin')
+      body: widget.currentUser!.roles.contains('isAdmin')
           ? _buildHelperAdminPageBody()
           : _buildHelperNormalPageBody(),
     );
@@ -114,7 +114,7 @@ class _HelpersPageState extends State<HelpersPage> {
       padding: const EdgeInsets.all(30),
       child: SingleChildScrollView(
         child: SizedBox(
-          height: _size.height,
+          height: _size!.height,
           child: ListView.builder(
               itemCount: assignedHelpers.length,
               itemBuilder: (context, index) {
@@ -134,8 +134,8 @@ class _HelpersPageState extends State<HelpersPage> {
                             tileColor: Colors.blueGrey[200],
                             leading: Text((index + 1).toString()),
                             title: Text(
-                                '${snapshot.data.firstName} ${snapshot.data.lastName}'),
-                            subtitle: Text('${snapshot.data.mobileNumber}'),
+                                '${snapshot.data!.firstName} ${snapshot.data!.lastName}'),
+                            subtitle: Text(snapshot.data!.mobileNumber),
                           );
                         }
                       } else if (snapshot.hasError) {
@@ -162,8 +162,8 @@ class _HelpersPageState extends State<HelpersPage> {
           builder: (context, snapshot) {
             return SingleChildScrollView(
               child: SizedBox(
-                height: _size.height,
-                width: _size.width,
+                height: _size!.height,
+                width: _size!.width,
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -178,7 +178,7 @@ class _HelpersPageState extends State<HelpersPage> {
                       ),
                       //Selected User
                       Text(
-                        '${widget.selectedUsers.firstName} ${widget.selectedUsers.lastName}',
+                        '${widget.selectedUsers!.firstName} ${widget.selectedUsers!.lastName}',
                         style: textStyle4,
                       ),
 
@@ -187,7 +187,7 @@ class _HelpersPageState extends State<HelpersPage> {
                       Padding(
                         padding: const EdgeInsets.all(15.0),
                         child: Container(
-                          height: _size.height * 0.2,
+                          height: _size!.height * 0.2,
                           decoration: BoxDecoration(
                               border: Border.all(),
                               borderRadius: BorderRadius.circular(25)),
@@ -206,7 +206,7 @@ class _HelpersPageState extends State<HelpersPage> {
                                                 child: Loading(),
                                               );
                                             } else {
-                                              if (snapshot.data.uid == null) {
+                                              if (snapshot.data!.uid == null) {
                                                 return const SizedBox.shrink();
                                               }
                                               return Padding(
@@ -230,9 +230,9 @@ class _HelpersPageState extends State<HelpersPage> {
                                                     },
                                                     child: ListTile(
                                                       title: Text(
-                                                          '${snapshot.data.firstName} ${snapshot.data.lastName}'),
-                                                      subtitle: Text(
-                                                          '${snapshot.data.mobileNumber}'),
+                                                          '${snapshot.data!.firstName} ${snapshot.data!.lastName}'),
+                                                      subtitle: Text(snapshot
+                                                          .data!.mobileNumber),
                                                     ),
                                                   ),
                                                 ),
@@ -277,7 +277,7 @@ class _HelpersPageState extends State<HelpersPage> {
                                   Border.all(width: 1.0, color: Colors.grey),
                             ),
                             child: helperProvider != null &&
-                                    helperProvider.isNotEmpty &&
+                                    helperProvider!.isNotEmpty &&
                                     !_isLoading
                                 ? DropdownButtonHideUnderline(
                                     child: DropdownButtonFormField<Helpers>(
@@ -291,29 +291,29 @@ class _HelpersPageState extends State<HelpersPage> {
                                           'Select User',
                                         ),
                                       ),
-                                      onChanged: (Helpers val) {
+                                      onChanged: (Helpers? val) {
                                         if (val != null) {
                                           setState(() {
                                             selectedHelper = val;
                                             _helperSelected = true;
 
                                             helperFirstName.text =
-                                                selectedHelper.firstName;
+                                                selectedHelper!.firstName;
                                             helperLastName.text =
-                                                selectedHelper.lastName;
+                                                selectedHelper!.lastName;
                                             helperPhone.text =
-                                                selectedHelper.mobileNumber;
-                                            if (!assignedHelpers
-                                                .contains(selectedHelper.uid)) {
+                                                selectedHelper!.mobileNumber;
+                                            if (!assignedHelpers.contains(
+                                                selectedHelper!.uid)) {
                                               assignedHelpers
-                                                  .add(selectedHelper.uid);
+                                                  .add(selectedHelper!.uid);
                                             }
                                           });
                                         }
                                       },
                                       selectedItemBuilder:
                                           (BuildContext context) {
-                                        return helperProvider
+                                        return helperProvider!
                                             .map<Widget>(
                                               (item) => Center(
                                                 child: Text(
@@ -327,7 +327,7 @@ class _HelpersPageState extends State<HelpersPage> {
                                       validator: (val) => val == null
                                           ? 'Please select a helper'
                                           : null,
-                                      items: helperProvider
+                                      items: helperProvider!
                                           .map((item) =>
                                               DropdownMenuItem<Helpers>(
                                                 value: item,
@@ -351,12 +351,12 @@ class _HelpersPageState extends State<HelpersPage> {
                           //Will open a dialog box to add a helper
                           Container(
                             padding: const EdgeInsets.all(12),
-                            width: _size.width - 10,
+                            width: _size!.width - 10,
                             child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                     backgroundColor:
                                         const Color.fromARGB(255, 35, 40, 57),
-                                    fixedSize: Size(_size.width / 2, 45),
+                                    fixedSize: Size(_size!.width / 2, 45),
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(25))),
@@ -380,7 +380,7 @@ class _HelpersPageState extends State<HelpersPage> {
                                   child: Padding(
                                     padding: const EdgeInsets.all(15),
                                     child: SizedBox(
-                                      width: _size.width - 10,
+                                      width: _size!.width - 10,
                                       child: Column(
                                           mainAxisAlignment:
                                               MainAxisAlignment.start,
@@ -401,7 +401,7 @@ class _HelpersPageState extends State<HelpersPage> {
                                                   child: TextFormField(
                                                     controller: helperFirstName,
                                                     validator: (val) {
-                                                      if (val.isEmpty) {
+                                                      if (val!.isEmpty) {
                                                         return 'First name is required';
                                                       }
                                                       return null;
@@ -433,7 +433,7 @@ class _HelpersPageState extends State<HelpersPage> {
                                                   child: TextFormField(
                                                     controller: helperLastName,
                                                     validator: (val) {
-                                                      if (val.isEmpty) {
+                                                      if (val!.isEmpty) {
                                                         return 'Last name is required';
                                                       }
                                                       return null;
@@ -465,7 +465,7 @@ class _HelpersPageState extends State<HelpersPage> {
                                                   child: TextFormField(
                                                     controller: helperPhone,
                                                     validator: (val) {
-                                                      if (val.isEmpty) {
+                                                      if (val!.isEmpty) {
                                                         return 'Phone is required';
                                                       }
                                                       return null;
@@ -489,18 +489,17 @@ class _HelpersPageState extends State<HelpersPage> {
                                                 Container(
                                                   padding:
                                                       const EdgeInsets.all(10),
-                                                  width: _size.width / 2.5,
+                                                  width: _size!.width / 2.5,
                                                   child: ElevatedButton(
                                                       style: ElevatedButton.styleFrom(
                                                           backgroundColor:
-                                                              const Color
-                                                                      .fromARGB(
+                                                              const Color.fromARGB(
                                                                   255,
                                                                   226,
                                                                   37,
                                                                   16),
                                                           fixedSize: Size(
-                                                              _size.width / 2,
+                                                              _size!.width / 2,
                                                               45),
                                                           shape: RoundedRectangleBorder(
                                                               borderRadius:
@@ -509,7 +508,7 @@ class _HelpersPageState extends State<HelpersPage> {
                                                                           25))),
                                                       onPressed: () async {
                                                         String helperId =
-                                                            selectedHelper.uid;
+                                                            selectedHelper!.uid;
                                                         setState(() {
                                                           selectedHelper = null;
                                                           // _isLoading = true;
@@ -532,18 +531,17 @@ class _HelpersPageState extends State<HelpersPage> {
                                                 Container(
                                                   padding:
                                                       const EdgeInsets.all(10),
-                                                  width: _size.width / 2.5,
+                                                  width: _size!.width / 2.5,
                                                   child: ElevatedButton(
                                                     style: ElevatedButton.styleFrom(
                                                         backgroundColor:
-                                                            const Color
-                                                                    .fromARGB(
+                                                            const Color.fromARGB(
                                                                 255,
                                                                 122,
                                                                 108,
                                                                 233),
                                                         fixedSize: Size(
-                                                            _size.width / 2,
+                                                            _size!.width / 2,
                                                             45),
                                                         shape: RoundedRectangleBorder(
                                                             borderRadius:
@@ -551,9 +549,9 @@ class _HelpersPageState extends State<HelpersPage> {
                                                                     .circular(
                                                                         25))),
                                                     onPressed: () async {
-                                                      if (_formKey.currentState
+                                                      if (_formKey.currentState!
                                                           .validate()) {
-                                                        _formKey.currentState
+                                                        _formKey.currentState!
                                                             .save();
                                                         setState(() {
                                                           _helperSelected =
@@ -564,7 +562,7 @@ class _HelpersPageState extends State<HelpersPage> {
                                                         var result = await db
                                                             .updateHelper(
                                                                 uid:
-                                                                    selectedHelper
+                                                                    selectedHelper!
                                                                         .uid,
                                                                 firstName:
                                                                     helperFirstName
@@ -612,7 +610,7 @@ class _HelpersPageState extends State<HelpersPage> {
   //Add new helper
   Future<void> addHelper() async {
     final _formKeyOne = GlobalKey<FormState>();
-    String firstName, lastName, phoneNumber;
+    String? firstName, lastName, phoneNumber;
     showDialog(
         context: context,
         builder: (_) => AlertDialog(
@@ -620,7 +618,7 @@ class _HelpersPageState extends State<HelpersPage> {
               content: Form(
                   key: _formKeyOne,
                   child: SizedBox(
-                    height: _size.height / 4,
+                    height: _size!.height / 4,
                     child: Column(
                       children: [
                         Row(
@@ -630,11 +628,11 @@ class _HelpersPageState extends State<HelpersPage> {
                               style: textStyle3,
                             ),
                             SizedBox(
-                              width: _size.width / 2.5,
+                              width: _size!.width / 2.5,
                               child: TextFormField(
                                 initialValue: '',
                                 validator: (val) {
-                                  if (val.isEmpty) {
+                                  if (val!.isEmpty) {
                                     return 'First name is required';
                                   }
                                   return null;
@@ -658,11 +656,11 @@ class _HelpersPageState extends State<HelpersPage> {
                               style: textStyle3,
                             ),
                             SizedBox(
-                              width: _size.width / 2.5,
+                              width: _size!.width / 2.5,
                               child: TextFormField(
                                 initialValue: '',
                                 validator: (val) {
-                                  if (val.isEmpty) {
+                                  if (val!.isEmpty) {
                                     return 'Last name is required';
                                   }
                                   return null;
@@ -686,11 +684,11 @@ class _HelpersPageState extends State<HelpersPage> {
                               style: textStyle3,
                             ),
                             SizedBox(
-                              width: _size.width / 2.5,
+                              width: _size!.width / 2.5,
                               child: TextFormField(
                                 initialValue: '',
                                 validator: (val) {
-                                  if (val.isEmpty) {
+                                  if (val!.isEmpty) {
                                     return 'Mobile number is required';
                                   }
                                   return null;
@@ -717,7 +715,7 @@ class _HelpersPageState extends State<HelpersPage> {
                   children: [
                     TextButton(
                       onPressed: () async {
-                        if (_formKeyOne.currentState.validate()) {
+                        if (_formKeyOne.currentState!.validate()) {
                           //will add the user to the database
                           var result = await db.addNewHelper(
                               firstName: firstName,
@@ -753,7 +751,7 @@ class _HelpersPageState extends State<HelpersPage> {
   //Add new Helpers
 
   //Delete a Helper
-  Future<void> deleteHelper({String helperId}) async {
+  Future<void> deleteHelper({String? helperId}) async {
     //remove the helper from the list of assigned users
     if (assignedHelpers.contains(helperId)) {
       assignedHelpers.remove(helperId);
@@ -785,8 +783,6 @@ class _HelpersPageState extends State<HelpersPage> {
     }
     //after removing this helper from all masons
     //Delete the helper
-    print('the assinged User: $assignedHelpers');
-
-    await db.deleteHelper(uid: helperId);
+    await db.deleteHelper(uid: helperId!);
   }
 }

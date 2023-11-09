@@ -17,9 +17,9 @@ import '../geolocation/map_view.dart';
 import '../geolocation/shared_events.dart';
 
 class LiveView extends StatefulWidget {
-  const LiveView({Key key, this.userData, this.allUsers}) : super(key: key);
-  final UserData userData;
-  final List<UserData> allUsers;
+  const LiveView({Key? key, this.userData, this.allUsers}) : super(key: key);
+  final UserData? userData;
+  final List<UserData>? allUsers;
   @override
   State<LiveView> createState() => _LiveViewState();
 }
@@ -29,18 +29,18 @@ JsonEncoder encoder = const JsonEncoder.withIndent("    ");
 class _LiveViewState extends State<LiveView>
     with TickerProviderStateMixin<LiveView>, WidgetsBindingObserver {
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-  TabController _tabController;
+  TabController? _tabController;
   final db = DatabaseService();
-  bool _isMoving;
-  bool _enabled;
-  String _motionActivity;
-  String _odometer;
+  bool? _isMoving;
+  bool? _enabled;
+  String? _motionActivity;
+  String? _odometer;
 
-  DateTime _lastRequestedTemporaryFullAccuracy;
+  DateTime? _lastRequestedTemporaryFullAccuracy;
 
   /// My private test mode.  IGNORE.
-  int _testModeClicks;
-  Timer _testModeTimer;
+  int? _testModeClicks;
+  Timer? _testModeTimer;
   List<Event> events = [];
   @override
   void initState() {
@@ -55,7 +55,7 @@ class _LiveViewState extends State<LiveView>
     _testModeClicks = 0;
 
     _tabController = TabController(length: 2, initialIndex: 0, vsync: this);
-    _tabController.addListener(_handleTabChange);
+    _tabController!.addListener(_handleTabChange);
 
     initPlatformState();
   }
@@ -71,13 +71,12 @@ class _LiveViewState extends State<LiveView>
         print("************ [location] $location");
       });
       */
-
     } else if (state == AppLifecycleState.resumed) {
-      if (!_enabled) return;
+      if (!_enabled!) return;
 
       DateTime now = DateTime.now();
       if (_lastRequestedTemporaryFullAccuracy != null) {
-        Duration dt = _lastRequestedTemporaryFullAccuracy.difference(now);
+        Duration dt = _lastRequestedTemporaryFullAccuracy!.difference(now);
         if (dt.inSeconds < 10) return;
       }
       _lastRequestedTemporaryFullAccuracy = now;
@@ -87,7 +86,7 @@ class _LiveViewState extends State<LiveView>
 
   void initPlatformState() async {
     if (widget.userData != null) {
-      _configureBackgroundGeolocation(widget.allUsers);
+      _configureBackgroundGeolocation(widget.allUsers!);
       _configureBackgroundFetch();
     }
   }
@@ -127,7 +126,7 @@ class _LiveViewState extends State<LiveView>
       print('[ready] ${state.toMap()}');
       print('[didDeviceReboot] ${state.didDeviceReboot}');
 
-      if (state.schedule.isNotEmpty) {
+      if (state.schedule!.isNotEmpty) {
         bg.BackgroundGeolocation.startSchedule();
       }
       setState(() {
@@ -156,7 +155,7 @@ class _LiveViewState extends State<LiveView>
       SharedPreferences prefs = await SharedPreferences.getInstance();
       int count = 0;
       if (prefs.get("fetch-count") != null) {
-        count = prefs.getInt("fetch-count");
+        count = prefs.getInt("fetch-count")!;
       }
       prefs.setInt("fetch-count", ++count);
       print('[BackgroundFetch] count: $count');
@@ -229,7 +228,7 @@ class _LiveViewState extends State<LiveView>
       String url = "${ENV.TRACKER_HOST}/api/devices";
       bg.State state = await bg.BackgroundGeolocation.state;
       http.read(Uri.parse(url), headers: {
-        "Authorization": "Bearer ${state.authorization.accessToken}"
+        "Authorization": "Bearer ${state.authorization!.accessToken}"
       }).then((String result) {
         print("[http test] success: $result");
 
@@ -248,10 +247,10 @@ class _LiveViewState extends State<LiveView>
   }
 
   void _onClickTestMode() {
-    _testModeClicks++;
+    _testModeClicks = _testModeClicks! + 1;
 
     if (_testModeTimer != null) {
-      _testModeTimer.cancel();
+      _testModeTimer!.cancel();
     }
     _testModeTimer = Timer(const Duration(seconds: 2), () {
       _testModeClicks = 0;
@@ -260,8 +259,8 @@ class _LiveViewState extends State<LiveView>
 
   @override
   void dispose() {
-    _tabController.removeListener(_handleTabChange);
-    _tabController.dispose();
+    _tabController!.removeListener(_handleTabChange);
+    _tabController!.dispose();
     super.dispose();
 
     bg.BackgroundGeolocation.setOdometer(0.0).catchError((error) {
@@ -270,11 +269,11 @@ class _LiveViewState extends State<LiveView>
   }
 
   void _handleTabChange() async {
-    if (!_tabController.indexIsChanging) {
+    if (!_tabController!.indexIsChanging) {
       return;
     }
     final SharedPreferences prefs = await _prefs;
-    prefs.setInt("tabIndex", _tabController.index);
+    prefs.setInt("tabIndex", _tabController!.index);
   }
 
   @override

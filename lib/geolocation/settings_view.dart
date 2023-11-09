@@ -10,14 +10,14 @@ const INPUT_TYPE_TOGGLE = "toggle";
 const INPUT_TYPE_TEXT = "text";
 
 class SettingsView extends StatefulWidget {
-  const SettingsView({Key key}) : super(key: key);
+  const SettingsView({Key? key}) : super(key: key);
 
   @override
   State createState() => _SettingsViewState();
 }
 
 class _SettingsViewState extends State<SettingsView> {
-  bg.State _state;
+  bg.State? _state;
 
   // Categorized field-lists.
   List<Map> _geolocationSettings = [];
@@ -38,16 +38,16 @@ class _SettingsViewState extends State<SettingsView> {
 
     // Build list of available settings by plaform.
     List<Map> settings = [];
-    PLUGIN_SETTINGS['common'].forEach((Map item) {
+    PLUGIN_SETTINGS['common']?.forEach((Map item) {
       settings.add(item);
     });
 
     if (defaultTargetPlatform == TargetPlatform.android) {
-      PLUGIN_SETTINGS['android'].forEach((Map item) {
+      PLUGIN_SETTINGS['android']?.forEach((Map item) {
         settings.add(item);
       });
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-      PLUGIN_SETTINGS['ios'].forEach((Map item) {
+      PLUGIN_SETTINGS['ios']?.forEach((Map item) {
         settings.add(item);
       });
     }
@@ -272,7 +272,7 @@ class _SettingsViewState extends State<SettingsView> {
   }
 
   SliverAppBar _buildListHeader(String title,
-      [List<PopupMenuItem<String>> menu]) {
+      [List<PopupMenuItem<String>>? menu]) {
     return SliverAppBar(
       title: Text(title),
       centerTitle: true,
@@ -283,8 +283,8 @@ class _SettingsViewState extends State<SettingsView> {
                   itemBuilder: (BuildContext context) => menu)
             ]
           : null,
-      iconTheme: IconThemeData(color: Colors.black),
-      backgroundColor: Color.fromRGBO(230, 230, 230, 0.5),
+      iconTheme: const IconThemeData(color: Colors.black),
+      backgroundColor: const Color.fromRGBO(230, 230, 230, 0.5),
       //backgroundColor: Colors.white,
       leading: Container(),
       snap: true,
@@ -295,15 +295,15 @@ class _SettingsViewState extends State<SettingsView> {
   Widget _buildList(List<Map> list) {
     return SliverFixedExtentList(
       delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
-        return _buildField(list[index]);
+        return _buildField(list[index] as Map<String, Object>);
       }, childCount: list.length),
       itemExtent: 60.0,
     );
   }
 
   Widget _buildField(Map<String, Object> setting) {
-    String name = setting['name'];
-    String inputType = setting['inputType'];
+    String name = setting['name'].toString();
+    String inputType = setting['inputType'].toString();
     print('[buildField] - $name: $inputType');
     Widget field;
     switch (inputType) {
@@ -324,10 +324,10 @@ class _SettingsViewState extends State<SettingsView> {
   }
 
   Widget _buildSelectField(Map<String, Object> setting) {
-    List values = setting['values'];
-    List labels = setting['labels'];
-    String name = setting['name'];
-    dynamic value = _state.map[name];
+    List values = setting['values'] as List;
+    List labels = setting['labels'] as List;
+    String name = setting['name'].toString();
+    dynamic value = _state!.map[name];
     if (value.runtimeType == double) {
       value = value.round();
     }
@@ -349,22 +349,26 @@ class _SettingsViewState extends State<SettingsView> {
           child: Text(value.toString()), value: value.toString()));
     }
     return InputDecorator(
-        decoration: InputDecoration(
-          contentPadding: EdgeInsets.only(left: 10.0, top: 10.0, bottom: 5.0),
-          labelStyle: TextStyle(color: Colors.blue, fontSize: 20.0),
-          labelText: name,
+      decoration: InputDecoration(
+        contentPadding:
+            const EdgeInsets.only(left: 10.0, top: 10.0, bottom: 5.0),
+        labelStyle: const TextStyle(color: Colors.blue, fontSize: 20.0),
+        labelText: name,
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton(
+          isDense: true,
+          value: value.toString(),
+          items: menuItems,
+          onChanged: _createSelectChangeHandler(setting),
         ),
-        child: DropdownButtonHideUnderline(
-            child: DropdownButton(
-                isDense: true,
-                value: value.toString(),
-                items: menuItems,
-                onChanged: _createSelectChangeHandler(setting))));
+      ),
+    );
   }
 
   Widget _buildSwitchField(Map<String, Object> setting) {
-    String name = setting['name'];
-    bool value = _state.map[name];
+    String name = setting['name'].toString();
+    bool value = _state!.map[name];
     return InputDecorator(
         decoration: InputDecoration(
           contentPadding: EdgeInsets.only(top: 0.0, left: 10.0, bottom: 0.0),

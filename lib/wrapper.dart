@@ -9,7 +9,7 @@ import 'home.dart';
 import 'models/user_model.dart';
 
 class Wrapper extends StatefulWidget {
-  const Wrapper({Key key}) : super(key: key);
+  const Wrapper({Key? key}) : super(key: key);
 
   @override
   State<Wrapper> createState() => _WrapperState();
@@ -18,8 +18,8 @@ class Wrapper extends StatefulWidget {
 class _WrapperState extends State<Wrapper> {
   bool _isUserVerified = false;
   DatabaseService db = DatabaseService();
-  String message;
-  String today;
+  String? message;
+  String? today;
   @override
   void initState() {
     super.initState();
@@ -56,7 +56,8 @@ class _WrapperState extends State<Wrapper> {
           StreamProvider<List<MockupData>>.value(
             value: db.getAllMockups(),
             initialData: [],
-            catchError: ((context, error) => [MockupData(error: error)]),
+            catchError: ((context, error) =>
+                [MockupData(error: error.toString())]),
           ),
           //a provider to show all users
           StreamProvider<List<UserData>>.value(
@@ -65,10 +66,10 @@ class _WrapperState extends State<Wrapper> {
               catchError: (context, err) => [UserData(error: err.toString())]),
           //a provider for the timesheet
           StreamProvider<Map<String, dynamic>>.value(
-            value: db.getTimeSheetData(uid: today),
-            initialData: null,
+            value: db.getTimeSheetData(uid: today!),
+            initialData: {},
             catchError: (context, err) {
-              return null;
+              return {};
             },
           )
         ],

@@ -1,23 +1,23 @@
 class UserData {
-  String uid;
-  String firstName;
-  String lastName;
-  String emailAddress;
-  String phoneNumber;
-  Map<String, dynamic> homeAddress;
-  Map<String, dynamic> currentLocation;
-  Map<String, dynamic> location;
-  List<dynamic> roles;
-  Map<String, dynamic> nationality;
+  String? uid;
+  String? firstName;
+  String? lastName;
+  String? emailAddress;
+  String? phoneNumber;
+  Map<String, dynamic>? homeAddress;
+  Map<String, dynamic>? currentLocation;
+  Map<String, dynamic>? location;
+  List<dynamic>? roles;
+  Map<String, dynamic>? nationality;
   var assignedProject;
   var assignedMockups;
   var distanceToProject;
-  String company;
-  bool isActive;
-  String imageUrl;
-  String permissionStatus;
-  List<dynamic> assingedHelpers;
-  String error;
+  String? company;
+  bool? isActive;
+  String? imageUrl;
+  String? permissionStatus;
+  List<dynamic>? assingedHelpers;
+  String? error;
 
   UserData({
     this.uid,
@@ -48,10 +48,10 @@ class UserData {
 }
 
 class Helpers {
-  String uid;
-  String firstName;
-  String lastName;
-  String mobileNumber;
+  String? uid;
+  String? firstName;
+  String? lastName;
+  String? mobileNumber;
   Helpers({
     this.uid,
     this.firstName,

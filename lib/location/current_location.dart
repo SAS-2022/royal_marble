@@ -5,8 +5,8 @@ import 'package:location/location.dart';
 import 'package:royal_marble/models/user_model.dart';
 
 class UserTracking extends StatefulWidget {
-  const UserTracking({Key key, this.currentUser}) : super(key: key);
-  final UserData currentUser;
+  const UserTracking({Key? key, this.currentUser}) : super(key: key);
+  final UserData? currentUser;
 
   @override
   State<UserTracking> createState() => _UserTrackingState();
@@ -21,7 +21,7 @@ class _UserTrackingState extends State<UserTracking> {
 
 class UpdateLocation {
   final Completer<GoogleMapController> _googleMapController = Completer();
-  LocationData currentLocation;
+  LocationData? currentLocation;
 
   void getCurrentLocation() async {
     Location _location = Location();
@@ -38,7 +38,7 @@ class UpdateLocation {
           CameraUpdate.newCameraPosition(
             CameraPosition(
               zoom: 13,
-              target: LatLng(newLoc.latitude, newLoc.longitude),
+              target: LatLng(newLoc.latitude!, newLoc.longitude!),
             ),
           ),
         );

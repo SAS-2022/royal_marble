@@ -7,19 +7,19 @@ import 'package:royal_marble/shared/snack_bar.dart';
 import '../models/business_model.dart';
 
 class ProjectStatus extends StatefulWidget {
-  const ProjectStatus({Key key, this.selectedProject}) : super(key: key);
-  final ProjectData selectedProject;
+  const ProjectStatus({Key? key, this.selectedProject}) : super(key: key);
+  final ProjectData? selectedProject;
 
   @override
   State<ProjectStatus> createState() => _ProjectStatusState();
 }
 
 class _ProjectStatusState extends State<ProjectStatus> {
-  Size _size;
+  Size? _size;
   bool _loading = false;
-  ProjectData editedProject;
+  ProjectData? editedProject;
   DatabaseService db = DatabaseService();
-  SnackBarWidget _snackBarWidget = SnackBarWidget();
+  final SnackBarWidget _snackBarWidget = SnackBarWidget();
 
   @override
   void initState() {
@@ -75,7 +75,7 @@ class _ProjectStatusState extends State<ProjectStatus> {
               Expanded(
                 flex: 2,
                 child: Text(
-                  widget.selectedProject.projectName,
+                  widget.selectedProject!.projectName!,
                   style: textStyle4,
                 ),
               )
@@ -94,7 +94,7 @@ class _ProjectStatusState extends State<ProjectStatus> {
               Expanded(
                 flex: 2,
                 child: Text(
-                  widget.selectedProject.projectDetails,
+                  widget.selectedProject!.projectDetails!,
                   style: textStyle4,
                 ),
               )
@@ -113,7 +113,7 @@ class _ProjectStatusState extends State<ProjectStatus> {
               Expanded(
                 flex: 2,
                 child: Text(
-                  widget.selectedProject.contactorCompany,
+                  widget.selectedProject!.contactorCompany!,
                   style: textStyle4,
                 ),
               )
@@ -132,7 +132,7 @@ class _ProjectStatusState extends State<ProjectStatus> {
               Expanded(
                 flex: 2,
                 child: Text(
-                  widget.selectedProject.contactPerson,
+                  widget.selectedProject!.contactPerson!,
                   style: textStyle4,
                 ),
               )
@@ -151,7 +151,7 @@ class _ProjectStatusState extends State<ProjectStatus> {
               Expanded(
                 flex: 2,
                 child: Text(
-                  widget.selectedProject.phoneNumber.phoneNumber,
+                  widget.selectedProject!.phoneNumber!.phoneNumber!,
                   style: textStyle4,
                 ),
               )
@@ -162,7 +162,7 @@ class _ProjectStatusState extends State<ProjectStatus> {
             //Will set three button to switch the project status
             SizedBox(
               height: 100,
-              width: _size.width - 10,
+              width: _size!.width - 10,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -181,15 +181,15 @@ class _ProjectStatusState extends State<ProjectStatus> {
                         ),
                       ),
                       onPressed:
-                          widget.selectedProject.projectStatus != 'active'
+                          widget.selectedProject!.projectStatus != 'active'
                               ? () async {
                                   setState(() {
                                     _loading = true;
                                   });
-                                  editedProject.projectStatus = 'active';
+                                  editedProject!.projectStatus = 'active';
                                   //will change project status
                                   await db.updateProjectStatus(
-                                      project: editedProject);
+                                      project: editedProject!);
 
                                   Navigator.pop(context);
                                 }
@@ -209,12 +209,12 @@ class _ProjectStatusState extends State<ProjectStatus> {
                         disabledBackgroundColor: Colors.grey,
                       ),
                       onPressed:
-                          widget.selectedProject.projectStatus != 'potential'
+                          widget.selectedProject!.projectStatus != 'potential'
                               ? () async {
                                   //Cannot put project on hold if workers are still assigned to it
-                                  if (widget.selectedProject.assignedWorkers !=
+                                  if (widget.selectedProject!.assignedWorkers !=
                                           null &&
-                                      widget.selectedProject.assignedWorkers
+                                      widget.selectedProject!.assignedWorkers!
                                           .isNotEmpty) {
                                     _snackBarWidget.content =
                                         'You have workers assigned to this projects, remove them before holding it';
@@ -224,10 +224,10 @@ class _ProjectStatusState extends State<ProjectStatus> {
                                   setState(() {
                                     _loading = true;
                                   });
-                                  editedProject.projectStatus = 'potential';
+                                  editedProject!.projectStatus = 'potential';
                                   //will change project status
                                   await db.updateProjectStatus(
-                                      project: editedProject);
+                                      project: editedProject!);
 
                                   Navigator.pop(context);
                                 }
@@ -249,12 +249,12 @@ class _ProjectStatusState extends State<ProjectStatus> {
                         ),
                       ),
                       onPressed:
-                          widget.selectedProject.projectStatus != 'closed'
+                          widget.selectedProject!.projectStatus != 'closed'
                               ? () async {
                                   //Cannot close project if workers are still assigned to it
-                                  if (widget.selectedProject.assignedWorkers !=
+                                  if (widget.selectedProject!.assignedWorkers !=
                                           null &&
-                                      widget.selectedProject.assignedWorkers
+                                      widget.selectedProject!.assignedWorkers!
                                           .isNotEmpty) {
                                     _snackBarWidget.content =
                                         'You have workers assigned to this projects, remove them before closing it';
@@ -266,11 +266,11 @@ class _ProjectStatusState extends State<ProjectStatus> {
                                     _loading = true;
                                   });
 
-                                  editedProject.projectStatus = 'closed';
+                                  editedProject!.projectStatus = 'closed';
 
                                   //will change project status
                                   await db.updateProjectStatus(
-                                      project: editedProject);
+                                      project: editedProject!);
 
                                   //should remove any workers currently on the project
 

@@ -8,7 +8,7 @@ import '../shared/snack_bar.dart';
 
 class WorkCompleted extends StatefulWidget {
   const WorkCompleted(
-      {Key key,
+      {Key? key,
       this.currentUser,
       this.timeSheetId,
       this.selectedProject,
@@ -17,13 +17,13 @@ class WorkCompleted extends StatefulWidget {
       this.checkOut,
       this.isAtSite})
       : super(key: key);
-  final UserData currentUser;
-  final String timeSheetId;
-  final ProjectData selectedProject;
-  final MockupData selectedMockup;
-  final String checkIn;
-  final String checkOut;
-  final bool isAtSite;
+  final UserData? currentUser;
+  final String? timeSheetId;
+  final ProjectData? selectedProject;
+  final MockupData? selectedMockup;
+  final String? checkIn;
+  final String? checkOut;
+  final bool? isAtSite;
   @override
   State<WorkCompleted> createState() => _WorkCompletedState();
 }
@@ -35,10 +35,10 @@ class _WorkCompletedState extends State<WorkCompleted> {
     'Installing Tiles',
     'Others'
   ];
-  String workType;
-  double squareMeteres;
-  String others;
-  Size _size;
+  String? workType;
+  double? squareMeteres;
+  String? others;
+  Size? _size;
   bool _canPop = false;
   DatabaseService db = DatabaseService();
   final _snackBarWidget = SnackBarWidget();
@@ -127,7 +127,7 @@ class _WorkCompletedState extends State<WorkCompleted> {
                         'Select Work Type',
                       ),
                     ),
-                    onChanged: (String val) {
+                    onChanged: (String? val) {
                       if (val != null) {
                         setState(() {
                           workType = val;
@@ -258,7 +258,7 @@ class _WorkCompletedState extends State<WorkCompleted> {
               ),
               //A submit button to save changes
               SizedBox(
-                width: _size.width - 50,
+                width: _size!.width - 50,
                 child: ElevatedButton(
                     style: ButtonStyle(
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -281,19 +281,20 @@ class _WorkCompletedState extends State<WorkCompleted> {
                     ),
                     onPressed: () async {
                       var result;
-                      if (_formKey.currentState.validate()) {
+                      if (_formKey.currentState!.validate()) {
                         //save the work achieved to the worker's timesheet
                         result = await db.updateWorkerTimeSheet(
-                            isAtSite: widget.isAtSite,
-                            currentUser: widget.currentUser,
-                            userRole: widget.currentUser.roles.first,
-                            selectedProject: widget.selectedProject,
-                            selectedMockup: widget.selectedMockup,
-                            today: widget.timeSheetId,
-                            checkOut: widget.checkOut,
-                            checkIn: widget.checkIn,
-                            workType: workType != 'Others' ? workType : others,
-                            squareMeters: squareMeteres);
+                            isAtSite: widget.isAtSite!,
+                            currentUser: widget.currentUser!,
+                            userRole: widget.currentUser!.roles!.first,
+                            selectedProject: widget.selectedProject!,
+                            selectedMockup: widget.selectedMockup!,
+                            today: widget.timeSheetId!,
+                            checkOut: widget.checkOut!,
+                            checkIn: widget.checkIn!,
+                            workType:
+                                workType != 'Others' ? workType! : others!,
+                            squareMeters: squareMeteres!);
 
                         _snackBarWidget.content = result;
                         if (_snackBarWidget.context != null) {

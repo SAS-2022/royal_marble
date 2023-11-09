@@ -9,7 +9,7 @@ import '../shared/constants.dart';
 import '../wrapper.dart';
 
 class SignInScreen extends StatefulWidget {
-  const SignInScreen({Key key}) : super(key: key);
+  const SignInScreen({Key? key}) : super(key: key);
 
   @override
   State<SignInScreen> createState() => _SignInState();
@@ -18,15 +18,15 @@ class SignInScreen extends StatefulWidget {
 class _SignInState extends State<SignInScreen> {
   final _formKey = GlobalKey<FormState>();
   final AuthService _auth = AuthService();
-  String emailAddress;
-  String password;
+  String? emailAddress;
+  String? password;
   bool _isObsecure = true;
   bool showEmailVerification = false;
   dynamic result;
-  String error;
+  String? error;
   bool _isLoading = false;
-  Size size;
-  ph.PermissionStatus permissionStatus;
+  Size? size;
+  ph.PermissionStatus? permissionStatus;
 
   @override
   void initState() {
@@ -61,7 +61,7 @@ class _SignInState extends State<SignInScreen> {
                     //We will add the logo on top
                     Image.asset(
                       'assets/images/logo_2.jpg',
-                      height: size.height / 3,
+                      height: size!.height / 3,
                     ),
                     const SizedBox(
                       height: 25.0,
@@ -82,7 +82,7 @@ class _SignInState extends State<SignInScreen> {
                             borderSide: BorderSide(color: Colors.blue)),
                       ),
                       validator: (val) =>
-                          val.isEmpty ? 'Email Address cannot be empty' : null,
+                          val!.isEmpty ? 'Email Address cannot be empty' : null,
                       onChanged: (val) {
                         setState(() {
                           emailAddress = val.trim().toString();
@@ -120,7 +120,7 @@ class _SignInState extends State<SignInScreen> {
                             borderSide: BorderSide(color: Colors.blue)),
                       ),
                       validator: (val) =>
-                          val.isEmpty ? 'Password cannot be left empty' : null,
+                          val!.isEmpty ? 'Password cannot be left empty' : null,
                       onChanged: (val) {
                         setState(() {
                           password = val;
@@ -131,7 +131,7 @@ class _SignInState extends State<SignInScreen> {
                       height: 15.0,
                     ),
 
-                    error != null && error.isNotEmpty
+                    error != null && error!.isNotEmpty
                         ? Text(
                             error.toString(),
                             textAlign: TextAlign.center,
@@ -149,8 +149,8 @@ class _SignInState extends State<SignInScreen> {
                         ? GestureDetector(
                             child:
                                 const Text('Verify Account', style: textStyle7),
-                            onTap: () => emailAddress.isNotEmpty
-                                ? _verifyAccount(emailAddress)
+                            onTap: () => emailAddress!.isNotEmpty
+                                ? _verifyAccount(emailAddress!)
                                 : error = 'Email is Empty')
                         : const SizedBox.shrink(),
                     const SizedBox(
@@ -214,7 +214,7 @@ class _SignInState extends State<SignInScreen> {
                           style: buttonStyle,
                         ),
                         onPressed: () async {
-                          if (_formKey.currentState.validate()) {
+                          if (_formKey.currentState!.validate()) {
                             setState(() {
                               _isLoading = true;
                             });

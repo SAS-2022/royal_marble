@@ -18,30 +18,30 @@ import '../shared/country_picker.dart';
 
 class UserDetails extends StatefulWidget {
   const UserDetails(
-      {Key key, this.currentUser, this.myAccount, this.selectedUser})
+      {Key? key, this.currentUser, this.myAccount, this.selectedUser})
       : super(key: key);
-  final UserData currentUser;
-  final UserData selectedUser;
-  final bool myAccount;
+  final UserData? currentUser;
+  final UserData? selectedUser;
+  final bool? myAccount;
 
   @override
   State<UserDetails> createState() => _UserDetailsState();
 }
 
 class _UserDetailsState extends State<UserDetails> {
-  Size _size;
+  Size? _size;
   DatabaseService db = DatabaseService();
   final _snackBarWidget = SnackBarWidget();
   final _formKey = GlobalKey<FormState>();
   HttpNavigation _httpNavigation = HttpNavigation();
   UserData newUserData = UserData();
   Map<String, dynamic> _myLocation = {};
-  String selectedRoles;
-  XFile pickedImage;
-  File pickImageFile;
+  String? selectedRoles;
+  XFile? pickedImage;
+  File? pickImageFile;
   final ImagePicker _picker = ImagePicker();
   bool _imageRequested = false;
-  ImageSource _imageSource;
+  ImageSource? _imageSource;
   List<dynamic> currentRoles = [
     'Mason',
     'Supervisor',
@@ -57,13 +57,13 @@ class _UserDetailsState extends State<UserDetails> {
     _snackBarWidget.context = context;
 
     if (widget.currentUser != null && widget.selectedUser == null) {
-      newUserData.firstName = widget.currentUser.firstName;
-      newUserData.lastName = widget.currentUser.lastName;
-      newUserData.phoneNumber = widget.currentUser.phoneNumber;
-      newUserData.company = widget.currentUser.company;
-      newUserData.nationality = widget.currentUser.nationality;
-      newUserData.homeAddress = widget.currentUser.homeAddress;
-      newUserData.imageUrl = widget.currentUser.imageUrl;
+      newUserData.firstName = widget.currentUser!.firstName;
+      newUserData.lastName = widget.currentUser!.lastName;
+      newUserData.phoneNumber = widget.currentUser!.phoneNumber;
+      newUserData.company = widget.currentUser!.company;
+      newUserData.nationality = widget.currentUser!.nationality;
+      newUserData.homeAddress = widget.currentUser!.homeAddress;
+      newUserData.imageUrl = widget.currentUser!.imageUrl;
       if (newUserData.homeAddress != null) {
         _myLocation = newUserData.homeAddress;
       }
@@ -71,9 +71,9 @@ class _UserDetailsState extends State<UserDetails> {
 
     //show the current user role
     if (widget.selectedUser != null &&
-        widget.selectedUser.roles != null &&
-        widget.selectedUser.roles.isNotEmpty) {
-      switch (widget.selectedUser.roles.first.toString()) {
+        widget.selectedUser!.roles != null &&
+        widget.selectedUser!.roles.isNotEmpty) {
+      switch (widget.selectedUser!.roles.first.toString()) {
         case 'isNormalUser':
           selectedRoles = 'Mason';
           break;
@@ -103,7 +103,7 @@ class _UserDetailsState extends State<UserDetails> {
         actions: [
           //Button to add helpers
           widget.selectedUser != null &&
-                  widget.selectedUser.roles.contains('isNormalUser')
+                  widget.selectedUser!.roles.contains('isNormalUser')
               ? Padding(
                   padding: const EdgeInsets.only(right: 12),
                   child: TextButton(
@@ -125,7 +125,8 @@ class _UserDetailsState extends State<UserDetails> {
                 )
               : const SizedBox.shrink(),
           //in case the current user is a mson in order to view his helpers
-          widget.myAccount && widget.currentUser.roles.contains('isNormalUser')
+          widget.myAccount! &&
+                  widget.currentUser!.roles.contains('isNormalUser')
               ? Padding(
                   padding: const EdgeInsets.only(right: 12),
                   child: TextButton(
@@ -149,8 +150,9 @@ class _UserDetailsState extends State<UserDetails> {
       ),
       body: Stack(children: [
         SingleChildScrollView(
-            child:
-                widget.myAccount ? _buildMyUserDetails() : _buildUserDetails()),
+            child: widget.myAccount!
+                ? _buildMyUserDetails()
+                : _buildUserDetails()),
         _isUpdating
             ? const Center(
                 child: Loading(),
@@ -164,11 +166,11 @@ class _UserDetailsState extends State<UserDetails> {
               child: Container(
                 decoration: BoxDecoration(
                     color: Colors.grey[600],
-                    border: Border.all(color: Colors.grey[800]),
+                    border: Border.all(color: Colors.grey[800]!),
                     borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(25),
                         topRight: Radius.circular(25))),
-                height: _size.height / 10,
+                height: _size!.height / 10,
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 20),
                   child: Row(
@@ -212,13 +214,13 @@ class _UserDetailsState extends State<UserDetails> {
             child: Padding(
               padding: const EdgeInsets.all(12.0),
               child: Container(
-                height: _size.height / 5,
-                width: _size.width / 2,
+                height: _size!.height / 5,
+                width: _size!.width / 2,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(),
                 ),
-                child: widget.selectedUser.imageUrl == null
+                child: widget.selectedUser!.imageUrl == null
                     ? const Center(
                         child: Text(
                           'No Photo',
@@ -227,7 +229,7 @@ class _UserDetailsState extends State<UserDetails> {
                       )
                     : CircleAvatar(
                         backgroundImage: NetworkImage(
-                        widget.selectedUser.imageUrl,
+                        widget.selectedUser!.imageUrl,
                         scale: 2,
                       )),
               ),
@@ -253,7 +255,7 @@ class _UserDetailsState extends State<UserDetails> {
                     Expanded(
                       flex: 3,
                       child: Text(
-                        widget.selectedUser.firstName,
+                        widget.selectedUser!.firstName,
                         style: textStyle12,
                       ),
                     )
@@ -274,7 +276,7 @@ class _UserDetailsState extends State<UserDetails> {
                     Expanded(
                       flex: 3,
                       child: Text(
-                        widget.selectedUser.lastName,
+                        widget.selectedUser!.lastName,
                         style: textStyle12,
                       ),
                     )
@@ -295,7 +297,7 @@ class _UserDetailsState extends State<UserDetails> {
                     Expanded(
                       flex: 3,
                       child: Text(
-                        widget.selectedUser.phoneNumber,
+                        widget.selectedUser!.phoneNumber,
                         style: textStyle12,
                       ),
                     )
@@ -316,7 +318,7 @@ class _UserDetailsState extends State<UserDetails> {
                     Expanded(
                       flex: 3,
                       child: Text(
-                        widget.selectedUser.emailAddress,
+                        widget.selectedUser!.emailAddress,
                         style: textStyle12,
                       ),
                     )
@@ -336,7 +338,7 @@ class _UserDetailsState extends State<UserDetails> {
                     ),
                     Expanded(
                       child: Text(
-                        widget.selectedUser.nationality['countryName'],
+                        widget.selectedUser!.nationality['countryName'],
                         style: textStyle12,
                       ),
                     )
@@ -357,7 +359,7 @@ class _UserDetailsState extends State<UserDetails> {
                     Expanded(
                       flex: 3,
                       child: Text(
-                        widget.selectedUser.company,
+                        widget.selectedUser!.company,
                         style: textStyle12,
                       ),
                     )
@@ -379,7 +381,7 @@ class _UserDetailsState extends State<UserDetails> {
                       flex: 3,
                       child: GestureDetector(
                         onTap: () async {
-                          if (widget.selectedUser.homeAddress != null) {
+                          if (widget.selectedUser!.homeAddress != null) {
                             if (Platform.isIOS) {
                               _httpNavigation.context = context;
                               _httpNavigation.lat = _myLocation['Lat'];
@@ -399,8 +401,8 @@ class _UserDetailsState extends State<UserDetails> {
                           }
                         },
                         child: Text(
-                          widget.selectedUser.homeAddress != null
-                              ? widget.selectedUser.homeAddress['addressName']
+                          widget.selectedUser!.homeAddress != null
+                              ? widget.selectedUser!.homeAddress['addressName']
                               : 'Address not found',
                           style: textStyle12,
                         ),
@@ -423,7 +425,7 @@ class _UserDetailsState extends State<UserDetails> {
                     Expanded(
                       flex: 3,
                       child: Text(
-                        widget.selectedUser.isActive.toString(),
+                        widget.selectedUser!.isActive.toString(),
                         style: textStyle12,
                       ),
                     )
@@ -468,7 +470,7 @@ class _UserDetailsState extends State<UserDetails> {
                         'Select User',
                       ),
                     ),
-                    onChanged: (String val) {
+                    onChanged: (String? val) {
                       if (val != null) {
                         setState(() {
                           selectedRoles = val;
@@ -508,15 +510,15 @@ class _UserDetailsState extends State<UserDetails> {
               ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green[400],
-                      fixedSize: Size(_size.width / 2, 45),
+                      fixedSize: Size(_size!.width / 2, 45),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25))),
                   onPressed: () async {
                     var result;
                     if (selectedRoles != null) {
                       result = await db.assignUserRole(
-                          selectedRole: selectedRoles,
-                          uid: widget.selectedUser.uid);
+                          selectedRole: selectedRoles!,
+                          uid: widget.selectedUser!.uid);
                     }
                     if (result == 'Completed') {
                       Navigator.pop(context);
@@ -549,16 +551,16 @@ class _UserDetailsState extends State<UserDetails> {
               ),
               ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: widget.selectedUser.isActive
+                      backgroundColor: widget.selectedUser!.isActive
                           ? Colors.red[400]
                           : Colors.green[400],
-                      fixedSize: Size(_size.width / 2, 45),
+                      fixedSize: Size(_size!.width / 2, 45),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25))),
                   onPressed: () async {
                     var result = await db.activateDeactivateUser(
-                        uid: widget.selectedUser.uid,
-                        active: !widget.selectedUser.isActive);
+                        uid: widget.selectedUser!.uid,
+                        active: !widget.selectedUser!.isActive);
                     if (result == 'Completed') {
                       Navigator.pop(context);
                     } else {
@@ -567,7 +569,7 @@ class _UserDetailsState extends State<UserDetails> {
                       _snackBarWidget.showSnack();
                     }
                   },
-                  child: widget.selectedUser.isActive
+                  child: widget.selectedUser!.isActive
                       ? const Text(
                           'Deactivate',
                           style: textStyle2,
@@ -594,18 +596,18 @@ class _UserDetailsState extends State<UserDetails> {
               ),
               ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: widget.selectedUser.isActive
+                      backgroundColor: widget.selectedUser!.isActive
                           ? Colors.grey[300]
                           : Colors.red[400],
-                      fixedSize: Size(_size.width / 2, 45),
+                      fixedSize: Size(_size!.width / 2, 45),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25))),
-                  onPressed: widget.selectedUser.isActive
+                  onPressed: widget.selectedUser!.isActive
                       ? null
                       : () async {
                           //will delete the selected user
-                          var result =
-                              await db.deleteUser(uid: widget.selectedUser.uid);
+                          var result = await db.deleteUser(
+                              uid: widget.selectedUser!.uid);
 
                           _snackBarWidget.content = result;
                           _snackBarWidget.showSnack();
@@ -628,7 +630,7 @@ class _UserDetailsState extends State<UserDetails> {
       child: Padding(
         padding: const EdgeInsets.only(top: 5, left: 25, right: 10),
         child: SizedBox(
-          width: _size.width - 10,
+          width: _size!.width - 10,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -639,8 +641,8 @@ class _UserDetailsState extends State<UserDetails> {
                   child: GestureDetector(
                     onTap: () async => _selectImageSource(),
                     child: Container(
-                      height: _size.height / 5,
-                      width: _size.width / 2,
+                      height: _size!.height / 5,
+                      width: _size!.width / 2,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(),
@@ -656,7 +658,7 @@ class _UserDetailsState extends State<UserDetails> {
                               : pickImageFile != null
                                   ? CircleAvatar(
                                       backgroundImage: FileImage(
-                                      File(pickImageFile.path),
+                                      File(pickImageFile!.path),
                                       scale: 2,
                                     ))
                                   : CircleAvatar(
@@ -695,7 +697,9 @@ class _UserDetailsState extends State<UserDetails> {
                             borderSide: BorderSide(color: Colors.blue)),
                       ),
                       validator: (val) {
-                        return val.isEmpty ? 'Last Name cannot be empty' : null;
+                        return val!.isEmpty
+                            ? 'Last Name cannot be empty'
+                            : null;
                       },
                       onChanged: (val) {
                         if (val.isNotEmpty) {
@@ -736,7 +740,9 @@ class _UserDetailsState extends State<UserDetails> {
                             borderSide: BorderSide(color: Colors.blue)),
                       ),
                       validator: (val) {
-                        return val.isEmpty ? 'Last Name cannot be empty' : null;
+                        return val!.isEmpty
+                            ? 'Last Name cannot be empty'
+                            : null;
                       },
                       onChanged: (val) {
                         if (val.isNotEmpty) {
@@ -783,7 +789,7 @@ class _UserDetailsState extends State<UserDetails> {
                       validator: (val) {
                         Pattern pattern = r'^(?:[05]8)?[0-9]{10}$';
                         var regexp = RegExp(pattern.toString());
-                        if (val.isEmpty) {
+                        if (val!.isEmpty) {
                           return 'Phone cannot be empty';
                         }
                         if (!regexp.hasMatch(val)) {
@@ -816,7 +822,7 @@ class _UserDetailsState extends State<UserDetails> {
                   Expanded(
                     flex: 2,
                     child: Text(
-                      widget.currentUser.emailAddress,
+                      widget.currentUser!.emailAddress,
                       style: textStyle3,
                     ),
                   )
@@ -881,7 +887,7 @@ class _UserDetailsState extends State<UserDetails> {
                             borderSide: BorderSide(color: Colors.blue)),
                       ),
                       validator: (val) =>
-                          val.isEmpty ? 'Company cannot be empty' : null,
+                          val!.isEmpty ? 'Company cannot be empty' : null,
                       onChanged: (val) {
                         if (val.isNotEmpty) {
                           setState(() {
@@ -950,28 +956,28 @@ class _UserDetailsState extends State<UserDetails> {
               Center(
                 child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: widget.currentUser.isActive
+                        backgroundColor: widget.currentUser!.isActive
                             ? Colors.red[400]
                             : Colors.green[400],
-                        fixedSize: Size(_size.width / 2, 45),
+                        fixedSize: Size(_size!.width / 2, 45),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(25))),
                     onPressed: _isUpdating
                         ? null
                         : () async {
-                            if (_formKey.currentState.validate() &&
+                            if (_formKey.currentState!.validate() &&
                                 _myLocation.isNotEmpty) {
                               setState(() {
                                 _isUpdating = true;
                               });
                               if (pickedImage != null) {
                                 String imageUrl =
-                                    await _uploadImage(file: pickedImage);
+                                    await _uploadImage(file: pickedImage!);
                                 newUserData.imageUrl = imageUrl;
                               }
 
                               var result = await db.updateCurrentUser(
-                                  uid: widget.currentUser.uid,
+                                  uid: widget.currentUser!.uid,
                                   newUsers: newUserData);
                               if (result == 'Completed') {
                                 if (mounted) {
@@ -1010,7 +1016,7 @@ class _UserDetailsState extends State<UserDetails> {
     });
   }
 
-  Future<String> _uploadImage({XFile file}) async {
+  Future<String> _uploadImage({XFile? file}) async {
     FirebaseStorage storageReference;
     String folderName = 'profile_images';
 
@@ -1018,14 +1024,14 @@ class _UserDetailsState extends State<UserDetails> {
       storageReference = FirebaseStorage.instance;
       var ref = storageReference
           .ref()
-          .child('$folderName/${Path.basename(file.path)}');
+          .child('$folderName/${Path.basename(file!.path)}');
       var uploadTask = ref.putFile(File(file.path));
       var downloadUrl = await (await uploadTask).ref.getDownloadURL();
       return downloadUrl;
-    } catch (e, stackTrace) {
+    } catch (e) {
       _snackBarWidget.content = 'Image Error: $e';
       _snackBarWidget.showSnack();
-      return e;
+      return e.toString();
     }
   }
 
@@ -1034,14 +1040,14 @@ class _UserDetailsState extends State<UserDetails> {
       if (_imageRequested) {
         pickedImage = await _picker.pickImage(
             preferredCameraDevice: CameraDevice.front,
-            source: _imageSource,
-            maxHeight: _size.height - 10,
-            maxWidth: _size.width - 10,
+            source: _imageSource!,
+            maxHeight: _size!.height - 10,
+            maxWidth: _size!.width - 10,
             imageQuality: 100);
       }
       _imageRequested = false;
       setState(() {});
-      pickImageFile = File(pickedImage.path);
+      pickImageFile = File(pickedImage!.path);
       return pickedImage;
     } catch (e) {
       print('the error: $e');
@@ -1051,7 +1057,7 @@ class _UserDetailsState extends State<UserDetails> {
   }
 
   Future selecteMapLocation(
-      {String locationName, LatLng locationAddress}) async {
+      {String? locationName, LatLng? locationAddress}) async {
     if (locationAddress != null && locationName != null) {
       _myLocation = {
         'addressName': locationName,

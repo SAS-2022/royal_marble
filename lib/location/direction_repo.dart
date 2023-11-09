@@ -5,15 +5,16 @@ import 'package:royal_marble/location/.env.dart';
 import '../models/directions.dart';
 
 class DirectionRepository {
-  DirectionRepository({Dio dio}) : _dio = dio ?? Dio();
+  DirectionRepository({Dio? dio}) : _dio = dio ?? Dio();
   final Dio _dio;
   static const String baseUrl =
       'https://maps.googleapis.com/maps/api/directions/json?';
 
-  Future<Directions> getDirections({LatLng origin, LatLng destination}) async {
+  Future<Directions> getDirections(
+      {LatLng? origin, LatLng? destination}) async {
     final response = await _dio.get(baseUrl, queryParameters: {
-      'origin': '${origin.latitude},${origin.longitude}',
-      'destination': '${destination.latitude},${destination.longitude}',
+      'origin': '${origin!.latitude},${origin.longitude}',
+      'destination': '${destination!.latitude},${destination.longitude}',
       'key': googleAPIKey,
     });
     print('response: ${response.data}');

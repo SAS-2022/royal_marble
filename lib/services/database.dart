@@ -1685,7 +1685,7 @@ class DatabaseService {
 
   //Helper collection allows to add, read, update and delete helpers
   Future<String> addNewHelper(
-      {String firstName, String lastName, String mobileNumber}) async {
+      {String? firstName, String? lastName, String? mobileNumber}) async {
     try {
       return await helperCollection.add({
         'firstName': firstName,

@@ -1,15 +1,15 @@
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 class ClientData {
-  String uid;
-  String clientName;
-  Map<String, dynamic> clientAddress;
-  String contactPerson;
-  PhoneNumber phoneNumber;
-  String emailAddress;
-  List<dynamic> clientVisits;
-  String userId;
-  String error;
+  String? uid;
+  String? clientName;
+  Map<String, dynamic>? clientAddress;
+  String? contactPerson;
+  PhoneNumber? phoneNumber;
+  String? emailAddress;
+  List<dynamic>? clientVisits;
+  String? userId;
+  String? error;
   ClientData({
     this.uid,
     this.clientName,
@@ -24,20 +24,20 @@ class ClientData {
 }
 
 class ProjectData {
-  String uid;
-  String projectName;
-  String projectDetails;
-  Map<String, dynamic> projectAddress;
-  double radius;
-  String contactorCompany;
-  String contactPerson;
-  PhoneNumber phoneNumber;
-  String emailAddress;
-  List<dynamic> projectVisits;
-  String userId;
-  List<dynamic> assignedWorkers;
-  String projectStatus;
-  String error;
+  String? uid;
+  String? projectName;
+  String? projectDetails;
+  Map<String, dynamic>? projectAddress;
+  double? radius;
+  String? contactorCompany;
+  String? contactPerson;
+  PhoneNumber? phoneNumber;
+  String? emailAddress;
+  List<dynamic>? projectVisits;
+  String? userId;
+  List<dynamic>? assignedWorkers;
+  String? projectStatus;
+  String? error;
   ProjectData(
       {this.uid,
       this.projectName,
@@ -61,20 +61,20 @@ class ProjectData {
 }
 
 class MockupData {
-  String uid;
-  String mockupName;
-  String mockupDetails;
-  Map<String, dynamic> mockupAddress;
-  double radius;
-  String contactorCompany;
-  String contactPerson;
-  PhoneNumber phoneNumber;
-  String emailAddress;
-  List<dynamic> projectVisits;
-  String userId;
-  List<dynamic> assignedWorkers;
-  String mockupStatus;
-  String error;
+  String? uid;
+  String? mockupName;
+  String? mockupDetails;
+  Map<String, dynamic>? mockupAddress;
+  double? radius;
+  String? contactorCompany;
+  String? contactPerson;
+  PhoneNumber? phoneNumber;
+  String? emailAddress;
+  List<dynamic>? projectVisits;
+  String? userId;
+  List<dynamic>? assignedWorkers;
+  String? mockupStatus;
+  String? error;
   MockupData(
       {this.uid,
       this.mockupName,
@@ -98,16 +98,16 @@ class MockupData {
 }
 
 class ClientVisitDetails {
-  String uid;
-  String userId;
-  String clientId;
-  String clientName;
-  String visitPurpose;
-  String visitDetails;
-  String contactPerson;
-  String managerComments;
+  String? uid;
+  String? userId;
+  String? clientId;
+  String? clientName;
+  String? visitPurpose;
+  String? visitDetails;
+  String? contactPerson;
+  String? managerComments;
   var visitTime;
-  String error;
+  String? error;
   ClientVisitDetails({
     this.uid,
     this.userId,
@@ -128,16 +128,16 @@ class ClientVisitDetails {
 }
 
 class ProjectVisitDetails {
-  String uid;
-  String userId;
-  String projectId;
-  String projectName;
-  String visitPurpose;
-  String visitDetails;
-  String contactPerson;
-  String managerComments;
+  String? uid;
+  String? userId;
+  String? projectId;
+  String? projectName;
+  String? visitPurpose;
+  String? visitDetails;
+  String? contactPerson;
+  String? managerComments;
   var visitTime;
-  String error;
+  String? error;
   ProjectVisitDetails({
     this.uid,
     this.userId,
@@ -158,7 +158,7 @@ class ProjectVisitDetails {
 }
 
 class TimeSheet {
-  Map<String, dynamic> userData;
+  Map<String, dynamic>? userData;
   TimeSheet({
     this.userData,
   });

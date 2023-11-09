@@ -11,9 +11,9 @@ import 'package:latlong2/latlong.dart';
 import 'util/geospatial.dart';
 
 class MapView extends StatefulWidget {
-  const MapView({Key key, this.currentUser, this.allUsers}) : super(key: key);
-  final UserData currentUser;
-  final List<UserData> allUsers;
+  const MapView({Key? key, this.currentUser, this.allUsers}) : super(key: key);
+  final UserData? currentUser;
+  final List<UserData>? allUsers;
 
   @override
   State createState() => MapViewState();
@@ -26,33 +26,33 @@ class MapViewState extends State<MapView>
     return true;
   }
 
-  bg.Location _stationaryLocation;
+  bg.Location? _stationaryLocation;
 
-  List<Widget> _userPosition = [];
-  List<CircleMarker> _currentPosition = [];
-  List<LatLng> _polyline = [];
-  List<CircleMarker> _locations = [];
-  List<CircleMarker> _stopLocations = [];
-  List<Polyline> _motionChangePolylines = [];
-  List<CircleMarker> _stationaryMarker = [];
+  final List<Widget> _userPosition = [];
+  final List<CircleMarker> _currentPosition = [];
+  final List<LatLng> _polyline = [];
+  final List<CircleMarker> _locations = [];
+  final List<CircleMarker> _stopLocations = [];
+  final List<Polyline> _motionChangePolylines = [];
+  final List<CircleMarker> _stationaryMarker = [];
 
-  List<GeofenceMarker> _geofences = [];
-  List<GeofenceMarker> _geofenceEvents = [];
-  List<CircleMarker> _geofenceEventEdges = [];
-  List<CircleMarker> _geofenceEventLocations = [];
-  List<Polyline> _geofenceEventPolylines = [];
+  final List<GeofenceMarker> _geofences = [];
+  final List<GeofenceMarker> _geofenceEvents = [];
+  final List<CircleMarker> _geofenceEventEdges = [];
+  final List<CircleMarker> _geofenceEventLocations = [];
+  final List<Polyline> _geofenceEventPolylines = [];
 
-  LatLng _center;
-  MapController _mapController;
-  MapOptions _mapOptions;
-  List<UserData> userProvider;
+  LatLng? _center;
+  MapController? _mapController;
+  MapOptions? _mapOptions;
+  List<UserData>? userProvider;
 
   @override
   void initState() {
     super.initState();
     if (widget.currentUser != null) {
-      _center = LatLng(widget.currentUser.currentLocation['Lat'],
-          widget.currentUser.currentLocation['Lng']);
+      _center = LatLng(widget.currentUser!.currentLocation['Lat'],
+          widget.currentUser!.currentLocation['Lng']);
       _mapOptions = MapOptions(
           onPositionChanged: _onPositionChanged,
           center: _center,
@@ -68,7 +68,7 @@ class MapViewState extends State<MapView>
       //bg.BackgroundGeolocation.onEnabledChange(_onEnabledChange);
 
       Future.delayed(Duration(seconds: 5),
-          (() => _updateCurrentPositionMarkers(userProvider)));
+          (() => _updateCurrentPositionMarkers(userProvider!)));
     }
   }
 
@@ -91,7 +91,7 @@ class MapViewState extends State<MapView>
     print('there is motion: $ll');
     _updateCurrentPositionMarker(ll);
 
-    _mapController.move(ll, _mapController.zoom);
+    _mapController!.move(ll, _mapController!.zoom);
 
     // clear the big red stationaryRadius circle.
     _stationaryMarker.clear();
@@ -99,10 +99,10 @@ class MapViewState extends State<MapView>
     if (location.isMoving) {
       _stationaryLocation ??= location;
       // Add previous stationaryLocation as a small red stop-circle.
-      _stopLocations.add(_buildStopCircleMarker(_stationaryLocation));
+      _stopLocations.add(_buildStopCircleMarker(_stationaryLocation!));
       // Create the green motionchange polyline to show where tracking engaged from.
       _motionChangePolylines
-          .add(_buildMotionChangePolyline(_stationaryLocation, location));
+          .add(_buildMotionChangePolyline(_stationaryLocation!, location));
     } else {
       // Save a reference to the location where we became stationary.
       _stationaryLocation = location;
@@ -124,9 +124,9 @@ class MapViewState extends State<MapView>
           await bg.BackgroundGeolocation.geofenceExists(event.identifier);
       if (exists) {
         // Maybe this is a boot from a geofence event and geofencechange hasn't yet fired
-        bg.Geofence geofence =
+        bg.Geofence? geofence =
             await bg.BackgroundGeolocation.getGeofence(event.identifier);
-        marker = GeofenceMarker(geofence);
+        marker = GeofenceMarker(geofence!);
         _geofences.add(marker);
       } else {
         print(
@@ -206,7 +206,7 @@ class MapViewState extends State<MapView>
 
   void _onLocation(bg.Location location) {
     LatLng ll = LatLng(location.coords.latitude, location.coords.longitude);
-    _mapController.move(ll, _mapController.zoom);
+    _mapController!.move(ll, _mapController!.zoom);
 
     _updateCurrentPositionMarker(ll);
 
@@ -275,7 +275,7 @@ class MapViewState extends State<MapView>
         useRadiusInMeter: true,
         radius: (state.trackingMode == 1)
             ? 200
-            : (state.geofenceProximityRadius / 2));
+            : (state.geofenceProximityRadius! / 2));
   }
 
   Polyline _buildMotionChangePolyline(bg.Location from, bg.Location to) {
@@ -304,7 +304,7 @@ class MapViewState extends State<MapView>
   }
 
   void _onPositionChanged(MapPosition pos, bool hasGesture) {
-    _mapOptions.crs.scale(_mapController.zoom);
+    _mapOptions!.crs.scale(_mapController!.zoom);
   }
 
   @override
@@ -314,7 +314,7 @@ class MapViewState extends State<MapView>
     super.build(context);
     return FlutterMap(
       mapController: _mapController,
-      options: _mapOptions,
+      options: _mapOptions!,
       children: [
         TileLayer(
             urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -330,17 +330,6 @@ class MapViewState extends State<MapView>
         ),
         // Active geofence circles
         CircleLayer(circles: _geofences),
-        // Big red stationary radius while in stationary state.
-        //CircleLayer(circles: _stationaryMarker),
-        // Polyline joining last stationary location to motionchange:true location.
-        //PolylineLayer(polylines: _motionChangePolylines),
-        // Recorded locations.
-        // CircleLayer(circles: _locations),
-        // Small, red circles showing where motionchange:false events fired.
-        // CircleLayer(circles: _stopLocations),
-        // Geofence events (edge marker, event location and polyline joining the two)
-        //CircleLayer(circles: _geofenceEvents),
-        //PolylineLayer(polylines: _geofenceEventPolylines),
         CircleLayer(circles: _geofenceEventLocations),
         CircleLayer(circles: _geofenceEventEdges),
         CircleLayer(circles: _currentPosition),
@@ -351,10 +340,10 @@ class MapViewState extends State<MapView>
 
 class GeofenceMarker extends CircleMarker {
   bg.Geofence geofence;
-  GeofenceMarker(bg.Geofence geofence, [bool triggered = false])
+  GeofenceMarker(bg.Geofence? geofence, [bool triggered = false])
       : super(
             useRadiusInMeter: true,
-            radius: geofence.radius,
+            radius: geofence!.radius,
             color: (triggered)
                 ? Colors.black26.withOpacity(0.2)
                 : Colors.green.withOpacity(0.3),

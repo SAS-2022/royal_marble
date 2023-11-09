@@ -53,8 +53,8 @@ class Directions {
 }
 
 class CustomMarker {
-  String id;
-  LatLng coord;
+  String? id;
+  LatLng? coord;
   CustomMarker({
     this.id,
     this.coord,

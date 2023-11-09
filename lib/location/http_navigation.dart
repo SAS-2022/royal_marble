@@ -4,13 +4,13 @@ import 'package:royal_marble/shared/snack_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HttpNavigation {
-  double lat;
-  double lng;
+  double? lat;
+  double? lng;
   SnackBarWidget _snackBarWidget = SnackBarWidget();
-  BuildContext context;
+  BuildContext? context;
 
   Future<void> startNaviagtionGoogleMap() async {
-    _snackBarWidget.context = context;
+    _snackBarWidget.context = context!;
     var uri = Uri.parse('google.navigation:q=$lat,$lng&mode=d');
     var iosUri = 'comgooglemaps://?q=$lat,$lng&zoom=14';
     var uriIos = Uri.parse('comgooglemaps://?q=$lat,$lng&zoom=14');

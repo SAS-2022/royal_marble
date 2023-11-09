@@ -7,10 +7,10 @@ import '../models/user_model.dart';
 import '../services/database.dart';
 
 class MockupGrid extends StatelessWidget {
-  const MockupGrid({Key key, this.currentUser, this.selectedMockup})
+  const MockupGrid({Key? key, this.currentUser, this.selectedMockup})
       : super(key: key);
-  final UserData currentUser;
-  final MockupData selectedMockup;
+  final UserData? currentUser;
+  final MockupData? selectedMockup;
 
   @override
   Widget build(BuildContext context) {
@@ -22,29 +22,26 @@ class MockupGrid extends StatelessWidget {
                 value: db.getAllMockups(),
                 initialData: const [],
                 catchError: (context, err) {
-                  print('Error getting Project: $err');
-                  return [MockupData(error: err)];
+                  return [MockupData(error: err.toString())];
                 },
               )
             : StreamProvider<MockupData>.value(
-                value: db.getMockupById(mockupId: selectedMockup.uid),
+                value: db.getMockupById(mockupId: selectedMockup!.uid),
                 initialData: MockupData(),
                 catchError: (context, err) {
-                  print('Error getting Project: $err');
-                  return MockupData(error: err);
+                  return MockupData(error: err.toString());
                 },
               ),
         StreamProvider<List<UserData>>.value(
           value: db.getAllWorkers(),
           initialData: [],
           catchError: (context, error) {
-            print('Error: $error');
-            return [UserData(error: error)];
+            return [UserData(error: error.toString())];
           },
         )
       ],
       child: MockupList(
-        currentUser: currentUser,
+        currentUser: currentUser!,
         singleMockup: selectedMockup == null ? false : true,
       ),
     );

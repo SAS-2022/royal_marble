@@ -8,7 +8,7 @@ import '../services/database.dart';
 
 class LocationInsertion extends StatefulWidget {
   const LocationInsertion(
-      {Key key,
+      {Key? key,
       this.customerLocation,
       this.customerId,
       this.userId,
@@ -18,14 +18,14 @@ class LocationInsertion extends StatefulWidget {
       this.projectId,
       this.showroomAddress})
       : super(key: key);
-  final String customerLocation;
-  final String customerId;
-  final String userId;
-  final String visitPurpose;
-  final String contactName;
-  final String clientName;
-  final String projectId;
-  final bool showroomAddress;
+  final String? customerLocation;
+  final String? customerId;
+  final String? userId;
+  final String? visitPurpose;
+  final String? contactName;
+  final String? clientName;
+  final String? projectId;
+  final bool? showroomAddress;
 
   @override
   _LocationInsertionState createState() => _LocationInsertionState();
@@ -33,16 +33,16 @@ class LocationInsertion extends StatefulWidget {
 
 class _LocationInsertionState extends State<LocationInsertion> {
   final _formKey = GlobalKey<FormState>();
-  GoogleMapController _mapController;
+  GoogleMapController? _mapController;
   var lat = 0.0, long = 0.0;
   var _getMyCurrentLocation;
   // PickResult selectedPlace;
-  String apiKey;
+  String? apiKey;
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () {
-        if (widget.showroomAddress != null && widget.showroomAddress) {
+        if (widget.showroomAddress != null && widget.showroomAddress!) {
           Navigator.pop(context);
           return Future(() => true);
         } else {
@@ -110,7 +110,7 @@ class _LocationInsertionState extends State<LocationInsertion> {
     return currentLocation;
   }
 
-  LatLng _center;
+  LatLng? _center;
   // void _onMapCreated(GoogleMapController controller) {
   //   _mapController = controller;
   // }
@@ -129,74 +129,7 @@ class _LocationInsertionState extends State<LocationInsertion> {
               height: MediaQuery.of(context).size.height - 50,
               child: Column(
                 children: [
-                  Expanded(child: Container()
-                      // PlacePicker(
-                      //   apiKey: apiKey,
-                      //   searchForInitialValue: false,
-                      //   initialPosition: _center,
-                      //   useCurrentLocation: true,
-                      //   selectInitialPosition: true,
-                      //   onPlacePicked: (result) async {
-                      //     selectedPlace = result;
-                      //     if (selectedPlace.geometry.location != null) {
-                      //       lat = double.parse(selectedPlace.geometry.location
-                      //           .toString()
-                      //           .split(',')[0]);
-                      //       long = double.parse(selectedPlace.geometry.location
-                      //           .toString()
-                      //           .split(',')[1]);
-                      //     }
-
-                      //     await _saveNewLocation();
-                      //     // if (widget.customerId != null) {
-                      //     //   await Navigator.push(
-                      //     //     context,
-                      //     //     MaterialPageRoute(
-                      //     //       builder: (context) => NewVisitFormTwo(
-                      //     //         userId: widget.userId,
-                      //     //         clientId: widget.customerId,
-                      //     //         visitPurpose: widget.visitPurpose,
-                      //     //         contactName: widget.contactName,
-                      //     //         clientName: widget.clientName,
-                      //     //       ),
-                      //     //     ),
-                      //     //   );
-                      //     // }
-
-                      //     // if (widget.projectId != null) {
-                      //     //   await Navigator.pushReplacement(
-                      //     //       context,
-                      //     //       MaterialPageRoute(
-                      //     //           builder: (context) => NewVisitFormTwo(
-                      //     //                 userId: widget.userId,
-                      //     //                 projectId: widget.projectId,
-                      //     //                 contactName: widget.contactName,
-                      //     //                 clientName: widget.clientName,
-                      //     //               )));
-                      //     // } else if (widget.showroomAddress != null &&
-                      //     //     widget.showroomAddress == true) {
-                      //     //   var clientAddress = {
-                      //     //     'location': selectedPlace.formattedAddress,
-                      //     //     'lat': lat,
-                      //     //     'long': long
-                      //     //   };
-
-                      //     //   return Navigator.pop(context, clientAddress);
-                      //     // } else {
-                      //     //   var clientAddress = Clients(
-                      //     //       clientGoogleAddress:
-                      //     //           selectedPlace.formattedAddress,
-                      //     //       lat: lat,
-                      //     //       long: long);
-
-                      //     //   return Navigator.pop(context, clientAddress);
-                      //     // }
-                      //   },
-                      // ),
-                      ),
-                  // selectedPlace == null
-                  //     ? Container()
-                  //     : Text(selectedPlace.formattedAddress ?? '')
+                  Expanded(child: Container()),
                 ],
               ),
             ),
@@ -246,20 +179,6 @@ class _LocationInsertionState extends State<LocationInsertion> {
     var db = DatabaseService();
     var result;
     try {
-      // if (widget.customerId != null) {
-      //   result = db.clientCollection.doc(widget.customerId).update({
-      //     'clientLocation': selectedPlace!.formattedAddress,
-      //     'lat': lat,
-      //     'long': long,
-      //   });
-      // } else if (widget.projectId != null) {
-      //   result = db.projectCollection.doc(widget.projectId).update({
-      //     'googleLocation': selectedPlace!.formattedAddress,
-      //     'lat': lat,
-      //     'long': long,
-      //   });
-      // }
-
       if (result != null) {
         print('the location has been updated');
       } else {

@@ -8,25 +8,25 @@ import '../shared/constants.dart';
 import '../shared/loading.dart';
 
 class MockupList extends StatefulWidget {
-  const MockupList({Key key, this.currentUser, this.singleMockup})
+  const MockupList({Key? key, this.currentUser, this.singleMockup})
       : super(key: key);
-  final UserData currentUser;
-  final bool singleMockup;
+  final UserData? currentUser;
+  final bool? singleMockup;
   @override
   State<MockupList> createState() => _MockupListState();
 }
 
 class _MockupListState extends State<MockupList> {
   var mockupProvider;
-  List<UserData> allWorkers;
-  Size size;
+  List<UserData>? allWorkers;
+  Size? size;
   @override
   Widget build(BuildContext context) {
     size = MediaQuery.of(context).size;
     if (widget.singleMockup != null) {
       mockupProvider = Provider.of<MockupData>(context);
       allWorkers = Provider.of<List<UserData>>(context);
-      return allWorkers.isNotEmpty
+      return allWorkers!.isNotEmpty
           ? MockupForm(
               selectedMockUp: mockupProvider,
               isNewMockup: false,
@@ -48,7 +48,7 @@ class _MockupListState extends State<MockupList> {
 
   Widget _buildProjectList() {
     return SizedBox(
-      height: size.height - 30,
+      height: size!.height - 30,
       child: mockupProvider != null && mockupProvider.isNotEmpty
           ? ListView.builder(
               itemCount: mockupProvider.length,
@@ -61,7 +61,7 @@ class _MockupListState extends State<MockupList> {
                         border: Border.all(),
                         borderRadius: BorderRadius.circular(15)),
                     child: GestureDetector(
-                      onTap: allWorkers != null && allWorkers.isNotEmpty
+                      onTap: allWorkers != null && allWorkers!.isNotEmpty
                           ? () async {
                               await Navigator.push(
                                 context,

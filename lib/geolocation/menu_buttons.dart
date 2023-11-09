@@ -12,20 +12,20 @@ import 'settings_view.dart';
 import 'util/dialog.dart' as util;
 
 class MainMenuButton extends StatefulWidget {
-  const MainMenuButton({Key key}) : super(key: key);
+  const MainMenuButton({Key? key}) : super(key: key);
 
   @override
   State createState() => MainMenuButtonState();
 }
 
 class MainMenuButtonState extends State<MainMenuButton> {
-  BuildContext _context;
+  BuildContext? _context;
 
   void _onClickMenu() async {}
 
   void _onClickSettings() {
     bg.BackgroundGeolocation.playSound(util.Dialog.getSoundId("OPEN"));
-    Navigator.of(_context).push(MaterialPageRoute(
+    Navigator.of(_context!).push(MaterialPageRoute(
         fullscreenDialog: true,
         builder: (BuildContext context) {
           return SettingsView();
@@ -39,15 +39,15 @@ class MainMenuButtonState extends State<MainMenuButton> {
   }
 
   void _onClickEmailLog() async {
-    actions.Actions.emailLog(_context);
+    actions.Actions.emailLog(_context!);
   }
 
   void _onClickSync() async {
-    actions.Actions.sync(_context);
+    actions.Actions.sync(_context!);
   }
 
   void _onClickDestroyLocations() async {
-    actions.Actions.destroyLocations(_context);
+    actions.Actions.destroyLocations(_context!);
   }
 
   void _onClickRequestPermission() async {
@@ -59,18 +59,18 @@ class MainMenuButtonState extends State<MainMenuButton> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Request Permission"),
+          title: const Text("Request Permission"),
           content:
               Text("Current Authorization status: ${providerState.status}"),
           actions: <Widget>[
             TextButton(
-              child: Text('WhenInUse'),
+              child: const Text('WhenInUse'),
               onPressed: () async {
                 _requestPermission('WhenInUse');
               },
             ),
             TextButton(
-              child: Text('Always'),
+              child: const Text('Always'),
               onPressed: () async {
                 _requestPermission('Always');
               },
@@ -121,7 +121,7 @@ class MainMenuButtonState extends State<MainMenuButton> {
     _context = context;
     return Container(
       padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, buttonBottomPadding),
-      margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 10.0),
+      margin: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 10.0),
       child: SpeedDial(
           icon: Icons.add,
           activeIcon: Icons.close,
@@ -133,45 +133,45 @@ class MainMenuButtonState extends State<MainMenuButton> {
   }
 
   List<SpeedDialChild> _buildMenuItems(BuildContext context) {
-    Color bgColor = Theme.of(context).bottomAppBarColor;
+    Color bgColor = Theme.of(context).bottomAppBarTheme.color!;
 
     return <SpeedDialChild>[
       SpeedDialChild(
           label: "Settings",
           backgroundColor: bgColor,
           foregroundColor: Colors.black,
-          child: Icon(Icons.settings),
+          child: const Icon(Icons.settings),
           onTap: _onClickSettings),
       SpeedDialChild(
           label: "Email log",
           backgroundColor: bgColor,
           foregroundColor: Colors.black,
-          child: Icon(Icons.email),
+          child: const Icon(Icons.email),
           onTap: _onClickEmailLog),
       SpeedDialChild(
           label: "Upload locations",
           backgroundColor: bgColor,
           foregroundColor: Colors.black,
-          child: Icon(Icons.cloud_upload),
+          child: const Icon(Icons.cloud_upload),
           onTap: _onClickSync),
       SpeedDialChild(
           label: "Reset odometer",
           backgroundColor: bgColor,
           foregroundColor: Colors.black,
-          child: Icon(Icons.av_timer),
+          child: const Icon(Icons.av_timer),
           onTap: _onClickResetOdometer),
       SpeedDialChild(
           label: "Request Permission",
           backgroundColor: bgColor,
           foregroundColor: Colors.black,
-          child: Icon(Icons.lock_open),
+          child: const Icon(Icons.lock_open),
           onTap: _onClickRequestPermission),
       SpeedDialChild(
           //hasLabel: true,
           label: "Destroy locations",
           backgroundColor: bgColor,
           foregroundColor: Colors.black,
-          child: Icon(Icons.delete),
+          child: const Icon(Icons.delete),
           onTap: _onClickDestroyLocations)
     ];
   }

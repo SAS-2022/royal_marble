@@ -62,7 +62,7 @@ class Actions {
   static void emailLog(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    String email = prefs.getString("email");
+    String email = prefs.getString("email")!;
     email ??= "";
     email = await util.Dialog.prompt(context,
         title: "Email log", labelText: 'Email', value: email);

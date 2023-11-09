@@ -8,10 +8,10 @@ import 'package:royal_marble/shared/loading.dart';
 import '../shared/constants.dart';
 
 class ProjectList extends StatefulWidget {
-  const ProjectList({Key key, this.currentUser, this.singleProject})
+  const ProjectList({Key? key, this.currentUser, this.singleProject})
       : super(key: key);
-  final UserData currentUser;
-  final bool singleProject;
+  final UserData? currentUser;
+  final bool? singleProject;
 
   @override
   State<ProjectList> createState() => _ProjectListState();
@@ -19,15 +19,15 @@ class ProjectList extends StatefulWidget {
 
 class _ProjectListState extends State<ProjectList> {
   var projectProvider;
-  List<UserData> allWorkers;
-  Size size;
+  List<UserData>? allWorkers;
+  Size? size;
   @override
   Widget build(BuildContext context) {
     size = MediaQuery.of(context).size;
     if (widget.singleProject != null) {
       projectProvider = Provider.of<ProjectData>(context);
       allWorkers = Provider.of<List<UserData>>(context);
-      return allWorkers.isNotEmpty
+      return allWorkers!.isNotEmpty
           ? ProjectForm(
               selectedProject: projectProvider,
               isNewProject: false,
@@ -49,7 +49,7 @@ class _ProjectListState extends State<ProjectList> {
 
   Widget _buildProjectList() {
     return SizedBox(
-      height: size.height - 30,
+      height: size!.height - 30,
       child: projectProvider != null && projectProvider.isNotEmpty
           ? ListView.builder(
               itemCount: projectProvider.length,
@@ -62,7 +62,7 @@ class _ProjectListState extends State<ProjectList> {
                         border: Border.all(),
                         borderRadius: BorderRadius.circular(15)),
                     child: GestureDetector(
-                      onTap: allWorkers != null && allWorkers.isNotEmpty
+                      onTap: allWorkers != null && allWorkers!.isNotEmpty
                           ? () async {
                               await Navigator.push(
                                 context,

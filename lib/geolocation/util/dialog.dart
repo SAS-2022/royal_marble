@@ -71,7 +71,7 @@ class Dialog {
   }
 
   static void alert(BuildContext context, String title, String message,
-      [Function callback]) {
+      [Function? callback]) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -95,19 +95,19 @@ class Dialog {
     );
   }
 
-  static Future<String> prompt(BuildContext context,
-      {String title, String labelText, String hintText, String value}) {
+  static Future<dynamic> prompt(BuildContext context,
+      {String? title, String? labelText, String? hintText, String? value}) {
     TextEditingController controller = TextEditingController(text: value);
 
     Completer completer = Completer<String>();
 
-    String submittedValue = value;
+    String submittedValue = value!;
 
     showDialog<String>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(title),
+          title: Text(title!),
           contentPadding: const EdgeInsets.all(16.0),
           content: SizedBox(
             height: 100.0,
@@ -150,25 +150,23 @@ class Dialog {
     return completer.future;
   }
 
-  static Future<CircularProgressIndicator> showLoading(
-      BuildContext context, String message) {
+  static Future<dynamic> showLoading(BuildContext context, String message) {
     return showDialog(
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
-          return CircularProgressIndicator();
+          return const CircularProgressIndicator();
         });
   }
 
-  // TODO return dynamic until iOS supports String sound ids.
   static dynamic getSoundId(String key) {
     key = key.toUpperCase();
     dynamic soundId = -1;
-    Map<String, Object> soundMap;
+    Map<String, Object>? soundMap;
     if (defaultTargetPlatform == TargetPlatform.android) {
-      soundMap = SOUND_MAP["android"];
+      soundMap = SOUND_MAP["android"]!;
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-      soundMap = SOUND_MAP["ios"];
+      soundMap = SOUND_MAP["ios"]!;
     }
     if (soundMap != null && soundMap.containsKey(key)) {
       soundId = soundMap[key];

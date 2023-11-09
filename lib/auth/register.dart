@@ -16,7 +16,7 @@ import '../shared/country_picker.dart';
 import '../shared/loading.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({Key key}) : super(key: key);
+  const RegisterScreen({Key? key}) : super(key: key);
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -25,7 +25,7 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final AuthService _auth = AuthService();
   final _formKey = GlobalKey<FormState>();
-  HttpNavigation _httpNavigation = HttpNavigation();
+  final HttpNavigation _httpNavigation = HttpNavigation();
   bool loading = false;
   //text field state
   String firstName = '';
@@ -39,13 +39,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String error = '';
   bool _isObsecure = true;
   Map<String, dynamic> myLocation = {};
-  Size size;
-  SnackBarWidget _snackBarWidget = SnackBarWidget();
+  Size? size;
+  final SnackBarWidget _snackBarWidget = SnackBarWidget();
   final ImagePicker _picker = ImagePicker();
   bool _imageRequested = false;
-  XFile pickedImage;
+  XFile? pickedImage;
 
-  ImageSource _imageSource;
+  ImageSource? _imageSource;
   @override
   void initState() {
     super.initState();
@@ -68,11 +68,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Container(
                 decoration: BoxDecoration(
                     color: Colors.grey[600],
-                    border: Border.all(color: Colors.grey[800]),
+                    border: Border.all(color: Colors.grey[800]!),
                     borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(25),
                         topRight: Radius.circular(25))),
-                height: size.height / 10,
+                height: size!.height / 10,
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 20),
                   child: Row(
@@ -126,8 +126,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: GestureDetector(
                   onTap: () async => _selectImageSource(),
                   child: Container(
-                    height: size.height / 5,
-                    width: size.width / 2,
+                    height: size!.height / 5,
+                    width: size!.width / 2,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(),
@@ -141,7 +141,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           )
                         : CircleAvatar(
                             backgroundImage: FileImage(
-                            File(pickedImage.path),
+                            File(pickedImage!.path),
                             scale: 2,
                           )),
                   ),
@@ -172,7 +172,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             borderSide: BorderSide(color: Colors.blue)),
                       ),
                       validator: (val) =>
-                          val.isEmpty ? 'First name cannot be empty' : null,
+                          val!.isEmpty ? 'First name cannot be empty' : null,
                       onChanged: (val) {
                         setState(() {
                           firstName = val.trim();
@@ -207,7 +207,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             borderSide: BorderSide(color: Colors.blue)),
                       ),
                       validator: (val) =>
-                          val.isEmpty ? 'Last Name cannot be empty' : null,
+                          val!.isEmpty ? 'Last Name cannot be empty' : null,
                       onChanged: (val) {
                         setState(() {
                           lastName = val.trim();
@@ -321,7 +321,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             borderSide: BorderSide(color: Colors.blue)),
                       ),
                       validator: (val) =>
-                          val.isEmpty ? 'Company cannot be empty' : null,
+                          val!.isEmpty ? 'Company cannot be empty' : null,
                       onChanged: (val) {
                         setState(() {
                           company = val.toString();
@@ -358,7 +358,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         validator: (val) {
                           Pattern pattern = r'^(?:[05]8)?[0-9]{10}$';
                           var regexp = RegExp(pattern.toString());
-                          if (val.isEmpty) {
+                          if (val!.isEmpty) {
                             return 'Phone cannot be empty';
                           }
                           if (!regexp.hasMatch(val)) {
@@ -403,7 +403,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             borderSide: BorderSide(color: Colors.blue)),
                       ),
                       validator: (val) {
-                        if (val.isEmpty) {
+                        if (val!.isEmpty) {
                           return 'Email Address cannot be empty';
                         }
                         if (!EmailValidator.validate(val)) {
@@ -489,7 +489,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             borderSide: BorderSide(color: Colors.blue)),
                       ),
                       validator: (val) {
-                        if (val.isEmpty) {
+                        if (val!.isEmpty) {
                           return 'Password cannot be empty';
                         }
                         if (val.length < 6) {
@@ -514,7 +514,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               //Submit button
               SizedBox(
-                width: size.width - 50,
+                width: size!.width - 50,
                 child: ElevatedButton(
                     style: ButtonStyle(
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -536,7 +536,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       style: buttonStyle,
                     ),
                     onPressed: () async {
-                      if (_formKey.currentState.validate() &&
+                      if (_formKey.currentState!.validate() &&
                           pickedImage != null) {
                         if (myLocation.isEmpty) {
                           _snackBarWidget.content =
@@ -547,7 +547,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         setState(() {
                           loading = true;
                         });
-                        String imageUrl = await _uploadImage(file: pickedImage);
+                        String imageUrl =
+                            await _uploadImage(file: pickedImage!);
 
                         await _auth.registerWithEmailandPassword(
                             email: email.trim(),
@@ -577,7 +578,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Future<String> _uploadImage({XFile file}) async {
+  Future<String> _uploadImage({XFile? file}) async {
     FirebaseStorage storageReference;
     String folderName = 'profile_images';
 
@@ -585,14 +586,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       storageReference = FirebaseStorage.instance;
       var ref = storageReference
           .ref()
-          .child('$folderName/${Path.basename(file.path)}');
+          .child('$folderName/${Path.basename(file!.path)}');
       var uploadTask = ref.putFile(File(file.path));
       var downloadUrl = await (await uploadTask).ref.getDownloadURL();
       return downloadUrl;
     } catch (e, stackTrace) {
       _snackBarWidget.content = 'Image Error: $e';
       _snackBarWidget.showSnack();
-      return e;
+      return e.toString();
     }
   }
 
@@ -607,23 +608,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (_imageRequested) {
         pickedImage = await _picker.pickImage(
             preferredCameraDevice: CameraDevice.front,
-            source: _imageSource,
-            maxHeight: size.height - 10,
-            maxWidth: size.width - 10,
+            source: _imageSource!,
+            maxHeight: size!.height - 10,
+            maxWidth: size!.width - 10,
             imageQuality: 100);
       }
       _imageRequested = false;
       setState(() {});
       return pickedImage;
     } catch (e) {
-      print('the error: $e');
       _snackBarWidget.content = 'Image could not be picked: $e';
       _snackBarWidget.showSnack();
     }
   }
 
   Future selecteMapLocation(
-      {String locationName, LatLng locationAddress}) async {
+      {String? locationName, LatLng? locationAddress}) async {
     if (locationAddress != null && locationName != null) {
       myLocation = {
         'addressName': locationName,

@@ -25,54 +25,54 @@ import 'package:google_maps_flutter_platform_interface/src/types/marker_updates.
 
 class ShowMap extends StatefulWidget {
   const ShowMap({
-    Key key,
+    Key? key,
     this.currentUser,
     this.listOfMarkers,
     this.addProject,
     this.addMockup,
   }) : super(key: key);
-  final UserData currentUser;
-  final String listOfMarkers;
-  final bool addProject;
-  final bool addMockup;
+  final UserData? currentUser;
+  final String? listOfMarkers;
+  final bool? addProject;
+  final bool? addMockup;
   @override
   _ShowMapState createState() => _ShowMapState();
 }
 
 class _ShowMapState extends State<ShowMap> {
-  Stream<List<CustomMarker>> streamLocation;
-  Map<String, dynamic> futureLocation;
-  SnackBarWidget _snackBarWidget = SnackBarWidget();
-  GoogleMapController _mapController;
-  Map<String, dynamic> locationProvider;
+  Stream<List<CustomMarker>>? streamLocation;
+  Map<String, dynamic>? futureLocation;
+  final SnackBarWidget _snackBarWidget = SnackBarWidget();
+  GoogleMapController? _mapController;
+  Map<String, dynamic>? locationProvider;
   var projectProvider;
   var userProvider;
   var mockupProvider;
-  List<ClientData> clientProvider;
-  Directions _info;
+  List<ClientData>? clientProvider;
+  Directions? _info;
   String title = '';
   var lat = 0.0, long = 0.0;
   var _getMyCurrentLocation;
   Set<Circle> _circules = HashSet<Circle>();
-  SharedPreferences _preferredTab;
+  SharedPreferences? _preferredTab;
   int _prefTab = 0;
   var db = DatabaseService();
   // PickResult selectedPlace;
-  String apiKey;
-  LatLng _center;
+  String? apiKey;
+  LatLng? _center;
   final _elevation = 3.0;
 
   Map<String, Marker> listMarkers = {};
   Map<String, Marker> clientMarkers = {};
   Set<Marker> noMarkers = {};
-  String clientSector;
-  Future assignedMarkers;
-  Size _size;
+  String? clientSector;
+  Future? assignedMarkers;
+  Size? _size;
   double radius = 1200;
-  Set<Marker> userMarkers;
-  String locationName;
-  LatLng _selectedLocation;
-  Timer _timer;
+  Set<Marker>? userMarkers;
+  String? locationName;
+  LatLng? _selectedLocation;
+  Timer? _timer;
   bool _loading = true;
   double _mapZoom = 17.0;
 
@@ -87,8 +87,8 @@ class _ShowMapState extends State<ShowMap> {
     super.initState();
     getSharedPreferences();
 
-    _center = LatLng(widget.currentUser.homeAddress['Lat'],
-        widget.currentUser.homeAddress['Lng']);
+    _center = LatLng(widget.currentUser!.homeAddress['Lat'],
+        widget.currentUser!.homeAddress['Lng']);
     _getApiKey();
     _getMyCurrentLocation = _determinePosition();
     _identifyMapMarkers();
@@ -105,14 +105,14 @@ class _ShowMapState extends State<ShowMap> {
   void dispose() {
     super.dispose();
     if (widget.listOfMarkers == 'users') {
-      _timer.cancel();
+      _timer!.cancel();
     }
   }
 
   Future<void> getSharedPreferences() async {
     _preferredTab = await SharedPreferences.getInstance();
-    if (_preferredTab != null && _preferredTab.getInt('tab') != null) {
-      _prefTab = _preferredTab.getInt('tab');
+    if (_preferredTab != null && _preferredTab!.getInt('tab') != null) {
+      _prefTab = _preferredTab!.getInt('tab')!;
     } else {
       _prefTab = 0;
     }
@@ -136,7 +136,7 @@ class _ShowMapState extends State<ShowMap> {
   //Function will get the client markers assign by each sales depending on their previlage
   Future<Set<Marker>> _getClientMarker() async {
     //listMarkers.clear();
-    if (widget.currentUser.roles.contains('isAdmin')) {
+    if (widget.currentUser!.roles.contains('isAdmin')) {
       var currentClients = await db.getClientFuture();
       if (currentClients.isNotEmpty) {
         for (var client in currentClients) {
@@ -156,9 +156,9 @@ class _ShowMapState extends State<ShowMap> {
         }
       }
     }
-    if (widget.currentUser.roles.contains('isSales')) {
+    if (widget.currentUser!.roles.contains('isSales')) {
       var currentClients =
-          await db.getSalesUserClientFuture(userId: widget.currentUser.uid);
+          await db.getSalesUserClientFuture(userId: widget.currentUser!.uid);
       if (currentClients.isNotEmpty) {
         for (var client in currentClients) {
           clientMarkers.putIfAbsent(
@@ -182,7 +182,7 @@ class _ShowMapState extends State<ShowMap> {
       clientProvider = await db.getClientFuture();
     }
 
-    return userMarkers;
+    return userMarkers!;
   }
 
   //Get directions
@@ -245,16 +245,16 @@ class _ShowMapState extends State<ShowMap> {
   }
 
   void _showDialog(
-      {String title,
-      String content,
-      ProjectData projectData,
-      MockupData mockupData}) {
+      {String? title,
+      String? content,
+      ProjectData? projectData,
+      MockupData? mockupData}) {
     showDialog(
         context: context,
         builder: (_) {
           return AlertDialog(
-            title: Text(title),
-            content: Text(content),
+            title: Text(title!),
+            content: Text(content!),
             actions: [
               //Delete the project
               projectData != null || mockupData != null
@@ -338,8 +338,8 @@ class _ShowMapState extends State<ShowMap> {
       long = currentLocation.longitude;
     });
     _center = LatLng(lat, long);
-    _mapController.animateCamera(CameraUpdate.newCameraPosition(
-        CameraPosition(target: _center, zoom: _mapZoom)));
+    _mapController!.animateCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(target: _center!, zoom: _mapZoom)));
     return currentLocation;
   }
 
@@ -372,7 +372,7 @@ class _ShowMapState extends State<ShowMap> {
           backgroundColor: const Color.fromARGB(255, 191, 180, 66),
         ),
         body: _buildLocationSelection(),
-        endDrawer: widget.addProject || widget.addMockup
+        endDrawer: widget.addProject! || widget.addMockup!
             ? null
             : _buildMarkersDrawer(),
       ),
@@ -397,19 +397,19 @@ class _ShowMapState extends State<ShowMap> {
       //  streamLocation = db.getAllUsersLocation(userId: user.uid);
       futureLocation = await db.getUserLocationFuture(usersId: user.uid);
       // var result = await streamLocation.first;
-      if (futureLocation['uuid'] != null) {
+      if (futureLocation!['uuid'] != null) {
         _setInitialMarkers(
-          uuid: futureLocation['uuid'],
+          uuid: futureLocation!['uuid'],
           userData: user,
-          lat: futureLocation['lat'],
-          lng: futureLocation['lng'],
+          lat: futureLocation!['lat'],
+          lng: futureLocation!['lng'],
         );
       }
     }
   }
 
   Future<Set<Marker>> _setInitialMarkers(
-      {String uuid, double lat, double lng, UserData userData}) async {
+      {String? uuid, double? lat, double? lng, UserData? userData}) async {
     // final Uint8List markIcons = await getImages(userData.imageUrl, 20);
     List<RichText> _userDetail = [];
     RichText _richText;
@@ -417,15 +417,15 @@ class _ShowMapState extends State<ShowMap> {
       text: TextSpan(
         children: [
           TextSpan(
-              text: '${userData.firstName} ${userData.lastName}',
+              text: '${userData!.firstName} ${userData.lastName}',
               style: textStyle10),
         ],
       ),
     );
     _userDetail.add(_richText);
 
-    listMarkers.putIfAbsent(uuid, () {
-      futureLocation.forEach((key, value) {
+    listMarkers.putIfAbsent(uuid!, () {
+      futureLocation!.forEach((key, value) {
         if (key != 'uuid' && value != '') {
           if (key == 'time') {
             //we will change the value
@@ -448,7 +448,7 @@ class _ShowMapState extends State<ShowMap> {
       });
       return Marker(
         markerId: MarkerId(uuid),
-        position: LatLng(lat, lng),
+        position: LatLng(lat!, lng!),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
         infoWindow: InfoWindow(
             title: '${userData.firstName} ${userData.lastName}',
@@ -458,12 +458,12 @@ class _ShowMapState extends State<ShowMap> {
                   context: context,
                   builder: (_) {
                     return SizedBox(
-                      width: _size.width - 100,
-                      height: _size.height / 2,
+                      width: _size!.width - 100,
+                      height: _size!.height / 2,
                       child: AlertDialog(
                         title: const Text('Details'),
                         content: SizedBox(
-                          height: _size.height / 3,
+                          height: _size!.height / 3,
                           width: double.maxFinite,
                           child: ListView.builder(
                               shrinkWrap: true,
@@ -487,15 +487,15 @@ class _ShowMapState extends State<ShowMap> {
         _loading = false;
       });
     }
-    return userMarkers;
+    return userMarkers!;
   }
 
   void _updateCurrentMarkers() async {
     Map<String, Marker> updatedMarker = {};
     for (var user in userProvider) {
       futureLocation = await db.getUserLocationFuture(usersId: user.uid);
-      if (futureLocation['uuid'] != null) {
-        updatedMarker.putIfAbsent(futureLocation['uuid'], () {
+      if (futureLocation!['uuid'] != null) {
+        updatedMarker.putIfAbsent(futureLocation!['uuid'], () {
           List<RichText> _userDetail = [];
           RichText _richText;
           _richText = RichText(
@@ -508,7 +508,7 @@ class _ShowMapState extends State<ShowMap> {
             ),
           );
           _userDetail.add(_richText);
-          futureLocation.forEach((key, value) {
+          futureLocation!.forEach((key, value) {
             if (key != 'uuid' && value != '') {
               if (key == 'time') {
                 //we will change the value
@@ -532,8 +532,8 @@ class _ShowMapState extends State<ShowMap> {
           });
 
           return Marker(
-            markerId: MarkerId(futureLocation['uuid']),
-            position: LatLng(futureLocation['lat'], futureLocation['lng']),
+            markerId: MarkerId(futureLocation!['uuid']),
+            position: LatLng(futureLocation!['lat'], futureLocation!['lng']),
             icon: BitmapDescriptor.defaultMarkerWithHue(
                 BitmapDescriptor.hueViolet),
             infoWindow: InfoWindow(
@@ -544,12 +544,12 @@ class _ShowMapState extends State<ShowMap> {
                       context: context,
                       builder: (_) {
                         return SizedBox(
-                          width: _size.width - 100,
-                          height: _size.height / 2,
+                          width: _size!.width - 100,
+                          height: _size!.height / 2,
                           child: AlertDialog(
                             title: const Text('Details'),
                             content: SizedBox(
-                              height: _size.height / 3,
+                              height: _size!.height / 3,
                               width: double.maxFinite,
                               child: ListView.builder(
                                   shrinkWrap: true,
@@ -585,8 +585,8 @@ class _ShowMapState extends State<ShowMap> {
     return Stack(
       children: [
         SizedBox(
-          height: _size.height,
-          width: _size.width,
+          height: _size!.height,
+          width: _size!.width,
           child: Stack(
             children: [
               userProvider != null
@@ -601,8 +601,8 @@ class _ShowMapState extends State<ShowMap> {
                         if (coordinates != null) {
                           var betterName = '';
                           await _getLocationName(coordinates);
-                          locationName.replaceAll(' ', '');
-                          var theName = locationName.split('\n');
+                          locationName!.replaceAll(' ', '');
+                          var theName = locationName!.split('\n');
 
                           for (var i = 0; i < 7; i++) {
                             betterName += theName[i].trimLeft();
@@ -613,29 +613,29 @@ class _ShowMapState extends State<ShowMap> {
                             'Lng': coordinates.longitude,
                             'addressName': betterName
                           };
-                          if (widget.addMockup) {
+                          if (widget.addMockup!) {
                             await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (_) {
                                   return MockupForm(
                                     projectLocation: projectLocation,
-                                    isNewMockup: widget.addMockup,
-                                    currentUser: widget.currentUser,
+                                    isNewMockup: widget.addMockup!,
+                                    currentUser: widget.currentUser!,
                                   );
                                 },
                               ),
                             );
                           }
-                          if (widget.addProject) {
+                          if (widget.addProject!) {
                             await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (_) {
                                   return ProjectForm(
                                     projectLocation: projectLocation,
-                                    isNewProject: widget.addProject,
-                                    currentUser: widget.currentUser,
+                                    isNewProject: widget.addProject!,
+                                    currentUser: widget.currentUser!,
                                   );
                                 },
                               ),
@@ -656,13 +656,13 @@ class _ShowMapState extends State<ShowMap> {
                             polylineId: const PolylineId('overview_polyline'),
                             color: Colors.red,
                             width: 5,
-                            points: _info.polylinePoints
+                            points: _info!.polylinePoints
                                 .map((e) => LatLng(e.latitude, e.longitude))
                                 .toList(),
                           )
                       },
                       initialCameraPosition:
-                          CameraPosition(target: _center, zoom: _mapZoom),
+                          CameraPosition(target: _center!, zoom: _mapZoom),
                       markers: listMarkers != null && listMarkers.isNotEmpty
                           ? Set.of(listMarkers.values)
                           : noMarkers,
@@ -688,7 +688,7 @@ class _ShowMapState extends State<ShowMap> {
                       ],
                     ),
                     child: Text(
-                      '${_info.totalDistance}, ${_info.totalDuration}',
+                      '${_info!.totalDistance}, ${_info!.totalDuration}',
                       style: const TextStyle(
                           fontSize: 18.0, fontWeight: FontWeight.w600),
                     ),
@@ -732,7 +732,7 @@ class _ShowMapState extends State<ShowMap> {
                                 },
                               ),
                               SizedBox(
-                                width: _size.width / 3,
+                                width: _size!.width / 3,
                                 height: 40,
                                 child: Row(
                                   children: [
@@ -791,7 +791,7 @@ class _ShowMapState extends State<ShowMap> {
             ],
           ),
         ),
-        widget.addProject || widget.addMockup
+        widget.addProject! || widget.addMockup!
             ? Positioned(
                 bottom: 15,
                 left: 15,
@@ -809,9 +809,9 @@ class _ShowMapState extends State<ShowMap> {
                   ),
                 ))
             : const SizedBox.shrink(),
-        _loading && !widget.addProject && !widget.addMockup
+        _loading && !widget.addProject! && !widget.addMockup!
             ? SizedBox(
-                height: _size.height,
+                height: _size!.height,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -825,7 +825,7 @@ class _ShowMapState extends State<ShowMap> {
                     Center(
                       child: SpinKitSpinningLines(
                         color: Colors.black,
-                        size: _size.height / 5,
+                        size: _size!.height / 5,
                         lineWidth: 6,
                       ),
                     ),
@@ -841,12 +841,12 @@ class _ShowMapState extends State<ShowMap> {
     //THe following drawer will show the list of users or clients
     return Drawer(
       backgroundColor: const Color.fromARGB(255, 186, 184, 152),
-      width: _size.width / 2,
+      width: _size!.width / 2,
       child: DefaultTabController(
         initialIndex: _prefTab,
         length: 2,
         child: Padding(
-          padding: EdgeInsets.only(top: _size.height / 15, right: 10),
+          padding: EdgeInsets.only(top: _size!.height / 15, right: 10),
           child: Column(
             children: [
               SizedBox(
@@ -854,7 +854,7 @@ class _ShowMapState extends State<ShowMap> {
                     onTap: ((value) async {
                       _preferredTab = await SharedPreferences.getInstance();
                       _prefTab = value;
-                      _preferredTab.setInt('tab', value);
+                      _preferredTab!.setInt('tab', value);
                     }),
                     labelStyle: textStyle5,
                     labelColor: Colors.black,
@@ -870,15 +870,15 @@ class _ShowMapState extends State<ShowMap> {
                     ]),
               ),
               SizedBox(
-                height: _size.height - 105,
+                height: _size!.height - 105,
                 child: TabBarView(children: [
                   StatefulBuilder(builder: (context, setState) {
                     return SizedBox(
-                      height: _size.height - 100,
+                      height: _size!.height - 100,
                       child: ListView.builder(
                           itemCount: userProvider.length,
                           itemBuilder: (context, index) {
-                            String locationStatus;
+                            String? locationStatus;
                             bool _locationFailed = false;
                             var result;
                             result = db.getAllUsersLocation(
@@ -909,10 +909,10 @@ class _ShowMapState extends State<ShowMap> {
                                           userLoc.first.coord.latitude,
                                           userLoc.first.coord.longitude);
                                     });
-                                    _mapController.animateCamera(
+                                    _mapController!.animateCamera(
                                         CameraUpdate.newCameraPosition(
                                             CameraPosition(
-                                                target: _center,
+                                                target: _center!,
                                                 zoom: _mapZoom)));
                                     Navigator.pop(context);
                                   } else {
@@ -958,10 +958,10 @@ class _ShowMapState extends State<ShowMap> {
                     );
                   }),
                   SizedBox(
-                    height: _size.height - 105,
-                    child: clientProvider != null && clientProvider.isNotEmpty
+                    height: _size!.height - 105,
+                    child: clientProvider != null && clientProvider!.isNotEmpty
                         ? ListView.builder(
-                            itemCount: clientProvider.length,
+                            itemCount: clientProvider!.length,
                             itemBuilder: (context, index) {
                               return Padding(
                                 padding: const EdgeInsets.all(15.0),
@@ -969,15 +969,15 @@ class _ShowMapState extends State<ShowMap> {
                                   onTap: () async {
                                     setState(() {
                                       _center = LatLng(
-                                          clientProvider[index]
+                                          clientProvider![index]
                                               .clientAddress['Lat'],
-                                          clientProvider[index]
+                                          clientProvider![index]
                                               .clientAddress['Lng']);
                                     });
-                                    _mapController.animateCamera(
+                                    _mapController!.animateCamera(
                                         CameraUpdate.newCameraPosition(
                                             CameraPosition(
-                                                target: _center,
+                                                target: _center!,
                                                 zoom: _mapZoom)));
                                     Navigator.pop(context);
                                   },
@@ -990,7 +990,7 @@ class _ShowMapState extends State<ShowMap> {
                                         borderRadius:
                                             BorderRadius.circular(15)),
                                     child: Text(
-                                      clientProvider[index].clientName,
+                                      clientProvider![index].clientName,
                                       textAlign: TextAlign.center,
                                       style: textStyle13,
                                     ),
@@ -999,7 +999,7 @@ class _ShowMapState extends State<ShowMap> {
                               );
                             })
                         : SizedBox(
-                            height: _size.height - 105,
+                            height: _size!.height - 105,
                             child: const Center(
                               child: Text('Please wait for list to load'),
                             ),

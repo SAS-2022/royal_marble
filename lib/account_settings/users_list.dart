@@ -6,8 +6,8 @@ import 'package:royal_marble/shared/constants.dart';
 import '../models/user_model.dart';
 
 class UserList extends StatefulWidget {
-  const UserList({Key key, this.currentUser}) : super(key: key);
-  final UserData currentUser;
+  const UserList({Key? key, this.currentUser}) : super(key: key);
+  final UserData? currentUser;
   @override
   State<UserList> createState() => _UserListState();
 }
@@ -17,9 +17,9 @@ class _UserListState extends State<UserList> {
   List<UserData> nonActiveUser = [];
   double listOfUsersHeight = 100.00;
   final _searchController = TextEditingController();
-  List<UserData> _searchResult = [];
+  List<UserData>? _searchResult = [];
   bool _emptySearchResults = false;
-  Size size;
+  Size? size;
 
   @override
   void initState() {
@@ -47,13 +47,13 @@ class _UserListState extends State<UserList> {
 
   Widget _buildUserList() {
     if (listOfUsers.isNotEmpty && nonActiveUser.isNotEmpty) {
-      listOfUsersHeight = (size.height / 2) - 40;
+      listOfUsersHeight = (size!.height / 2) - 40;
     } else if (listOfUsers.isNotEmpty && nonActiveUser.isEmpty) {
-      listOfUsersHeight = size.height - 100;
+      listOfUsersHeight = size!.height - 100;
     } else if (listOfUsers.isEmpty && nonActiveUser.isNotEmpty) {
-      listOfUsersHeight = size.height / 4;
+      listOfUsersHeight = size!.height / 4;
     } else {
-      listOfUsersHeight = size.height;
+      listOfUsersHeight = size!.height;
     }
 
     return SingleChildScrollView(
@@ -81,8 +81,8 @@ class _UserListState extends State<UserList> {
                                 ),
                                 SizedBox(
                                   height: nonActiveUser.isNotEmpty
-                                      ? (size.height / 3) - 10
-                                      : size.height / 6,
+                                      ? (size!.height / 3) - 10
+                                      : size!.height / 6,
                                   child: nonActiveUser.isNotEmpty
                                       ? ListView.builder(
                                           itemCount: nonActiveUser.length,
@@ -202,10 +202,10 @@ class _UserListState extends State<UserList> {
                           SizedBox(
                             height: listOfUsersHeight,
                             child: _searchResult != null &&
-                                    _searchResult.isNotEmpty
+                                    _searchResult!.isNotEmpty
                                 ? ListView.builder(
                                     // shrinkWrap: true,
-                                    itemCount: _searchResult.length,
+                                    itemCount: _searchResult!.length,
                                     itemBuilder: (context, index) {
                                       return Padding(
                                         padding: const EdgeInsets.symmetric(
@@ -225,13 +225,13 @@ class _UserListState extends State<UserList> {
                                                         widget.currentUser,
                                                     myAccount: false,
                                                     selectedUser:
-                                                        _searchResult[index],
+                                                        _searchResult![index],
                                                   ),
                                                 ),
                                               );
                                             },
                                             child: ListTile(
-                                              leading: _searchResult[index]
+                                              leading: _searchResult![index]
                                                           .imageUrl ==
                                                       null
                                                   ? const CircleAvatar(
@@ -245,12 +245,12 @@ class _UserListState extends State<UserList> {
                                                       radius: 30,
                                                       backgroundImage:
                                                           NetworkImage(
-                                                        _searchResult[index]
+                                                        _searchResult![index]
                                                             .imageUrl,
                                                         scale: 2,
                                                       )),
                                               title: Text(
-                                                  '${_searchResult[index].firstName} ${_searchResult[index].lastName}'),
+                                                  '${_searchResult![index].firstName} ${_searchResult![index].lastName}'),
                                               subtitle: SizedBox(
                                                   height: 60,
                                                   child: Column(
@@ -259,9 +259,9 @@ class _UserListState extends State<UserList> {
                                                             .start,
                                                     children: [
                                                       Text(
-                                                          'Email Address: ${_searchResult[index].emailAddress}'),
+                                                          'Email Address: ${_searchResult![index].emailAddress}'),
                                                       Text(
-                                                          'Phone Number: ${_searchResult[index].phoneNumber}')
+                                                          'Phone Number: ${_searchResult![index].phoneNumber}')
                                                     ],
                                                   )),
                                             ),
@@ -283,7 +283,7 @@ class _UserListState extends State<UserList> {
 
   //will show the User name relative the the typed data in the search field
   void _onSearchTextChnaged(String text) {
-    var results = [];
+    List<UserData> results = [];
     // _searchResult.clear();
     if (text.isEmpty) {
       //waits for the stream provider to load
@@ -302,7 +302,7 @@ class _UserListState extends State<UserList> {
         .toList();
     setState(() {
       _searchResult = results;
-      if (_searchResult.isEmpty) {
+      if (_searchResult!.isEmpty) {
         _emptySearchResults = true;
       } else {
         _emptySearchResults = false;

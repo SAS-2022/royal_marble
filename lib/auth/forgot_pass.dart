@@ -7,8 +7,8 @@ import '../shared/constants.dart';
 import '../shared/loading.dart';
 
 class ForgotPassScreen extends StatefulWidget {
-  const ForgotPassScreen({Key key, this.emailAddress}) : super(key: key);
-  final String emailAddress;
+  const ForgotPassScreen({Key? key, this.emailAddress}) : super(key: key);
+  final String? emailAddress;
 
   @override
   State<ForgotPassScreen> createState() => _ForgotPassScreenState();
@@ -18,7 +18,7 @@ class _ForgotPassScreenState extends State<ForgotPassScreen> {
   final _formKey = GlobalKey<FormState>();
   final _auth = AuthService();
   bool _isLoading = false;
-  String emailAddress;
+  String? emailAddress;
   final _snackBar = SnackBarWidget();
   @override
   Widget build(BuildContext context) {
@@ -63,7 +63,7 @@ class _ForgotPassScreenState extends State<ForgotPassScreen> {
                           borderSide: BorderSide(color: Colors.blue)),
                     ),
                     validator: (val) {
-                      if (val.isEmpty) {
+                      if (val!.isEmpty) {
                         return 'Email Address is required';
                       }
                       if (!EmailValidator.validate(val)) {
@@ -94,11 +94,11 @@ class _ForgotPassScreenState extends State<ForgotPassScreen> {
                     style: buttonStyle,
                   ),
                   onPressed: () async {
-                    if (_formKey.currentState.validate()) {
+                    if (_formKey.currentState!.validate()) {
                       setState(() {
                         _isLoading = true;
                       });
-                      dynamic result = await _auth.resetPassword(emailAddress);
+                      dynamic result = await _auth.resetPassword(emailAddress!);
                       if (result == null) {
                         _snackBar.content = 'Failed to send reset email';
                         _snackBar.showSnack();

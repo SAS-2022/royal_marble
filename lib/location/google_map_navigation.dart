@@ -12,12 +12,12 @@ import 'direction_repo.dart';
 
 class GoogleMapNavigation extends StatefulWidget {
   const GoogleMapNavigation(
-      {Key key, this.lat, this.lng, this.getLocation, this.navigate})
+      {Key? key, this.lat, this.lng, this.getLocation, this.navigate})
       : super(key: key);
-  final double lat;
-  final double lng;
-  final bool navigate;
-  final Function getLocation;
+  final double? lat;
+  final double? lng;
+  final bool? navigate;
+  final Function? getLocation;
 
   @override
   State<GoogleMapNavigation> createState() => _GoogleMapNavigationState();
@@ -25,25 +25,25 @@ class GoogleMapNavigation extends StatefulWidget {
 
 class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
   var lat = 0.0, long = 0.0;
-  LatLng _center;
-  LatLng _selectedLatLng;
-  String _selecteLocation;
+  LatLng? _center;
+  LatLng? _selectedLatLng;
+  String? _selecteLocation;
   bool _loading = true;
-  Directions _info;
-  GoogleMapController _googleMapController;
-  CameraPosition _cameraPosition;
-  Marker _myLocation;
-  Marker _myDestination;
+  Directions? _info;
+  GoogleMapController? _googleMapController;
+  CameraPosition? _cameraPosition;
+  Marker? _myLocation;
+  Marker? _myDestination;
   List<Marker> listMarkers = [];
   List<Marker> noMarkers = const [
     Marker(markerId: MarkerId('No Marker'), position: LatLng(0, 0))
   ];
-  Future _addAllMarkers;
-  Future currentPosition;
+  Future? _addAllMarkers;
+  Future? currentPosition;
   final _cameraZoom = 16.0;
   final _snackBarWidget = SnackBarWidget();
-  Future addMarker;
-  Size _size;
+  Future? addMarker;
+  Size? _size;
 
   @override
   void initState() {
@@ -55,7 +55,7 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
   void dispose() {
     super.dispose();
     if (_googleMapController != null) {
-      _googleMapController.dispose();
+      _googleMapController!.dispose();
     }
   }
 
@@ -77,7 +77,7 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
               );
             }
           }),
-      floatingActionButton: widget.navigate
+      floatingActionButton: widget.navigate!
           ? Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               child: Row(
@@ -104,7 +104,7 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return SafeArea(
-              child: !widget.navigate
+              child: !widget.navigate!
                   ? Stack(
                       children: [
                         lat != null && lng != null
@@ -123,14 +123,14 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
                                 onCameraIdle: () async {
                                   List<Placemark> placeMarks =
                                       await placemarkFromCoordinates(
-                                          _cameraPosition.target.latitude,
-                                          _cameraPosition.target.longitude);
+                                          _cameraPosition!.target.latitude,
+                                          _cameraPosition!.target.longitude);
 
                                   if (mounted) {
                                     setState(() {
                                       _selectedLatLng = LatLng(
-                                          _cameraPosition.target.latitude,
-                                          _cameraPosition.target.longitude);
+                                          _cameraPosition!.target.latitude,
+                                          _cameraPosition!.target.longitude);
 
                                       _selecteLocation = placeMarks
                                               .first.administrativeArea
@@ -173,7 +173,7 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
                                     ],
                                   ),
                                   child: Text(
-                                    _selecteLocation,
+                                    _selecteLocation!,
                                     style: const TextStyle(
                                         fontSize: 18.0,
                                         fontWeight: FontWeight.w600),
@@ -181,27 +181,27 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
                                 ),
                               )
                             : const SizedBox.shrink(),
-                        !widget.navigate
+                        !widget.navigate!
                             ? _selecteLocation != null
                                 ? Positioned(
                                     bottom: 30,
                                     left: 10,
                                     child: Container(
-                                      width: _size.width / 2,
+                                      width: _size!.width / 2,
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 6, horizontal: 12),
                                       child: ElevatedButton(
                                         style: ElevatedButton.styleFrom(
                                             backgroundColor: Colors.red[400],
                                             fixedSize:
-                                                Size(_size.width / 2, 45),
+                                                Size(_size!.width / 2, 45),
                                             shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(25))),
                                         onPressed: () async {
                                           if (_selecteLocation != null &&
                                               _selectedLatLng != null) {
-                                            widget.getLocation(
+                                            widget.getLocation!(
                                                 locationName: _selecteLocation,
                                                 locationAddress:
                                                     _selectedLatLng);
@@ -231,7 +231,7 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
                                       const PolylineId('overview_polyline'),
                                   color: Colors.blue,
                                   width: 6,
-                                  points: _info.polylinePoints
+                                  points: _info!.polylinePoints
                                       .map((e) =>
                                           LatLng(e.latitude, e.longitude))
                                       .toList())
@@ -309,7 +309,7 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
     });
 
     _center = LatLng(lat, long);
-    _cameraPosition = CameraPosition(target: _center);
+    _cameraPosition = CameraPosition(target: _center!);
 
     addMarker = _addMarker(
         currentLat: currentLocation.latitude,
@@ -319,7 +319,8 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
   }
 
   //Get directions
-  Future<Directions> _getDirections({LatLng origin, LatLng destination}) async {
+  Future<Directions> _getDirections(
+      {LatLng? origin, LatLng? destination}) async {
     var result = await DirectionRepository()
         .getDirections(origin: _center, destination: destination);
 
@@ -341,25 +342,25 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
     setState(() {
       _loading = false;
     });
-    if (widget.navigate) {
+    if (widget.navigate!) {
       _info = await _getDirections(
           origin: LatLng(currentLat, currentLng),
-          destination: LatLng(widget.lat, widget.lng));
+          destination: LatLng(widget.lat!, widget.lng!));
     }
 
     // print('the info: $_info');
 
     if (_info != null) {
-      await _adjustCamera(_info.northE, _info.southW);
+      await _adjustCamera(_info!.northE, _info!.southW);
     }
 
-    return _myLocation;
+    return _myLocation!;
   }
 
   Future<void> _adjustCamera(var ne, var sw) async {
     Future.delayed(
         const Duration(milliseconds: 650),
-        () async => await _googleMapController.animateCamera(
+        () async => await _googleMapController!.animateCamera(
               CameraUpdate.newLatLngBounds(
                   LatLngBounds(southwest: sw, northeast: ne), 100),
             ));

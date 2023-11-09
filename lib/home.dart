@@ -1740,7 +1740,6 @@ class _HomeScreenState extends State<HomeScreen> {
             .request()
             .then((value) => value)
             .onError((error, stackTrace) {
-          print('Error requesting permission activity: $error');
           return error;
         }).whenComplete(() => print('Permssion activity completed'));
 

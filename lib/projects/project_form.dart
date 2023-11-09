@@ -20,7 +20,7 @@ import 'package:sentry/sentry.dart';
 
 class ProjectForm extends StatefulWidget {
   const ProjectForm({
-    Key key,
+    Key? key,
     this.selectedProject,
     this.isNewProject,
     this.allWorkers,
@@ -28,12 +28,12 @@ class ProjectForm extends StatefulWidget {
     this.assignCirule,
     this.currentUser,
   }) : super(key: key);
-  final UserData currentUser;
-  final ProjectData selectedProject;
-  final Map<String, dynamic> projectLocation;
-  final bool isNewProject;
-  final List<UserData> allWorkers;
-  final Function assignCirule;
+  final UserData? currentUser;
+  final ProjectData? selectedProject;
+  final Map<String, dynamic>? projectLocation;
+  final bool? isNewProject;
+  final List<UserData>? allWorkers;
+  final Function? assignCirule;
 
   @override
   State<ProjectForm> createState() => _ProjectFormState();
@@ -41,27 +41,27 @@ class ProjectForm extends StatefulWidget {
 
 class _ProjectFormState extends State<ProjectForm> {
   bool _editContent = false;
-  Size _size;
+  Size? _size;
   final _formKey = GlobalKey<FormState>();
   Map<String, dynamic> _myLocation = {};
   ProjectData newProject = ProjectData();
   final db = DatabaseService();
   final _snackBarWidget = SnackBarWidget();
-  UserData selectedUser;
+  UserData? selectedUser;
   List<UserData> addedUsers = [];
   List<UserData> removedUsers = [];
-  Future _checkAssignedWorkers;
+  Future? _checkAssignedWorkers;
   List<UserData> workerOnThisProject = [];
   List<double> availableRadius = [100, 200, 400, 600, 1000];
-  double radius;
+  double? radius;
   HttpNavigation _httpNavigation = HttpNavigation();
   bool _isAtSite = false;
-  Future userStatus;
+  Future? userStatus;
   bool _isLoading = false;
   bool _checkInOutLoading = false;
   PhoneNumber phoneNumber = PhoneNumber(isoCode: 'AE');
   TextEditingController _phoneController = TextEditingController();
-  Color _statusColor;
+  Color? _statusColor;
   bool _alreadyCheckedIn = false;
 
   @override
@@ -69,13 +69,13 @@ class _ProjectFormState extends State<ProjectForm> {
     super.initState();
 
     _snackBarWidget.context = context;
-    if (!widget.isNewProject) {
-      newProject = widget.selectedProject;
+    if (!widget.isNewProject!) {
+      newProject = widget.selectedProject!;
 
       phoneNumber = PhoneNumber(
-        phoneNumber: widget.selectedProject.phoneNumber.phoneNumber,
-        isoCode: widget.selectedProject.phoneNumber.isoCode,
-        dialCode: widget.selectedProject.phoneNumber.dialCode,
+        phoneNumber: widget.selectedProject!.phoneNumber!.phoneNumber,
+        isoCode: widget.selectedProject!.phoneNumber!.isoCode,
+        dialCode: widget.selectedProject!.phoneNumber!.dialCode,
       );
 
       _checkAssignedWorkers = checkProjectWorkers();
@@ -83,8 +83,8 @@ class _ProjectFormState extends State<ProjectForm> {
       newProject.projectStatus = 'potential';
       selectMapLocation(
           locationAddress: LatLng(
-              widget.projectLocation['Lat'], widget.projectLocation['Lng']),
-          locationName: widget.projectLocation['addressName']
+              widget.projectLocation!['Lat'], widget.projectLocation!['Lng']),
+          locationName: widget.projectLocation!['addressName']
               .toString()
               .characters
               .take(120)
@@ -142,13 +142,13 @@ class _ProjectFormState extends State<ProjectForm> {
               padding: const EdgeInsets.only(left: 15),
               child: Container(
                 padding: const EdgeInsets.all(4),
-                width: _size.width / 3.5,
+                width: _size!.width / 3.5,
                 decoration: BoxDecoration(
                   color: _statusColor,
                   borderRadius: BorderRadius.circular(25),
                 ),
                 child: Text(
-                  newProject.projectStatus.toUpperCase(),
+                  newProject.projectStatus!.toUpperCase(),
                   style: textStyle12,
                   textAlign: TextAlign.center,
                 ),
@@ -158,8 +158,8 @@ class _ProjectFormState extends State<ProjectForm> {
         ),
         backgroundColor: const Color.fromARGB(255, 191, 180, 66),
         actions: [
-          !widget.isNewProject
-              ? widget.currentUser.roles.contains('isAdmin')
+          !widget.isNewProject!
+              ? widget.currentUser!.roles!.contains('isAdmin')
                   ? TextButton(
                       style: TextButton.styleFrom(
                           backgroundColor: !_editContent
@@ -180,7 +180,7 @@ class _ProjectFormState extends State<ProjectForm> {
       ),
       body: _isLoading
           ? const Center(child: Loading())
-          : !widget.isNewProject
+          : !widget.isNewProject!
               ? _buildProjectBody()
               : _buildNewProjectForm(),
     );
@@ -188,12 +188,12 @@ class _ProjectFormState extends State<ProjectForm> {
 
   Future<List<UserData>> checkProjectWorkers() async {
     Future.delayed(const Duration(milliseconds: 500), () {
-      if (widget.allWorkers != null && widget.allWorkers.isNotEmpty) {
-        for (var worker in widget.allWorkers) {
+      if (widget.allWorkers != null && widget.allWorkers!.isNotEmpty) {
+        for (var worker in widget.allWorkers!) {
           if (worker.assignedProject != null &&
               worker.assignedProject.runtimeType == List) {
             for (var project in worker.assignedProject) {
-              if (project['id'] == widget.selectedProject.uid) {
+              if (project['id'] == widget.selectedProject!.uid) {
                 workerOnThisProject.add(worker);
               }
             }
@@ -201,7 +201,7 @@ class _ProjectFormState extends State<ProjectForm> {
 
           if (worker.assignedProject != null &&
               worker.assignedProject.runtimeType != List) {
-            if (worker.assignedProject['id'] == widget.selectedProject.uid) {
+            if (worker.assignedProject['id'] == widget.selectedProject!.uid) {
               workerOnThisProject.add(worker);
             }
           }
@@ -218,10 +218,10 @@ class _ProjectFormState extends State<ProjectForm> {
 
   //will allow to build a current project
   Widget _buildProjectBody() {
-    if (widget.allWorkers.isNotEmpty) {
-      selectedUser = widget.allWorkers[0];
+    if (widget.allWorkers!.isNotEmpty) {
+      selectedUser = widget.allWorkers![0];
     }
-    return widget.selectedProject.uid != null
+    return widget.selectedProject!.uid != null
         ? Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
             child: SingleChildScrollView(
@@ -240,7 +240,7 @@ class _ProjectFormState extends State<ProjectForm> {
                     _editContent
                         ? TextFormField(
                             autofocus: false,
-                            initialValue: widget.selectedProject.projectName,
+                            initialValue: widget.selectedProject!.projectName,
                             style: textStyle5,
                             textCapitalization: TextCapitalization.sentences,
                             decoration: InputDecoration(
@@ -257,7 +257,7 @@ class _ProjectFormState extends State<ProjectForm> {
                                       BorderRadius.all(Radius.circular(15.0)),
                                   borderSide: BorderSide(color: Colors.green)),
                             ),
-                            validator: (val) => val.isEmpty
+                            validator: (val) => val!.isEmpty
                                 ? 'Project name cannot be empty'
                                 : null,
                             onChanged: (val) {
@@ -277,7 +277,7 @@ class _ProjectFormState extends State<ProjectForm> {
                             Expanded(
                               flex: 2,
                               child: Text(
-                                widget.selectedProject.projectName,
+                                widget.selectedProject!.projectName!,
                                 style: textStyle3,
                               ),
                             )
@@ -289,7 +289,8 @@ class _ProjectFormState extends State<ProjectForm> {
                     _editContent
                         ? TextFormField(
                             autofocus: false,
-                            initialValue: widget.selectedProject.projectDetails,
+                            initialValue:
+                                widget.selectedProject!.projectDetails,
                             style: textStyle5,
                             textCapitalization: TextCapitalization.sentences,
                             maxLines: 3,
@@ -307,7 +308,7 @@ class _ProjectFormState extends State<ProjectForm> {
                                       BorderRadius.all(Radius.circular(15.0)),
                                   borderSide: BorderSide(color: Colors.green)),
                             ),
-                            validator: (val) => val.isEmpty
+                            validator: (val) => val!.isEmpty
                                 ? 'Project details cannot be empty'
                                 : null,
                             onChanged: (val) {
@@ -327,7 +328,7 @@ class _ProjectFormState extends State<ProjectForm> {
                             Expanded(
                               flex: 2,
                               child: Text(
-                                widget.selectedProject.projectDetails,
+                                widget.selectedProject!.projectDetails!,
                                 style: textStyle3,
                               ),
                             )
@@ -341,7 +342,7 @@ class _ProjectFormState extends State<ProjectForm> {
                         ? TextFormField(
                             autofocus: false,
                             initialValue:
-                                widget.selectedProject.contactorCompany,
+                                widget.selectedProject!.contactorCompany,
                             style: textStyle5,
                             textCapitalization: TextCapitalization.sentences,
                             decoration: InputDecoration(
@@ -358,7 +359,7 @@ class _ProjectFormState extends State<ProjectForm> {
                                       BorderRadius.all(Radius.circular(15.0)),
                                   borderSide: BorderSide(color: Colors.green)),
                             ),
-                            validator: (val) => val.isEmpty
+                            validator: (val) => val!.isEmpty
                                 ? 'Contractor section cannot be empty'
                                 : null,
                             onChanged: (val) {
@@ -378,7 +379,7 @@ class _ProjectFormState extends State<ProjectForm> {
                             Expanded(
                               flex: 2,
                               child: Text(
-                                widget.selectedProject.contactorCompany,
+                                widget.selectedProject!.contactorCompany!,
                                 style: textStyle3,
                               ),
                             )
@@ -391,7 +392,7 @@ class _ProjectFormState extends State<ProjectForm> {
                     _editContent
                         ? TextFormField(
                             autofocus: false,
-                            initialValue: widget.selectedProject.contactPerson,
+                            initialValue: widget.selectedProject!.contactPerson,
                             style: textStyle5,
                             textCapitalization: TextCapitalization.sentences,
                             decoration: InputDecoration(
@@ -408,7 +409,7 @@ class _ProjectFormState extends State<ProjectForm> {
                                       BorderRadius.all(Radius.circular(15.0)),
                                   borderSide: BorderSide(color: Colors.green)),
                             ),
-                            validator: (val) => val.isEmpty
+                            validator: (val) => val!.isEmpty
                                 ? 'Contact person cannot be empty'
                                 : null,
                             onChanged: (val) {
@@ -428,7 +429,7 @@ class _ProjectFormState extends State<ProjectForm> {
                             Expanded(
                               flex: 2,
                               child: Text(
-                                widget.selectedProject.contactPerson,
+                                widget.selectedProject!.contactPerson!,
                                 style: textStyle3,
                               ),
                             )
@@ -473,9 +474,7 @@ class _ProjectFormState extends State<ProjectForm> {
                             Expanded(
                               flex: 2,
                               child: Text(
-                                phoneNumber != null
-                                    ? phoneNumber.phoneNumber
-                                    : '',
+                                phoneNumber.phoneNumber ?? '',
                                 style: textStyle3,
                               ),
                             )
@@ -487,7 +486,7 @@ class _ProjectFormState extends State<ProjectForm> {
                     _editContent
                         ? TextFormField(
                             autofocus: false,
-                            initialValue: widget.selectedProject.emailAddress,
+                            initialValue: widget.selectedProject!.emailAddress,
                             style: textStyle5,
                             decoration: InputDecoration(
                               filled: true,
@@ -504,7 +503,7 @@ class _ProjectFormState extends State<ProjectForm> {
                                   borderSide: BorderSide(color: Colors.green)),
                             ),
                             validator: (val) {
-                              if (val.isEmpty) {
+                              if (val!.isEmpty) {
                                 return 'Email Address cannot be empty';
                               }
                               if (!EmailValidator.validate(val)) {
@@ -530,7 +529,7 @@ class _ProjectFormState extends State<ProjectForm> {
                             Expanded(
                               flex: 2,
                               child: Text(
-                                widget.selectedProject.emailAddress,
+                                widget.selectedProject!.emailAddress!,
                                 style: textStyle3,
                               ),
                             )
@@ -560,26 +559,26 @@ class _ProjectFormState extends State<ProjectForm> {
                                 //will start google navigation for the current project location
                                 _httpNavigation.context = context;
                                 _httpNavigation.lat = widget
-                                    .selectedProject.projectAddress['Lat'];
+                                    .selectedProject!.projectAddress!['Lat'];
                                 _httpNavigation.lng = widget
-                                    .selectedProject.projectAddress['Lng'];
+                                    .selectedProject!.projectAddress!['Lng'];
                                 _httpNavigation.startNaviagtionGoogleMap();
                               } else {
                                 await Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (_) => GoogleMapNavigation(
-                                              lat: widget.selectedProject
-                                                  .projectAddress['Lat'],
-                                              lng: widget.selectedProject
-                                                  .projectAddress['Lng'],
+                                              lat: widget.selectedProject!
+                                                  .projectAddress!['Lat'],
+                                              lng: widget.selectedProject!
+                                                  .projectAddress!['Lng'],
                                               navigate: true,
                                             )));
                               }
                             },
                             child: Text(
-                              widget
-                                  .selectedProject.projectAddress['addressName']
+                              widget.selectedProject!
+                                  .projectAddress!['addressName']
                                   .toString(),
                               style: textStyle3,
                             ),
@@ -591,10 +590,10 @@ class _ProjectFormState extends State<ProjectForm> {
                       height: 15,
                     ),
                     //will allow the worker to check in the project they just arrived to
-                    widget.currentUser.roles.contains('isNormalUser') ||
-                            widget.currentUser.roles
+                    widget.currentUser!.roles!.contains('isNormalUser') ||
+                            widget.currentUser!.roles!
                                 .contains('isSiteEngineer') ||
-                            widget.currentUser.roles.contains('isSupervisor')
+                            widget.currentUser!.roles!.contains('isSupervisor')
                         ? FutureBuilder(
                             future: checkCurrentUserStatus(),
                             builder: (context, snapshot) {
@@ -603,10 +602,10 @@ class _ProjectFormState extends State<ProjectForm> {
                                     ConnectionState.done) {
                                   if (snapshot.data['data'] != null) {
                                     if (snapshot.data['data']
-                                            [widget.currentUser.uid] !=
+                                            [widget.currentUser!.uid] !=
                                         null) {
                                       _isAtSite = snapshot.data['data']
-                                          [widget.currentUser.uid]['isOnSite'];
+                                          [widget.currentUser!.uid]['isOnSite'];
                                     }
                                   }
 
@@ -618,8 +617,8 @@ class _ProjectFormState extends State<ProjectForm> {
                                                 padding:
                                                     const EdgeInsets.all(12),
                                                 child: SizedBox(
-                                                  height: _size.width / 2,
-                                                  width: _size.width / 2,
+                                                  height: _size!.width / 2,
+                                                  width: _size!.width / 2,
                                                   child: Container(
                                                     decoration: BoxDecoration(
                                                         shape: BoxShape.circle,
@@ -684,8 +683,9 @@ class _ProjectFormState extends State<ProjectForm> {
                                             _checkInOutLoading
                                                 ? Center(
                                                     child: SizedBox(
-                                                        height: _size.width / 2,
-                                                        width: _size.width / 2,
+                                                        height:
+                                                            _size!.width / 2,
+                                                        width: _size!.width / 2,
                                                         child: const Loading()),
                                                   )
                                                 : const SizedBox.shrink()
@@ -695,7 +695,7 @@ class _ProjectFormState extends State<ProjectForm> {
                                           padding: const EdgeInsets.all(12.0),
                                           child: Center(
                                             child: Text(
-                                              'You are still checked in at ${snapshot.data['data'][widget.currentUser.uid]['projectName']}, please checkout from there before proceeding here.',
+                                              'You are still checked in at ${snapshot.data['data'][widget.currentUser!.uid]['projectName']}, please checkout from there before proceeding here.',
                                               style: textStyle15,
                                               textAlign: TextAlign.center,
                                               softWrap: true,
@@ -729,7 +729,7 @@ class _ProjectFormState extends State<ProjectForm> {
                         : const SizedBox.shrink(),
 
                     //this feature is only available for admin users
-                    widget.currentUser.roles.contains('isAdmin')
+                    widget.currentUser!.roles!.contains('isAdmin')
                         ? !_editContent
                             ? Container(
                                 alignment: AlignmentDirectional.centerStart,
@@ -752,15 +752,15 @@ class _ProjectFormState extends State<ProjectForm> {
                                         'Select User',
                                       ),
                                     ),
-                                    onChanged: (UserData val) {
+                                    onChanged: (UserData? val) {
                                       if (val != null) {
                                         setState(() {
                                           selectedUser = val;
-                                          if (selectedUser.assignedProject !=
+                                          if (selectedUser!.assignedProject !=
                                                   null &&
-                                              selectedUser
+                                              selectedUser!
                                                   .assignedProject.isNotEmpty &&
-                                              !selectedUser.roles
+                                              !selectedUser!.roles!
                                                   .contains('isSupervisor')) {
                                             showDialog(
                                                 context: context,
@@ -779,7 +779,7 @@ class _ProjectFormState extends State<ProjectForm> {
                                                             TextAlign.center,
                                                       ),
                                                       content: Text(
-                                                        '${selectedUser.firstName} ${selectedUser.lastName} is already assigned to project ${selectedUser.assignedProject['name']}.\nPlease remove the user from the first project before adding to a new one?',
+                                                        '${selectedUser!.firstName} ${selectedUser!.lastName} is already assigned to project ${selectedUser!.assignedProject['name']}.\nPlease remove the user from the first project before adding to a new one?',
                                                         textAlign:
                                                             TextAlign.center,
                                                       ),
@@ -808,11 +808,11 @@ class _ProjectFormState extends State<ProjectForm> {
                                     },
                                     selectedItemBuilder:
                                         (BuildContext context) {
-                                      return widget.allWorkers
+                                      return widget.allWorkers!
                                           .map<Widget>(
                                             (item) => Center(
                                               child: Text(
-                                                '${item.firstName} ${item.lastName} - ${item.roles.first}',
+                                                '${item.firstName} ${item.lastName} - ${item.roles!.first}',
                                                 style: textStyle5,
                                               ),
                                             ),
@@ -822,13 +822,13 @@ class _ProjectFormState extends State<ProjectForm> {
                                     validator: (val) => val == null
                                         ? 'Please select User'
                                         : null,
-                                    items: widget.allWorkers
+                                    items: widget.allWorkers!
                                         .map((item) =>
                                             DropdownMenuItem<UserData>(
                                               value: item,
                                               child: Center(
                                                   child: Text(
-                                                '${item.firstName} ${item.lastName}- ${item.roles.first}',
+                                                '${item.firstName} ${item.lastName}- ${item.roles!.first}',
                                                 style: textStyle5,
                                               )),
                                             ))
@@ -839,7 +839,7 @@ class _ProjectFormState extends State<ProjectForm> {
                             : const SizedBox.shrink()
                         : const SizedBox.shrink(),
                     //Feature only available for admin user
-                    widget.currentUser.roles.contains('isAdmin')
+                    widget.currentUser!.roles!.contains('isAdmin')
                         ? !_editContent
                             ? FutureBuilder(
                                 future: _checkAssignedWorkers,
@@ -856,8 +856,8 @@ class _ProjectFormState extends State<ProjectForm> {
                                                   width: 2,
                                                 ),
                                                 vertical: BorderSide.none)),
-                                        height: _size.height / 4.5,
-                                        width: _size.width - 80,
+                                        height: _size!.height / 4.5,
+                                        width: _size!.width - 80,
                                         child: ListView.builder(
                                           itemCount: addedUsers.length,
                                           itemBuilder: ((context, index) =>
@@ -888,7 +888,7 @@ class _ProjectFormState extends State<ProjectForm> {
                                                       setState(() {});
                                                     },
                                                     child: Text(
-                                                      '${addedUsers[index].firstName} ${addedUsers[index].lastName} - ${addedUsers[index].roles.first}',
+                                                      '${addedUsers[index].firstName} ${addedUsers[index].lastName} - ${addedUsers[index].roles!.first}',
                                                       textAlign:
                                                           TextAlign.center,
                                                     ),
@@ -906,8 +906,8 @@ class _ProjectFormState extends State<ProjectForm> {
                                                 width: 2,
                                               ),
                                               vertical: BorderSide.none)),
-                                      height: _size.height / 4.5,
-                                      width: _size.width - 60,
+                                      height: _size!.height / 4.5,
+                                      width: _size!.width - 60,
                                       child: ListView.builder(
                                         itemCount: addedUsers.length,
                                         itemBuilder: ((context, index) =>
@@ -947,13 +947,13 @@ class _ProjectFormState extends State<ProjectForm> {
                             : const SizedBox.shrink()
                         : const SizedBox.shrink(),
 
-                    widget.currentUser.roles.contains('isAdmin')
+                    widget.currentUser!.roles!.contains('isAdmin')
                         ? Center(
                             child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                     backgroundColor:
                                         const Color.fromARGB(255, 191, 180, 66),
-                                    fixedSize: Size(_size.width / 2, 45),
+                                    fixedSize: Size(_size!.width / 2, 45),
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(25))),
@@ -962,8 +962,8 @@ class _ProjectFormState extends State<ProjectForm> {
                                     _isLoading = true;
                                   });
                                   if (_editContent) {
-                                    if (_formKey.currentState.validate()) {
-                                      _formKey.currentState.save();
+                                    if (_formKey.currentState!.validate()) {
+                                      _formKey.currentState!.save();
                                       var result = await db.updateProjectData(
                                         project: newProject,
                                       );
@@ -980,12 +980,12 @@ class _ProjectFormState extends State<ProjectForm> {
                                     if (addedUsers.isNotEmpty) {
                                       List<String> userIds = [];
                                       for (var element in addedUsers) {
-                                        userIds.add(element.uid);
+                                        userIds.add(element.uid!);
                                       }
 
                                       var result =
                                           await db.updateProjectWithWorkers(
-                                              project: widget.selectedProject,
+                                              project: widget.selectedProject!,
                                               selectedUserIds: userIds,
                                               addedUsers: addedUsers,
                                               removedUsers: removedUsers);
@@ -998,7 +998,7 @@ class _ProjectFormState extends State<ProjectForm> {
                                         _snackBarWidget.showSnack();
                                       }
                                     } else {
-                                      if (_formKey.currentState.validate()) {
+                                      if (_formKey.currentState!.validate()) {
                                         var result = await db.updateProjectData(
                                             project: newProject);
 
@@ -1067,7 +1067,7 @@ class _ProjectFormState extends State<ProjectForm> {
                       borderSide: BorderSide(color: Colors.green)),
                 ),
                 validator: (val) =>
-                    val.isEmpty ? 'Project name cannot be empty' : null,
+                    val!.isEmpty ? 'Project name cannot be empty' : null,
                 onChanged: (val) {
                   setState(() {
                     newProject.projectName = val.trim();
@@ -1097,7 +1097,7 @@ class _ProjectFormState extends State<ProjectForm> {
                       borderSide: BorderSide(color: Colors.green)),
                 ),
                 validator: (val) =>
-                    val.isEmpty ? 'Project details cannot be empty' : null,
+                    val!.isEmpty ? 'Project details cannot be empty' : null,
                 onChanged: (val) {
                   setState(() {
                     newProject.projectDetails = val.trim();
@@ -1127,7 +1127,7 @@ class _ProjectFormState extends State<ProjectForm> {
                       borderSide: BorderSide(color: Colors.green)),
                 ),
                 validator: (val) =>
-                    val.isEmpty ? 'Contractor section cannot be empty' : null,
+                    val!.isEmpty ? 'Contractor section cannot be empty' : null,
                 onChanged: (val) {
                   setState(() {
                     newProject.contactorCompany = val.trim();
@@ -1156,7 +1156,7 @@ class _ProjectFormState extends State<ProjectForm> {
                       borderSide: BorderSide(color: Colors.green)),
                 ),
                 validator: (val) =>
-                    val.isEmpty ? 'Contact person cannot be empty' : null,
+                    val!.isEmpty ? 'Contact person cannot be empty' : null,
                 onChanged: (val) {
                   setState(() {
                     newProject.contactPerson = val.trim();
@@ -1247,7 +1247,7 @@ class _ProjectFormState extends State<ProjectForm> {
                       borderSide: BorderSide(color: Colors.green)),
                 ),
                 validator: (val) {
-                  if (val.isEmpty) {
+                  if (val!.isEmpty) {
                     return 'Email Address cannot be empty';
                   }
                   if (!EmailValidator.validate(val)) {
@@ -1325,7 +1325,7 @@ class _ProjectFormState extends State<ProjectForm> {
                   flex: 2,
                   child: widget.projectLocation != null
                       ? Text(
-                          widget.projectLocation['addressName']
+                          widget.projectLocation!['addressName']
                               .toString()
                               .characters
                               .take(120)
@@ -1348,12 +1348,12 @@ class _ProjectFormState extends State<ProjectForm> {
                     style: ElevatedButton.styleFrom(
                         backgroundColor:
                             const Color.fromARGB(255, 191, 180, 66),
-                        fixedSize: Size(_size.width / 2, 45),
+                        fixedSize: Size(_size!.width / 2, 45),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(25))),
                     onPressed: () async {
-                      if (_formKey.currentState.validate()) {
-                        _formKey.currentState.save();
+                      if (_formKey.currentState!.validate()) {
+                        _formKey.currentState!.save();
                         setState(() {
                           _isLoading = true;
                         });
@@ -1381,7 +1381,7 @@ class _ProjectFormState extends State<ProjectForm> {
   }
 
   Future selectMapLocation(
-      {String locationName, LatLng locationAddress}) async {
+      {String? locationName, LatLng? locationAddress}) async {
     if (locationAddress != null && locationName != null) {
       _myLocation = {
         'addressName': locationName,
@@ -1398,28 +1398,28 @@ class _ProjectFormState extends State<ProjectForm> {
     try {
       CalculateDistance _calculate = CalculateDistance();
       var dt = DateTime.now();
-      double result;
+      double? result;
       String dateFormat = DateFormat('hh:mm a').format(dt);
-      if (widget.selectedProject.projectAddress['Lat'] != null &&
-          widget.selectedProject.projectAddress['Lng'] != null) {
+      if (widget.selectedProject!.projectAddress!['Lat'] != null &&
+          widget.selectedProject!.projectAddress!['Lng'] != null) {
         result = _calculate.distanceBetweenTwoPoints(
             myLocation.latitude,
             myLocation.longitude,
-            widget.selectedProject.projectAddress['Lat'],
-            widget.selectedProject.projectAddress['Lng']);
+            widget.selectedProject!.projectAddress!['Lat'],
+            widget.selectedProject!.projectAddress!['Lng']);
       } else {
         _snackBarWidget.content =
             'Could not obtain project location, please check your internet connection';
         _snackBarWidget.showSnack();
         Sentry.captureMessage(
-            '''User: ${widget.currentUser.firstName} ${widget.currentUser.lastName}\n
-          Project: ${widget.selectedProject.uid}\n
-          Address: ${widget.selectedProject.projectAddress}\n
-          User Location: ${widget.currentUser.currentLocation}''');
+            '''User: ${widget.currentUser!.firstName} ${widget.currentUser!.lastName}\n
+          Project: ${widget.selectedProject!.uid}\n
+          Address: ${widget.selectedProject!.projectAddress}\n
+          User Location: ${widget.currentUser!.currentLocation}''');
       }
 
       //will check if the worker has arrived to the site
-      if (result != null && result * 1000 <= widget.selectedProject.radius) {
+      if (result != null && result * 1000 <= widget.selectedProject!.radius!) {
         if (_isAtSite) {
           _snackBarWidget.content =
               'Have a great day, you have checked out.\nTime: $dateFormat\n';
@@ -1436,16 +1436,16 @@ class _ProjectFormState extends State<ProjectForm> {
           });
         }
       } else {
-        dt = null;
+        dt = DateTime(1979);
         _snackBarWidget.content =
-            'You have ${((result * 1000) - widget.selectedProject.radius).round()} meters to arrive to your destination.';
+            'You have ${((result! * 1000) - widget.selectedProject!.radius!).round()} meters to arrive to your destination.';
         _snackBarWidget.showSnack();
       }
 
       return dt;
     } catch (e, stackTrace) {
       await Sentry.captureException(e, stackTrace: stackTrace);
-      return e;
+      return DateTime(1979);
     }
   }
 
@@ -1463,16 +1463,16 @@ class _ProjectFormState extends State<ProjectForm> {
         //check if field is available
         var todayTimeSheet = data.data;
         //Code will execute for isNormalUser only when trying to check out
-        if (!_isAtSite && widget.currentUser.roles.contains('isNormalUser')) {
+        if (!_isAtSite && widget.currentUser!.roles!.contains('isNormalUser')) {
           await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (_) => WorkCompleted(
                   isAtSite: _isAtSite,
-                  currentUser: widget.currentUser,
+                  currentUser: widget.currentUser!,
                   timeSheetId: '${result.day}-${result.month}-${result.year}',
-                  selectedProject: widget.selectedProject,
-                  checkIn: todayTimeSheet['data'][widget.currentUser.uid]
+                  selectedProject: widget.selectedProject!,
+                  checkIn: todayTimeSheet['data'][widget.currentUser!.uid]
                       ['arriving_at'],
                   checkOut: result.toString()),
             ),
@@ -1480,25 +1480,25 @@ class _ProjectFormState extends State<ProjectForm> {
         } else {
           //code will execute for all user including isNormalUser to check it, and for all users excluding isNormalUser to checkout
           if (todayTimeSheet['data'] != null) {
-            if (todayTimeSheet['data'][widget.currentUser.uid] != null) {
+            if (todayTimeSheet['data'][widget.currentUser!.uid] != null) {
               if (_isAtSite) {
                 timeSheetUpdated = await db.updateWorkerTimeSheet(
                     isAtSite: _isAtSite,
-                    currentUser: widget.currentUser,
-                    userRole: widget.currentUser.roles.first,
-                    selectedProject: widget.selectedProject,
+                    currentUser: widget.currentUser!,
+                    userRole: widget.currentUser!.roles!.first,
+                    selectedProject: widget.selectedProject!,
                     today: '${result.day}-${result.month}-${result.year}',
-                    checkOut: todayTimeSheet['data'][widget.currentUser.uid]
+                    checkOut: todayTimeSheet['data'][widget.currentUser!.uid]
                         ['leaving_at'],
                     checkIn: result.toString());
               } else {
                 timeSheetUpdated = await db.updateWorkerTimeSheet(
                     isAtSite: _isAtSite,
-                    currentUser: widget.currentUser,
-                    selectedProject: widget.selectedProject,
-                    userRole: widget.currentUser.roles.first,
+                    currentUser: widget.currentUser!,
+                    selectedProject: widget.selectedProject!,
+                    userRole: widget.currentUser!.roles!.first,
                     today: '${result.day}-${result.month}-${result.year}',
-                    checkIn: todayTimeSheet['data'][widget.currentUser.uid]
+                    checkIn: todayTimeSheet['data'][widget.currentUser!.uid]
                         ['arriving_at'],
                     checkOut: result.toString());
               }
@@ -1506,9 +1506,9 @@ class _ProjectFormState extends State<ProjectForm> {
               //set the data base with the required information
               timeSheetUpdated = await db.updateWorkerTimeSheet(
                 isAtSite: _isAtSite,
-                currentUser: widget.currentUser,
-                selectedProject: widget.selectedProject,
-                userRole: widget.currentUser.roles.first,
+                currentUser: widget.currentUser!,
+                selectedProject: widget.selectedProject!,
+                userRole: widget.currentUser!.roles!.first,
                 today: '${result.day}-${result.month}-${result.year}',
                 checkIn: result.toString(),
               );
@@ -1517,18 +1517,18 @@ class _ProjectFormState extends State<ProjectForm> {
             //set the data base with the required information
             if (_isAtSite) {
               timeSheetUpdated = await db.setWorkerTimeSheet(
-                  userRole: widget.currentUser.roles.first,
+                  userRole: widget.currentUser!.roles!.first,
                   isAtSite: _isAtSite,
-                  currentUser: widget.currentUser,
-                  selectedProject: widget.selectedProject,
+                  currentUser: widget.currentUser!,
+                  selectedProject: widget.selectedProject!,
                   today: '${result.day}-${result.month}-${result.year}',
                   checkIn: result.toString());
             } else {
               timeSheetUpdated = await db.setWorkerTimeSheet(
-                  userRole: widget.currentUser.roles.first,
+                  userRole: widget.currentUser!.roles!.first,
                   isAtSite: _isAtSite,
-                  currentUser: widget.currentUser,
-                  selectedProject: widget.selectedProject,
+                  currentUser: widget.currentUser!,
+                  selectedProject: widget.selectedProject!,
                   today: '${result.day}-${result.month}-${result.year}',
                   checkOut: result.toString());
             }
@@ -1550,10 +1550,10 @@ class _ProjectFormState extends State<ProjectForm> {
       _snackBarWidget.content = 'Location could not be detected';
       _snackBarWidget.showSnack();
       Sentry.captureMessage(
-          '''User: ${widget.currentUser.firstName} ${widget.currentUser.lastName}\n
-          Project: ${widget.selectedProject.uid}\n
-          Address: ${widget.selectedProject.projectAddress}\n
-          User Location: ${widget.currentUser.currentLocation}''');
+          '''User: ${widget.currentUser!.firstName} ${widget.currentUser!.lastName}\n
+          Project: ${widget.selectedProject!.uid}\n
+          Address: ${widget.selectedProject!.projectAddress}\n
+          User Location: ${widget.currentUser!.currentLocation}''');
     }
   }
 
@@ -1563,13 +1563,13 @@ class _ProjectFormState extends State<ProjectForm> {
 
     var result = await db.getCurrentTimeSheet(today: currentDate);
     if (result['data'] != null &&
-        result['data'][widget.currentUser.uid] != null) {
-      if (result['data'][widget.currentUser.uid]['isOnSite'] &&
-          widget.selectedProject.uid ==
-              result['data'][widget.currentUser.uid]['projectId']) {
+        result['data'][widget.currentUser!.uid] != null) {
+      if (result['data'][widget.currentUser!.uid]['isOnSite'] &&
+          widget.selectedProject!.uid ==
+              result['data'][widget.currentUser!.uid]['projectId']) {
         _alreadyCheckedIn = false;
       } else {
-        if (result['data'][widget.currentUser.uid]['leaving_at'] != null) {
+        if (result['data'][widget.currentUser!.uid]['leaving_at'] != null) {
           _alreadyCheckedIn = false;
         } else {
           _alreadyCheckedIn = true;

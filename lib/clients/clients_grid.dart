@@ -7,8 +7,8 @@ import '../models/business_model.dart';
 import 'clients_list.dart';
 
 class ClientGrid extends StatefulWidget {
-  const ClientGrid({Key key, this.currentUser}) : super(key: key);
-  final UserData currentUser;
+  const ClientGrid({Key? key, this.currentUser}) : super(key: key);
+  final UserData? currentUser;
 
   @override
   State<ClientGrid> createState() => _ClientGridState();
@@ -20,7 +20,7 @@ class _ClientGridState extends State<ClientGrid> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        widget.currentUser.roles.contains('isAdmin')
+        widget.currentUser!.roles.contains('isAdmin')
             ? StreamProvider<List<ClientData>>.value(
                 value: db.getAllClients(),
                 initialData: const [],
@@ -30,7 +30,7 @@ class _ClientGridState extends State<ClientGrid> {
                 },
               )
             : StreamProvider<List<ClientData>>.value(
-                value: db.getClientsPerUser(userId: widget.currentUser.uid),
+                value: db.getClientsPerUser(userId: widget.currentUser!.uid),
                 initialData: const [],
                 catchError: (context, err) {
                   // print('Error getting client: $err');
@@ -39,7 +39,7 @@ class _ClientGridState extends State<ClientGrid> {
               ),
       ],
       child: ClientList(
-        currentUser: widget.currentUser,
+        currentUser: widget.currentUser!,
       ),
     );
   }

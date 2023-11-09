@@ -5,8 +5,8 @@ import 'package:royal_marble/shared/constants.dart';
 import 'package:royal_marble/shared/loading.dart';
 
 class HelpersList extends StatefulWidget {
-  const HelpersList({Key key, this.currentUser}) : super(key: key);
-  final UserData currentUser;
+  const HelpersList({Key? key, this.currentUser}) : super(key: key);
+  final UserData? currentUser;
 
   @override
   State<HelpersList> createState() => _HelpersListState();
@@ -14,8 +14,8 @@ class HelpersList extends StatefulWidget {
 
 class _HelpersListState extends State<HelpersList> {
   DatabaseService db = DatabaseService();
-  Future _getAssignedHelpers;
-  Size _size;
+  Future? _getAssignedHelpers;
+  Size? _size;
   @override
   void initState() {
     super.initState();
@@ -32,12 +32,11 @@ class _HelpersListState extends State<HelpersList> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: widget.currentUser.assingedHelpers != null &&
-                widget.currentUser.assingedHelpers.isNotEmpty
+        child: widget.currentUser!.assingedHelpers != null &&
+                widget.currentUser!.assingedHelpers.isNotEmpty
             ? FutureBuilder(
                 future: _getAssignedHelpers,
                 builder: (context, snapshot) {
-                  print('the snapshot: ${snapshot.data}');
                   if (snapshot.hasData) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(
@@ -45,11 +44,11 @@ class _HelpersListState extends State<HelpersList> {
                       );
                     } else {
                       return SizedBox(
-                        height: _size.height - 20,
+                        height: _size!.height - 20,
                         child: ListView.builder(
                             itemCount: snapshot.data.length,
                             itemBuilder: (context, index) {
-                              if (widget.currentUser.assingedHelpers
+                              if (widget.currentUser!.assingedHelpers
                                   .contains(snapshot.data[index].uid)) {
                                 return ListTile(
                                   tileColor:
@@ -79,7 +78,7 @@ class _HelpersListState extends State<HelpersList> {
   }
 
   //Future to hget assigned Helpers
-  Future<List<Helpers>> getAssignedHelpers({String uid}) async {
+  Future<List<Helpers>> getAssignedHelpers({String? uid}) async {
     return db.getAssignedHelper();
   }
 }

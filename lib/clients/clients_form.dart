@@ -15,11 +15,11 @@ import '../location/google_map_navigation.dart';
 import '../models/business_model.dart';
 
 class ClientForm extends StatefulWidget {
-  const ClientForm({Key key, this.client, this.currentUser, this.isNewClient})
+  const ClientForm({Key? key, this.client, this.currentUser, this.isNewClient})
       : super(key: key);
-  final ClientData client;
-  final UserData currentUser;
-  final bool isNewClient;
+  final ClientData? client;
+  final UserData? currentUser;
+  final bool? isNewClient;
 
   @override
   State<ClientForm> createState() => _ClientFormState();
@@ -35,30 +35,30 @@ class _ClientFormState extends State<ClientForm> {
   Map<String, dynamic> _myLocation = {};
   PhoneNumber phoneNumber = PhoneNumber(isoCode: 'AE');
   TextEditingController _phoneController = TextEditingController();
-  Size _size;
+  Size? _size;
   bool _loading = false;
 
   @override
   void initState() {
     super.initState();
     _snackBarWidget.context = context;
-    newClient.userId = widget.currentUser.uid;
+    newClient.userId = widget.currentUser!.uid;
     if (widget.client != null) {
-      newClient = widget.client;
+      newClient = widget.client!;
 
-      if (widget.client.phoneNumber != null) {
+      if (widget.client!.phoneNumber != null) {
         phoneNumber = PhoneNumber(
-          phoneNumber: widget.client.phoneNumber.phoneNumber,
-          dialCode: widget.client.phoneNumber.dialCode,
-          isoCode: widget.client.phoneNumber.isoCode,
+          phoneNumber: widget.client!.phoneNumber!.phoneNumber,
+          dialCode: widget.client!.phoneNumber!.dialCode,
+          isoCode: widget.client!.phoneNumber!.isoCode,
         );
       }
 
-      if (widget.client.clientAddress != null) {
+      if (widget.client!.clientAddress != null) {
         _myLocation = {
-          'addressName': newClient.clientAddress['addressName'],
-          'Lat': newClient.clientAddress['Lat'],
-          'Lng': newClient.clientAddress['Lng'],
+          'addressName': newClient.clientAddress!['addressName'],
+          'Lat': newClient.clientAddress!['Lat'],
+          'Lng': newClient.clientAddress!['Lng'],
         };
       }
     }
@@ -78,7 +78,7 @@ class _ClientFormState extends State<ClientForm> {
         title: const Text('Client Form'),
         backgroundColor: const Color.fromARGB(255, 191, 180, 66),
         actions: [
-          !widget.isNewClient
+          !widget.isNewClient!
               ? TextButton(
                   style: TextButton.styleFrom(
                       backgroundColor: !_editContent
@@ -98,17 +98,17 @@ class _ClientFormState extends State<ClientForm> {
       ),
       body: Stack(
         children: [
-          widget.isNewClient
+          widget.isNewClient!
               ? _buildNewClientForm()
               : _buildSelectedClientDetails(),
           _loading
               ? SizedBox(
-                  height: _size.height,
+                  height: _size!.height,
                   child: Center(
                     child: SpinKitSpinningLines(
                       color: Colors.black,
                       lineWidth: 6,
-                      size: _size.height / 5,
+                      size: _size!.height / 5,
                     ),
                   ),
                 )
@@ -152,7 +152,7 @@ class _ClientFormState extends State<ClientForm> {
                         borderSide: BorderSide(color: Colors.green)),
                   ),
                   validator: (val) =>
-                      val.isEmpty ? 'Client name cannot be empty' : null,
+                      val!.isEmpty ? 'Client name cannot be empty' : null,
                   onChanged: (val) {
                     setState(() {
                       newClient.clientName = val.trim();
@@ -179,7 +179,7 @@ class _ClientFormState extends State<ClientForm> {
                         borderSide: BorderSide(color: Colors.green)),
                   ),
                   validator: (val) =>
-                      val.isEmpty ? 'Contact person cannot be empty' : null,
+                      val!.isEmpty ? 'Contact person cannot be empty' : null,
                   onChanged: (val) {
                     setState(() {
                       newClient.contactPerson = val.trim();
@@ -233,7 +233,7 @@ class _ClientFormState extends State<ClientForm> {
                         borderSide: BorderSide(color: Colors.green)),
                   ),
                   validator: (val) {
-                    if (val.isEmpty) {
+                    if (val!.isEmpty) {
                       return 'Email Address cannot be empty';
                     }
                     if (!EmailValidator.validate(val)) {
@@ -295,12 +295,12 @@ class _ClientFormState extends State<ClientForm> {
                       style: ElevatedButton.styleFrom(
                           backgroundColor:
                               const Color.fromARGB(255, 191, 180, 66),
-                          fixedSize: Size(_size.width / 2, 45),
+                          fixedSize: Size(_size!.width / 2, 45),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(25))),
                       onPressed: () async {
-                        if (_formKey.currentState.validate()) {
-                          _formKey.currentState.save();
+                        if (_formKey.currentState!.validate()) {
+                          _formKey.currentState!.save();
 
                           if (_myLocation == null ||
                               _myLocation.isEmpty ||
@@ -371,7 +371,7 @@ class _ClientFormState extends State<ClientForm> {
                             borderSide: BorderSide(color: Colors.green)),
                       ),
                       validator: (val) =>
-                          val.isEmpty ? 'Client name cannot be empty' : null,
+                          val!.isEmpty ? 'Client name cannot be empty' : null,
                       onChanged: (val) {
                         setState(() {
                           newClient.clientName = val.trim();
@@ -389,7 +389,7 @@ class _ClientFormState extends State<ClientForm> {
                       Expanded(
                         flex: 2,
                         child: Text(
-                          widget.client.clientName,
+                          widget.client!.clientName!,
                           style: textStyle3,
                         ),
                       )
@@ -416,8 +416,9 @@ class _ClientFormState extends State<ClientForm> {
                                 BorderRadius.all(Radius.circular(15.0)),
                             borderSide: BorderSide(color: Colors.green)),
                       ),
-                      validator: (val) =>
-                          val.isEmpty ? 'Contact person cannot be empty' : null,
+                      validator: (val) => val!.isEmpty
+                          ? 'Contact person cannot be empty'
+                          : null,
                       onChanged: (val) {
                         setState(() {
                           newClient.contactPerson = val.trim();
@@ -435,7 +436,7 @@ class _ClientFormState extends State<ClientForm> {
                       Expanded(
                         flex: 2,
                         child: Text(
-                          widget.client.contactPerson,
+                          widget.client!.contactPerson!,
                           style: textStyle3,
                         ),
                       )
@@ -478,7 +479,7 @@ class _ClientFormState extends State<ClientForm> {
                       Expanded(
                         flex: 2,
                         child: Text(
-                          phoneNumber != null ? phoneNumber.phoneNumber : '',
+                          phoneNumber.phoneNumber ?? '',
                           style: textStyle3,
                         ),
                       )
@@ -506,7 +507,7 @@ class _ClientFormState extends State<ClientForm> {
                             borderSide: BorderSide(color: Colors.green)),
                       ),
                       validator: (val) {
-                        if (val.isEmpty) {
+                        if (val!.isEmpty) {
                           return 'Email Address cannot be empty';
                         }
                         if (!EmailValidator.validate(val)) {
@@ -532,7 +533,7 @@ class _ClientFormState extends State<ClientForm> {
                       Expanded(
                         flex: 2,
                         child: Text(
-                          widget.client.emailAddress,
+                          widget.client!.emailAddress!,
                           style: textStyle3,
                         ),
                       )
@@ -634,12 +635,12 @@ class _ClientFormState extends State<ClientForm> {
                           style: ElevatedButton.styleFrom(
                               backgroundColor:
                                   const Color.fromARGB(255, 191, 180, 66),
-                              fixedSize: Size(_size.width / 2, 45),
+                              fixedSize: Size(_size!.width / 2, 45),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(25))),
                           onPressed: () async {
-                            if (_formKey.currentState.validate()) {
-                              _formKey.currentState.save();
+                            if (_formKey.currentState!.validate()) {
+                              _formKey.currentState!.save();
                               var result =
                                   await db.updateClientData(client: newClient);
                               if (result == 'Completed') {
@@ -661,12 +662,12 @@ class _ClientFormState extends State<ClientForm> {
                 height: 15,
               ),
               //Delete button will allow you to delete the current client
-              _editContent && widget.currentUser.roles.contains('isAdmin')
+              _editContent && widget.currentUser!.roles.contains('isAdmin')
                   ? Center(
                       child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red,
-                            fixedSize: Size(_size.width / 2, 45),
+                            fixedSize: Size(_size!.width / 2, 45),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(25),
                             ),
@@ -702,7 +703,8 @@ class _ClientFormState extends State<ClientForm> {
                                           TextButton(
                                             onPressed: () async {
                                               await db.deleteClient(
-                                                  clientId: widget.client.uid);
+                                                  clientId:
+                                                      widget.client!.uid!);
                                               Navigator.pop(context);
                                               Navigator.pop(context);
                                             },
@@ -731,7 +733,7 @@ class _ClientFormState extends State<ClientForm> {
   }
 
   Future selecteMapLocation(
-      {String locationName, LatLng locationAddress}) async {
+      {String? locationName, LatLng? locationAddress}) async {
     if (locationAddress != null && locationName != null) {
       _myLocation = {
         'addressName': locationName,
@@ -743,6 +745,5 @@ class _ClientFormState extends State<ClientForm> {
       _myLocation = {'Lat': '', 'Lng': ''};
     }
     setState(() {});
-    print('the myLocation: $_myLocation');
   }
 }

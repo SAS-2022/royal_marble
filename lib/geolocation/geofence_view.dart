@@ -6,15 +6,15 @@ import 'package:flutter_background_geolocation/flutter_background_geolocation.da
 import 'util/dialog.dart' as util;
 
 class GeofenceView extends StatefulWidget {
-  const GeofenceView({Key key, this.center}) : super(key: key);
-  final LatLng center;
+  const GeofenceView({Key? key, this.center}) : super(key: key);
+  final LatLng? center;
   @override
   State<GeofenceView> createState() => _GeofenceViewState();
 }
 
 class _GeofenceViewState extends State<GeofenceView> {
-  LatLng center;
-  String _identifier;
+  LatLng? center;
+  String? _identifier;
   double _radius = 200.0;
   bool _notifyOnEntry = true;
   bool _notifyOnExit = true;
@@ -22,7 +22,7 @@ class _GeofenceViewState extends State<GeofenceView> {
 
   int _loiteringDelay = 10000;
 
-  _GeofenceViewState();
+  //_GeofenceViewState();
   void _onClickClose() {
     bg.BackgroundGeolocation.playSound(util.Dialog.getSoundId("CLOSE"));
 
@@ -32,10 +32,10 @@ class _GeofenceViewState extends State<GeofenceView> {
 
   void _onClickAdd() {
     bg.BackgroundGeolocation.addGeofence(bg.Geofence(
-        identifier: _identifier,
+        identifier: _identifier!,
         radius: _radius,
-        latitude: widget.center.latitude,
-        longitude: widget.center.longitude,
+        latitude: widget.center!.latitude,
+        longitude: widget.center!.longitude,
         notifyOnEntry: _notifyOnEntry,
         notifyOnExit: _notifyOnExit,
         notifyOnDwell: _notifyOnDwell,
@@ -43,8 +43,8 @@ class _GeofenceViewState extends State<GeofenceView> {
         extras: {
           'radius': _radius,
           'center': {
-            'latitude': widget.center.latitude,
-            'longitude': widget.center.longitude
+            'latitude': widget.center!.latitude,
+            'longitude': widget.center!.longitude
           }
         } // meta-data for tracker.transistorsoft.com
         )).then((bool success) {
@@ -61,64 +61,65 @@ class _GeofenceViewState extends State<GeofenceView> {
     const labelStyle = TextStyle(color: Colors.blue, fontSize: 16.0);
 
     return Scaffold(
-        appBar: AppBar(
-            leading: IconButton(
-                onPressed: _onClickClose,
-                icon: const Icon(Icons.close),
-                color: Colors.black),
-            title: const Text('Add Geofence'),
-            foregroundColor: Colors.black,
-            backgroundColor: Theme.of(context).bottomAppBarColor,
-            iconTheme: const IconThemeData(color: Colors.black),
-            actions: [
-              MaterialButton(child: const Text('Add'), onPressed: _onClickAdd)
-            ]),
-        body: Container(
-            padding: const EdgeInsets.only(left: 10.0),
-            child: ListView(children: <Widget>[
-              TextField(
-                  onChanged: (String value) {
-                    _identifier = value;
-                  },
-                  keyboardType: TextInputType.text,
-                  decoration: const InputDecoration(
-                      hintText: 'Unique geofence identifier',
-                      labelText: "identifier",
-                      labelStyle: labelStyle)),
-              FormField(
-                builder: (FormFieldState state) {
-                  return InputDecorator(
-                    decoration: const InputDecoration(
-                        labelText: 'Radius', labelStyle: labelStyle),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton(
-                          value: _radius.toInt().toString(),
-                          isDense: true,
-                          onChanged: (String value) {
-                            setState(() {
-                              _radius = double.parse(value);
-                            });
-                          },
-                          items: const [
-                            DropdownMenuItem(value: '150', child: Text('150')),
-                            DropdownMenuItem(value: '200', child: Text('200')),
-                            DropdownMenuItem(value: '500', child: Text('500')),
-                            DropdownMenuItem(
-                                value: '1000', child: Text('1000')),
-                            DropdownMenuItem(value: '5000', child: Text('5000'))
-                          ]),
-                    ),
-                  );
+      appBar: AppBar(
+          leading: IconButton(
+              onPressed: _onClickClose,
+              icon: const Icon(Icons.close),
+              color: Colors.black),
+          title: const Text('Add Geofence'),
+          foregroundColor: Colors.black,
+          backgroundColor: Theme.of(context).bottomAppBarTheme.color,
+          iconTheme: const IconThemeData(color: Colors.black),
+          actions: [
+            MaterialButton(child: const Text('Add'), onPressed: _onClickAdd)
+          ]),
+      body: Container(
+        padding: const EdgeInsets.only(left: 10.0),
+        child: ListView(
+          children: <Widget>[
+            TextField(
+                onChanged: (String value) {
+                  _identifier = value;
                 },
-              ),
-              FormField(builder: (FormFieldState state) {
+                keyboardType: TextInputType.text,
+                decoration: const InputDecoration(
+                    hintText: 'Unique geofence identifier',
+                    labelText: "identifier",
+                    labelStyle: labelStyle)),
+            FormField(
+              builder: (FormFieldState state) {
                 return InputDecorator(
-                    decoration: const InputDecoration(
-                        labelStyle: labelStyle,
-                        labelText: 'Geofence Transistions'
-                        //labelText: name
-                        ),
-                    child: Column(children: <Widget>[
+                  decoration: const InputDecoration(
+                      labelText: 'Radius', labelStyle: labelStyle),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton(
+                        value: _radius.toInt().toString(),
+                        isDense: true,
+                        onChanged: (String? value) {
+                          setState(() {
+                            _radius = double.parse(value!);
+                          });
+                        },
+                        items: const [
+                          DropdownMenuItem(value: '150', child: Text('150')),
+                          DropdownMenuItem(value: '200', child: Text('200')),
+                          DropdownMenuItem(value: '500', child: Text('500')),
+                          DropdownMenuItem(value: '1000', child: Text('1000')),
+                          DropdownMenuItem(value: '5000', child: Text('5000'))
+                        ]),
+                  ),
+                );
+              },
+            ),
+            FormField(
+              builder: (FormFieldState state) {
+                return InputDecorator(
+                  decoration: const InputDecoration(
+                      labelStyle: labelStyle, labelText: 'Geofence Transistions'
+                      //labelText: name
+                      ),
+                  child: Column(
+                    children: <Widget>[
                       Row(children: <Widget>[
                         const Expanded(
                             flex: 3,
@@ -182,19 +183,25 @@ class _GeofenceViewState extends State<GeofenceView> {
                                 ]))
                       ]),
                       TextField(
-                          onChanged: (String value) {
-                            _loiteringDelay = int.parse(value);
-                          },
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            hintText:
-                                'Delay in ms before DWELL transition fires',
-                            labelText: "loiteringDelay (milliseconds)",
-                            labelStyle: labelStyle,
-                            border: InputBorder.none,
-                          )),
-                    ]));
-              })
-            ])));
+                        onChanged: (String value) {
+                          _loiteringDelay = int.parse(value);
+                        },
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          hintText: 'Delay in ms before DWELL transition fires',
+                          labelText: "loiteringDelay (milliseconds)",
+                          labelStyle: labelStyle,
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            )
+          ],
+        ),
+      ),
+    );
   }
 }

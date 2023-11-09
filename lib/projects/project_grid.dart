@@ -6,10 +6,10 @@ import 'package:royal_marble/projects/project_list.dart';
 import 'package:royal_marble/services/database.dart';
 
 class ProjectGrid extends StatelessWidget {
-  const ProjectGrid({Key key, this.currentUser, this.selectedProject})
+  const ProjectGrid({Key? key, this.currentUser, this.selectedProject})
       : super(key: key);
-  final UserData currentUser;
-  final ProjectData selectedProject;
+  final UserData? currentUser;
+  final ProjectData? selectedProject;
 
   @override
   Widget build(BuildContext context) {
@@ -21,29 +21,26 @@ class ProjectGrid extends StatelessWidget {
                 value: db.getAllProjects(),
                 initialData: const [],
                 catchError: (context, err) {
-                  print('Error getting Project: $err');
-                  return [ProjectData(error: err)];
+                  return [ProjectData(error: err.toString())];
                 },
               )
             : StreamProvider<ProjectData>.value(
-                value: db.getProjectById(projectId: selectedProject.uid),
+                value: db.getProjectById(projectId: selectedProject!.uid!),
                 initialData: ProjectData(),
                 catchError: (context, err) {
-                  print('Error getting Project: $err');
-                  return ProjectData(error: err);
+                  return ProjectData(error: err.toString());
                 },
               ),
         StreamProvider<List<UserData>>.value(
           value: db.getAllWorkers(),
           initialData: [],
           catchError: (context, error) {
-            print('Error: $error');
-            return [UserData(error: error)];
+            return [UserData(error: error.toString())];
           },
         )
       ],
       child: ProjectList(
-        currentUser: currentUser,
+        currentUser: currentUser!,
         singleProject: selectedProject == null ? false : true,
       ),
     );

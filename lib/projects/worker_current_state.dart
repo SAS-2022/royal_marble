@@ -11,10 +11,10 @@ import '../models/user_model.dart';
 
 class WorkerCurrentStream extends StatelessWidget {
   const WorkerCurrentStream(
-      {Key key, this.selectedProject, this.selectedMockup})
+      {Key? key, this.selectedProject, this.selectedMockup})
       : super(key: key);
-  final ProjectData selectedProject;
-  final MockupData selectedMockup;
+  final ProjectData? selectedProject;
+  final MockupData? selectedMockup;
 
   @override
   Widget build(BuildContext context) {
@@ -24,40 +24,41 @@ class WorkerCurrentStream extends StatelessWidget {
             ? StreamProvider<ProjectData>.value(
                 initialData: ProjectData(),
                 value: DatabaseService()
-                    .getProjectById(projectId: selectedProject.uid),
+                    .getProjectById(projectId: selectedProject!.uid!),
                 catchError: ((context, error) {
-                  return ProjectData(error: error);
+                  return ProjectData(error: error.toString());
                 }),
               )
             : StreamProvider<MockupData>.value(
                 initialData: MockupData(),
                 value: DatabaseService()
-                    .getMockupById(mockupId: selectedMockup.uid),
+                    .getMockupById(mockupId: selectedMockup!.uid!),
                 catchError: ((context, error) {
-                  return MockupData(error: error);
+                  return MockupData(error: error.toString());
                 }),
               ),
       ],
       child: WorkerCurrentState(
-        selectedProject: selectedProject,
-        selectedMockup: selectedMockup,
+        selectedProject: selectedProject!,
+        selectedMockup: selectedMockup!,
       ),
     );
   }
 }
 
 class WorkerCurrentState extends StatefulWidget {
-  const WorkerCurrentState({Key key, this.selectedProject, this.selectedMockup})
+  const WorkerCurrentState(
+      {Key? key, this.selectedProject, this.selectedMockup})
       : super(key: key);
-  final ProjectData selectedProject;
-  final MockupData selectedMockup;
+  final ProjectData? selectedProject;
+  final MockupData? selectedMockup;
 
   @override
   State<WorkerCurrentState> createState() => _WorkerCurrentStateState();
 }
 
 class _WorkerCurrentStateState extends State<WorkerCurrentState> {
-  Size _size;
+  Size? _size;
   ProjectData _projectProvider = ProjectData();
   MockupData _mockupProvider = MockupData();
   DatabaseService db = DatabaseService();
@@ -89,11 +90,11 @@ class _WorkerCurrentStateState extends State<WorkerCurrentState> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 15),
             child: SizedBox(
-              height: _size.height - 120,
+              height: _size!.height - 120,
               child: _projectProvider.assignedWorkers != null &&
-                      _projectProvider.assignedWorkers.isNotEmpty
+                      _projectProvider.assignedWorkers!.isNotEmpty
                   ? ListView.builder(
-                      itemCount: _projectProvider.assignedWorkers.length,
+                      itemCount: _projectProvider.assignedWorkers!.length,
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 15),
@@ -104,16 +105,16 @@ class _WorkerCurrentStateState extends State<WorkerCurrentState> {
                                   initialData: UserData(),
                                   value: db.getUserPerId(
                                       uid: _projectProvider
-                                          .assignedWorkers[index]),
+                                          .assignedWorkers![index]),
                                   catchError: ((context, error) =>
-                                      UserData(error: error)),
+                                      UserData(error: error.toString())),
                                   child: Container(
                                     decoration: BoxDecoration(
                                         border: Border.all(width: 2),
                                         borderRadius:
                                             BorderRadius.circular(15)),
                                     child: WorkerWidget(
-                                      currentProject: widget.selectedProject,
+                                      currentProject: widget.selectedProject!,
                                     ),
                                   ),
                                 );
@@ -140,11 +141,11 @@ class _WorkerCurrentStateState extends State<WorkerCurrentState> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 15),
             child: SizedBox(
-              height: _size.height - 120,
+              height: _size!.height - 120,
               child: _mockupProvider.assignedWorkers != null &&
-                      _mockupProvider.assignedWorkers.isNotEmpty
+                      _mockupProvider.assignedWorkers!.isNotEmpty
                   ? ListView.builder(
-                      itemCount: _mockupProvider.assignedWorkers.length,
+                      itemCount: _mockupProvider.assignedWorkers!.length,
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 15),
@@ -155,16 +156,16 @@ class _WorkerCurrentStateState extends State<WorkerCurrentState> {
                                   initialData: UserData(),
                                   value: db.getUserPerId(
                                       uid: _mockupProvider
-                                          .assignedWorkers[index]),
+                                          .assignedWorkers![index]),
                                   catchError: ((context, error) =>
-                                      UserData(error: error)),
+                                      UserData(error: error.toString())),
                                   child: Container(
                                     decoration: BoxDecoration(
                                         border: Border.all(width: 2),
                                         borderRadius:
                                             BorderRadius.circular(15)),
                                     child: WorkerWidget(
-                                      currentMockup: widget.selectedMockup,
+                                      currentMockup: widget.selectedMockup!,
                                     ),
                                   ),
                                 );
@@ -186,23 +187,23 @@ class _WorkerCurrentStateState extends State<WorkerCurrentState> {
 }
 
 class WorkerWidget extends StatefulWidget {
-  const WorkerWidget({Key key, this.currentProject, this.currentMockup})
+  const WorkerWidget({Key? key, this.currentProject, this.currentMockup})
       : super(key: key);
-  final ProjectData currentProject;
-  final MockupData currentMockup;
+  final ProjectData? currentProject;
+  final MockupData? currentMockup;
 
   @override
   State<WorkerWidget> createState() => _WorkerWidgetState();
 }
 
 class _WorkerWidgetState extends State<WorkerWidget> {
-  UserData _userProvider;
+  UserData? _userProvider;
   SnackBarWidget _snackBarWidget = SnackBarWidget();
   bool _arrivedToSite = false;
-  Size _size;
-  double totalDistance;
+  Size? _size;
+  double? totalDistance;
   DatabaseService db = DatabaseService();
-  String role;
+  String? role;
   @override
   void initState() {
     super.initState();
@@ -210,8 +211,8 @@ class _WorkerWidgetState extends State<WorkerWidget> {
   }
 
   void _selectUserRole() {
-    if (_userProvider != null && _userProvider.roles != null) {
-      switch (_userProvider.roles.first) {
+    if (_userProvider != null && _userProvider!.roles != null) {
+      switch (_userProvider!.roles!.first) {
         case 'isNormalUser':
           role = 'Worker';
           break;
@@ -238,7 +239,7 @@ class _WorkerWidgetState extends State<WorkerWidget> {
       children: [
         SingleChildScrollView(
           child: Dismissible(
-            key: Key(_userProvider.uid),
+            key: Key(_userProvider!.uid!),
             direction: DismissDirection.endToStart,
             background: Padding(
               padding: const EdgeInsets.all(5.0),
@@ -287,14 +288,14 @@ class _WorkerWidgetState extends State<WorkerWidget> {
               if (result == 'Delete') {
                 if (widget.currentProject != null) {
                   await db.removeUserFromProject(
-                      selectedProject: widget.currentProject,
-                      userId: _userProvider.uid,
-                      removedUser: _userProvider);
+                      selectedProject: widget.currentProject!,
+                      userId: _userProvider!.uid!,
+                      removedUser: _userProvider!);
                 } else {
                   await db.removeUserFromMockup(
-                      selectedMockup: widget.currentMockup,
-                      userId: _userProvider.uid,
-                      removedUser: _userProvider);
+                      selectedMockup: widget.currentMockup!,
+                      userId: _userProvider!.uid!,
+                      removedUser: _userProvider!);
                 }
 
                 return true;
@@ -309,7 +310,7 @@ class _WorkerWidgetState extends State<WorkerWidget> {
               _snackBarWidget.showSnack();
             },
             child: ListTile(
-              leading: _userProvider.imageUrl == null
+              leading: _userProvider!.imageUrl == null
                   ? const CircleAvatar(
                       radius: 30,
                       child: Icon(
@@ -320,17 +321,17 @@ class _WorkerWidgetState extends State<WorkerWidget> {
                   : CircleAvatar(
                       radius: 30,
                       backgroundImage: NetworkImage(
-                        _userProvider.imageUrl,
+                        _userProvider!.imageUrl!,
                         scale: 2,
                       )),
               title: Text(
-                  '${_userProvider.firstName} ${_userProvider.lastName} - $role'),
+                  '${_userProvider!.firstName} ${_userProvider!.lastName} - $role'),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Mobile: ${_userProvider.phoneNumber}'),
+                  Text('Mobile: ${_userProvider!.phoneNumber}'),
                   Text(
-                      'Distance To Site: ${_userProvider.distanceToProject != null ? _userProvider.distanceToProject.toStringAsFixed(2) : ''}'),
+                      'Distance To Site: ${_userProvider!.distanceToProject != null ? _userProvider!.distanceToProject.toStringAsFixed(2) : ''}'),
                 ],
               ),
               trailing: Container(
@@ -343,23 +344,23 @@ class _WorkerWidgetState extends State<WorkerWidget> {
             ),
           ),
         ),
-        _userProvider.assingedHelpers != null &&
-                _userProvider.assingedHelpers.isNotEmpty
+        _userProvider!.assingedHelpers != null &&
+                _userProvider!.assingedHelpers!.isNotEmpty
             ? Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Container(
                     alignment: Alignment.centerRight,
                     height: 80,
-                    width: _size.width / 2,
+                    width: _size!.width / 2,
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(25),
                         border: Border.all()),
                     child: ListView.builder(
-                        itemCount: _userProvider.assingedHelpers.length,
+                        itemCount: _userProvider!.assingedHelpers!.length,
                         itemBuilder: (context, index) {
                           return FutureBuilder(
                               future: db.readSingleHelper(
-                                  uid: _userProvider.assingedHelpers[index]),
+                                  uid: _userProvider!.assingedHelpers![index]),
                               builder: (context, snapshot) {
                                 if (snapshot.hasData) {
                                   return Padding(
@@ -370,9 +371,9 @@ class _WorkerWidgetState extends State<WorkerWidget> {
                                       minLeadingWidth: 0,
                                       contentPadding: const EdgeInsets.all(2),
                                       title: Text(
-                                          '${snapshot.data.firstName} ${snapshot.data.lastName}'),
-                                      subtitle:
-                                          Text('${snapshot.data.mobileNumber}'),
+                                          '${snapshot.data!.firstName} ${snapshot.data!.lastName}'),
+                                      subtitle: Text(
+                                          '${snapshot.data!.mobileNumber}'),
                                     ),
                                   );
                                 } else {
@@ -388,14 +389,14 @@ class _WorkerWidgetState extends State<WorkerWidget> {
 
   //Define color based on distance
   Color getColorDistanceProject() {
-    Color currentColor;
-    if (_userProvider.roles != null) {
-      if (_userProvider.roles.contains('isSupervisor')) {
-        if (_userProvider.assignedProject != null) {
-          for (var project in _userProvider.assignedProject) {
-            if (project['id'] == widget.currentProject.uid) {
-              if (_userProvider.distanceToProject != null &&
-                  _userProvider.distanceToProject <= project['radius']) {
+    Color? currentColor;
+    if (_userProvider!.roles != null) {
+      if (_userProvider!.roles!.contains('isSupervisor')) {
+        if (_userProvider!.assignedProject != null) {
+          for (var project in _userProvider!.assignedProject) {
+            if (project['id'] == widget.currentProject!.uid) {
+              if (_userProvider!.distanceToProject != null &&
+                  _userProvider!.distanceToProject <= project['radius']) {
                 currentColor = Colors.green;
               } else {
                 currentColor = Colors.yellow;
@@ -404,9 +405,9 @@ class _WorkerWidgetState extends State<WorkerWidget> {
           }
         }
       } else {
-        if (_userProvider.distanceToProject != null &&
-            _userProvider.distanceToProject <=
-                _userProvider.assignedProject['radius']) {
+        if (_userProvider!.distanceToProject != null &&
+            _userProvider!.distanceToProject <=
+                _userProvider!.assignedProject['radius']) {
           currentColor = Colors.green;
         } else {
           currentColor = Colors.yellow;
@@ -414,6 +415,6 @@ class _WorkerWidgetState extends State<WorkerWidget> {
       }
     }
 
-    return currentColor;
+    return currentColor!;
   }
 }

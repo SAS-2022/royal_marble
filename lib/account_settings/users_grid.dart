@@ -6,8 +6,8 @@ import 'package:royal_marble/services/database.dart';
 import '../models/user_model.dart';
 
 class UserGrid extends StatefulWidget {
-  const UserGrid({Key key, this.currentUser}) : super(key: key);
-  final UserData currentUser;
+  const UserGrid({Key? key, this.currentUser}) : super(key: key);
+  final UserData? currentUser;
   @override
   State<UserGrid> createState() => _UserGridState();
 }
@@ -20,7 +20,7 @@ class _UserGridState extends State<UserGrid> {
       value: db.getNonAdminUsers(),
       initialData: const [],
       child: UserList(
-        currentUser: widget.currentUser,
+        currentUser: widget.currentUser!,
       ),
     );
   }

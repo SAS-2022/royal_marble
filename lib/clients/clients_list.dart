@@ -6,18 +6,18 @@ import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/shared/constants.dart';
 
 class ClientList extends StatefulWidget {
-  const ClientList({Key key, this.currentUser}) : super(key: key);
-  final UserData currentUser;
+  const ClientList({Key? key, this.currentUser}) : super(key: key);
+  final UserData? currentUser;
   @override
   State<ClientList> createState() => _ClientListState();
 }
 
 class _ClientListState extends State<ClientList> {
-  List<ClientData> clientProvider;
+  List<ClientData>? clientProvider;
   final _searchController = TextEditingController();
-  List<ClientData> _searchResult = [];
+  List<ClientData>? _searchResult = [];
   bool _emptySearchResults = false;
-  Size size;
+  Size? size;
 
   @override
   void initState() {
@@ -71,11 +71,11 @@ class _ClientListState extends State<ClientList> {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: _searchResult != null && _searchResult.isNotEmpty
+          child: _searchResult != null && _searchResult!.isNotEmpty
               ? SizedBox(
-                  height: size.height * 0.73,
+                  height: size!.height * 0.73,
                   child: ListView.builder(
-                    itemCount: _searchResult.length,
+                    itemCount: _searchResult!.length,
                     itemBuilder: (context, index) {
                       return Padding(
                         padding: const EdgeInsets.all(15.0),
@@ -90,7 +90,7 @@ class _ClientListState extends State<ClientList> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (_) => ClientForm(
-                                          client: _searchResult[index],
+                                          client: _searchResult![index],
                                           isNewClient: false,
                                           currentUser: widget.currentUser,
                                         )),
@@ -98,7 +98,7 @@ class _ClientListState extends State<ClientList> {
                             },
                             child: ListTile(
                               title: Text(
-                                _searchResult[index].clientName.toUpperCase(),
+                                _searchResult![index].clientName!.toUpperCase(),
                                 style: textStyle3,
                               ),
                               subtitle: Column(
@@ -106,11 +106,11 @@ class _ClientListState extends State<ClientList> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                      'Contact: ${_searchResult[index].contactPerson}'),
+                                      'Contact: ${_searchResult![index].contactPerson}'),
                                   Text(
-                                      'Mobile: ${_searchResult[index].phoneNumber.phoneNumber}'),
+                                      'Mobile: ${_searchResult![index].phoneNumber!.phoneNumber}'),
                                   Text(
-                                      'Email: ${_searchResult[index].emailAddress}'),
+                                      'Email: ${_searchResult![index].emailAddress}'),
                                 ],
                               ),
                             ),
@@ -121,7 +121,7 @@ class _ClientListState extends State<ClientList> {
                   ),
                 )
               : SizedBox(
-                  height: size.height * 0.73,
+                  height: size!.height * 0.73,
                   child: const Center(
                     child: Text(
                       'No Clients were found',
@@ -136,18 +136,18 @@ class _ClientListState extends State<ClientList> {
 
   //will show the client name relative the the typed data in the search field
   void _onSearchTextChnaged(String text) {
-    var results = [];
+    List<ClientData>? results = [];
     // _searchResult.clear();
     if (text.isEmpty) {
       //waits for the stream provider to load
       Future.delayed(const Duration(milliseconds: 750), () {
         setState(() {
-          _searchResult = clientProvider;
+          _searchResult = clientProvider!;
         });
       });
       return;
     }
-    results = clientProvider
+    results = clientProvider!
         .where((client) => client.clientName
             .toString()
             .toLowerCase()
@@ -155,7 +155,7 @@ class _ClientListState extends State<ClientList> {
         .toList();
     setState(() {
       _searchResult = results;
-      if (_searchResult.isEmpty) {
+      if (_searchResult!.isEmpty) {
         _emptySearchResults = true;
       } else {
         _emptySearchResults = false;
