@@ -3,7 +3,7 @@ import 'package:permission_handler/permission_handler.dart' as ph;
 import 'package:royal_marble/shared/constants.dart';
 
 class LocationRequirement extends StatelessWidget {
-  const LocationRequirement({Key key}) : super(key: key);
+  const LocationRequirement({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -12,12 +12,12 @@ class LocationRequirement extends StatelessWidget {
       padding: const EdgeInsets.all(15.0),
       child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         //Describe why we need the location
-        Padding(
-          padding: const EdgeInsets.only(top: 60),
+        const Padding(
+          padding: EdgeInsets.only(top: 60),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.center,
-            children: const [
+            children: [
               Padding(
                 padding: EdgeInsets.only(bottom: 20),
                 child: Text(

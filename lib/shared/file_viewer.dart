@@ -5,24 +5,21 @@ import 'package:path_provider/path_provider.dart';
 import 'package:royal_marble/shared/loading.dart';
 
 class FileViewer extends StatefulWidget {
-  const FileViewer({Key key, this.file}) : super(key: key);
-  final Future<File> file;
+  const FileViewer({Key? key, this.file}) : super(key: key);
+  final Future<File>? file;
 
   @override
   State<FileViewer> createState() => _FileViewerState();
 }
 
 class _FileViewerState extends State<FileViewer> {
-  var _openResult = 'Unknown';
+  final _openResult = 'Unknown';
 
   Future<String> openFile() async {
     var file = await widget.file;
-    var path = file.path;
-    print('the file Path: $path');
-    final result = await OpenFilex.open(path).onError((error, stackTrace) {
-      print('Error opening file: $error');
-      return error;
-    });
+    var path = file!.path;
+
+    final result = await OpenFilex.open(path);
 
     return 'type=${result.type} message=${result.message}';
   }
@@ -44,7 +41,7 @@ class _FileViewerState extends State<FileViewer> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return SingleChildScrollView(
-              child: Center(child: Text(snapshot.data)),
+              child: Center(child: Text(snapshot.data!)),
             );
           } else if (snapshot.hasError) {
             return Center(

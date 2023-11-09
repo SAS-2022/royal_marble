@@ -4,18 +4,18 @@ import 'package:royal_marble/shared/constants.dart';
 
 class CountryDropDownPicker extends StatefulWidget {
   const CountryDropDownPicker(
-      {Key key, this.countryOfResidence, this.selectCountry})
+      {Key? key, this.countryOfResidence, this.selectCountry})
       : super(key: key);
-  final Map<String, dynamic> countryOfResidence;
-  final Function selectCountry;
+  final Map<String, dynamic>? countryOfResidence;
+  final Function? selectCountry;
 
   @override
   _CountryDropDownPickerState createState() => _CountryDropDownPickerState();
 }
 
 class _CountryDropDownPickerState extends State<CountryDropDownPicker> {
-  String newCountryOfResidence;
-  Map<String, dynamic> selectedCountry;
+  String? newCountryOfResidence;
+  Map<String, dynamic>? selectedCountry;
 
   @override
   void initState() {
@@ -39,14 +39,14 @@ class _CountryDropDownPickerState extends State<CountryDropDownPicker> {
                   'countryName': country.displayNameNoCountryCode
                 };
                 setState(() {
-                  widget.selectCountry(selectedCountry);
+                  widget.selectCountry!(selectedCountry);
                 });
               });
             }),
         child: Center(
           child: selectedCountry != null
               ? Text(
-                  selectedCountry['countryName'],
+                  selectedCountry!['countryName'],
                   style: textStyle5,
                 )
               : const Text(

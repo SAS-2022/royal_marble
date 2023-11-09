@@ -5,13 +5,13 @@ import 'package:sentry/sentry.dart' as sentry;
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  UserData currentUser;
+  UserData? currentUser;
 
   DatabaseService db = DatabaseService();
   var newUser;
 
   //create a user object based on Firebase user
-  UserData _userFromFirebaseUser(User user) {
+  UserData? _userFromFirebaseUser(User? user) {
     return user != null ? UserData(uid: user.uid) : null;
   }
 
@@ -19,7 +19,7 @@ class AuthService {
   Future<String> userFromFirebaseVerification(String emailAddress) async {
     var user = _auth.currentUser;
     try {
-      await user.sendEmailVerification();
+      await user!.sendEmailVerification();
       return user.uid;
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
@@ -28,7 +28,7 @@ class AuthService {
   }
 
   //auth change user screen
-  Stream<UserData> get user {
+  Stream<UserData?> get user {
     return _auth.authStateChanges().map(_userFromFirebaseUser);
   }
 
@@ -53,7 +53,7 @@ class AuthService {
     try {
       var result = await _auth.signInAnonymously();
       var user = result.user;
-      if (user.uid != null) {
+      if (user!.uid != null) {
         return user.uid;
       } else {
         return null;
@@ -66,20 +66,20 @@ class AuthService {
 
   //register with email and password
   Future registerWithEmailandPassword(
-      {String email,
-      String password,
-      String firstName,
-      String lastName,
-      String company,
-      bool isActive,
-      String phoneNumber,
-      Map<String, dynamic> nationality,
-      Map<String, dynamic> homeAddress,
-      String imageUrl,
-      List<String> roles}) async {
+      {String? email,
+      String? password,
+      String? firstName,
+      String? lastName,
+      String? company,
+      bool? isActive,
+      String? phoneNumber,
+      Map<String, dynamic>? nationality,
+      Map<String, dynamic>? homeAddress,
+      String? imageUrl,
+      List<String>? roles}) async {
     try {
       var result = await _auth.createUserWithEmailAndPassword(
-          email: email, password: password);
+          email: email!, password: password!);
 
       var user = result.user;
       if (user != null) {
@@ -102,7 +102,7 @@ class AuthService {
         Future.delayed(const Duration(seconds: 3));
         user = _auth.currentUser;
         try {
-          await user.sendEmailVerification();
+          await user!.sendEmailVerification();
           return user.uid;
         } catch (e, stackTrace) {
           print('Error sending verification email: $e');

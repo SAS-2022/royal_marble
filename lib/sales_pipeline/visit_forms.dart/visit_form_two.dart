@@ -7,7 +7,7 @@ import '../../models/user_model.dart';
 
 class VisitFormTwo extends StatefulWidget {
   const VisitFormTwo(
-      {Key key,
+      {Key? key,
       this.selectedClient,
       this.selectedProject,
       this.contactPerson,
@@ -15,12 +15,12 @@ class VisitFormTwo extends StatefulWidget {
       this.currentUser,
       this.visitType})
       : super(key: key);
-  final ClientData selectedClient;
-  final ProjectData selectedProject;
-  final String contactPerson;
-  final String visitPurpose;
-  final UserData currentUser;
-  final String visitType;
+  final ClientData? selectedClient;
+  final ProjectData? selectedProject;
+  final String? contactPerson;
+  final String? visitPurpose;
+  final UserData? currentUser;
+  final String? visitType;
 
   @override
   State<VisitFormTwo> createState() => _VisitFormTwoState();
@@ -29,9 +29,9 @@ class VisitFormTwo extends StatefulWidget {
 class _VisitFormTwoState extends State<VisitFormTwo> {
   final _formKey = GlobalKey<FormState>();
   DatabaseService db = DatabaseService();
-  DateTime _time;
-  String visitDetails;
-  Size size;
+  DateTime? _time;
+  String? visitDetails;
+  Size? size;
   bool _loading = false;
 
   @override
@@ -53,8 +53,8 @@ class _VisitFormTwoState extends State<VisitFormTwo> {
           _buildSalesVisitFormTwo(),
           _loading
               ? SizedBox(
-                  height: size.height,
-                  width: size.width,
+                  height: size!.height,
+                  width: size!.width,
                   child: const Center(
                     child: Loading(),
                   ))
@@ -97,11 +97,11 @@ class _VisitFormTwoState extends State<VisitFormTwo> {
                         fillColor: Colors.grey[200]),
                     maxLines: 8,
                     validator: (val) {
-                      if (val.isEmpty) {
+                      if (val!.isEmpty) {
                         return 'This field cannot be empty';
                       }
                       if (val.length < 20) {
-                        return '20 letters at least, you have ${val.length} letters';
+                        return '20 letters at least, you have ${val!.length} letters';
                       }
                       return null;
                     },
@@ -117,32 +117,32 @@ class _VisitFormTwoState extends State<VisitFormTwo> {
               ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 191, 180, 66),
-                      fixedSize: Size(size.width, 45),
+                      fixedSize: Size(size!.width, 45),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25))),
                   onPressed: () async {
-                    if (_formKey.currentState.validate()) {
+                    if (_formKey.currentState!.validate()) {
                       setState(() {
                         _loading = true;
                       });
 
                       widget.visitType == 'Client'
                           ? await db.addNewSalesVisit(
-                              userId: widget.currentUser.uid,
-                              selectedClient: widget.selectedClient,
-                              contact: widget.contactPerson,
-                              visitPurpose: widget.visitPurpose,
-                              visitDetails: visitDetails,
-                              visitTime: _time,
-                              visitType: widget.visitType)
+                              userId: widget.currentUser!.uid!,
+                              selectedClient: widget.selectedClient!,
+                              contact: widget.contactPerson!,
+                              visitPurpose: widget.visitPurpose!,
+                              visitDetails: visitDetails!,
+                              visitTime: _time!,
+                              visitType: widget.visitType!)
                           : await db.addNewSalesVisit(
-                              userId: widget.currentUser.uid,
-                              selectedProject: widget.selectedProject,
-                              contact: widget.contactPerson,
-                              visitPurpose: widget.visitPurpose,
-                              visitDetails: visitDetails,
-                              visitTime: _time,
-                              visitType: widget.visitType);
+                              userId: widget.currentUser!.uid!,
+                              selectedProject: widget.selectedProject!,
+                              contact: widget.contactPerson!,
+                              visitPurpose: widget.visitPurpose!,
+                              visitDetails: visitDetails!,
+                              visitTime: _time!,
+                              visitType: widget.visitType!);
                       if (mounted) {
                         setState(() {
                           _loading = false;

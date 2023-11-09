@@ -59,7 +59,7 @@ class _HelpersPageState extends State<HelpersPage> {
     _snackBarWidget.context = context;
 
     if (widget.selectedUsers!.assingedHelpers != null) {
-      assignedHelpers = widget.selectedUsers!.assingedHelpers;
+      assignedHelpers = widget.selectedUsers!.assingedHelpers!;
     }
   }
 
@@ -69,7 +69,7 @@ class _HelpersPageState extends State<HelpersPage> {
     helperProvider = Provider.of<List<Helpers>>(context);
     return Scaffold(
       appBar: AppBar(
-        title: widget.currentUser!.roles.contains('isAdmin')
+        title: widget.currentUser!.roles!.contains('isAdmin')
             ? const Text(
                 'Assign Helpers',
               )
@@ -79,13 +79,13 @@ class _HelpersPageState extends State<HelpersPage> {
         backgroundColor: const Color.fromARGB(255, 191, 180, 66),
         actions: [
           //Save changes
-          widget.currentUser!.roles.contains('isAdmin')
+          widget.currentUser!.roles!.contains('isAdmin')
               ? TextButton(
                   onPressed: () async {
                     //will save the new helpers to the current user
                     if (assignedHelpers.length <= 2) {
                       var result = await db.updateUserWithHelpers(
-                          uid: widget.selectedUsers!.uid,
+                          uid: widget.selectedUsers!.uid!,
                           helpers: assignedHelpers);
                       Navigator.pop(context);
                       _snackBarWidget.content = result;

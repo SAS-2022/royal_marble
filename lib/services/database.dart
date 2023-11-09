@@ -8,7 +8,7 @@ import 'package:sentry/sentry.dart' as sentry;
 import '../models/user_model.dart';
 
 class DatabaseService {
-  String uid;
+  String? uid;
   DatabaseService({this.uid});
 
   final CollectionReference userCollection =
@@ -26,17 +26,17 @@ class DatabaseService {
 
   //Update the user data
   Future<String> updateUser({
-    String uid,
-    String firstName,
-    String lastName,
-    String company,
-    bool isActive,
-    String phoneNumber,
-    String emailAddress,
-    List<dynamic> roles,
-    String imageUrl,
-    Map<String, dynamic> nationality,
-    Map<String, dynamic> homeAddress,
+    String? uid,
+    String? firstName,
+    String? lastName,
+    String? company,
+    bool? isActive,
+    String? phoneNumber,
+    String? emailAddress,
+    List<dynamic>? roles,
+    String? imageUrl,
+    Map<String, dynamic>? nationality,
+    Map<String, dynamic>? homeAddress,
   }) async {
     try {
       return await userCollection.doc(uid).set({
@@ -61,10 +61,10 @@ class DatabaseService {
 
   //update the user's live location
   Future<String> updateUserLiveLocation(
-      {String uid, LatLng currentLocation, double distance}) async {
+      {String? uid, LatLng? currentLocation, double? distance}) async {
     try {
       Map<String, dynamic> newLoc = {
-        'Lat': currentLocation.latitude,
+        'Lat': currentLocation!.latitude,
         'Lng': currentLocation.longitude,
       };
       return await userCollection.doc(uid).update({
@@ -79,7 +79,7 @@ class DatabaseService {
 
   //update user location permission status
   Future<void> updateUserPermissionStatus(
-      {String uid, ph.PermissionStatus permissionStatus}) async {
+      {String? uid, ph.PermissionStatus? permissionStatus}) async {
     try {
       await userCollection
           .doc(uid)
@@ -91,7 +91,7 @@ class DatabaseService {
   }
 
   //delete a user
-  Future<String> deleteUser({String uid}) async {
+  Future<String> deleteUser({String? uid}) async {
     try {
       return await userCollection
           .doc(uid)
@@ -104,7 +104,7 @@ class DatabaseService {
   }
 
   //activate or deactivate a user
-  Future<String> activateDeactivateUser({String uid, bool active}) async {
+  Future<String> activateDeactivateUser({String? uid, bool? active}) async {
     try {
       return await userCollection
           .doc(uid)
@@ -116,7 +116,7 @@ class DatabaseService {
   }
 
   //update current user role
-  Future<String> assignUserRole({String selectedRole, String uid}) async {
+  Future<String> assignUserRole({String? selectedRole, String? uid}) async {
     var roles = '';
     switch (selectedRole) {
       case 'Mason':
@@ -146,17 +146,17 @@ class DatabaseService {
   }
 
   //update current user
-  Future<String> updateCurrentUser({String uid, UserData newUsers}) async {
+  Future<String> updateCurrentUser({String? uid, UserData? newUsers}) async {
     try {
       return await userCollection.doc(uid).update({
-        'firstName': newUsers.firstName,
+        'firstName': newUsers!.firstName,
         'lastName': newUsers.lastName,
         'imageUrl': newUsers.imageUrl,
         'company': newUsers.company,
         'phoneNumber': newUsers.phoneNumber,
         'nationality': {
-          'contryCode': newUsers.nationality['countryCode'],
-          'countryName': newUsers.nationality['countryName']
+          'contryCode': newUsers.nationality!['countryCode'],
+          'countryName': newUsers.nationality!['countryName']
         },
         'homeAddress': newUsers.homeAddress,
       }).then((value) => 'Completed');
@@ -168,7 +168,7 @@ class DatabaseService {
 
   //Update a user with helpers
   Future<String> updateUserWithHelpers(
-      {String uid, List<dynamic> helpers}) async {
+      {String? uid, List<dynamic>? helpers}) async {
     try {
       return await userCollection
           .doc(uid)
@@ -181,20 +181,20 @@ class DatabaseService {
 
   //assign user to a project
   Future<String> assignUsersToProject(
-      {List<UserData> userIds, ProjectData project}) async {
-    String result;
+      {List<UserData>? userIds, ProjectData? project}) async {
+    String? result;
     try {
-      for (UserData user in userIds) {
+      for (UserData user in userIds!) {
         Map<String, dynamic> projectDetails = {
-          'projectId': project.uid,
-          'Lat': project.projectAddress['Lat'],
-          'Lng': project.projectAddress['Lng'],
+          'projectId': project!.uid,
+          'Lat': project.projectAddress!['Lat'],
+          'Lng': project.projectAddress!['Lng'],
           'radius': project.radius,
         };
         result = await userCollection.doc(user.uid).update(
             {'assignedProject': projectDetails}).then((value) => 'Completed');
       }
-      return result;
+      return result.toString();
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
       return 'Error: $e';
@@ -203,7 +203,7 @@ class DatabaseService {
 
   //read the users data through futures and streams
   //stream user data
-  Stream<UserData> getUserPerId({String uid}) {
+  Stream<UserData> getUserPerId({String? uid}) {
     return userCollection.doc(uid).snapshots().map(_singleUserDataFromSnapshot);
   }
 
@@ -226,7 +226,7 @@ class DatabaseService {
         .map(_allUserDataFromSnapshot);
   }
 
-  Stream<List<CustomMarker>> getAllUsersLocation({String userId}) {
+  Stream<List<CustomMarker>> getAllUsersLocation({String? userId}) {
     return userCollection
         .doc(userId)
         .collection('location')
@@ -236,7 +236,7 @@ class DatabaseService {
   }
 
   //Get users depending on their role
-  Future<List<UserData>> getUsersPerRole({String userRole}) async {
+  Future<List<UserData>> getUsersPerRole({String? userRole}) async {
     try {
       return userCollection
           .where('roles', arrayContains: userRole)
@@ -279,7 +279,7 @@ class DatabaseService {
     }
   }
 
-  Future<Map<String, dynamic>> getUserLocationFuture({String usersId}) async {
+  Future<Map<String, dynamic>> getUserLocationFuture({String? usersId}) async {
     return await userCollection
         .doc(usersId)
         .collection('location')
@@ -288,24 +288,24 @@ class DatabaseService {
         .then((value) {
       if (value.data() != null) {
         return {
-          'uuid': value.data()['location']['uuid'],
-          'lat': value.data()['location']['coords']['latitude'],
-          'lng': value.data()['location']['coords']['longitude'],
-          'speed': value.data()['location']['coords']['speed'] ?? '',
-          'activity': value.data()['location']['activity']['type'] ?? '',
-          'charging': value.data()['location']['battery']['is_charging'] ?? '',
-          'battery': value.data()['location']['battery']['level'] ?? '',
-          'isMoving': value.data()['location']['is_moving'] ?? '',
-          'enabled': value.data()['location']['provider'] != null
-              ? value.data()['location']['provider']['enabled']
+          'uuid': value.data()!['location']['uuid'],
+          'lat': value.data()!['location']['coords']['latitude'],
+          'lng': value.data()!['location']['coords']['longitude'],
+          'speed': value.data()!['location']['coords']['speed'] ?? '',
+          'activity': value.data()!['location']['activity']['type'] ?? '',
+          'charging': value.data()!['location']['battery']['is_charging'] ?? '',
+          'battery': value.data()!['location']['battery']['level'] ?? '',
+          'isMoving': value.data()!['location']['is_moving'] ?? '',
+          'enabled': value.data()!['location']['provider'] != null
+              ? value.data()!['location']['provider']['enabled']
               : '',
-          'network': value.data()['location']['provider'] != null
-              ? value.data()['location']['provider']['network']
+          'network': value.data()!['location']['provider'] != null
+              ? value.data()!['location']['provider']['network']
               : '',
-          'gps': value.data()['location']['provider'] != null
-              ? value.data()['location']['provider']['gps']
+          'gps': value.data()!['location']['provider'] != null
+              ? value.data()!['location']['provider']['gps']
               : '',
-          'time': value.data()['location']['timestamp'] ?? ''
+          'time': value.data()!['location']['timestamp'] ?? ''
         };
       } else {
         return {};
@@ -333,7 +333,7 @@ class DatabaseService {
         .map(_allUserDataFromSnapshot);
   }
 
-  Future<UserData> getUserByIdFuture({String uid}) async {
+  Future<UserData> getUserByIdFuture({String? uid}) async {
     try {
       return await userCollection.doc(uid).get().then((data) {
         return UserData(
@@ -355,7 +355,7 @@ class DatabaseService {
       });
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
-      return UserData(error: e);
+      return UserData(error: e.toString());
     }
   }
 
@@ -454,16 +454,16 @@ class DatabaseService {
 
   //The below section will allow us to handle clients changes
   //adding clients
-  Future<String> addNewClients({ClientData client}) async {
+  Future<String> addNewClients({ClientData? client}) async {
     try {
       return await clientCollection.add({
-        'clientName': client.clientName,
+        'clientName': client!.clientName,
         'clientAddress': client.clientAddress,
         'contactPerson': client.contactPerson,
         'phoneNumber': {
-          'phoneNumber': client.phoneNumber.phoneNumber,
-          'dialCode': client.phoneNumber.dialCode,
-          'isoCode': client.phoneNumber.isoCode,
+          'phoneNumber': client.phoneNumber!.phoneNumber,
+          'dialCode': client.phoneNumber!.dialCode,
+          'isoCode': client.phoneNumber!.isoCode,
         },
         'emailAddress': client.emailAddress,
         'userId': client.userId,
@@ -475,16 +475,16 @@ class DatabaseService {
   }
 
   //updating clients
-  Future<String> updateClientData({ClientData client}) async {
+  Future<String> updateClientData({ClientData? client}) async {
     try {
-      return await clientCollection.doc(client.uid).update({
+      return await clientCollection.doc(client!.uid).update({
         'clientName': client.clientName,
         'clientAddress': client.clientAddress,
         'contactPerson': client.contactPerson,
         'phoneNumber': {
-          'phoneNumber': client.phoneNumber.phoneNumber,
-          'dialCode': client.phoneNumber.dialCode,
-          'isoCode': client.phoneNumber.isoCode,
+          'phoneNumber': client.phoneNumber!.phoneNumber,
+          'dialCode': client.phoneNumber!.dialCode,
+          'isoCode': client.phoneNumber!.isoCode,
         },
         'emailAddress': client.emailAddress,
         'userId': client.userId,
@@ -496,7 +496,7 @@ class DatabaseService {
   }
 
   //deleting clients
-  Future<void> deleteClient({String clientId}) async {
+  Future<void> deleteClient({String? clientId}) async {
     try {
       await clientCollection.doc(clientId).delete();
     } catch (e, stackTrace) {
@@ -505,7 +505,7 @@ class DatabaseService {
   }
 
   //reading through streams and futures
-  Stream<List<ClientData>> getClientsPerUser({String userId}) {
+  Stream<List<ClientData>> getClientsPerUser({String? userId}) {
     var result = clientCollection
         .where('userId', isEqualTo: userId)
         .snapshots()
@@ -513,7 +513,7 @@ class DatabaseService {
     return result;
   }
 
-  Stream<ClientData> getClientPerId({String uid}) {
+  Stream<ClientData> getClientPerId({String? uid}) {
     return clientCollection
         .doc(uid)
         .snapshots()
@@ -582,7 +582,7 @@ class DatabaseService {
     }
   }
 
-  Future<List<ClientData>> getSalesUserClientFuture({String userId}) async {
+  Future<List<ClientData>> getSalesUserClientFuture({String? userId}) async {
     try {
       return await clientCollection
           .where('salesInCharge', isEqualTo: userId)
@@ -611,19 +611,19 @@ class DatabaseService {
 
   //Projects Section
   //create a project with location
-  Future<String> addNewProject({ProjectData project}) async {
+  Future<String> addNewProject({ProjectData? project}) async {
     try {
       return await projectCollection.add({
-        'projectName': project.projectName,
+        'projectName': project!.projectName,
         'projectDetails': project.projectDetails,
         'selectedAddress': project.projectAddress,
         'radius': project.radius,
         'contractor': project.contactorCompany,
         'contactPerson': project.contactPerson,
         'phoneNumber': {
-          'phoneNumber': project.phoneNumber.phoneNumber,
-          'isoCode': project.phoneNumber.isoCode,
-          'dialCode': project.phoneNumber.dialCode,
+          'phoneNumber': project.phoneNumber!.phoneNumber,
+          'isoCode': project.phoneNumber!.isoCode,
+          'dialCode': project.phoneNumber!.dialCode,
         },
         'emailAddress': project.emailAddress,
         'salesInCharge': project.userId,
@@ -637,9 +637,9 @@ class DatabaseService {
   }
 
   //updating clients
-  Future<String> updateProjectData({ProjectData project}) async {
+  Future<String> updateProjectData({ProjectData? project}) async {
     try {
-      return await projectCollection.doc(project.uid).update({
+      return await projectCollection.doc(project!.uid).update({
         'projectName': project.projectName,
         'projectDetails': project.projectDetails,
         'selectedAddress': project.projectAddress,
@@ -647,9 +647,9 @@ class DatabaseService {
         'contractor': project.contactorCompany,
         'contactPerson': project.contactPerson,
         'phoneNumber': {
-          'phoneNumber': project.phoneNumber.phoneNumber,
-          'isoCode': project.phoneNumber.isoCode,
-          'dialCode': project.phoneNumber.dialCode,
+          'phoneNumber': project.phoneNumber!.phoneNumber,
+          'isoCode': project.phoneNumber!.isoCode,
+          'dialCode': project.phoneNumber!.dialCode,
         },
         'emailAddress': project.emailAddress,
         'salesInCharge': project.userId,
@@ -663,9 +663,9 @@ class DatabaseService {
   }
 
   //update project status
-  Future<String> updateProjectStatus({ProjectData project}) async {
+  Future<String> updateProjectStatus({ProjectData? project}) async {
     try {
-      return await projectCollection.doc(project.uid).update({
+      return await projectCollection.doc(project!.uid).update({
         'status': project.projectStatus,
         'assignedWorkers': project.assignedWorkers,
       }).then((value) => 'Completed');
@@ -679,14 +679,14 @@ class DatabaseService {
   //we will update the project with a list of users ids
   //we will update each user with the assigned project and its coordinates
   Future<String> updateProjectWithWorkers(
-      {ProjectData project,
-      List<UserData> addedUsers,
-      List<String> selectedUserIds,
-      List<UserData> removedUsers}) async {
+      {ProjectData? project,
+      List<UserData>? addedUsers,
+      List<String>? selectedUserIds,
+      List<UserData>? removedUsers}) async {
     try {
       //update the project data first
       var result = await projectCollection
-          .doc(project.uid)
+          .doc(project!.uid)
           .update({
             'assignedWorkers': selectedUserIds,
           })
@@ -698,7 +698,7 @@ class DatabaseService {
         //check which users were removed to remove them
         if (removedUsers != null && removedUsers.isNotEmpty) {
           for (var user in removedUsers) {
-            if (user.roles.contains('isSupervisor')) {
+            if (user.roles!.contains('isSupervisor')) {
               await userCollection
                   .doc(user.uid)
                   .update({
@@ -729,8 +729,8 @@ class DatabaseService {
           }
         }
         //add new users
-        for (var user in addedUsers) {
-          if (user.roles.contains('isSupervisor')) {
+        for (var user in addedUsers!) {
+          if (user.roles!.contains('isSupervisor')) {
             userResult = await userCollection
                 .doc(user.uid)
                 .update({
@@ -779,14 +779,14 @@ class DatabaseService {
 
   //removing users from a selected project
   Future<String> removeUserFromProject(
-      {ProjectData selectedProject,
-      String userId,
-      UserData removedUser}) async {
+      {ProjectData? selectedProject,
+      String? userId,
+      UserData? removedUser}) async {
     var result;
     try {
       //first remove user id from the project
       List<dynamic> projectAssignedUsers =
-          await projectCollection.doc(selectedProject.uid).get().then((value) {
+          await projectCollection.doc(selectedProject!.uid).get().then((value) {
         var data = value.data() as Map<String, dynamic>;
         return data['assignedWorkers'];
       });
@@ -802,12 +802,12 @@ class DatabaseService {
 
       //now we need to remove the assigned project from the user's document
       var assignedProject =
-          await userCollection.doc(removedUser.uid).get().then((value) {
+          await userCollection.doc(removedUser!.uid).get().then((value) {
         var data = value.data() as Map<String, dynamic>;
         return data['assignedProject'];
       });
 
-      if (removedUser.roles.contains('isSupervisor')) {
+      if (removedUser!.roles!.contains('isSupervisor')) {
         for (var project in assignedProject) {
           if (project['id'] == selectedProject.uid) {
             result = await userCollection
@@ -848,14 +848,14 @@ class DatabaseService {
     return projectCollection.snapshots().map(_listProjectDataFromSnapshot);
   }
 
-  Stream<ProjectData> getProjectById({String projectId}) {
+  Stream<ProjectData> getProjectById({String? projectId}) {
     return projectCollection
         .doc(projectId)
         .snapshots()
         .map(_projectDataFromSnapshot);
   }
 
-  Future<ProjectData> getPorjectByIdFuture({String projectId}) async {
+  Future<ProjectData> getPorjectByIdFuture({String? projectId}) async {
     try {
       var result = await projectCollection.doc(projectId).get().then((data) {
         var result = ProjectData(
@@ -927,7 +927,7 @@ class DatabaseService {
     );
   }
 
-  Future<String> deleteProject({String projectId}) async {
+  Future<String> deleteProject({String? projectId}) async {
     try {
       return await projectCollection
           .doc(projectId)
@@ -941,19 +941,19 @@ class DatabaseService {
 
   //Mock-up Section
   //Add new mockup
-  Future<String> addNewMockup({MockupData mockup}) async {
+  Future<String> addNewMockup({MockupData? mockup}) async {
     try {
       return await mockupCollection.add({
-        'name': mockup.mockupName,
+        'name': mockup!.mockupName,
         'details': mockup.mockupDetails,
         'address': mockup.mockupAddress,
         'radius': mockup.radius,
         'contractor': mockup.contactorCompany,
         'contactPerson': mockup.contactPerson,
         'phoneNumber': {
-          'phoneNumber': mockup.phoneNumber.phoneNumber,
-          'isoCode': mockup.phoneNumber.isoCode,
-          'dialCode': mockup.phoneNumber.dialCode,
+          'phoneNumber': mockup.phoneNumber!.phoneNumber,
+          'isoCode': mockup.phoneNumber!.isoCode,
+          'dialCode': mockup.phoneNumber!.dialCode,
         },
         'emailAddress': mockup.emailAddress,
         'salesInCharge': mockup.userId,
@@ -967,9 +967,9 @@ class DatabaseService {
   }
 
   //update mockup
-  Future<String> updateMockupData({MockupData mockup}) async {
+  Future<String> updateMockupData({MockupData? mockup}) async {
     try {
-      return await projectCollection.doc(mockup.uid).update({
+      return await projectCollection.doc(mockup!.uid).update({
         'name': mockup.mockupName,
         'details': mockup.mockupDetails,
         'address': mockup.mockupAddress,
@@ -977,9 +977,9 @@ class DatabaseService {
         'contractor': mockup.contactorCompany,
         'contactPerson': mockup.contactPerson,
         'phoneNumber': {
-          'phoneNumber': mockup.phoneNumber.phoneNumber,
-          'isoCode': mockup.phoneNumber.isoCode,
-          'dialCode': mockup.phoneNumber.dialCode,
+          'phoneNumber': mockup.phoneNumber!.phoneNumber,
+          'isoCode': mockup.phoneNumber!.isoCode,
+          'dialCode': mockup.phoneNumber!.dialCode,
         },
         'emailAddress': mockup.emailAddress,
         'salesInCharge': mockup.userId,
@@ -996,14 +996,14 @@ class DatabaseService {
   //we will update the mockup with a list of users ids
   //we will update each user with the assigned mockup and its coordinates
   Future<String> updateMockupWithWorkers(
-      {MockupData mockup,
-      List<UserData> addedUsers,
-      List<String> selectedUserIds,
-      List<UserData> removedUsers}) async {
+      {MockupData? mockup,
+      List<UserData>? addedUsers,
+      List<String>? selectedUserIds,
+      List<UserData>? removedUsers}) async {
     try {
       //update the project data first
       var result = await mockupCollection
-          .doc(mockup.uid)
+          .doc(mockup!.uid)
           .update({
             'assignedWorkers': selectedUserIds,
           })
@@ -1015,7 +1015,7 @@ class DatabaseService {
         //check which users were removed to remove them
         if (removedUsers != null && removedUsers.isNotEmpty) {
           for (var user in removedUsers) {
-            if (user.roles.contains('isSupervisor')) {
+            if (user.roles!.contains('isSupervisor')) {
               await userCollection
                   .doc(user.uid)
                   .update({
@@ -1046,7 +1046,7 @@ class DatabaseService {
           }
         }
         //add new users
-        for (var user in addedUsers) {
+        for (var user in addedUsers!) {
           userResult = await userCollection
               .doc(user.uid)
               .update({
@@ -1077,9 +1077,9 @@ class DatabaseService {
   }
 
   //Update the mockup status
-  Future<String> updateMockupStatus({MockupData mockup}) async {
+  Future<String> updateMockupStatus({MockupData? mockup}) async {
     try {
-      return await mockupCollection.doc(mockup.uid).update({
+      return await mockupCollection.doc(mockup!.uid).update({
         'status': mockup.mockupStatus,
         'assignedWorkers': mockup.assignedWorkers,
       }).then((value) => 'Completed');
@@ -1091,12 +1091,14 @@ class DatabaseService {
 
   //removing users from a selected mockup
   Future<String> removeUserFromMockup(
-      {MockupData selectedMockup, String userId, UserData removedUser}) async {
+      {MockupData? selectedMockup,
+      String? userId,
+      UserData? removedUser}) async {
     var result;
     try {
       //first remove user id from the project
       List<dynamic> mockupAssignedUsers =
-          await mockupCollection.doc(selectedMockup.uid).get().then((value) {
+          await mockupCollection.doc(selectedMockup!.uid).get().then((value) {
         var data = value.data() as Map<String, dynamic>;
         return data['assignedWorkers'];
       });
@@ -1112,7 +1114,7 @@ class DatabaseService {
 
       //now we need to remove the assigned project from the user's document
       var assignedMockup =
-          await userCollection.doc(removedUser.uid).get().then((value) {
+          await userCollection.doc(removedUser!.uid).get().then((value) {
         var data = value.data() as Map<String, dynamic>;
         return data['assignedMockup'];
       });
@@ -1153,14 +1155,14 @@ class DatabaseService {
     return mockupCollection.snapshots().map(_listMockupDataFromSnapshot);
   }
 
-  Stream<MockupData> getMockupById({String mockupId}) {
+  Stream<MockupData> getMockupById({String? mockupId}) {
     return mockupCollection
         .doc(mockupId)
         .snapshots()
         .map(_mockupDataFromSnapshot);
   }
 
-  Future<MockupData> getMockupByIdFuture({String mockupId}) async {
+  Future<MockupData> getMockupByIdFuture({String? mockupId}) async {
     try {
       var result = await mockupCollection.doc(mockupId).get().then((data) {
         var result = MockupData(
@@ -1186,7 +1188,7 @@ class DatabaseService {
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
       print('An error obtaining project: $e');
-      return MockupData(error: e);
+      return MockupData(error: e.toString());
     }
   }
 
@@ -1234,7 +1236,7 @@ class DatabaseService {
   }
 
   //Delete mockup
-  Future<String> deleteMockup({String mockupId}) async {
+  Future<String> deleteMockup({String? mockupId}) async {
     try {
       return await mockupCollection
           .doc(mockupId)
@@ -1249,25 +1251,25 @@ class DatabaseService {
   //generating time sheet report
   //Adding a new entry to the collection
   Future<String> setWorkerTimeSheet(
-      {UserData currentUser,
-      String today,
-      ProjectData selectedProject,
-      MockupData selectedMockup,
-      bool isAtSite,
-      String checkIn,
-      String checkOut,
-      String userRole}) async {
+      {UserData? currentUser,
+      String? today,
+      ProjectData? selectedProject,
+      MockupData? selectedMockup,
+      bool? isAtSite,
+      String? checkIn,
+      String? checkOut,
+      String? userRole}) async {
     try {
       return await timeSheetCollection.doc(today).set({
-        currentUser.uid: {
+        currentUser!.uid: {
           'firstName': currentUser.firstName,
           'lastName': currentUser.lastName,
           'projectId': selectedProject != null
               ? selectedProject.uid
-              : selectedMockup.uid,
+              : selectedMockup!.uid,
           'projectName': selectedProject != null
               ? selectedProject.projectName
-              : selectedMockup.mockupName,
+              : selectedMockup!.mockupName,
           'arriving_at': checkIn,
           'leaving_at': checkOut,
           'isOnSite': isAtSite,
@@ -1282,31 +1284,28 @@ class DatabaseService {
 
   //updating the current entry
   Future<String> updateWorkerTimeSheet({
-    UserData currentUser,
-    String userRole,
-    String today,
-    ProjectData selectedProject,
-    MockupData selectedMockup,
-    bool isAtSite,
-    String checkIn,
-    String checkOut,
-    String workType,
-    double squareMeters,
+    UserData? currentUser,
+    String? userRole,
+    String? today,
+    ProjectData? selectedProject,
+    MockupData? selectedMockup,
+    bool? isAtSite,
+    String? checkIn,
+    String? checkOut,
+    String? workType,
+    double? squareMeters,
   }) async {
     try {
-      print(
-          'the current User: ${currentUser.uid} - $selectedProject - $selectedMockup');
-
       return await timeSheetCollection.doc(today).update({
-        currentUser.uid: {
+        currentUser!.uid!: {
           'firstName': currentUser.firstName,
           'lastName': currentUser.lastName,
           'projectId': selectedProject != null
               ? selectedProject.uid
-              : selectedMockup.uid,
+              : selectedMockup!.uid,
           'projectName': selectedProject != null
               ? selectedProject.projectName
-              : selectedMockup.mockupName,
+              : selectedMockup!.mockupName,
           'arriving_at': checkIn,
           'leaving_at': checkOut,
           'isOnSite': isAtSite,
@@ -1325,14 +1324,14 @@ class DatabaseService {
 
   //Add the mason's work to the time sheet
   Future<String> updateMasonWork({
-    UserData currentUser,
-    String today,
-    String workType,
-    double sqaureMeters,
+    UserData? currentUser,
+    String? today,
+    String? workType,
+    double? sqaureMeters,
   }) async {
     try {
       return await timeSheetCollection.doc(today).update({
-        currentUser.uid: {
+        currentUser!.uid!: {
           'completedWork': {
             'workType': workType,
             'sqaureMetere': sqaureMeters,
@@ -1346,7 +1345,7 @@ class DatabaseService {
   }
 
   //reading the current entry
-  Future<Map<String, dynamic>> getCurrentTimeSheet({String today}) async {
+  Future<Map<String, dynamic>> getCurrentTimeSheet({String? today}) async {
     try {
       return await timeSheetCollection
           .doc(today)
@@ -1360,7 +1359,7 @@ class DatabaseService {
   }
 
   Future<Map<String, dynamic>> getRangeTimeSheets(
-      {String uid, List<String> roles, String reportSection}) async {
+      {String? uid, List<String>? roles, String? reportSection}) async {
     try {
       return await timeSheetCollection.doc(uid).get().then((value) {
         Map<String, dynamic> reportList = {};
@@ -1391,7 +1390,7 @@ class DatabaseService {
 
           return reportList;
         }
-        return null;
+        return {};
       });
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
@@ -1399,7 +1398,7 @@ class DatabaseService {
     }
   }
 
-  Stream<Map<String, dynamic>> getTimeSheetData({String uid}) {
+  Stream<Map<String, dynamic>> getTimeSheetData({String? uid}) {
     return timeSheetCollection
         .doc(uid)
         .snapshots()
@@ -1414,14 +1413,14 @@ class DatabaseService {
   //sales user pipeline
   //add a sales visit
   Future<String> addNewSalesVisit(
-      {String userId,
-      ClientData selectedClient,
-      ProjectData selectedProject,
-      String contact,
-      String visitPurpose,
-      String visitDetails,
-      DateTime visitTime,
-      String visitType}) async {
+      {String? userId,
+      ClientData? selectedClient,
+      ProjectData? selectedProject,
+      String? contact,
+      String? visitPurpose,
+      String? visitDetails,
+      DateTime? visitTime,
+      String? visitType}) async {
     try {
       var visitCollection;
       if (visitType == 'Client') {
@@ -1432,10 +1431,10 @@ class DatabaseService {
 
       return await userCollection.doc(userId).collection(visitCollection).add({
         'uid':
-            selectedClient != null ? selectedClient.uid : selectedProject.uid,
+            selectedClient != null ? selectedClient.uid : selectedProject!.uid,
         'name': selectedClient != null
             ? selectedClient.clientName
-            : selectedProject.projectName,
+            : selectedProject!.projectName,
         'contact': contact,
         'visitPurpose': visitPurpose,
         'visitDetails': visitDetails,
@@ -1445,21 +1444,21 @@ class DatabaseService {
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
       print('the error: $e');
-      return e;
+      return e.toString();
     }
   }
 
   //update a sales visit
   Future<String> updateNewSalesVisit(
-      {String visitId,
-      String userId,
-      ClientData selectedClient,
-      ProjectData selectedProject,
-      String contact,
-      String visitPurpose,
-      String visitDetails,
-      String managerComments,
-      String visitType}) async {
+      {String? visitId,
+      String? userId,
+      ClientData? selectedClient,
+      ProjectData? selectedProject,
+      String? contact,
+      String? visitPurpose,
+      String? visitDetails,
+      String? managerComments,
+      String? visitType}) async {
     try {
       var visitCollection;
       if (visitType == 'Clients') {
@@ -1474,10 +1473,10 @@ class DatabaseService {
           .doc(visitId)
           .update({
         'uid':
-            selectedClient != null ? selectedClient.uid : selectedProject.uid,
+            selectedClient != null ? selectedClient.uid : selectedProject!.uid,
         'name': selectedClient != null
             ? selectedClient.clientName
-            : selectedProject.projectName,
+            : selectedProject!.projectName,
         'contact': contact,
         'visitPurpose': visitPurpose,
         'visitDetails': visitDetails,
@@ -1485,17 +1484,17 @@ class DatabaseService {
       }).then((value) => 'Document updated Successfully');
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
-      return e;
+      return e.toString();
     }
   }
 
   //update manager note or visit details
   Future<String> updateCurrentSalesVisit(
-      {String visitId,
-      String userId,
-      String managerComments,
-      String visitType,
-      String visitDetails}) async {
+      {String? visitId,
+      String? userId,
+      String? managerComments,
+      String? visitType,
+      String? visitDetails}) async {
     try {
       var subCollection;
       if (visitType == 'Client') {
@@ -1514,14 +1513,14 @@ class DatabaseService {
       }).then((value) => 'Document updated Successfully');
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
-      print('Error updating visit: $e');
-      return e;
+
+      return e.toString();
     }
   }
 
   //stream sales visits for clients
-  Stream<List<ClientVisitDetails>> getSalesVisitDetailsStream(
-      {String userId, DateTime fromDate, DateTime toDate}) {
+  Stream<List<ClientVisitDetails?>> getSalesVisitDetailsStream(
+      {String? userId, DateTime? fromDate, DateTime? toDate}) {
     return userCollection
         .doc(userId)
         .collection('clientVisits')
@@ -1531,8 +1530,8 @@ class DatabaseService {
       return event.docs.map((value) {
         var data = value.data();
 
-        if (fromDate.isBefore(data['visitTime'].toDate()) &&
-            toDate.isAfter(data['visitTime'].toDate())) {
+        if (fromDate!.isBefore(data['visitTime'].toDate()) &&
+            toDate!.isAfter(data['visitTime'].toDate())) {
           return ClientVisitDetails(
               uid: value.id,
               clientId: data['uid'],
@@ -1551,8 +1550,8 @@ class DatabaseService {
   }
 
   //stream sales visit for projects
-  Stream<List<ProjectVisitDetails>> getSalesVisitDetailsStreamProjects(
-      {String userId, DateTime fromDate, DateTime toDate}) {
+  Stream<List<ProjectVisitDetails?>> getSalesVisitDetailsStreamProjects(
+      {String? userId, DateTime? fromDate, DateTime? toDate}) {
     return userCollection
         .doc(userId)
         .collection('projectVisits')
@@ -1562,8 +1561,8 @@ class DatabaseService {
       return event.docs.map((value) {
         var data = value.data();
 
-        if (fromDate.isBefore(data['visitTime'].toDate()) &&
-            toDate.isAfter(data['visitTime'].toDate())) {
+        if (fromDate!.isBefore(data['visitTime'].toDate()) &&
+            toDate!.isAfter(data['visitTime'].toDate())) {
           var result = ProjectVisitDetails(
               uid: value.id,
               projectId: data['uid'],
@@ -1584,7 +1583,7 @@ class DatabaseService {
 
   //read client visits in a future with a date range
   Future<List<ClientVisitDetails>> getTimeRangedClientVisitsFuture(
-      {String userId, DateTime fromDate, DateTime toDate}) async {
+      {String? userId, DateTime? fromDate, DateTime? toDate}) async {
     try {
       return await userCollection
           .doc(userId)
@@ -1607,13 +1606,13 @@ class DatabaseService {
       });
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
-      return [ClientVisitDetails(error: e)];
+      return [ClientVisitDetails(error: e.toString())];
     }
   }
 
   //read project visits in a future date range
   Future<List<ProjectVisitDetails>> getTimeRangedProjectVisitsFuture(
-      {String userId, DateTime fromDate, DateTime toDate}) async {
+      {String? userId, DateTime? fromDate, DateTime? toDate}) async {
     try {
       return await userCollection
           .doc(userId)
@@ -1638,12 +1637,13 @@ class DatabaseService {
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
 
-      return [ProjectVisitDetails(error: e)];
+      return [ProjectVisitDetails(error: e.toString())];
     }
   }
 
   //read a sales visit
-  Future<List<ClientVisitDetails>> getSalesVisitDetails({String userId}) async {
+  Future<List<ClientVisitDetails>> getSalesVisitDetails(
+      {String? userId}) async {
     try {
       return await userCollection
           .doc(userId)
@@ -1664,7 +1664,7 @@ class DatabaseService {
       });
     } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
-      return [ClientVisitDetails(error: e)];
+      return [ClientVisitDetails(error: e.toString())];
     }
   }
 
@@ -1699,10 +1699,10 @@ class DatabaseService {
   }
 
   Future<String> updateHelper(
-      {String uid,
-      String firstName,
-      String lastName,
-      String mobileNumber}) async {
+      {String? uid,
+      String? firstName,
+      String? lastName,
+      String? mobileNumber}) async {
     try {
       return await helperCollection.doc(uid).update({
         'firstName': firstName,
@@ -1716,7 +1716,7 @@ class DatabaseService {
   }
 
   //Read helper data
-  Future<Helpers> readSingleHelper({String uid}) async {
+  Future<Helpers> readSingleHelper({String? uid}) async {
     try {
       return await helperCollection.doc(uid).get().then((value) {
         var data = value.data() as Map<String, dynamic>;
@@ -1732,11 +1732,10 @@ class DatabaseService {
     }
   }
 
-  Future<void> deleteHelper({String uid}) async {
+  Future<void> deleteHelper({String? uid}) async {
     try {
       await helperCollection.doc(uid).delete();
     } catch (e, stackTrace) {
-      print('Error deleting helper: $e');
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
     }
   }

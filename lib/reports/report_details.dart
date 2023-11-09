@@ -12,7 +12,7 @@ import 'package:royal_marble/shared/pdf_builder.dart';
 
 class ReportDetails extends StatefulWidget {
   const ReportDetails(
-      {Key key,
+      {Key? key,
       this.reportType,
       this.bulkUsers,
       this.currentUser,
@@ -20,20 +20,20 @@ class ReportDetails extends StatefulWidget {
       this.fromDate,
       this.toDate})
       : super(key: key);
-  final String reportType;
-  final List<UserData> bulkUsers;
-  final UserData currentUser;
-  final DateTime fromDate;
-  final DateTime toDate;
-  final String reportSection;
+  final String? reportType;
+  final List<UserData>? bulkUsers;
+  final UserData? currentUser;
+  final DateTime? fromDate;
+  final DateTime? toDate;
+  final String? reportSection;
   @override
   State<ReportDetails> createState() => _ReportDetailsState();
 }
 
 class _ReportDetailsState extends State<ReportDetails> {
-  Size _size;
+  Size? _size;
   DatabaseService db = DatabaseService();
-  PdfPageFormat pdfFormat;
+  PdfPageFormat? pdfFormat;
   var days;
   List<DateTime> dateRange = [];
   var singleUserMap = [];
@@ -43,7 +43,7 @@ class _ReportDetailsState extends State<ReportDetails> {
   @override
   Widget build(BuildContext context) {
     _size = MediaQuery.of(context).size;
-    pdfFormat = PdfPageFormat(_size.width, _size.height);
+    pdfFormat = PdfPageFormat(_size!.width, _size!.height);
     return Scaffold(
       appBar: AppBar(
         title: Text('Report Details - ${widget.reportType}'),
@@ -58,7 +58,7 @@ class _ReportDetailsState extends State<ReportDetails> {
                     builder: (_) {
                       return AlertDialog(
                         content: SizedBox(
-                          height: _size.height / 5,
+                          height: _size!.height / 5,
                           child: Padding(
                             padding: const EdgeInsets.all(15.0),
                             child: Column(
@@ -72,7 +72,7 @@ class _ReportDetailsState extends State<ReportDetails> {
                                                 const Color.fromARGB(
                                                     255, 232, 8, 8),
                                             fixedSize:
-                                                Size(_size.width / 2, 30),
+                                                Size(_size!.width / 2, 30),
                                             shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(25))),
@@ -81,9 +81,9 @@ class _ReportDetailsState extends State<ReportDetails> {
                                             context,
                                             MaterialPageRoute(
                                               builder: (_) => PdfPreview(
-                                                maxPageWidth: _size.width - 10,
+                                                maxPageWidth: _size!.width - 10,
                                                 build: (format) => fileTypes[0]
-                                                    .builder(pdfFormat,
+                                                    .builder(pdfFormat!,
                                                         generateddata),
                                               ),
                                             ),
@@ -103,7 +103,7 @@ class _ReportDetailsState extends State<ReportDetails> {
                                                 const Color.fromARGB(
                                                     255, 54, 214, 75),
                                             fixedSize:
-                                                Size(_size.width / 2, 30),
+                                                Size(_size!.width / 2, 30),
                                             shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(25))),
@@ -115,7 +115,7 @@ class _ReportDetailsState extends State<ReportDetails> {
                                                 generatedDate: generateddata,
                                                 mappedData: mapAllData,
                                                 reportSection:
-                                                    widget.reportSection,
+                                                    widget.reportSection!,
                                                 selectedUsers: requiredUsers,
                                               ),
                                             ),
@@ -145,11 +145,11 @@ class _ReportDetailsState extends State<ReportDetails> {
   void initState() {
     super.initState();
     if (widget.fromDate != null && widget.toDate != null) {
-      days = widget.toDate.difference(widget.fromDate).inDays;
+      days = widget.toDate!.difference(widget.fromDate!).inDays;
       dateRange = List.generate(
           days,
-          (i) => DateTime(widget.fromDate.year, widget.fromDate.month,
-              widget.fromDate.day + (i)));
+          (i) => DateTime(widget.fromDate!.year, widget.fromDate!.month,
+              widget.fromDate!.day + (i)));
     }
 
     //select the users depending on the role required
@@ -157,8 +157,8 @@ class _ReportDetailsState extends State<ReportDetails> {
   }
 
   void _selectRequiredUsers() {
-    for (var user in widget.bulkUsers) {
-      if (user.roles.contains(widget.reportSection)) {
+    for (var user in widget.bulkUsers!) {
+      if (user.roles!.contains(widget.reportSection)) {
         requiredUsers.add(user);
       }
     }
@@ -174,7 +174,7 @@ class _ReportDetailsState extends State<ReportDetails> {
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: SizedBox(
-          height: _size.height - 10,
+          height: _size!.height - 10,
           child: widget.fromDate != null && widget.toDate != null
               ? ListView.builder(
                   itemCount: dateRange.length,
@@ -226,7 +226,7 @@ class _ReportDetailsState extends State<ReportDetails> {
                                 _organizeDataWithDates();
 
                                 return Container(
-                                  width: _size.width,
+                                  width: _size!.width,
                                   color: Colors.grey[300],
                                   padding: const EdgeInsets.all(5),
                                   child: Column(
@@ -259,7 +259,7 @@ class _ReportDetailsState extends State<ReportDetails> {
                                                         const Color.fromARGB(
                                                             255, 216, 133, 33)),
                                             headingRowHeight: 28.0,
-                                            dataRowHeight: 20.0,
+                                            dataRowMaxHeight: 20.0,
                                             dataRowColor: MaterialStateProperty
                                                 .resolveWith((states) =>
                                                     const Color.fromARGB(
@@ -274,42 +274,42 @@ class _ReportDetailsState extends State<ReportDetails> {
                                             columns: [
                                               DataColumn(
                                                   label: SizedBox(
-                                                width: _size.width / 8,
+                                                width: _size!.width / 8,
                                                 child: const Text(
                                                   'Name',
                                                 ),
                                               )),
                                               DataColumn(
                                                   label: SizedBox(
-                                                width: _size.width / 8,
+                                                width: _size!.width / 8,
                                                 child: const Text(
                                                   'Arrived At',
                                                 ),
                                               )),
                                               DataColumn(
                                                   label: SizedBox(
-                                                width: _size.width / 8,
+                                                width: _size!.width / 8,
                                                 child: const Text(
                                                   'Left At',
                                                 ),
                                               )),
                                               DataColumn(
                                                   label: SizedBox(
-                                                width: _size.width / 8,
+                                                width: _size!.width / 8,
                                                 child: const Text(
                                                   'Project Name',
                                                 ),
                                               )),
                                               DataColumn(
                                                   label: SizedBox(
-                                                width: _size.width / 8,
+                                                width: _size!.width / 8,
                                                 child: const Text(
                                                   'Work',
                                                 ),
                                               )),
                                               DataColumn(
                                                   label: SizedBox(
-                                                width: _size.width / 8,
+                                                width: _size!.width / 8,
                                                 child: const Text(
                                                   'Meters',
                                                 ),
@@ -412,261 +412,237 @@ class _ReportDetailsState extends State<ReportDetails> {
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
       child: SingleChildScrollView(
         child: SizedBox(
-          height: _size.height,
+          height: _size!.height,
           child: ListView.builder(
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: widget.bulkUsers.length,
+              itemCount: widget.bulkUsers!.length,
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.all(15),
                   child: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                          boxShadow: const [
-                            BoxShadow(
-                                color: Colors.black87,
-                                offset: Offset(-2, 4),
-                                spreadRadius: 2,
-                                blurStyle: BlurStyle.normal)
-                          ],
-                          color: const Color.fromARGB(255, 196, 196, 196),
-                          border: Border.all(color: Colors.grey[300]),
-                          borderRadius: BorderRadius.circular(10)),
-                      height: _size.height / 2,
-                      child: FutureBuilder(
-                          future: _getSalesVisits(
-                              userId: widget.bulkUsers[index].uid),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              return Column(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                        boxShadow: const [
+                          BoxShadow(
+                              color: Colors.black87,
+                              offset: Offset(-2, 4),
+                              spreadRadius: 2,
+                              blurStyle: BlurStyle.normal)
+                        ],
+                        color: const Color.fromARGB(255, 196, 196, 196),
+                        border: Border.all(color: Colors.grey[300]!),
+                        borderRadius: BorderRadius.circular(10)),
+                    height: _size!.height / 2,
+                    child: FutureBuilder(
+                      future: _getSalesVisits(
+                          userId: widget.bulkUsers![index].uid!),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return Column(
+                            children: [
+                              //Name
+                              Row(
                                 children: [
-                                  //Name
-                                  Row(
-                                    children: [
-                                      const Expanded(
-                                        flex: 2,
-                                        child: Text(
-                                          'Name',
-                                          style: textStyle3,
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 3,
-                                        child: Text(
-                                          '${widget.bulkUsers[index].firstName} ${widget.bulkUsers[index].lastName}',
-                                          style: textStyle12,
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                  //Days worked
-                                  Row(
-                                    children: [
-                                      const Expanded(
-                                        flex: 2,
-                                        child: Text(
-                                          'Working Days',
-                                          style: textStyle3,
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 3,
-                                        child: Text(
-                                          '${snapshot.data['workingDays'].length}',
-                                          style: textStyle12,
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: _size.height / 5,
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                          flex: 2,
-                                          child: Row(
-                                            children: [
-                                              const Expanded(
-                                                flex: 2,
-                                                child: Text(
-                                                  'Projects Visited: ',
-                                                  style: textStyle3,
-                                                ),
-                                              ),
-                                              Expanded(
-                                                flex: 3,
-                                                child: Text(
-                                                    '${snapshot.data['projectVisits'].length}'),
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 3,
-                                          child: SizedBox(
-                                            width: _size.width - 20,
-                                            child: ListView.builder(
-                                                scrollDirection:
-                                                    Axis.horizontal,
-                                                itemCount: snapshot
-                                                    .data['projectVisits']
-                                                    .length,
-                                                itemBuilder: (context, index) {
-                                                  return Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            5.0),
-                                                    child: Card(
-                                                      elevation: 3,
-                                                      shadowColor: Colors.grey,
-                                                      color:
-                                                          const Color.fromARGB(
-                                                              255,
-                                                              131,
-                                                              197,
-                                                              194),
-                                                      shape:
-                                                          RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(25),
-                                                      ),
-                                                      child: Container(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .symmetric(
-                                                                horizontal: 10),
-                                                        width: _size.width / 3,
-                                                        child: Column(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Text(
-                                                              '${snapshot.data['projectVisits'][index] != null ? snapshot.data['projectVisits'][index].projectName : ''}',
-                                                              style:
-                                                                  textStyle12,
-                                                            ),
-                                                            Text(
-                                                              '${snapshot.data['projectVisits'][index] != null ? snapshot.data['projectVisits'][index].visitPurpose : ''}',
-                                                              style:
-                                                                  textStyle12,
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  );
-                                                }),
-                                          ),
-                                        )
-                                      ],
+                                  const Expanded(
+                                    flex: 2,
+                                    child: Text(
+                                      'Name',
+                                      style: textStyle3,
                                     ),
                                   ),
-                                  SizedBox(
-                                    height: _size.height / 5,
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                          flex: 2,
-                                          child: Row(
-                                            children: [
-                                              const Expanded(
-                                                flex: 2,
-                                                child: Text(
-                                                  'Clients Visited: ',
-                                                  style: textStyle3,
-                                                ),
-                                              ),
-                                              Expanded(
-                                                flex: 3,
-                                                child: Text(
-                                                    '${snapshot.data['clientVisits'].length}'),
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 3,
-                                          child: SizedBox(
-                                            width: _size.width - 20,
-                                            child: ListView.builder(
-                                                scrollDirection:
-                                                    Axis.horizontal,
-                                                itemCount: snapshot
-                                                    .data['clientVisits']
-                                                    .length,
-                                                itemBuilder: (context, index) {
-                                                  return Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            5.0),
-                                                    child: Card(
-                                                      elevation: 3,
-                                                      shadowColor: Colors.grey,
-                                                      color:
-                                                          const Color.fromARGB(
-                                                              255,
-                                                              204,
-                                                              202,
-                                                              243),
-                                                      shape:
-                                                          RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(25),
-                                                      ),
-                                                      child: Container(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .symmetric(
-                                                                horizontal: 10),
-                                                        width: _size.width / 3,
-                                                        child: Column(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Text(
-                                                              '${snapshot.data['clientVisits'][index].clientName}',
-                                                              style:
-                                                                  textStyle12,
-                                                            ),
-                                                            Text(
-                                                              '${snapshot.data['clientVisits'][index].visitPurpose}',
-                                                              style:
-                                                                  textStyle12,
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  );
-                                                }),
-                                          ),
-                                        )
-                                      ],
+                                  Expanded(
+                                    flex: 3,
+                                    child: Text(
+                                      '${widget.bulkUsers![index].firstName} ${widget.bulkUsers![index].lastName}',
+                                      style: textStyle12,
                                     ),
-                                  ),
+                                  )
                                 ],
-                              );
-                            } else {
-                              return const Center(
-                                child: Text(
-                                  'No Visits were found!',
-                                  style: textStyle2,
+                              ),
+                              //Days worked
+                              Row(
+                                children: [
+                                  const Expanded(
+                                    flex: 2,
+                                    child: Text(
+                                      'Working Days',
+                                      style: textStyle3,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 3,
+                                    child: Text(
+                                      '${snapshot.data['workingDays'].length}',
+                                      style: textStyle12,
+                                    ),
+                                  )
+                                ],
+                              ),
+                              SizedBox(
+                                height: _size!.height / 5,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      flex: 2,
+                                      child: Row(
+                                        children: [
+                                          const Expanded(
+                                            flex: 2,
+                                            child: Text(
+                                              'Projects Visited: ',
+                                              style: textStyle3,
+                                            ),
+                                          ),
+                                          Expanded(
+                                            flex: 3,
+                                            child: Text(
+                                                '${snapshot.data['projectVisits'].length}'),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 3,
+                                      child: SizedBox(
+                                        width: _size!.width - 20,
+                                        child: ListView.builder(
+                                            scrollDirection: Axis.horizontal,
+                                            itemCount: snapshot
+                                                .data['projectVisits'].length,
+                                            itemBuilder: (context, index) {
+                                              return Padding(
+                                                padding:
+                                                    const EdgeInsets.all(5.0),
+                                                child: Card(
+                                                  elevation: 3,
+                                                  shadowColor: Colors.grey,
+                                                  color: const Color.fromARGB(
+                                                      255, 131, 197, 194),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            25),
+                                                  ),
+                                                  child: Container(
+                                                    padding: const EdgeInsets
+                                                            .symmetric(
+                                                        horizontal: 10),
+                                                    width: _size!.width / 3,
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Text(
+                                                          '${snapshot.data['projectVisits'][index] != null ? snapshot.data['projectVisits'][index].projectName : ''}',
+                                                          style: textStyle12,
+                                                        ),
+                                                        Text(
+                                                          '${snapshot.data['projectVisits'][index] != null ? snapshot.data['projectVisits'][index].visitPurpose : ''}',
+                                                          style: textStyle12,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            }),
+                                      ),
+                                    )
+                                  ],
                                 ),
-                              );
-                            }
-                          })),
+                              ),
+                              SizedBox(
+                                height: _size!.height / 5,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      flex: 2,
+                                      child: Row(
+                                        children: [
+                                          const Expanded(
+                                            flex: 2,
+                                            child: Text(
+                                              'Clients Visited: ',
+                                              style: textStyle3,
+                                            ),
+                                          ),
+                                          Expanded(
+                                            flex: 3,
+                                            child: Text(
+                                                '${snapshot.data['clientVisits'].length}'),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 3,
+                                      child: SizedBox(
+                                        width: _size!.width - 20,
+                                        child: ListView.builder(
+                                            scrollDirection: Axis.horizontal,
+                                            itemCount: snapshot
+                                                .data['clientVisits'].length,
+                                            itemBuilder: (context, index) {
+                                              return Padding(
+                                                padding:
+                                                    const EdgeInsets.all(5.0),
+                                                child: Card(
+                                                  elevation: 3,
+                                                  shadowColor: Colors.grey,
+                                                  color: const Color.fromARGB(
+                                                      255, 204, 202, 243),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            25),
+                                                  ),
+                                                  child: Container(
+                                                    padding: const EdgeInsets
+                                                            .symmetric(
+                                                        horizontal: 10),
+                                                    width: _size!.width / 3,
+                                                    child: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Text(
+                                                          '${snapshot.data['clientVisits'][index].clientName}',
+                                                          style: textStyle12,
+                                                        ),
+                                                        Text(
+                                                          '${snapshot.data['clientVisits'][index].visitPurpose}',
+                                                          style: textStyle12,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            }),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ],
+                          );
+                        } else {
+                          return const Center(
+                            child: Text(
+                              'No Visits were found!',
+                              style: textStyle2,
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ),
                 );
               }),
         ),
@@ -674,25 +650,25 @@ class _ReportDetailsState extends State<ReportDetails> {
     );
   }
 
-  Future _getDatesTimeSheet({String uid}) async {
+  Future _getDatesTimeSheet({String? uid}) async {
     var result = await db.getRangeTimeSheets(
-        uid: uid, reportSection: widget.reportSection);
+        uid: uid!, reportSection: widget.reportSection!);
 
     return result;
   }
 
   //Get the sales client and project visits
-  Future _getSalesVisits({String userId}) async {
+  Future _getSalesVisits({String? userId}) async {
     List<ClientVisitDetails> clientVisits = [];
     List<ProjectVisitDetails> projectVisits = [];
     List<dynamic> workingDays = [];
     //get clients visits
     clientVisits = await db.getTimeRangedClientVisitsFuture(
-        userId: userId, fromDate: widget.fromDate, toDate: widget.toDate);
+        userId: userId!, fromDate: widget.fromDate!, toDate: widget.toDate!);
 
     //get project visits
     projectVisits = await db.getTimeRangedProjectVisitsFuture(
-        userId: userId, fromDate: widget.fromDate, toDate: widget.toDate);
+        userId: userId, fromDate: widget.fromDate!, toDate: widget.toDate!);
 
     for (var clients in clientVisits) {
       if (!workingDays.contains(clients.visitTime)) {

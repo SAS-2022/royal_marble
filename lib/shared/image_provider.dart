@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image/image.dart';
 
 class OurImageProvider extends ImageProvider<_OurKey> {
-  final ImageProvider imageProvider;
+  final ImageProvider? imageProvider;
   OurImageProvider({
     this.imageProvider,
   });
@@ -15,22 +15,22 @@ class OurImageProvider extends ImageProvider<_OurKey> {
     var ourDecorder;
     ourDecorder = (
       Uint8List bytes, {
-      bool allowUpScaling,
-      int cacheWidth,
-      int cacheheight,
+      bool? allowUpScaling,
+      int? cacheWidth,
+      int? cacheheight,
     }) async {
       return decode(await whiteToAlpha(bytes),
           cacheWidth: cacheWidth, cacheHeight: cacheheight);
     };
-    return imageProvider.load(key.providerCacheKey, ourDecorder);
+    return imageProvider!.loadImage(key.providerCacheKey!, ourDecorder);
   }
 
   @override
   Future<_OurKey> obtainKey(ImageConfiguration configuration) {
-    Completer<_OurKey> completer;
+    Completer<_OurKey>? completer;
 
-    SynchronousFuture<_OurKey> result;
-    imageProvider.obtainKey(configuration).then((Object key) {
+    SynchronousFuture<_OurKey>? result;
+    imageProvider!.obtainKey(configuration).then((Object key) {
       if (completer == null) {
         result = SynchronousFuture<_OurKey>(_OurKey(providerCacheKey: key));
       } else {
@@ -38,7 +38,7 @@ class OurImageProvider extends ImageProvider<_OurKey> {
       }
     });
     if (result != null) {
-      return result;
+      return result!;
     }
 
     completer = Completer<_OurKey>();
@@ -48,19 +48,19 @@ class OurImageProvider extends ImageProvider<_OurKey> {
   Future<Uint8List> whiteToAlpha(Uint8List bytes) async {
     final image = decodeImage(bytes);
 
-    final pixels = image.getBytes(format: Format.rgba);
+    final pixels = image!.getBytes(format: Format.rgba);
     final length = pixels.lengthInBytes;
     for (var i = 0; i < length; i += 4) {
       if (pixels[i] == 255 && pixels[i + 1] == 255 && pixels[i + 2] == 255) {
         pixels[i + 3] = 0;
       }
     }
-    return encodePng(image);
+    return encodePng(image) as Uint8List;
   }
 }
 
 class _OurKey {
-  final Object providerCacheKey;
+  final Object? providerCacheKey;
   _OurKey({
     this.providerCacheKey,
   });

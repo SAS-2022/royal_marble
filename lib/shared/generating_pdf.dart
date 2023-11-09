@@ -48,11 +48,11 @@ Future<Uint8List> generateReport(
         totalMin = diff.inMinutes % 60;
       }
 
-      var thisDate = '${arrived.day}-${arrived.month}-${arrived.year}';
+      var thisDate = '${arrived!.day}-${arrived.month}-${arrived.year}';
       //will update the list if the day is alreayd added
 
       if (days[thisDate] != null) {
-        days[thisDate].add({
+        days[thisDate]!.add({
           'name': '${data[index]['firstName']} ${data[index]['lastName']}',
           'arrived':
               arrived != null ? DateFormat('hh:mm a').format(arrived) : 'None',
@@ -132,16 +132,16 @@ Future<Uint8List> generateReport(
         border: null,
         headers: tableHead,
         data: List<List<dynamic>>.generate(
-          userTimeTable[key].length,
+          userTimeTable[key]!.length,
           (i) {
             List<String> list = [
-              userTimeTable[key][i]['name'],
-              userTimeTable[key][i]['arrived'] ?? '',
-              userTimeTable[key][i]['left'] ?? '',
-              userTimeTable[key][i]['project'],
-              userTimeTable[key][i]['totalHours'],
-              userTimeTable[key][i]['workType'],
-              userTimeTable[key][i]['meters']
+              userTimeTable[key]![i]['name'],
+              userTimeTable[key]![i]['arrived'] ?? '',
+              userTimeTable[key]![i]['left'] ?? '',
+              userTimeTable[key]![i]['project'],
+              userTimeTable[key]![i]['totalHours'],
+              userTimeTable[key]![i]['workType'],
+              userTimeTable[key]![i]['meters']
             ];
             pageRowNumber = list.length + userTimeTable.length;
 

@@ -3,7 +3,7 @@ import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart' as PP;
 
 Future<void> saveAndLaunchFile(List<int> bytes, String fileName) async {
-  String path;
+  String? path;
   if (Platform.isAndroid ||
       Platform.isIOS ||
       Platform.isLinux ||

@@ -7,17 +7,17 @@ import 'package:royal_marble/sales_pipeline/visit_forms.dart/visit_form_one.dart
 import 'package:royal_marble/services/database.dart';
 
 class VisitFormStreams extends StatelessWidget {
-  const VisitFormStreams({Key key, this.currentUser, this.viewingVisit})
+  const VisitFormStreams({Key? key, this.currentUser, this.viewingVisit})
       : super(key: key);
-  final UserData currentUser;
-  final bool viewingVisit;
+  final UserData? currentUser;
+  final bool? viewingVisit;
 
   @override
   Widget build(BuildContext context) {
     final db = DatabaseService();
     return MultiProvider(
       providers: [
-        currentUser.roles.contains('isAdmin')
+        currentUser!.roles!.contains('isAdmin')
             ? StreamProvider<List<ClientData>>.value(
                 value: db.getAllClients(),
                 initialData: const [],
@@ -27,10 +27,9 @@ class VisitFormStreams extends StatelessWidget {
                 },
               )
             : StreamProvider<List<ClientData>>.value(
-                value: db.getClientsPerUser(userId: currentUser.uid),
+                value: db.getClientsPerUser(userId: currentUser!.uid!),
                 initialData: const [],
                 catchError: (context, err) {
-                  print('Error getting client: $err');
                   return [];
                 },
               ),
@@ -39,13 +38,12 @@ class VisitFormStreams extends StatelessWidget {
           value: db.getAllProjects(),
           initialData: [],
           catchError: (context, error) {
-            print('Could not get projects: $error');
             return [];
           },
         ),
         //if visits are being viewed
         //create a stream to get current sales team
-        viewingVisit
+        viewingVisit!
             ? StreamProvider<List<UserData>>.value(
                 value: db.getSalesUsers(),
                 initialData: const [],
@@ -54,16 +52,16 @@ class VisitFormStreams extends StatelessWidget {
                 },
               )
             : StreamProvider<UserData>.value(
-                value: db.getUserPerId(uid: currentUser.uid),
+                value: db.getUserPerId(uid: currentUser!.uid!),
                 initialData: UserData(),
                 catchError: (context, err) {
                   return UserData();
                 },
               )
       ],
-      child: viewingVisit
+      child: viewingVisit!
           ? SalesTeamPipeline(
-              currentUser: currentUser,
+              currentUser: currentUser!,
             )
           : VisitFormOne(
               currentUser: currentUser,

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 class SnackBarWidget {
-  BuildContext context;
-  String content;
+  BuildContext? context;
+  String? content;
   void showSnack() {
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(context!).showSnackBar(
       SnackBar(
         content: Text(
-          content,
+          content!,
           style: const TextStyle(color: Colors.yellowAccent),
         ),
         duration: const Duration(seconds: 4),

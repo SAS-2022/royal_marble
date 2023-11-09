@@ -5,10 +5,10 @@ import 'package:royal_marble/services/database.dart';
 import '../models/user_model.dart';
 
 class ReportGrid extends StatelessWidget {
-  const ReportGrid({Key key, this.reportType, this.currentUser})
+  const ReportGrid({Key? key, this.reportType, this.currentUser})
       : super(key: key);
-  final String reportType;
-  final UserData currentUser;
+  final String? reportType;
+  final UserData? currentUser;
 
   @override
   Widget build(BuildContext context) {
@@ -32,8 +32,8 @@ class ReportGrid extends StatelessWidget {
                 )
         ],
         child: ReportTypeList(
-          reportType: reportType,
-          currentUser: currentUser,
+          reportType: reportType!,
+          currentUser: currentUser!,
         ));
   }
 }

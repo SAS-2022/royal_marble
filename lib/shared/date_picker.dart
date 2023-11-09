@@ -6,34 +6,34 @@ import '../models/user_model.dart';
 
 class DatePicker extends StatefulWidget {
   const DatePicker(
-      {Key key,
+      {Key? key,
       this.selectedUser,
       this.bulkUsers,
       this.reportType,
       this.reportSection,
       this.currentUser})
       : super(key: key);
-  final UserData currentUser;
-  final UserData selectedUser;
-  final List<UserData> bulkUsers;
-  final String reportType;
-  final String reportSection;
+  final UserData? currentUser;
+  final UserData? selectedUser;
+  final List<UserData>? bulkUsers;
+  final String? reportType;
+  final String? reportSection;
 
   @override
   State<DatePicker> createState() => _DatePickerState();
 }
 
 class _DatePickerState extends State<DatePicker> {
-  DateTime startDate;
-  DateTime endDate;
-  Size _size;
+  DateTime? startDate;
+  DateTime? endDate;
+  Size? _size;
 
   @override
   Widget build(BuildContext context) {
     _size = MediaQuery.of(context).size;
     return SizedBox(
-      height: _size.height / 2,
-      width: _size.width - 10,
+      height: _size!.height / 2,
+      width: _size!.width - 10,
       child: Center(
         child: SfDateRangePicker(
           showActionButtons: true,
@@ -44,10 +44,10 @@ class _DatePickerState extends State<DatePicker> {
                     context,
                     MaterialPageRoute(
                         builder: (_) => VisitsGrid(
-                              currentUser: widget.currentUser,
-                              selectedUser: widget.selectedUser,
-                              fromDate: startDate,
-                              toDate: endDate,
+                              currentUser: widget.currentUser!,
+                              selectedUser: widget.selectedUser!,
+                              fromDate: startDate!,
+                              toDate: endDate!,
                             )));
                 break;
               case 'timesheet':
@@ -93,7 +93,7 @@ class _DatePickerState extends State<DatePicker> {
           startDate = args.value.startDate;
           endDate = args.value.endDate ?? args.value.startDate;
           endDate = DateTime(
-              endDate.year, endDate.month, endDate.day, 23, 59, 59, 0000);
+              endDate!.year, endDate!.month, endDate!.day, 23, 59, 59, 0000);
         }
       });
     }

@@ -7,15 +7,15 @@ import '../../shared/constants.dart';
 import '../../shared/date_picker.dart';
 
 class SalesTeamPipeline extends StatefulWidget {
-  const SalesTeamPipeline({Key key, this.currentUser}) : super(key: key);
-  final UserData currentUser;
+  const SalesTeamPipeline({Key? key, this.currentUser}) : super(key: key);
+  final UserData? currentUser;
   @override
   State<SalesTeamPipeline> createState() => _SalesTeamPipelineState();
 }
 
 class _SalesTeamPipelineState extends State<SalesTeamPipeline> {
-  List<UserData> salesProvider;
-  Size size;
+  List<UserData>? salesProvider;
+  Size? size;
 
   @override
   Widget build(BuildContext context) {
@@ -33,10 +33,10 @@ class _SalesTeamPipelineState extends State<SalesTeamPipeline> {
   Widget _buildSalesTeamList() {
     return SingleChildScrollView(
       child: SizedBox(
-        height: size.height - 100,
-        child: widget.currentUser.roles.contains('isAdmin')
+        height: size!.height - 100,
+        child: widget.currentUser!.roles!.contains('isAdmin')
             ? ListView.builder(
-                itemCount: salesProvider.length,
+                itemCount: salesProvider!.length,
                 itemBuilder: ((context, index) {
                   return GestureDetector(
                     onTap: () {
@@ -44,9 +44,9 @@ class _SalesTeamPipelineState extends State<SalesTeamPipeline> {
                           context: context,
                           builder: (_) => AlertDialog(
                                 content: DatePicker(
-                                  currentUser: widget.currentUser,
+                                  currentUser: widget.currentUser!,
                                   reportType: 'pipeline',
-                                  selectedUser: salesProvider[index],
+                                  selectedUser: salesProvider![index],
                                 ),
                               ));
                     },
@@ -58,11 +58,11 @@ class _SalesTeamPipelineState extends State<SalesTeamPipeline> {
                         elevation: 4,
                         child: ListTile(
                           title: Text(
-                            '${salesProvider[index].firstName} ${salesProvider[index].lastName}',
+                            '${salesProvider![index].firstName} ${salesProvider![index].lastName}',
                             style: textStyle3,
                           ),
                           subtitle: Text(
-                            '${salesProvider[index].phoneNumber} - ${salesProvider[index].emailAddress}',
+                            '${salesProvider![index].phoneNumber} - ${salesProvider![index].emailAddress}',
                             style: textStyle5,
                           ),
                         ),
@@ -74,16 +74,16 @@ class _SalesTeamPipelineState extends State<SalesTeamPipeline> {
             : Center(
                 child: SizedBox(
                   height: 150,
-                  width: size.width - 30,
+                  width: size!.width - 30,
                   child: GestureDetector(
                     onTap: () {
                       showDialog(
                           context: context,
                           builder: (_) => AlertDialog(
                                 content: DatePicker(
-                                  currentUser: widget.currentUser,
+                                  currentUser: widget.currentUser!,
                                   reportType: 'pipeline',
-                                  selectedUser: widget.currentUser,
+                                  selectedUser: widget.currentUser!,
                                 ),
                               ));
                     },
@@ -97,11 +97,11 @@ class _SalesTeamPipelineState extends State<SalesTeamPipeline> {
                         elevation: 4,
                         child: ListTile(
                           title: Text(
-                            '${widget.currentUser.firstName} ${widget.currentUser.lastName}',
+                            '${widget.currentUser!.firstName} ${widget.currentUser!.lastName}',
                             style: textStyle3,
                           ),
                           subtitle: Text(
-                            '${widget.currentUser.phoneNumber} - ${widget.currentUser.emailAddress}',
+                            '${widget.currentUser!.phoneNumber} - ${widget.currentUser!.emailAddress}',
                             style: textStyle5,
                           ),
                         ),

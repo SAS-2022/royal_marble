@@ -33,7 +33,7 @@ class _HelpersListState extends State<HelpersList> {
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: widget.currentUser!.assingedHelpers != null &&
-                widget.currentUser!.assingedHelpers.isNotEmpty
+                widget.currentUser!.assingedHelpers!.isNotEmpty
             ? FutureBuilder(
                 future: _getAssignedHelpers,
                 builder: (context, snapshot) {
@@ -48,7 +48,7 @@ class _HelpersListState extends State<HelpersList> {
                         child: ListView.builder(
                             itemCount: snapshot.data.length,
                             itemBuilder: (context, index) {
-                              if (widget.currentUser!.assingedHelpers
+                              if (widget.currentUser!.assingedHelpers!
                                   .contains(snapshot.data[index].uid)) {
                                 return ListTile(
                                   tileColor:

@@ -33,8 +33,8 @@ import 'package:timer_builder/timer_builder.dart';
 JsonEncoder encoder = const JsonEncoder.withIndent("     ");
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key key, this.currentUser}) : super(key: key);
-  final UserData currentUser;
+  const HomeScreen({Key? key, this.currentUser}) : super(key: key);
+  final UserData? currentUser;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -44,47 +44,47 @@ class _HomeScreenState extends State<HomeScreen> {
   final db = DatabaseService();
   List<UserData> allUsers = [];
   SnackBarWidget _snackBarWidget = SnackBarWidget();
-  SharedPreferences _pref;
-  UserData userProvider;
-  Map<String, dynamic> timeSheetProvider;
+  SharedPreferences? _pref;
+  UserData? userProvider;
+  Map<String, dynamic>? timeSheetProvider;
   List<ProjectData> allProjectProvider = [];
   List<MockupData> allMockupProvider = [];
-  Future assignedProject;
+  Future? assignedProject;
   final Completer<GoogleMapController> _googleMapController = Completer();
-  LatLng currentLocation;
-  LocationData startLocation;
+  LatLng? currentLocation;
+  LocationData? startLocation;
   Location _locationCurrent = Location();
   Location _locationStart = Location();
   double distanceCrossed = 0.0;
   double distanceToUpdate = 10;
-  geo.Position position;
-  double lat, lng;
+  geo.Position? position;
+  double? lat, lng;
   int tempCounter = 0;
-  Size _size;
+  Size? _size;
   List<String> activeProjects = [];
   List<String> potentialProjects = [];
   List<String> activeMockups = [];
   List<dynamic> messages = [];
-  Future _getAssignedProjects;
-  Future _getAssignedMockup;
+  Future? _getAssignedProjects;
+  Future? _getAssignedMockup;
   //required for location tracking
-  bool _isMoving;
-  bool _enabled;
-  bool _persistEnabled;
-  String _motionActivity;
-  String _odometer;
-  String _content;
-  String _distanceLocation;
-  String _distanceMotion;
-  String _locationJSON;
-  Timer _timer;
+  bool? _isMoving;
+  bool? _enabled;
+  bool? _persistEnabled;
+  String? _motionActivity;
+  String? _odometer;
+  String? _content;
+  String? _distanceLocation;
+  String? _distanceMotion;
+  String? _locationJSON;
+  Timer? _timer;
   bool _loadingPermission = true;
   bool _isDialogShowing = false;
-  ph.PermissionStatus permissionActivity;
-  ph.PermissionStatus permissionStatus;
+  ph.PermissionStatus? permissionActivity;
+  ph.PermissionStatus? permissionStatus;
   var timeSheetData;
   final Connectivity _connectivity = Connectivity();
-  StreamSubscription<ConnectivityResult> _connectivitySubsciption;
+  StreamSubscription<ConnectivityResult>? _connectivitySubsciption;
   ConnectivityResult _connectionStatus = ConnectivityResult.none;
 
   @override

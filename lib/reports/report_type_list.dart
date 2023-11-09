@@ -6,10 +6,10 @@ import '../models/user_model.dart';
 import '../shared/date_picker.dart';
 
 class ReportTypeList extends StatefulWidget {
-  const ReportTypeList({Key key, this.reportType, this.currentUser})
+  const ReportTypeList({Key? key, this.reportType, this.currentUser})
       : super(key: key);
-  final String reportType;
-  final UserData currentUser;
+  final String? reportType;
+  final UserData? currentUser;
 
   @override
   State<ReportTypeList> createState() => _ReportTypeListState();
@@ -17,14 +17,14 @@ class ReportTypeList extends StatefulWidget {
 
 class _ReportTypeListState extends State<ReportTypeList> {
   var userProvider;
-  Size _size;
+  Size? _size;
   @override
   Widget build(BuildContext context) {
     _size = MediaQuery.of(context).size;
     userProvider = Provider.of<List<UserData>>(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Report Type - ${widget.reportType.toUpperCase()}'),
+        title: Text('Report Type - ${widget.reportType!.toUpperCase()}'),
         backgroundColor: const Color.fromARGB(255, 191, 180, 66),
       ),
       body: _buildListOfReportTypes(),
@@ -57,7 +57,7 @@ class _ReportTypeListState extends State<ReportTypeList> {
                                   content: DatePicker(
                                     reportType: 'timesheet',
                                     bulkUsers: userProvider,
-                                    currentUser: widget.currentUser,
+                                    currentUser: widget.currentUser!,
                                     reportSection: 'isNormalUser',
                                   ),
                                 ));
@@ -73,7 +73,7 @@ class _ReportTypeListState extends State<ReportTypeList> {
                             color: const Color.fromARGB(255, 181, 160, 130),
                             border: Border.all(),
                             borderRadius: BorderRadius.circular(15)),
-                        width: _size.width - 10,
+                        width: _size!.width - 10,
                         child: const Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: 15, vertical: 10),
@@ -96,7 +96,7 @@ class _ReportTypeListState extends State<ReportTypeList> {
                                   content: DatePicker(
                                     reportType: 'timesheet',
                                     bulkUsers: userProvider,
-                                    currentUser: widget.currentUser,
+                                    currentUser: widget.currentUser!,
                                     reportSection: 'isSiteEngineer',
                                   ),
                                 ));
@@ -112,7 +112,7 @@ class _ReportTypeListState extends State<ReportTypeList> {
                             color: const Color.fromARGB(255, 181, 160, 130),
                             border: Border.all(),
                             borderRadius: BorderRadius.circular(15)),
-                        width: _size.width - 10,
+                        width: _size!.width - 10,
                         child: const Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: 15, vertical: 10),
@@ -135,7 +135,7 @@ class _ReportTypeListState extends State<ReportTypeList> {
                                   content: DatePicker(
                                     reportType: 'timesheet',
                                     bulkUsers: userProvider,
-                                    currentUser: widget.currentUser,
+                                    currentUser: widget.currentUser!,
                                     reportSection: 'isSupervisor',
                                   ),
                                 ));
@@ -151,7 +151,7 @@ class _ReportTypeListState extends State<ReportTypeList> {
                             color: const Color.fromARGB(255, 181, 160, 130),
                             border: Border.all(),
                             borderRadius: BorderRadius.circular(15)),
-                        width: _size.width - 10,
+                        width: _size!.width - 10,
                         child: const Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: 15, vertical: 10),
@@ -187,7 +187,7 @@ class _ReportTypeListState extends State<ReportTypeList> {
                                   content: DatePicker(
                                     reportType: 'salesReport',
                                     bulkUsers: userProvider,
-                                    currentUser: widget.currentUser,
+                                    currentUser: widget.currentUser!,
                                     reportSection: 'isSales',
                                   ),
                                 ));
@@ -203,7 +203,7 @@ class _ReportTypeListState extends State<ReportTypeList> {
                             color: const Color.fromARGB(255, 181, 160, 130),
                             border: Border.all(),
                             borderRadius: BorderRadius.circular(15)),
-                        width: _size.width - 10,
+                        width: _size!.width - 10,
                         child: const Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: 15, vertical: 10),

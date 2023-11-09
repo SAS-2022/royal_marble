@@ -9,8 +9,8 @@ import '../../models/user_model.dart';
 import '../../shared/constants.dart';
 
 class VisitFormOne extends StatefulWidget {
-  const VisitFormOne({Key key, this.currentUser}) : super(key: key);
-  final UserData currentUser;
+  const VisitFormOne({Key? key, this.currentUser}) : super(key: key);
+  final UserData? currentUser;
 
   @override
   State<VisitFormOne> createState() => _VisitFormOneState();
@@ -22,15 +22,15 @@ class _VisitFormOneState extends State<VisitFormOne> {
   final _formKey = GlobalKey<FormState>();
   final db = DatabaseService();
   final _snackBarWidget = SnackBarWidget();
-  Size size;
-  VisitType _type;
+  Size? size;
+  VisitType? _type;
   bool _isTypeSelected = false;
-  List<ClientData> clientProvider;
-  List<ProjectData> projectProvider;
+  List<ClientData>? clientProvider;
+  List<ProjectData>? projectProvider;
   final TextEditingController _clientNameText = TextEditingController();
   final TextEditingController _projectNameText = TextEditingController();
-  String contactPerson;
-  String visitPurpose;
+  String? contactPerson;
+  String? visitPurpose;
   ClientData selectedClient = ClientData();
   ProjectData selectedProject = ProjectData();
   final List<String> _visitPurposeList = [
@@ -65,7 +65,7 @@ class _VisitFormOneState extends State<VisitFormOne> {
         title: const Text('Sales Pipeline'),
         backgroundColor: const Color.fromARGB(255, 191, 180, 66),
       ),
-      body: clientProvider.isNotEmpty
+      body: clientProvider!.isNotEmpty
           ? _buildSalesVisitFormOne()
           : _buildEmptyClientList(),
     );
@@ -104,7 +104,7 @@ class _VisitFormOneState extends State<VisitFormOne> {
                       leading: Radio<VisitType>(
                         value: VisitType.Client,
                         groupValue: _type,
-                        onChanged: (VisitType type) {
+                        onChanged: (VisitType? type) {
                           setState(() {
                             _type = type;
                             _isTypeSelected = true;
@@ -121,7 +121,7 @@ class _VisitFormOneState extends State<VisitFormOne> {
                       leading: Radio<VisitType>(
                         value: VisitType.Project,
                         groupValue: _type,
-                        onChanged: (VisitType type) {
+                        onChanged: (VisitType? type) {
                           setState(() {
                             _type = type;
                             _isTypeSelected = true;
@@ -180,7 +180,7 @@ class _VisitFormOneState extends State<VisitFormOne> {
                                     return suggestionsBox;
                                   },
                                   validator: (val) {
-                                    return val.isEmpty
+                                    return val!.isEmpty
                                         ? 'Client name cannot be empty'
                                         : null;
                                   },
@@ -198,7 +198,7 @@ class _VisitFormOneState extends State<VisitFormOne> {
                                   })
                               : TypeAheadFormField(
                                   noItemsFoundBuilder: (BuildContext context) {
-                                    return null;
+                                    return Container();
                                   },
                                   textFieldConfiguration:
                                       TextFieldConfiguration(
@@ -235,7 +235,7 @@ class _VisitFormOneState extends State<VisitFormOne> {
                                     return suggestionsBox;
                                   },
                                   validator: (val) {
-                                    return val.isEmpty
+                                    return val!.isEmpty
                                         ? 'Project name cannot be empty'
                                         : null;
                                   },
@@ -272,7 +272,7 @@ class _VisitFormOneState extends State<VisitFormOne> {
                                   borderSide: BorderSide(
                                       width: 3, color: Colors.green)),
                             ),
-                            validator: (val) => val.isEmpty
+                            validator: (val) => val!.isEmpty
                                 ? 'Contact person name is required'
                                 : null,
                             onChanged: (val) {
@@ -349,13 +349,11 @@ class _VisitFormOneState extends State<VisitFormOne> {
                               style: ElevatedButton.styleFrom(
                                   backgroundColor:
                                       const Color.fromARGB(255, 191, 180, 66),
-                                  fixedSize: Size(size.width, 45),
+                                  fixedSize: Size(size!.width, 45),
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(25))),
                               onPressed: () async {
-                                if (_formKey.currentState.validate()) {
-                                  print(
-                                      'the project: ${selectedProject.uid} or client id: ${selectedClient.uid}');
+                                if (_formKey.currentState!.validate()) {
                                   if (selectedProject.uid != null ||
                                       selectedClient.uid != null) {
                                     await Navigator.push(
@@ -367,7 +365,7 @@ class _VisitFormOneState extends State<VisitFormOne> {
                                           contactPerson: contactPerson,
                                           visitPurpose: visitPurpose,
                                           currentUser: widget.currentUser,
-                                          visitType: _type.name,
+                                          visitType: _type!.name,
                                         ),
                                       ),
                                     );
@@ -396,7 +394,7 @@ class _VisitFormOneState extends State<VisitFormOne> {
   //Client Suggestions
   Future<List<ClientData>> clientSuggestions(String query) async {
     List<ClientData> matches = [];
-    matches.addAll(clientProvider.map((e) => e));
+    matches.addAll(clientProvider!.map((e) => e));
     matches.retainWhere((element) =>
         element.toString().toLowerCase().contains(query.toLowerCase()));
     return matches;
@@ -405,7 +403,7 @@ class _VisitFormOneState extends State<VisitFormOne> {
   //Project Suggestions
   Future<List<dynamic>> projectSuggestions(String query) async {
     var matches = [];
-    matches.addAll(projectProvider.map((e) => e));
+    matches.addAll(projectProvider!.map((e) => e));
     matches.retainWhere((element) =>
         element.toString().toLowerCase().contains(query.toLowerCase()));
     return matches;
