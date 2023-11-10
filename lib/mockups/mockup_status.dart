@@ -74,7 +74,7 @@ class _MockupStatusState extends State<MockupStatus> {
               Expanded(
                 flex: 2,
                 child: Text(
-                  widget.selectedMockup!.mockupName,
+                  widget.selectedMockup!.mockupName!,
                   style: textStyle4,
                 ),
               )
@@ -93,7 +93,7 @@ class _MockupStatusState extends State<MockupStatus> {
               Expanded(
                 flex: 2,
                 child: Text(
-                  widget.selectedMockup!.mockupDetails,
+                  widget.selectedMockup!.mockupDetails!,
                   style: textStyle4,
                 ),
               )
@@ -112,7 +112,7 @@ class _MockupStatusState extends State<MockupStatus> {
               Expanded(
                 flex: 2,
                 child: Text(
-                  widget.selectedMockup!.contactorCompany,
+                  widget.selectedMockup!.contactorCompany!,
                   style: textStyle4,
                 ),
               )
@@ -131,7 +131,7 @@ class _MockupStatusState extends State<MockupStatus> {
               Expanded(
                 flex: 2,
                 child: Text(
-                  widget.selectedMockup!.contactPerson,
+                  widget.selectedMockup!.contactPerson!,
                   style: textStyle4,
                 ),
               )
@@ -150,7 +150,7 @@ class _MockupStatusState extends State<MockupStatus> {
               Expanded(
                 flex: 2,
                 child: Text(
-                  widget.selectedMockup!.phoneNumber.phoneNumber!,
+                  widget.selectedMockup!.phoneNumber!.phoneNumber!,
                   style: textStyle4,
                 ),
               )
@@ -213,7 +213,7 @@ class _MockupStatusState extends State<MockupStatus> {
                               //Cannot close project if workers are still assigned to it
                               if (widget.selectedMockup!.assignedWorkers !=
                                       null &&
-                                  widget.selectedMockup!.assignedWorkers
+                                  widget.selectedMockup!.assignedWorkers!
                                       .isNotEmpty) {
                                 _snackBarWidget.content =
                                     'You have workers assigned to this projects, remove them before closing it';

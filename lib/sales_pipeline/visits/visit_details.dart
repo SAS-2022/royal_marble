@@ -7,45 +7,43 @@ import 'package:royal_marble/shared/snack_bar.dart';
 
 class VisitDetailsClass extends StatefulWidget {
   const VisitDetailsClass(
-      {Key key,
+      {Key? key,
       this.currentUser,
       this.currentVisit,
       this.selectedUser,
       this.projectVisit,
       this.visitType})
       : super(key: key);
-  final UserData currentUser;
-  final UserData selectedUser;
-  final ClientVisitDetails currentVisit;
-  final ProjectVisitDetails projectVisit;
-  final String visitType;
+  final UserData? currentUser;
+  final UserData? selectedUser;
+  final ClientVisitDetails? currentVisit;
+  final ProjectVisitDetails? projectVisit;
+  final String? visitType;
 
   @override
   State<VisitDetailsClass> createState() => _VisitDetailsClassState();
 }
 
 class _VisitDetailsClassState extends State<VisitDetailsClass> {
-  Size _size;
+  Size? _size;
   bool _editContent = false;
 
-  String visitDetails;
-  String managerComments;
+  String? visitDetails;
+  String? managerComments;
   DatabaseService db = DatabaseService();
   SnackBarWidget _snackBarWidget = SnackBarWidget();
-  String visitUser;
+  String? visitUser;
   @override
   void initState() {
     super.initState();
     if (widget.currentVisit == null) {
-      visitDetails = widget.projectVisit.visitDetails;
-      managerComments = widget.projectVisit.managerComments ?? '';
-      visitUser = widget.projectVisit.userId;
-      print('visit details: ${widget.projectVisit} ');
+      visitDetails = widget.projectVisit!.visitDetails;
+      managerComments = widget.projectVisit!.managerComments ?? '';
+      visitUser = widget.projectVisit!.userId;
     } else {
-      visitDetails = widget.currentVisit.visitDetails;
-      managerComments = widget.currentVisit.managerComments ?? '';
-      visitUser = widget.currentVisit.userId;
-      print('visit details: ${widget.currentVisit} ');
+      visitDetails = widget.currentVisit!.visitDetails;
+      managerComments = widget.currentVisit!.managerComments ?? '';
+      visitUser = widget.currentVisit!.userId;
     }
   }
 
@@ -108,11 +106,11 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
                   flex: 2,
                   child: Text(
                     widget.currentVisit != null
-                        ? widget.currentVisit.clientName != null
-                            ? widget.currentVisit.clientName.toUpperCase()
+                        ? widget.currentVisit!.clientName != null
+                            ? widget.currentVisit!.clientName!.toUpperCase()
                             : ' '
-                        : widget.projectVisit.projectName != null
-                            ? widget.projectVisit.projectName.toUpperCase()
+                        : widget.projectVisit!.projectName != null
+                            ? widget.projectVisit!.projectName!.toUpperCase()
                             : ' ',
                     style: textStyle5,
                   ),
@@ -137,8 +135,8 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
                   flex: 2,
                   child: Text(
                     widget.currentVisit != null
-                        ? widget.currentVisit.contactPerson.toUpperCase()
-                        : widget.projectVisit.contactPerson.toUpperCase(),
+                        ? widget.currentVisit!.contactPerson!.toUpperCase()
+                        : widget.projectVisit!.contactPerson!.toUpperCase(),
                     style: textStyle5,
                   ),
                 )
@@ -167,8 +165,9 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
                         flex: 2,
                         child: Text(
                           widget.currentVisit != null
-                              ? widget.currentVisit.visitPurpose.toUpperCase()
-                              : widget.projectVisit.visitPurpose.toUpperCase(),
+                              ? widget.currentVisit!.visitPurpose!.toUpperCase()
+                              : widget.projectVisit!.visitPurpose!
+                                  .toUpperCase(),
                           style: textStyle5,
                         ),
                       )
@@ -182,7 +181,7 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
             ),
             //visit details
             SizedBox(
-              height: _size.height / 4,
+              height: _size!.height / 4,
               child: Card(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 10, left: 10),
@@ -201,10 +200,10 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
                         flex: 2,
                         child: !_editContent
                             ? Text(
-                                visitDetails,
+                                visitDetails!,
                                 style: textStyle5,
                               )
-                            : widget.currentUser.uid == visitUser
+                            : widget.currentUser!.uid == visitUser
                                 ? TextFormField(
                                     initialValue: visitDetails,
                                     maxLines: 7,
@@ -215,7 +214,7 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
                                       border: InputBorder.none,
                                     ),
                                     validator: (val) {
-                                      if (val.isEmpty) {
+                                      if (val!.isEmpty) {
                                         return 'Details cannot be left empty';
                                       }
                                       return null;
@@ -227,7 +226,7 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
                                     },
                                   )
                                 : Text(
-                                    visitDetails,
+                                    visitDetails!,
                                     style: textStyle5,
                                   ),
                       )
@@ -241,7 +240,7 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
             ),
             //manager comments for manager purpose only
             SizedBox(
-              height: _size.height / 4,
+              height: _size!.height / 4,
               child: Card(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 10, left: 10),
@@ -260,10 +259,10 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
                         flex: 2,
                         child: !_editContent
                             ? Text(
-                                managerComments,
+                                managerComments!,
                                 style: textStyle5,
                               )
-                            : widget.currentUser.roles.contains('isAdmin')
+                            : widget.currentUser!.roles!.contains('isAdmin')
                                 ? TextFormField(
                                     initialValue: managerComments,
                                     maxLines: 7,
@@ -274,7 +273,7 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
                                       border: InputBorder.none,
                                     ),
                                     validator: (val) {
-                                      if (val.isEmpty) {
+                                      if (val!.isEmpty) {
                                         return 'Details cannot be left empty';
                                       }
                                       return null;
@@ -286,7 +285,7 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
                                     },
                                   )
                                 : Text(
-                                    managerComments,
+                                    managerComments!,
                                     style: textStyle5,
                                   ),
                       )
@@ -305,7 +304,7 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
                 ElevatedButton(
                     style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green[400],
-                        fixedSize: Size(_size.width / 2, 45),
+                        fixedSize: Size(_size!.width / 2, 45),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(25))),
                     onPressed: () async {
@@ -316,12 +315,12 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
 
                       if (widget.currentVisit != null) {
                         managerCommentsOld =
-                            widget.currentVisit.managerComments ?? '';
-                        visitDetailsOld = widget.currentVisit.visitDetails;
+                            widget.currentVisit!.managerComments ?? '';
+                        visitDetailsOld = widget.currentVisit!.visitDetails;
                       } else {
                         managerCommentsOld =
-                            widget.projectVisit.managerComments ?? '';
-                        visitDetailsOld = widget.projectVisit.visitDetails;
+                            widget.projectVisit!.managerComments ?? '';
+                        visitDetailsOld = widget.projectVisit!.visitDetails;
                       }
                       //will update the manager comment or edit the content of the visit details
                       if (managerComments != managerCommentsOld ||
@@ -329,11 +328,11 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
                         //will shall save changes
                         result = await db.updateCurrentSalesVisit(
                             visitId: widget.currentVisit != null
-                                ? widget.currentVisit.uid
-                                : widget.projectVisit.uid,
+                                ? widget.currentVisit!.uid
+                                : widget.projectVisit!.uid,
                             userId: widget.currentVisit != null
-                                ? widget.currentVisit.userId
-                                : widget.projectVisit.userId,
+                                ? widget.currentVisit!.userId
+                                : widget.projectVisit!.userId,
                             managerComments: managerComments,
                             visitDetails: visitDetails,
                             visitType: widget.visitType);

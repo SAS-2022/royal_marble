@@ -107,18 +107,18 @@ class _HomeScreenState extends State<HomeScreen> {
     Future.delayed(const Duration(seconds: 5), () => _setUserId());
     _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
       if (permissionStatus == null ||
-          permissionStatus.isDenied ||
-          permissionStatus.isLimited ||
-          permissionStatus.isPermanentlyDenied ||
-          permissionStatus.isRestricted) {
+          permissionStatus!.isDenied ||
+          permissionStatus!.isLimited ||
+          permissionStatus!.isPermanentlyDenied ||
+          permissionStatus!.isRestricted) {
         _getLocationPermission();
       }
 
       if (permissionActivity == null ||
-          permissionActivity.isDenied ||
-          permissionActivity.isLimited ||
-          permissionActivity.isPermanentlyDenied ||
-          permissionActivity.isRestricted) {
+          permissionActivity!.isDenied ||
+          permissionActivity!.isLimited ||
+          permissionActivity!.isPermanentlyDenied ||
+          permissionActivity!.isRestricted) {
         _requestMotionPermission();
       }
       _getAssignedProjects = getUserAssignedProject();
@@ -133,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     super.dispose();
-    _connectivitySubsciption.cancel();
+    _connectivitySubsciption!.cancel();
   }
 
   String getSystemTime() {
@@ -143,23 +143,23 @@ class _HomeScreenState extends State<HomeScreen> {
     var difference = 'Good Morning';
     if (userProvider != null) {
       difference =
-          'Good Morning,\n${userProvider.firstName} ${userProvider.lastName}';
+          'Good Morning,\n${userProvider!.firstName} ${userProvider!.lastName}';
     }
     if (timeSheetProvider != null &&
-        timeSheetProvider.containsKey(userProvider.uid)) {
-      if (timeSheetProvider[userProvider.uid]['arriving_at'] != null &&
-          timeSheetProvider[userProvider.uid]['leaving_at'] == null) {
-        startingTime =
-            DateTime.parse(timeSheetProvider[userProvider.uid]['arriving_at']);
+        timeSheetProvider!.containsKey(userProvider!.uid)) {
+      if (timeSheetProvider![userProvider!.uid]['arriving_at'] != null &&
+          timeSheetProvider![userProvider!.uid]['leaving_at'] == null) {
+        startingTime = DateTime.parse(
+            timeSheetProvider![userProvider!.uid]['arriving_at']);
 
         difference = now.difference(startingTime).toString().split('.')[0];
       }
-      if (timeSheetProvider[userProvider.uid]['arriving_at'] != null &&
-          timeSheetProvider[userProvider.uid]['leaving_at'] != null) {
-        startingTime =
-            DateTime.parse(timeSheetProvider[userProvider.uid]['arriving_at']);
+      if (timeSheetProvider![userProvider!.uid]['arriving_at'] != null &&
+          timeSheetProvider![userProvider!.uid]['leaving_at'] != null) {
+        startingTime = DateTime.parse(
+            timeSheetProvider![userProvider!.uid]['arriving_at']);
         leavingTime =
-            DateTime.parse(timeSheetProvider[userProvider.uid]['leaving_at']);
+            DateTime.parse(timeSheetProvider![userProvider!.uid]['leaving_at']);
 
         if (leavingTime.isAfter(startingTime)) {
           var totalHours =
@@ -170,8 +170,8 @@ class _HomeScreenState extends State<HomeScreen> {
               'Already checked In and Checked Out, you are checking in again';
         }
       }
-      if (timeSheetProvider[userProvider.uid]['arriving_at'] == null &&
-          timeSheetProvider[userProvider.uid]['leaving_at'] == null) {
+      if (timeSheetProvider![userProvider!.uid]['arriving_at'] == null &&
+          timeSheetProvider![userProvider!.uid]['leaving_at'] == null) {
         difference = 'Please contact admin: ERR001 (null values)';
       }
     }
@@ -210,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(25)),
                 child: SizedBox(
-                  height: _size.height / 5,
+                  height: _size!.height / 5,
                   child: Padding(
                     padding: const EdgeInsets.all(15),
                     child: Column(
@@ -260,9 +260,9 @@ class _HomeScreenState extends State<HomeScreen> {
     _pref = await SharedPreferences.getInstance();
     String userId;
     if (userProvider == null) {
-      userId = _pref.getString('userId');
+      userId = _pref!.getString('userId').toString();
     } else {
-      userId = userProvider.uid;
+      userId = userProvider!.uid.toString();
     }
 
     bg.BackgroundGeolocation.onLocation((bg.Location location) {
@@ -306,10 +306,10 @@ class _HomeScreenState extends State<HomeScreen> {
       drawer: allUsers != null && allUsers.isNotEmpty ||
               permissionStatus == null ||
               permissionActivity == null ||
-              permissionActivity.isPermanentlyDenied ||
-              permissionStatus.isPermanentlyDenied
+              permissionActivity!.isPermanentlyDenied ||
+              permissionStatus!.isPermanentlyDenied
           ? ProfileDrawer(
-              currentUser: userProvider,
+              currentUser: userProvider!,
               allUsers: allUsers,
             )
           : const Loading(),
@@ -319,10 +319,10 @@ class _HomeScreenState extends State<HomeScreen> {
             )
           : permissionStatus == null ||
                   permissionActivity == null ||
-                  permissionActivity.isPermanentlyDenied ||
-                  permissionStatus.isDenied ||
-                  permissionStatus.isLimited ||
-                  permissionStatus.isRestricted
+                  permissionActivity!.isPermanentlyDenied ||
+                  permissionStatus!.isDenied ||
+                  permissionStatus!.isLimited ||
+                  permissionStatus!.isRestricted
               ? const LocationRequirement()
               : _selectView(),
       resizeToAvoidBottomInset: false,
@@ -331,12 +331,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _selectView() {
     var role;
-    if (userProvider != null && userProvider.roles != null) {
-      if (userProvider.roles.contains('isAdmin')) {
+    if (userProvider != null && userProvider!.roles != null) {
+      if (userProvider!.roles!.contains('isAdmin')) {
         role = 'admin';
-      } else if (userProvider.roles.contains('isSales')) {
+      } else if (userProvider!.roles!.contains('isSales')) {
         role = 'sales';
-      } else if (userProvider.roles.contains('isSupervisor')) {
+      } else if (userProvider!.roles!.contains('isSupervisor')) {
         role = 'supervisor';
       } else {
         role = 'worker';
@@ -370,7 +370,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
             child: SizedBox(
-              height: _size.height / 2.4,
+              height: _size!.height / 2.4,
               child:
                   Column(mainAxisAlignment: MainAxisAlignment.start, children: [
                 const Text(
@@ -386,8 +386,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 Container(
                   padding: const EdgeInsets.all(10),
-                  height: _size.height / 3.5,
-                  width: _size.width - 20,
+                  height: _size!.height / 3.5,
+                  width: _size!.width - 20,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: allProjectProvider.length,
@@ -395,20 +395,20 @@ class _HomeScreenState extends State<HomeScreen> {
                       if (allProjectProvider[index].projectStatus == 'active') {
                         if (!activeProjects
                             .contains(allProjectProvider[index].uid)) {
-                          activeProjects.add(allProjectProvider[index].uid);
+                          activeProjects.add(allProjectProvider[index].uid!);
                         }
 
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 15),
                           child: GestureDetector(
-                            onTap: userProvider.roles.contains('isAdmin')
+                            onTap: userProvider!.roles!.contains('isAdmin')
                                 ? () async {
                                     //once tapped shall navigate to a page that will show assigned workers
                                     //will present a dialog on the things that could be done
                                     await _showProjectDialog(
                                         projectData: allProjectProvider[index]);
                                   }
-                                : userProvider.roles.contains('isSales')
+                                : userProvider!.roles!.contains('isSales')
                                     ? () async {
                                         await Navigator.push(
                                             context,
@@ -423,13 +423,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                     : null,
                             child: Container(
                               padding: const EdgeInsets.all(5),
-                              width: _size.width / 2,
+                              width: _size!.width / 2,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: const Color.fromARGB(255, 148, 218, 83),
                                 boxShadow: [
                                   BoxShadow(
-                                      color: Colors.grey[500],
+                                      color: Colors.grey[500]!,
                                       offset: const Offset(-3, 3),
                                       spreadRadius: 2)
                                 ],
@@ -442,7 +442,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   SizedBox(
                                     child: Text(
                                       allProjectProvider[index]
-                                          .projectName
+                                          .projectName!
                                           .toUpperCase(),
                                       style: textStyle4,
                                       textAlign: TextAlign.center,
@@ -462,7 +462,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     .assignedWorkers !=
                                                 null
                                             ? allProjectProvider[index]
-                                                .assignedWorkers
+                                                .assignedWorkers!
                                                 .length
                                                 .toString()
                                             : 'None',
@@ -499,7 +499,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
             child: SizedBox(
-              height: _size.height / 2.5,
+              height: _size!.height / 2.5,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
@@ -516,8 +516,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   Container(
                     padding: const EdgeInsets.all(10),
-                    height: _size.height / 3.8,
-                    width: _size.width - 20,
+                    height: _size!.height / 3.8,
+                    width: _size!.width - 20,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: allProjectProvider.length,
@@ -527,12 +527,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           if (!potentialProjects
                               .contains(allProjectProvider[index].uid)) {
                             potentialProjects
-                                .add(allProjectProvider[index].uid);
+                                .add(allProjectProvider[index].uid!);
                           }
                           return Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 15),
                             child: GestureDetector(
-                              onTap: userProvider.roles.contains('isAdmin')
+                              onTap: userProvider!.roles!.contains('isAdmin')
                                   ? () async {
                                       //once tapped shall navigate to a page that will show assigned workers
                                       //will present a dialog on the things that could be done
@@ -540,7 +540,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           projectData:
                                               allProjectProvider[index]);
                                     }
-                                  : userProvider.roles.contains('isSales')
+                                  : userProvider!.roles!.contains('isSales')
                                       ? () async {
                                           await Navigator.push(
                                               context,
@@ -559,14 +559,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               },
                               child: Container(
                                 padding: const EdgeInsets.all(5),
-                                width: _size.width / 2,
+                                width: _size!.width / 2,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color:
                                       const Color.fromARGB(255, 214, 163, 238),
                                   boxShadow: [
                                     BoxShadow(
-                                        color: Colors.grey[500],
+                                        color: Colors.grey[500]!,
                                         offset: const Offset(-3, 3),
                                         spreadRadius: 2)
                                   ],
@@ -579,7 +579,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     SizedBox(
                                       child: Text(
                                         allProjectProvider[index]
-                                            .projectName
+                                            .projectName!
                                             .toUpperCase(),
                                         style: textStyle4,
                                         textAlign: TextAlign.center,
@@ -599,7 +599,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       .assignedWorkers !=
                                                   null
                                               ? allProjectProvider[index]
-                                                  .assignedWorkers
+                                                  .assignedWorkers!
                                                   .length
                                                   .toString()
                                               : 'None',
@@ -636,7 +636,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
             child: SizedBox(
-              height: _size.height / 2.5,
+              height: _size!.height / 2.5,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
@@ -653,8 +653,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   Container(
                     padding: const EdgeInsets.all(10),
-                    height: _size.height / 3.8,
-                    width: _size.width - 20,
+                    height: _size!.height / 3.8,
+                    width: _size!.width - 20,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: allMockupProvider.length,
@@ -662,19 +662,19 @@ class _HomeScreenState extends State<HomeScreen> {
                         if (allMockupProvider[index].mockupStatus == 'active') {
                           if (!activeMockups
                               .contains(allMockupProvider[index].uid)) {
-                            activeMockups.add(allMockupProvider[index].uid);
+                            activeMockups.add(allMockupProvider[index].uid!);
                           }
                           return Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 15),
                             child: GestureDetector(
-                              onTap: userProvider.roles.contains('isAdmin')
+                              onTap: userProvider!.roles!.contains('isAdmin')
                                   ? () async {
                                       //once tapped shall navigate to a page that will show assigned workers
                                       //will present a dialog on the things that could be done
                                       await _showProjectDialog(
                                           mockupData: allMockupProvider[index]);
                                     }
-                                  : userProvider.roles.contains('isSales')
+                                  : userProvider!.roles!.contains('isSales')
                                       ? () async {
                                           // await Navigator.push(
                                           //     context,
@@ -692,14 +692,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               },
                               child: Container(
                                 padding: const EdgeInsets.all(5),
-                                width: _size.width / 2,
+                                width: _size!.width / 2,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color:
                                       const Color.fromARGB(255, 214, 163, 238),
                                   boxShadow: [
                                     BoxShadow(
-                                        color: Colors.grey[500],
+                                        color: Colors.grey[500]!,
                                         offset: const Offset(-3, 3),
                                         spreadRadius: 2)
                                   ],
@@ -712,7 +712,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     SizedBox(
                                       child: Text(
                                         allMockupProvider[index]
-                                            .mockupName
+                                            .mockupName!
                                             .toUpperCase(),
                                         style: textStyle4,
                                         textAlign: TextAlign.center,
@@ -732,7 +732,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       .assignedWorkers !=
                                                   null
                                               ? allMockupProvider[index]
-                                                  .assignedWorkers
+                                                  .assignedWorkers!
                                                   .length
                                                   .toString()
                                               : 'None',
@@ -761,7 +761,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          userProvider.isActive != null && userProvider.isActive
+          userProvider!.isActive != null && userProvider!.isActive!
               ? const SizedBox.shrink()
               : const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 40),
@@ -778,9 +778,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildWorkerHomeScreen() {
     return SizedBox(
-      height: _size.height,
+      height: _size!.height,
       child: SingleChildScrollView(
-          child: userProvider.isActive != null && userProvider.isActive
+          child: userProvider!.isActive != null && userProvider!.isActive!
               ? Padding(
                   padding: const EdgeInsets.all(25),
                   child: Column(
@@ -804,8 +804,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 );
                               } else {
                                 return SizedBox(
-                                    width: _size.width,
-                                    height: (_size.height / 3) - 100,
+                                    width: _size!.width,
+                                    height: (_size!.height / 3) - 100,
                                     child: Padding(
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 15, vertical: 15),
@@ -826,24 +826,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                         child: Container(
                                           padding: const EdgeInsets.all(12),
                                           height: 80,
-                                          width: _size.width / 2,
+                                          width: _size!.width / 2,
                                           decoration: BoxDecoration(
-                                              color: userProvider
+                                              color: userProvider!
                                                               .distanceToProject !=
                                                           null &&
-                                                      userProvider
+                                                      userProvider!
                                                           .assignedProject
                                                           .isNotEmpty &&
-                                                      userProvider
+                                                      userProvider!
                                                               .distanceToProject <=
-                                                          userProvider
+                                                          userProvider!
                                                                   .assignedProject[
                                                               'radius']
                                                   ? Colors.green
                                                   : Colors.yellowAccent,
                                               boxShadow: [
                                                 BoxShadow(
-                                                    color: Colors.grey[500],
+                                                    color: Colors.grey[500]!,
                                                     offset: const Offset(-4, 4),
                                                     spreadRadius: 1)
                                               ],
@@ -912,15 +912,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   Expanded(
                                                     flex: 2,
                                                     child: Text(
-                                                      userProvider
-                                                                      .distanceToProject !=
+                                                      userProvider!.distanceToProject !=
                                                                   null &&
-                                                              userProvider
+                                                              userProvider!
                                                                   .assignedProject
                                                                   .isNotEmpty &&
-                                                              userProvider
+                                                              userProvider!
                                                                       .distanceToProject <=
-                                                                  userProvider
+                                                                  userProvider!
                                                                           .assignedProject[
                                                                       'radius']
                                                           ? 'Yes'
@@ -956,8 +955,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               }
                             } else {
                               return SizedBox(
-                                width: _size.width,
-                                height: (_size.height / 3) - 100,
+                                width: _size!.width,
+                                height: (_size!.height / 3) - 100,
                                 child: const Center(
                                   child: Text(
                                     'No Assigned Projects',
@@ -991,8 +990,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 );
                               } else {
                                 return SizedBox(
-                                    width: _size.width,
-                                    height: (_size.height / 3) - 100,
+                                    width: _size!.width,
+                                    height: (_size!.height / 3) - 100,
                                     child: Padding(
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 15, vertical: 15),
@@ -1013,13 +1012,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                         child: Container(
                                           padding: const EdgeInsets.all(12),
                                           height: 80,
-                                          width: _size.width / 2,
+                                          width: _size!.width / 2,
                                           decoration: BoxDecoration(
                                               color: const Color.fromARGB(
                                                   255, 12, 182, 197),
                                               boxShadow: [
                                                 BoxShadow(
-                                                    color: Colors.grey[500],
+                                                    color: Colors.grey[500]!,
                                                     offset: const Offset(-4, 4),
                                                     spreadRadius: 1)
                                               ],
@@ -1102,8 +1101,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               }
                             } else {
                               return SizedBox(
-                                width: _size.width,
-                                height: (_size.height / 3) - 100,
+                                width: _size!.width,
+                                height: (_size!.height / 3) - 100,
                                 child: const Center(
                                   child: Text(
                                     'No Assigned Mockups',
@@ -1122,7 +1121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Padding(
                         padding: const EdgeInsets.only(top: 20, left: 15),
                         child: Container(
-                          height: _size.height / 6,
+                          height: _size!.height / 6,
                           decoration: BoxDecoration(
                               border: Border.all(),
                               borderRadius: BorderRadius.circular(20)),
@@ -1147,11 +1146,11 @@ class _HomeScreenState extends State<HomeScreen> {
               : Padding(
                   padding: const EdgeInsets.only(left: 25, right: 25, top: 150),
                   child: SizedBox(
-                    height: _size.height,
-                    child: Column(
+                    height: _size!.height,
+                    child: const Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       // crossAxisAlignment: CrossAxisAlignment.center,
-                      children: const [
+                      children: [
                         Text(
                           'Thank you for creating an account',
                           style: textStyle1,
@@ -1174,9 +1173,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildSupervisorHomeScreen() {
     return SizedBox(
-      height: _size.height,
+      height: _size!.height,
       child: SingleChildScrollView(
-          child: userProvider.isActive != null && userProvider.isActive
+          child: userProvider!.isActive != null && userProvider!.isActive!
               ? Padding(
                   padding: const EdgeInsets.all(25),
                   child: Column(
@@ -1198,8 +1197,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 );
                               } else {
                                 return SizedBox(
-                                    width: _size.width,
-                                    height: (_size.height / 3) - 100,
+                                    width: _size!.width,
+                                    height: (_size!.height / 3) - 100,
                                     child: ListView.builder(
                                         scrollDirection: Axis.horizontal,
                                         itemCount: snapshot.data.length,
@@ -1230,15 +1229,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 padding:
                                                     const EdgeInsets.all(12),
                                                 height: 80,
-                                                width: _size.width / 1.5,
+                                                width: _size!.width / 1.5,
                                                 decoration: BoxDecoration(
-                                                    color: userProvider
+                                                    color: userProvider!
                                                                     .distanceToProject !=
                                                                 null &&
-                                                            userProvider
+                                                            userProvider!
                                                                 .assignedProject
                                                                 .isNotEmpty &&
-                                                            userProvider
+                                                            userProvider!
                                                                     .distanceToProject <=
                                                                 snapshot
                                                                     .data[index]
@@ -1248,7 +1247,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     boxShadow: [
                                                       BoxShadow(
                                                           color:
-                                                              Colors.grey[500],
+                                                              Colors.grey[500]!,
                                                           offset: const Offset(
                                                               -4, 4),
                                                           spreadRadius: 1)
@@ -1325,9 +1324,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         Expanded(
                                                           flex: 2,
                                                           child: Text(
-                                                            userProvider.distanceToProject !=
+                                                            userProvider!.distanceToProject !=
                                                                         null &&
-                                                                    userProvider
+                                                                    userProvider!
                                                                             .distanceToProject <=
                                                                         snapshot
                                                                             .data[index]
@@ -1366,8 +1365,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               }
                             } else {
                               return SizedBox(
-                                width: _size.width,
-                                height: (_size.height / 3) - 100,
+                                width: _size!.width,
+                                height: (_size!.height / 3) - 100,
                                 child: const Center(
                                   child: Text(
                                     'No Assigned Projects',
@@ -1402,8 +1401,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 );
                               } else {
                                 return SizedBox(
-                                    width: _size.width,
-                                    height: (_size.height / 3) - 100,
+                                    width: _size!.width,
+                                    height: (_size!.height / 3) - 100,
                                     child: Padding(
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 15, vertical: 15),
@@ -1424,13 +1423,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                         child: Container(
                                           padding: const EdgeInsets.all(12),
                                           height: 80,
-                                          width: _size.width / 2,
+                                          width: _size!.width / 2,
                                           decoration: BoxDecoration(
                                               color: const Color.fromARGB(
                                                   255, 12, 182, 197),
                                               boxShadow: [
                                                 BoxShadow(
-                                                    color: Colors.grey[500],
+                                                    color: Colors.grey[500]!,
                                                     offset: const Offset(-4, 4),
                                                     spreadRadius: 1)
                                               ],
@@ -1513,8 +1512,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               }
                             } else {
                               return SizedBox(
-                                width: _size.width,
-                                height: (_size.height / 3) - 100,
+                                width: _size!.width,
+                                height: (_size!.height / 3) - 100,
                                 child: const Center(
                                   child: Text(
                                     'No Assigned Mockups',
@@ -1533,7 +1532,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Padding(
                         padding: const EdgeInsets.only(top: 20, left: 15),
                         child: Container(
-                          height: _size.height / 6,
+                          height: _size!.height / 6,
                           decoration: BoxDecoration(
                               border: Border.all(),
                               borderRadius: BorderRadius.circular(20)),
@@ -1566,7 +1565,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           messages.isEmpty
                               ? SizedBox(
-                                  height: (_size.height / 2) - 50,
+                                  height: (_size!.height / 2) - 50,
                                   child: ListView.builder(
                                       itemCount: messages.length,
                                       itemBuilder: (context, index) {
@@ -1590,11 +1589,11 @@ class _HomeScreenState extends State<HomeScreen> {
               : Padding(
                   padding: const EdgeInsets.only(left: 25, right: 25, top: 150),
                   child: SizedBox(
-                    height: _size.height,
-                    child: Column(
+                    height: _size!.height,
+                    child: const Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       // crossAxisAlignment: CrossAxisAlignment.center,
-                      children: const [
+                      children: [
                         Text(
                           'Thank you for creating an account',
                           style: textStyle1,
@@ -1618,8 +1617,8 @@ class _HomeScreenState extends State<HomeScreen> {
   //For supervisors
   Future<List<ProjectData>> getSupervisorAssignedProjects() async {
     List<ProjectData> allProjects = [];
-    if (userProvider != null && userProvider.assignedProject != null) {
-      for (var project in userProvider.assignedProject) {
+    if (userProvider != null && userProvider!.assignedProject != null) {
+      for (var project in userProvider!.assignedProject) {
         var result = await db.getPorjectByIdFuture(projectId: project['id']);
         if (result != null) {
           allProjects.add(result);
@@ -1632,8 +1631,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<List<ProjectData>> getSupervisorAssignedMockups() async {
     List<ProjectData> allProjects = [];
-    if (userProvider != null && userProvider.assignedProject != null) {
-      for (var project in userProvider.assignedProject) {
+    if (userProvider != null && userProvider!.assignedProject != null) {
+      for (var project in userProvider!.assignedProject) {
         var result = await db.getPorjectByIdFuture(projectId: project['id']);
         if (result != null) {
           allProjects.add(result);
@@ -1648,15 +1647,15 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<ProjectData> getUserAssignedProject() async {
     var result;
 
-    if (userProvider != null && userProvider.assignedProject != null) {
-      if (userProvider.roles.contains('isSupervisor')) {
-        for (var project in userProvider.assignedProject) {
+    if (userProvider != null && userProvider!.assignedProject != null) {
+      if (userProvider!.roles!.contains('isSupervisor')) {
+        for (var project in userProvider!.assignedProject) {
           result = await db.getPorjectByIdFuture(projectId: project['id']);
         }
       } else {
-        if (userProvider.assignedProject['id'] != null) {
+        if (userProvider!.assignedProject['id'] != null) {
           result = await db.getPorjectByIdFuture(
-              projectId: userProvider.assignedProject['id']);
+              projectId: userProvider!.assignedProject['id']);
         }
       }
     }
@@ -1667,15 +1666,15 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<MockupData> getUserAssignedMockup() async {
     var result;
 
-    if (userProvider != null && userProvider.assignedMockups != null) {
-      if (userProvider.roles.contains('isSupervisor')) {
-        for (var mockup in userProvider.assignedMockups) {
+    if (userProvider != null && userProvider!.assignedMockups != null) {
+      if (userProvider!.roles!.contains('isSupervisor')) {
+        for (var mockup in userProvider!.assignedMockups) {
           result = await db.getMockupByIdFuture(mockupId: mockup['id']);
         }
       } else {
-        if (userProvider.assignedMockups != null &&
-            userProvider.assignedMockups.isNotEmpty) {
-          for (var mockup in userProvider.assignedMockups) {
+        if (userProvider!.assignedMockups != null &&
+            userProvider!.assignedMockups.isNotEmpty) {
+          for (var mockup in userProvider!.assignedMockups) {
             result = await db.getMockupByIdFuture(mockupId: mockup['id']);
           }
         }
@@ -1690,16 +1689,13 @@ class _HomeScreenState extends State<HomeScreen> {
       if (await ph.Permission.location.serviceStatus != null &&
           await ph.Permission.location.serviceStatus.isEnabled &&
           await ph.Permission.locationAlways.isGranted) {
-        permissionStatus =
-            await ph.Permission.location.status.onError((error, stackTrace) {
-          return error;
-        });
+        permissionStatus = await ph.Permission.location.status;
 
-        if (permissionStatus.isGranted) {
+        if (permissionStatus!.isGranted) {
           //update database with permission status
-          if (userProvider != null && userProvider.uid != null) {
+          if (userProvider != null && userProvider!.uid != null) {
             await db.updateUserPermissionStatus(
-                uid: userProvider.uid, permissionStatus: permissionStatus);
+                uid: userProvider!.uid, permissionStatus: permissionStatus);
           }
           _onClickEnable(_enabled);
           _requestMotionPermission();
@@ -1709,7 +1705,7 @@ class _HomeScreenState extends State<HomeScreen> {
           //update data base with permission status
           if (userProvider != null) {
             await db.updateUserPermissionStatus(
-                uid: userProvider.uid, permissionStatus: permissionStatus);
+                uid: userProvider!.uid, permissionStatus: permissionStatus);
           }
           //Will show an alert dialog to request User Access Permission
           requestUserAccessPermission();
@@ -1726,21 +1722,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _requestMotionPermission() async {
-    permissionActivity = await ph.Permission.activityRecognition.status
-        .onError((error, stackTrace) {
-      return error;
-    });
+    permissionActivity = await ph.Permission.activityRecognition.status;
 
-    if (permissionActivity.isDenied ||
-        permissionActivity.isLimited ||
-        permissionActivity.isPermanentlyDenied ||
-        permissionActivity.isRestricted) {
+    if (permissionActivity!.isDenied ||
+        permissionActivity!.isLimited ||
+        permissionActivity!.isPermanentlyDenied ||
+        permissionActivity!.isRestricted) {
       if (Platform.isAndroid) {
         var status = await [ph.Permission.activityRecognition]
             .request()
             .then((value) => value)
             .onError((error, stackTrace) {
-          return error;
+          print('error obtaining permission: $error');
+          return {};
         }).whenComplete(() => print('Permssion activity completed'));
 
         if (status[ph.Permission.activityRecognition] ==
@@ -1757,7 +1751,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
                                 const Color.fromARGB(255, 7, 45, 97),
-                            fixedSize: Size(_size.width - 100, 50),
+                            fixedSize: Size(_size!.width - 100, 50),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(25),
                             ),
@@ -1774,9 +1768,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ph.openAppSettings();
         }
       } else {
-        await ph.Permission.sensors.request().onError((error, stackTrace) {
-          return error;
-        }).then((value) => value);
+        await ph.Permission.sensors.request().then((value) => value);
       }
     }
   }
@@ -1807,7 +1799,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       SizedBox(
-                        width: _size.width / 3,
+                        width: _size!.width / 3,
                         child: TextButton(
                             style: TextButton.styleFrom(
                                 elevation: 3,
@@ -1824,7 +1816,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               ].request().then((value) {
                                 return value;
                               }).onError((error, stackTrace) {
-                                return error;
+                                print(
+                                    'Error obtaining permssion Location: $error');
+                                return {};
                               });
                               if (result != null &&
                                   result[ph.Permission.location] ==
@@ -1843,7 +1837,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             )),
                       ),
                       SizedBox(
-                        width: _size.width / 3,
+                        width: _size!.width / 3,
                         child: TextButton(
                             style: TextButton.styleFrom(
                                 elevation: 3,
@@ -1881,24 +1875,24 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
     if (position != null) {
-      currentLocation = LatLng(position.latitude, position.longitude);
+      currentLocation = LatLng(position!.latitude, position!.longitude);
       //check if user is assgined to a project
-      if (userProvider.assignedProject != null &&
-          userProvider.assignedProject.isNotEmpty &&
+      if (userProvider!.assignedProject != null &&
+          userProvider!.assignedProject.isNotEmpty &&
           currentLocation != null) {
         distance = (CalculateDistance().distanceBetweenTwoPoints(
-                    currentLocation.latitude,
-                    currentLocation.longitude,
-                    userProvider.assignedProject['projectAddress']['Lat'],
-                    userProvider.assignedProject['projectAddress']['Lng'])) *
+                    currentLocation!.latitude,
+                    currentLocation!.longitude,
+                    userProvider!.assignedProject['projectAddress']['Lat'],
+                    userProvider!.assignedProject['projectAddress']['Lng'])) *
                 1000 -
-            userProvider.assignedProject['radius'];
-        if (userProvider.uid != null &&
-            currentLocation.latitude != null &&
-            currentLocation.longitude != null) {
+            userProvider!.assignedProject['radius'];
+        if (userProvider!.uid != null &&
+            currentLocation!.latitude != null &&
+            currentLocation!.longitude != null) {
           db
               .updateUserLiveLocation(
-                  uid: userProvider.uid,
+                  uid: userProvider!.uid,
                   currentLocation: currentLocation,
                   distance: distance)
               .then((value) {})
@@ -1915,12 +1909,12 @@ class _HomeScreenState extends State<HomeScreen> {
           _snackBarWidget.showSnack();
         }
       } else {
-        if (userProvider.uid != null &&
-            currentLocation.latitude != null &&
-            currentLocation.longitude != null) {
+        if (userProvider!.uid != null &&
+            currentLocation!.latitude != null &&
+            currentLocation!.longitude != null) {
           db
               .updateUserLiveLocation(
-                  uid: userProvider.uid, currentLocation: currentLocation)
+                  uid: userProvider!.uid, currentLocation: currentLocation)
               .then((value) {
             print('Location updated without Distance');
           }).catchError((err) {
@@ -2010,10 +2004,10 @@ class _HomeScreenState extends State<HomeScreen> {
   //set user id
   void _setUserId() async {
     _pref = await SharedPreferences.getInstance();
-    String userId = _pref.getString('userId');
+    String userId = _pref!.getString('userId')!;
     if (userId == null) {
-      if (userProvider.uid != null && _pref != null) {
-        _pref.setString('userId', userProvider.uid);
+      if (userProvider!.uid != null && _pref != null) {
+        _pref!.setString('userId', userProvider!.uid!);
         Future.delayed(const Duration(seconds: 7), () => detectMotion());
         Future.delayed(const Duration(seconds: 10), () => initPlatformState());
       }
@@ -2058,7 +2052,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _showProjectDialog(
-      {ProjectData projectData, MockupData mockupData}) async {
+      {ProjectData? projectData, MockupData? mockupData}) async {
     if (projectData != null) {
       await showDialog(
           context: context,
@@ -2066,7 +2060,7 @@ class _HomeScreenState extends State<HomeScreen> {
             return AlertDialog(
               title: const Text('Project Options'),
               content: SizedBox(
-                height: _size.height / 3.5,
+                height: _size!.height / 3.5,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -2085,7 +2079,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ? Padding(
                                 padding: const EdgeInsets.only(bottom: 10),
                                 child: SizedBox(
-                                  width: _size.width / 2,
+                                  width: _size!.width / 2,
                                   child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.black,
@@ -2114,7 +2108,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ? Padding(
                                 padding: const EdgeInsets.only(bottom: 10),
                                 child: SizedBox(
-                                  width: _size.width / 2,
+                                  width: _size!.width / 2,
                                   child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.red[400],
@@ -2141,7 +2135,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             : const SizedBox.shrink(),
                         //define project status
                         SizedBox(
-                          width: _size.width / 2,
+                          width: _size!.width / 2,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.black,
@@ -2178,7 +2172,7 @@ class _HomeScreenState extends State<HomeScreen> {
             return AlertDialog(
               title: const Text('Mock-Up Options'),
               content: SizedBox(
-                height: _size.height / 3.5,
+                height: _size!.height / 3.5,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -2197,7 +2191,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ? Padding(
                                 padding: const EdgeInsets.only(bottom: 10),
                                 child: SizedBox(
-                                  width: _size.width / 2,
+                                  width: _size!.width / 2,
                                   child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.black,
@@ -2225,7 +2219,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ? Padding(
                                 padding: const EdgeInsets.only(bottom: 10),
                                 child: SizedBox(
-                                  width: _size.width / 2,
+                                  width: _size!.width / 2,
                                   child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.red[400],
@@ -2253,7 +2247,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             : const SizedBox.shrink(),
                         //define mockup status
                         SizedBox(
-                          width: _size.width / 2,
+                          width: _size!.width / 2,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.black,

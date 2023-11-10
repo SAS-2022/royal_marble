@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/plugin_api.dart' as api;
+// import 'package:flutter_map/plugin_api.dart' as api;
 import 'package:provider/provider.dart';
 import '../models/user_model.dart';
 import 'util/dialog.dart' as util;
@@ -51,8 +51,8 @@ class MapViewState extends State<MapView>
   void initState() {
     super.initState();
     if (widget.currentUser != null) {
-      _center = LatLng(widget.currentUser!.currentLocation['Lat'],
-          widget.currentUser!.currentLocation['Lng']);
+      _center = LatLng(widget.currentUser!.currentLocation!['Lat'],
+          widget.currentUser!.currentLocation!['Lng']);
       _mapOptions = MapOptions(
           onPositionChanged: _onPositionChanged,
           center: _center,
@@ -116,9 +116,9 @@ class MapViewState extends State<MapView>
     bg.Logger.info('[onGeofence] Flutter received onGeofence event $event');
 
     GeofenceMarker marker = _geofences.firstWhere(
-        (GeofenceMarker marker) =>
-            marker.geofence.identifier == event.identifier,
-        orElse: () => null);
+      (GeofenceMarker? marker) =>
+          marker!.geofence.identifier == event.identifier,
+    );
     if (marker == null) {
       bool exists =
           await bg.BackgroundGeolocation.geofenceExists(event.identifier);
@@ -140,9 +140,8 @@ class MapViewState extends State<MapView>
     // Render a  greyed-out geofence CircleMarker to show it's been fired but only if it hasn't been drawn yet.
     // since we can have multiple hits on the same geofence.  No point re-drawing the same hit circle twice.
     GeofenceMarker eventMarker = _geofenceEvents.firstWhere(
-        (GeofenceMarker marker) =>
-            marker.geofence.identifier == event.identifier,
-        orElse: () => null);
+      (GeofenceMarker marker) => marker.geofence.identifier == event.identifier,
+    );
     if (eventMarker == null) {
       _geofenceEvents.add(GeofenceMarker(geofence, true));
     }
@@ -239,18 +238,17 @@ class MapViewState extends State<MapView>
     if (usersData != null && usersData.isNotEmpty) {
       for (var userLocation in usersData) {
         // White background
-        print(
-            'the usersData: ${userLocation.firstName} - ${userLocation.currentLocation}');
+
         if (userLocation.currentLocation != null) {
           _currentPosition.add(CircleMarker(
-              point: LatLng(userLocation.currentLocation['Lat'],
-                  userLocation.currentLocation['Lng']),
+              point: LatLng(userLocation.currentLocation!['Lat'],
+                  userLocation.currentLocation!['Lng']),
               color: Colors.white,
               radius: 10));
           // Blue foreground
           _currentPosition.add(CircleMarker(
-              point: LatLng(userLocation.currentLocation['Lat'],
-                  userLocation.currentLocation['Lng']),
+              point: LatLng(userLocation.currentLocation!['Lat'],
+                  userLocation.currentLocation!['Lng']),
               color: Colors.blue,
               radius: 7));
 
@@ -262,7 +260,6 @@ class MapViewState extends State<MapView>
             child: CircleLayer(circles: _currentPosition),
           ));
         }
-        print('the current Position: $_currentPosition');
       }
     }
   }
@@ -339,11 +336,11 @@ class MapViewState extends State<MapView>
 }
 
 class GeofenceMarker extends CircleMarker {
-  bg.Geofence geofence;
-  GeofenceMarker(bg.Geofence? geofence, [bool triggered = false])
+  late bg.Geofence geofence;
+  GeofenceMarker(bg.Geofence geofence, [bool triggered = false])
       : super(
             useRadiusInMeter: true,
-            radius: geofence!.radius,
+            radius: geofence.radius,
             color: (triggered)
                 ? Colors.black26.withOpacity(0.2)
                 : Colors.green.withOpacity(0.3),

@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:js_interop';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -73,9 +72,9 @@ class _MockupFormState extends State<MockupForm> {
       newMockup = widget.selectedMockUp!;
 
       phoneNumber = PhoneNumber(
-        phoneNumber: widget.selectedMockUp!.phoneNumber.phoneNumber,
-        isoCode: widget.selectedMockUp!.phoneNumber.isoCode,
-        dialCode: widget.selectedMockUp!.phoneNumber.dialCode,
+        phoneNumber: widget.selectedMockUp!.phoneNumber!.phoneNumber,
+        isoCode: widget.selectedMockUp!.phoneNumber!.isoCode,
+        dialCode: widget.selectedMockUp!.phoneNumber!.dialCode,
       );
 
       _checkAssignedWorkers = checkProjectWorkers();
@@ -135,7 +134,7 @@ class _MockupFormState extends State<MockupForm> {
                   borderRadius: BorderRadius.circular(25),
                 ),
                 child: Text(
-                  newMockup.mockupStatus.toUpperCase(),
+                  newMockup.mockupStatus!.toUpperCase(),
                   style: textStyle12,
                   textAlign: TextAlign.center,
                 ),
@@ -146,7 +145,7 @@ class _MockupFormState extends State<MockupForm> {
         backgroundColor: const Color.fromARGB(255, 191, 180, 66),
         actions: [
           !widget.isNewMockup!
-              ? widget.currentUser!.roles.contains('isAdmin')
+              ? widget.currentUser!.roles!.contains('isAdmin')
                   ? TextButton(
                       style: TextButton.styleFrom(
                           backgroundColor: !_editContent
@@ -267,7 +266,7 @@ class _MockupFormState extends State<MockupForm> {
                             Expanded(
                               flex: 2,
                               child: Text(
-                                widget.selectedMockUp!.mockupName,
+                                widget.selectedMockUp!.mockupName!,
                                 style: textStyle3,
                               ),
                             )
@@ -317,7 +316,7 @@ class _MockupFormState extends State<MockupForm> {
                             Expanded(
                               flex: 2,
                               child: Text(
-                                widget.selectedMockUp!.mockupDetails,
+                                widget.selectedMockUp!.mockupDetails!,
                                 style: textStyle3,
                               ),
                             )
@@ -368,7 +367,7 @@ class _MockupFormState extends State<MockupForm> {
                             Expanded(
                               flex: 2,
                               child: Text(
-                                widget.selectedMockUp!.contactorCompany,
+                                widget.selectedMockUp!.contactorCompany!,
                                 style: textStyle3,
                               ),
                             )
@@ -418,7 +417,7 @@ class _MockupFormState extends State<MockupForm> {
                             Expanded(
                               flex: 2,
                               child: Text(
-                                widget.selectedMockUp!.contactPerson,
+                                widget.selectedMockUp!.contactPerson!,
                                 style: textStyle3,
                               ),
                             )
@@ -513,7 +512,7 @@ class _MockupFormState extends State<MockupForm> {
                             Expanded(
                               flex: 2,
                               child: Text(
-                                widget.selectedMockUp!.emailAddress,
+                                widget.selectedMockUp!.emailAddress!,
                                 style: textStyle3,
                               ),
                             )
@@ -542,10 +541,10 @@ class _MockupFormState extends State<MockupForm> {
                               if (Platform.isIOS) {
                                 //will start google navigation for the current project location
                                 _httpNavigation.context = context;
-                                _httpNavigation.lat =
-                                    widget.selectedMockUp!.mockupAddress['Lat'];
-                                _httpNavigation.lng =
-                                    widget.selectedMockUp!.mockupAddress['Lng'];
+                                _httpNavigation.lat = widget
+                                    .selectedMockUp!.mockupAddress!['Lat'];
+                                _httpNavigation.lng = widget
+                                    .selectedMockUp!.mockupAddress!['Lng'];
                                 _httpNavigation.startNaviagtionGoogleMap();
                               } else {
                                 await Navigator.push(
@@ -553,16 +552,16 @@ class _MockupFormState extends State<MockupForm> {
                                     MaterialPageRoute(
                                         builder: (_) => GoogleMapNavigation(
                                               lat: widget.selectedMockUp!
-                                                  .mockupAddress['Lat'],
+                                                  .mockupAddress!['Lat'],
                                               lng: widget.selectedMockUp!
-                                                  .mockupAddress['Lng'],
+                                                  .mockupAddress!['Lng'],
                                               navigate: true,
                                             )));
                               }
                             },
                             child: Text(
                               widget
-                                  .selectedMockUp!.mockupAddress['addressName']
+                                  .selectedMockUp!.mockupAddress!['addressName']
                                   .toString(),
                               style: textStyle3,
                             ),
@@ -575,10 +574,10 @@ class _MockupFormState extends State<MockupForm> {
                     ),
                     //User check in and Check out
                     //will allow the worker to check in the project they just arrived to
-                    widget.currentUser!.roles.contains('isNormalUser') ||
-                            widget.currentUser!.roles
+                    widget.currentUser!.roles!.contains('isNormalUser') ||
+                            widget.currentUser!.roles!
                                 .contains('isSiteEngineer') ||
-                            widget.currentUser!.roles.contains('isSupervisor')
+                            widget.currentUser!.roles!.contains('isSupervisor')
                         ? FutureBuilder(
                             future: checkCurrentUserStatus(),
                             builder: (context, snapshot) {
@@ -681,7 +680,7 @@ class _MockupFormState extends State<MockupForm> {
                         : const SizedBox.shrink(),
                     //Assigning users to mockup
                     //this feature is only available for admin users
-                    widget.currentUser!.roles.contains('isAdmin')
+                    widget.currentUser!.roles!.contains('isAdmin')
                         ? !_editContent
                             ? Container(
                                 alignment: AlignmentDirectional.centerStart,
@@ -721,7 +720,7 @@ class _MockupFormState extends State<MockupForm> {
                                           .map<Widget>(
                                             (item) => Center(
                                               child: Text(
-                                                '${item.firstName} ${item.lastName} - ${item.roles.first}',
+                                                '${item.firstName} ${item.lastName} - ${item.roles!.first}',
                                                 style: textStyle5,
                                               ),
                                             ),
@@ -737,7 +736,7 @@ class _MockupFormState extends State<MockupForm> {
                                               value: item,
                                               child: Center(
                                                   child: Text(
-                                                '${item.firstName} ${item.lastName}- ${item.roles.first}',
+                                                '${item.firstName} ${item.lastName}- ${item.roles!.first}',
                                                 style: textStyle5,
                                               )),
                                             ))
@@ -748,7 +747,7 @@ class _MockupFormState extends State<MockupForm> {
                             : const SizedBox.shrink()
                         : const SizedBox.shrink(),
                     //Feature only available for admin user
-                    widget.currentUser!.roles.contains('isAdmin')
+                    widget.currentUser!.roles!.contains('isAdmin')
                         ? !_editContent
                             ? FutureBuilder(
                                 future: _checkAssignedWorkers,
@@ -797,7 +796,7 @@ class _MockupFormState extends State<MockupForm> {
                                                       setState(() {});
                                                     },
                                                     child: Text(
-                                                      '${addedUsers[index].firstName} ${addedUsers[index].lastName} - ${addedUsers[index].roles.first}',
+                                                      '${addedUsers[index].firstName} ${addedUsers[index].lastName} - ${addedUsers[index].roles!.first}',
                                                       textAlign:
                                                           TextAlign.center,
                                                     ),
@@ -856,7 +855,7 @@ class _MockupFormState extends State<MockupForm> {
                             : const SizedBox.shrink()
                         : const SizedBox.shrink(),
                     //Submit button to update changes or to update workers on mockup
-                    widget.currentUser!.roles.contains('isAdmin')
+                    widget.currentUser!.roles!.contains('isAdmin')
                         ? Center(
                             child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
@@ -889,7 +888,7 @@ class _MockupFormState extends State<MockupForm> {
                                     if (addedUsers.isNotEmpty) {
                                       List<String> userIds = [];
                                       for (var element in addedUsers) {
-                                        userIds.add(element.uid);
+                                        userIds.add(element.uid!);
                                       }
                                       var result =
                                           await db.updateMockupWithWorkers(
@@ -1264,10 +1263,10 @@ class _MockupFormState extends State<MockupForm> {
       var result = _calculate.distanceBetweenTwoPoints(
           myLocation.latitude,
           myLocation.longitude,
-          widget.selectedMockUp!.mockupAddress['Lat'],
-          widget.selectedMockUp!.mockupAddress['Lng']);
+          widget.selectedMockUp!.mockupAddress!['Lat'],
+          widget.selectedMockUp!.mockupAddress!['Lng']);
       //will check if the worker has arrived to the site
-      if (result != null && result * 1000 <= widget.selectedMockUp!.radius) {
+      if (result != null && result * 1000 <= widget.selectedMockUp!.radius!) {
         if (_isAtSite) {
           _snackBarWidget.content =
               'Have a great day, you have checked out.\nTime: $dateFormat\n';
@@ -1286,7 +1285,7 @@ class _MockupFormState extends State<MockupForm> {
       } else {
         dt = DateTime(1979);
         _snackBarWidget.content =
-            'You have ${((result * 1000) - widget.selectedMockUp!.radius).round()} meters to arrive to your destination.';
+            'You have ${((result * 1000) - widget.selectedMockUp!.radius!).round()} meters to arrive to your destination.';
         _snackBarWidget.showSnack();
       }
 
@@ -1312,7 +1311,7 @@ class _MockupFormState extends State<MockupForm> {
         //check if field is available
         var todayTimeSheet = data.data;
         //Code will execute for isNormalUser only when trying to check out
-        if (!_isAtSite && widget.currentUser!.roles.contains('isNormalUser')) {
+        if (!_isAtSite && widget.currentUser!.roles!.contains('isNormalUser')) {
           await Navigator.push(
             context,
             MaterialPageRoute(
@@ -1334,7 +1333,7 @@ class _MockupFormState extends State<MockupForm> {
                 timeSheetUpdated = await db.updateWorkerTimeSheet(
                     isAtSite: _isAtSite,
                     currentUser: widget.currentUser!,
-                    userRole: widget.currentUser!.roles.first,
+                    userRole: widget.currentUser!.roles!.first,
                     selectedMockup: widget.selectedMockUp!,
                     today: '${result.day}-${result.month}-${result.year}',
                     checkOut: todayTimeSheet['data'][widget.currentUser!.uid]
@@ -1345,7 +1344,7 @@ class _MockupFormState extends State<MockupForm> {
                     isAtSite: _isAtSite,
                     currentUser: widget.currentUser!,
                     selectedMockup: widget.selectedMockUp!,
-                    userRole: widget.currentUser!.roles.first,
+                    userRole: widget.currentUser!.roles!.first,
                     today: '${result.day}-${result.month}-${result.year}',
                     checkIn: todayTimeSheet['data'][widget.currentUser!.uid]
                         ['arriving_at'],
@@ -1357,7 +1356,7 @@ class _MockupFormState extends State<MockupForm> {
                 isAtSite: _isAtSite,
                 currentUser: widget.currentUser!,
                 selectedMockup: widget.selectedMockUp!,
-                userRole: widget.currentUser!.roles.first,
+                userRole: widget.currentUser!.roles!.first,
                 today: '${result.day}-${result.month}-${result.year}',
                 checkIn: result.toString(),
               );
@@ -1366,7 +1365,7 @@ class _MockupFormState extends State<MockupForm> {
             //set the data base with the required information
             if (_isAtSite) {
               timeSheetUpdated = await db.setWorkerTimeSheet(
-                  userRole: widget.currentUser!.roles.first,
+                  userRole: widget.currentUser!.roles!.first,
                   isAtSite: _isAtSite,
                   currentUser: widget.currentUser!,
                   selectedMockup: widget.selectedMockUp!,
@@ -1374,7 +1373,7 @@ class _MockupFormState extends State<MockupForm> {
                   checkIn: result.toString());
             } else {
               timeSheetUpdated = await db.setWorkerTimeSheet(
-                  userRole: widget.currentUser!.roles.first,
+                  userRole: widget.currentUser!.roles!.first,
                   isAtSite: _isAtSite,
                   currentUser: widget.currentUser!,
                   selectedMockup: widget.selectedMockUp!,

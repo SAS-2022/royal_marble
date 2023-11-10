@@ -662,7 +662,7 @@ class _ClientFormState extends State<ClientForm> {
                 height: 15,
               ),
               //Delete button will allow you to delete the current client
-              _editContent && widget.currentUser!.roles.contains('isAdmin')
+              _editContent && widget.currentUser!.roles!.contains('isAdmin')
                   ? Center(
                       child: ElevatedButton(
                           style: ElevatedButton.styleFrom(

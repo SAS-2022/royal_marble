@@ -35,7 +35,7 @@ class AuthService {
   //sign in with user name and password
   Future signInWithUserNameandPassword(String? email, String? password) async {
     try {
-      var result = await _auth.signInWithEmailAndPassword(
+      var result = await _auth!.signInWithEmailAndPassword(
           email: email!.trim(), password: password!);
       var user = result.user!.uid;
       if (user != null) {

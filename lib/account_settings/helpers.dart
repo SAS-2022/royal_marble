@@ -103,7 +103,7 @@ class _HelpersPageState extends State<HelpersPage> {
               : const SizedBox.shrink()
         ],
       ),
-      body: widget.currentUser!.roles.contains('isAdmin')
+      body: widget.currentUser!.roles!.contains('isAdmin')
           ? _buildHelperAdminPageBody()
           : _buildHelperNormalPageBody(),
     );
@@ -135,7 +135,7 @@ class _HelpersPageState extends State<HelpersPage> {
                             leading: Text((index + 1).toString()),
                             title: Text(
                                 '${snapshot.data!.firstName} ${snapshot.data!.lastName}'),
-                            subtitle: Text(snapshot.data!.mobileNumber),
+                            subtitle: Text(snapshot.data!.mobileNumber!),
                           );
                         }
                       } else if (snapshot.hasError) {
@@ -232,7 +232,7 @@ class _HelpersPageState extends State<HelpersPage> {
                                                       title: Text(
                                                           '${snapshot.data!.firstName} ${snapshot.data!.lastName}'),
                                                       subtitle: Text(snapshot
-                                                          .data!.mobileNumber),
+                                                          .data!.mobileNumber!),
                                                     ),
                                                   ),
                                                 ),
@@ -298,11 +298,11 @@ class _HelpersPageState extends State<HelpersPage> {
                                             _helperSelected = true;
 
                                             helperFirstName.text =
-                                                selectedHelper!.firstName;
+                                                selectedHelper!.firstName!;
                                             helperLastName.text =
-                                                selectedHelper!.lastName;
+                                                selectedHelper!.lastName!;
                                             helperPhone.text =
-                                                selectedHelper!.mobileNumber;
+                                                selectedHelper!.mobileNumber!;
                                             if (!assignedHelpers.contains(
                                                 selectedHelper!.uid)) {
                                               assignedHelpers
@@ -508,7 +508,8 @@ class _HelpersPageState extends State<HelpersPage> {
                                                                           25))),
                                                       onPressed: () async {
                                                         String helperId =
-                                                            selectedHelper!.uid;
+                                                            selectedHelper!
+                                                                .uid!;
                                                         setState(() {
                                                           selectedHelper = null;
                                                           // _isLoading = true;
@@ -763,10 +764,11 @@ class _HelpersPageState extends State<HelpersPage> {
     if (masons != null && masons.isNotEmpty) {
       //loop over all the mason
       for (UserData mason in masons) {
-        if (mason.assingedHelpers != null && mason.assingedHelpers.isNotEmpty) {
+        if (mason.assingedHelpers != null &&
+            mason.assingedHelpers!.isNotEmpty) {
           //loop over the helpers in each mason
 
-          for (var id in mason.assingedHelpers) {
+          for (var id in mason.assingedHelpers!) {
             if (id == helperId) {
               //remove this helper's id from this mason
               await db.userCollection.doc(mason.uid).update({

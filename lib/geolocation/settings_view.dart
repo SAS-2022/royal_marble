@@ -192,11 +192,11 @@ class _SettingsViewState extends State<SettingsView> {
             foregroundColor: Colors.black,
             leading: IconButton(
                 onPressed: _onClickClose,
-                icon: Icon(Icons.close),
+                icon: const Icon(Icons.close),
                 color: Colors.black),
             title: const Text('Settings'),
             backgroundColor: Theme.of(context).bottomAppBarColor,
-            iconTheme: IconThemeData(color: Colors.black),
+            iconTheme: const IconThemeData(color: Colors.black),
             actions: [
               PopupMenuButton(
                   itemBuilder: (_) => <PopupMenuEntry<String>>[
@@ -370,7 +370,7 @@ class _SettingsViewState extends State<SettingsView> {
     String name = setting['name'].toString();
     bool value = _state!.map[name];
     return InputDecorator(
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
           contentPadding: EdgeInsets.only(top: 0.0, left: 10.0, bottom: 0.0),
           labelStyle: TextStyle(color: Colors.blue),
           //labelText: name
@@ -391,8 +391,8 @@ class _SettingsViewState extends State<SettingsView> {
   }
 
   Widget _buildTextField(Map<String, Object> setting) {
-    String name = setting['name'];
-    String value = _state.map[name];
+    String name = setting['name'].toString();
+    String value = _state!.map[name];
 
     return GestureDetector(
         onTap: () async {
@@ -408,15 +408,16 @@ class _SettingsViewState extends State<SettingsView> {
         child: InputDecorator(
             decoration: InputDecoration(
               contentPadding:
-                  EdgeInsets.only(left: 10.0, top: 10.0, bottom: 20.0),
-              labelStyle: TextStyle(color: Colors.blue, fontSize: 20.0),
+                  const EdgeInsets.only(left: 10.0, top: 10.0, bottom: 20.0),
+              labelStyle: const TextStyle(color: Colors.blue, fontSize: 20.0),
               labelText: name,
             ),
             child: Text(value)));
   }
 
   Text _buildLabel(String label) {
-    return Text(label, style: TextStyle(color: Colors.blue, fontSize: 15.0));
+    return Text(label,
+        style: const TextStyle(color: Colors.blue, fontSize: 15.0));
   }
 
   ///
@@ -424,28 +425,32 @@ class _SettingsViewState extends State<SettingsView> {
   ///
   Widget _buildGeofenceTestPanel() {
     List<DropdownMenuItem<String>> radiusItems = [];
-    radiusItems.add(DropdownMenuItem(child: Text('100 meters'), value: '100'));
-    radiusItems.add(DropdownMenuItem(child: Text('150 meters'), value: '150'));
-    radiusItems.add(DropdownMenuItem(child: Text('200 meters'), value: '200'));
-    radiusItems.add(DropdownMenuItem(child: Text('500 meters'), value: '500'));
     radiusItems
-        .add(DropdownMenuItem(child: Text('1000 meters'), value: '1000'));
+        .add(const DropdownMenuItem(child: Text('100 meters'), value: '100'));
     radiusItems
-        .add(DropdownMenuItem(child: Text('5000 meters'), value: '5000'));
+        .add(const DropdownMenuItem(child: Text('150 meters'), value: '150'));
     radiusItems
-        .add(DropdownMenuItem(child: Text('10000 meters'), value: '10000'));
+        .add(const DropdownMenuItem(child: Text('200 meters'), value: '200'));
+    radiusItems
+        .add(const DropdownMenuItem(child: Text('500 meters'), value: '500'));
+    radiusItems
+        .add(const DropdownMenuItem(child: Text('1000 meters'), value: '1000'));
+    radiusItems
+        .add(const DropdownMenuItem(child: Text('5000 meters'), value: '5000'));
+    radiusItems.add(
+        const DropdownMenuItem(child: Text('10000 meters'), value: '10000'));
 
     List<DropdownMenuItem<String>> loiteringDelayItems = [];
     loiteringDelayItems
-        .add(DropdownMenuItem(child: Text('1000 ms'), value: '1000'));
+        .add(const DropdownMenuItem(child: Text('1000 ms'), value: '1000'));
     loiteringDelayItems
-        .add(DropdownMenuItem(child: Text('5000 ms'), value: '5000'));
+        .add(const DropdownMenuItem(child: Text('5000 ms'), value: '5000'));
     loiteringDelayItems
-        .add(DropdownMenuItem(child: Text('10000 ms'), value: '10000'));
+        .add(const DropdownMenuItem(child: Text('10000 ms'), value: '10000'));
     loiteringDelayItems
-        .add(DropdownMenuItem(child: Text('30000 ms'), value: '30000'));
+        .add(const DropdownMenuItem(child: Text('30000 ms'), value: '30000'));
     loiteringDelayItems
-        .add(DropdownMenuItem(child: Text('60000 ms'), value: '60000'));
+        .add(const DropdownMenuItem(child: Text('60000 ms'), value: '60000'));
 
     return SliverFixedExtentList(
         delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
@@ -456,19 +461,19 @@ class _SettingsViewState extends State<SettingsView> {
                 children: <Widget>[
                   MaterialButton(
                       minWidth: 150.0,
-                      child: Text('Remove Geofences',
+                      child: const Text('Remove Geofences',
                           style: TextStyle(color: Colors.white)),
                       color: Colors.red,
                       onPressed: _onClickRemoveGeofences),
                   MaterialButton(
                       minWidth: 150.0,
-                      child: Text('Add Geofences',
+                      child: const Text('Add Geofences',
                           style: TextStyle(color: Colors.white)),
                       color: Colors.blue,
                       onPressed: _onClickAddGeofences)
                 ]),
             InputDecorator(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   contentPadding:
                       EdgeInsets.only(left: 10.0, top: 10.0, bottom: 5.0),
                   labelStyle: TextStyle(color: Colors.blue, fontSize: 20.0),
@@ -479,13 +484,17 @@ class _SettingsViewState extends State<SettingsView> {
                         isDense: true,
                         value: _radius.toInt().toString(),
                         items: radiusItems,
-                        onChanged: (String value) {
+                        onChanged: (String? value) {
                           setState(() {
-                            _radius = double.parse(value);
+                            if (value != null) {
+                              _radius = double.parse(value);
+                            } else {
+                              _radius = 0;
+                            }
                           });
                         }))),
             InputDecorator(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   contentPadding:
                       EdgeInsets.only(top: 0.0, left: 10.0, bottom: 0.0),
                   labelStyle: TextStyle(color: Colors.blue),
@@ -509,7 +518,7 @@ class _SettingsViewState extends State<SettingsView> {
                           ]))
                 ])),
             InputDecorator(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   contentPadding:
                       EdgeInsets.only(top: 0.0, left: 10.0, bottom: 0.0),
                   labelStyle: TextStyle(color: Colors.blue),
@@ -533,7 +542,7 @@ class _SettingsViewState extends State<SettingsView> {
                           ]))
                 ])),
             InputDecorator(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   contentPadding:
                       EdgeInsets.only(top: 0.0, left: 10.0, bottom: 0.0),
                   labelStyle: TextStyle(color: Colors.blue),
@@ -557,7 +566,7 @@ class _SettingsViewState extends State<SettingsView> {
                           ]))
                 ])),
             InputDecorator(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   contentPadding:
                       EdgeInsets.only(left: 10.0, top: 10.0, bottom: 5.0),
                   labelStyle: TextStyle(color: Colors.blue, fontSize: 20.0),
@@ -568,9 +577,13 @@ class _SettingsViewState extends State<SettingsView> {
                         isDense: true,
                         value: _loiteringDelay.toString(),
                         items: loiteringDelayItems,
-                        onChanged: (String value) {
+                        onChanged: (String? value) {
                           setState(() {
-                            _loiteringDelay = int.parse(value);
+                            if (value != null) {
+                              _loiteringDelay = int.parse(value);
+                            } else {
+                              _loiteringDelay = 0;
+                            }
                           });
                         }))),
           ]));
@@ -578,9 +591,9 @@ class _SettingsViewState extends State<SettingsView> {
         itemExtent: 330.0);
   }
 
-  Function(String) _createSelectChangeHandler(Map<String, Object> setting) {
-    String type = setting['dataType'];
-    String name = setting['name'];
+  Function(String?) _createSelectChangeHandler(Map<String, Object> setting) {
+    String type = setting['dataType'].toString();
+    String name = setting['name'].toString();
     switch (name) {
       case 'trackingMode':
         dynamic onSuccess = (bg.State state) {
@@ -591,8 +604,8 @@ class _SettingsViewState extends State<SettingsView> {
         dynamic onFailure = (error) {
           print('[Error] failed to start the plugin: $error');
         };
-        return (String value) {
-          int trackingMode = int.parse(value);
+        return (String? value) {
+          int trackingMode = int.parse(value!);
           if (trackingMode == 1) {
             bg.BackgroundGeolocation.start()
                 .then(onSuccess)
@@ -603,14 +616,13 @@ class _SettingsViewState extends State<SettingsView> {
                 .catchError(onFailure);
           }
         };
-        break;
       default:
-        return (String value) {
+        return (String? value) {
           bg.Config config = bg.Config();
-          print("select value: $name: $value");
+
           switch (type) {
             case 'integer':
-              config.set(name, int.parse(value));
+              config.set(name, int.parse(value!));
               break;
             default:
               config.set(name, value);

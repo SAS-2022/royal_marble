@@ -133,7 +133,7 @@ class _UserListState extends State<UserList> {
                                                                 NetworkImage(
                                                               nonActiveUser[
                                                                       index]
-                                                                  .imageUrl,
+                                                                  .imageUrl!,
                                                               scale: 2,
                                                             )),
                                                     title: Text(
@@ -246,7 +246,7 @@ class _UserListState extends State<UserList> {
                                                       backgroundImage:
                                                           NetworkImage(
                                                         _searchResult![index]
-                                                            .imageUrl,
+                                                            .imageUrl!,
                                                         scale: 2,
                                                       )),
                                               title: Text(

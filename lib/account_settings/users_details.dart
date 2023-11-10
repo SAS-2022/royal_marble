@@ -65,15 +65,15 @@ class _UserDetailsState extends State<UserDetails> {
       newUserData.homeAddress = widget.currentUser!.homeAddress;
       newUserData.imageUrl = widget.currentUser!.imageUrl;
       if (newUserData.homeAddress != null) {
-        _myLocation = newUserData.homeAddress;
+        _myLocation = newUserData.homeAddress!;
       }
     }
 
     //show the current user role
     if (widget.selectedUser != null &&
         widget.selectedUser!.roles != null &&
-        widget.selectedUser!.roles.isNotEmpty) {
-      switch (widget.selectedUser!.roles.first.toString()) {
+        widget.selectedUser!.roles!.isNotEmpty) {
+      switch (widget.selectedUser!.roles!.first.toString()) {
         case 'isNormalUser':
           selectedRoles = 'Mason';
           break;
@@ -103,7 +103,7 @@ class _UserDetailsState extends State<UserDetails> {
         actions: [
           //Button to add helpers
           widget.selectedUser != null &&
-                  widget.selectedUser!.roles.contains('isNormalUser')
+                  widget.selectedUser!.roles!.contains('isNormalUser')
               ? Padding(
                   padding: const EdgeInsets.only(right: 12),
                   child: TextButton(
@@ -126,7 +126,7 @@ class _UserDetailsState extends State<UserDetails> {
               : const SizedBox.shrink(),
           //in case the current user is a mson in order to view his helpers
           widget.myAccount! &&
-                  widget.currentUser!.roles.contains('isNormalUser')
+                  widget.currentUser!.roles!.contains('isNormalUser')
               ? Padding(
                   padding: const EdgeInsets.only(right: 12),
                   child: TextButton(
@@ -229,7 +229,7 @@ class _UserDetailsState extends State<UserDetails> {
                       )
                     : CircleAvatar(
                         backgroundImage: NetworkImage(
-                        widget.selectedUser!.imageUrl,
+                        widget.selectedUser!.imageUrl!,
                         scale: 2,
                       )),
               ),
@@ -255,7 +255,7 @@ class _UserDetailsState extends State<UserDetails> {
                     Expanded(
                       flex: 3,
                       child: Text(
-                        widget.selectedUser!.firstName,
+                        widget.selectedUser!.firstName!,
                         style: textStyle12,
                       ),
                     )
@@ -276,7 +276,7 @@ class _UserDetailsState extends State<UserDetails> {
                     Expanded(
                       flex: 3,
                       child: Text(
-                        widget.selectedUser!.lastName,
+                        widget.selectedUser!.lastName!,
                         style: textStyle12,
                       ),
                     )
@@ -297,7 +297,7 @@ class _UserDetailsState extends State<UserDetails> {
                     Expanded(
                       flex: 3,
                       child: Text(
-                        widget.selectedUser!.phoneNumber,
+                        widget.selectedUser!.phoneNumber!,
                         style: textStyle12,
                       ),
                     )
@@ -318,7 +318,7 @@ class _UserDetailsState extends State<UserDetails> {
                     Expanded(
                       flex: 3,
                       child: Text(
-                        widget.selectedUser!.emailAddress,
+                        widget.selectedUser!.emailAddress!,
                         style: textStyle12,
                       ),
                     )
@@ -338,7 +338,7 @@ class _UserDetailsState extends State<UserDetails> {
                     ),
                     Expanded(
                       child: Text(
-                        widget.selectedUser!.nationality['countryName'],
+                        widget.selectedUser!.nationality!['countryName'],
                         style: textStyle12,
                       ),
                     )
@@ -359,7 +359,7 @@ class _UserDetailsState extends State<UserDetails> {
                     Expanded(
                       flex: 3,
                       child: Text(
-                        widget.selectedUser!.company,
+                        widget.selectedUser!.company!,
                         style: textStyle12,
                       ),
                     )
@@ -402,7 +402,7 @@ class _UserDetailsState extends State<UserDetails> {
                         },
                         child: Text(
                           widget.selectedUser!.homeAddress != null
-                              ? widget.selectedUser!.homeAddress['addressName']
+                              ? widget.selectedUser!.homeAddress!['addressName']
                               : 'Address not found',
                           style: textStyle12,
                         ),
@@ -551,7 +551,7 @@ class _UserDetailsState extends State<UserDetails> {
               ),
               ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: widget.selectedUser!.isActive
+                      backgroundColor: widget.selectedUser!.isActive!
                           ? Colors.red[400]
                           : Colors.green[400],
                       fixedSize: Size(_size!.width / 2, 45),
@@ -560,7 +560,7 @@ class _UserDetailsState extends State<UserDetails> {
                   onPressed: () async {
                     var result = await db.activateDeactivateUser(
                         uid: widget.selectedUser!.uid,
-                        active: !widget.selectedUser!.isActive);
+                        active: !widget.selectedUser!.isActive!);
                     if (result == 'Completed') {
                       Navigator.pop(context);
                     } else {
@@ -569,7 +569,7 @@ class _UserDetailsState extends State<UserDetails> {
                       _snackBarWidget.showSnack();
                     }
                   },
-                  child: widget.selectedUser!.isActive
+                  child: widget.selectedUser!.isActive!
                       ? const Text(
                           'Deactivate',
                           style: textStyle2,
@@ -596,13 +596,13 @@ class _UserDetailsState extends State<UserDetails> {
               ),
               ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: widget.selectedUser!.isActive
+                      backgroundColor: widget.selectedUser!.isActive!
                           ? Colors.grey[300]
                           : Colors.red[400],
                       fixedSize: Size(_size!.width / 2, 45),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25))),
-                  onPressed: widget.selectedUser!.isActive
+                  onPressed: widget.selectedUser!.isActive!
                       ? null
                       : () async {
                           //will delete the selected user
@@ -663,7 +663,7 @@ class _UserDetailsState extends State<UserDetails> {
                                     ))
                                   : CircleAvatar(
                                       backgroundImage: NetworkImage(
-                                      newUserData.imageUrl,
+                                      newUserData.imageUrl!,
                                       scale: 2,
                                     )),
                     ),
@@ -822,7 +822,7 @@ class _UserDetailsState extends State<UserDetails> {
                   Expanded(
                     flex: 2,
                     child: Text(
-                      widget.currentUser!.emailAddress,
+                      widget.currentUser!.emailAddress!,
                       style: textStyle3,
                     ),
                   )
@@ -956,7 +956,7 @@ class _UserDetailsState extends State<UserDetails> {
               Center(
                 child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: widget.currentUser!.isActive
+                        backgroundColor: widget.currentUser!.isActive!
                             ? Colors.red[400]
                             : Colors.green[400],
                         fixedSize: Size(_size!.width / 2, 45),

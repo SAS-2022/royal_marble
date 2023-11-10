@@ -7,20 +7,20 @@ import 'package:royal_marble/shared/constants.dart';
 import 'package:intl/intl.dart';
 
 class VisitList extends StatefulWidget {
-  const VisitList({Key key, this.currentUser, this.selectedUser})
+  const VisitList({Key? key, this.currentUser, this.selectedUser})
       : super(key: key);
-  final UserData currentUser;
-  final UserData selectedUser;
+  final UserData? currentUser;
+  final UserData? selectedUser;
 
   @override
   State<VisitList> createState() => _VisitListState();
 }
 
 class _VisitListState extends State<VisitList> with TickerProviderStateMixin {
-  List<ClientVisitDetails> visitProviderClients;
-  List<ProjectVisitDetails> visitProviderProjects;
-  TabController _tabController;
-  Size size;
+  List<ClientVisitDetails>? visitProviderClients;
+  List<ProjectVisitDetails>? visitProviderProjects;
+  TabController? _tabController;
+  Size? size;
 
   @override
   void initState() {
@@ -51,13 +51,13 @@ class _VisitListState extends State<VisitList> with TickerProviderStateMixin {
       ),
       body: TabBarView(controller: _tabController, children: [
         SizedBox(
-          height: size.height - 10,
-          width: size.width - 10,
-          child: visitProviderClients.isEmpty
-              ? Column(
+          height: size!.height - 10,
+          width: size!.width - 10,
+          child: visitProviderClients!.isEmpty
+              ? const Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  children: const [
+                  children: [
                     Text(
                       'No visits for selected dates!',
                       style: textStyle3,
@@ -65,13 +65,13 @@ class _VisitListState extends State<VisitList> with TickerProviderStateMixin {
                   ],
                 )
               : SizedBox(
-                  height: size.height - 10,
+                  height: size!.height - 10,
                   child: ListView.builder(
                       scrollDirection: Axis.vertical,
-                      itemCount: visitProviderClients.length,
+                      itemCount: visitProviderClients!.length,
                       itemBuilder: (context, index) {
-                        if (visitProviderClients[index] != null) {
-                          var date = visitProviderClients[index]
+                        if (visitProviderClients![index] != null) {
+                          var date = visitProviderClients![index]
                               .visitTime
                               .toDate()
                               .toString()
@@ -85,14 +85,14 @@ class _VisitListState extends State<VisitList> with TickerProviderStateMixin {
                                 builder: (_) => VisitDetailsClass(
                                   currentUser: widget.currentUser,
                                   selectedUser: widget.selectedUser,
-                                  currentVisit: visitProviderClients[index],
+                                  currentVisit: visitProviderClients![index],
                                   visitType: 'Client',
                                 ),
                               ),
                             ),
                             child: SizedBox(
-                              height: size.height / 4,
-                              width: size.width - 30,
+                              height: size!.height / 4,
+                              width: size!.width - 30,
                               child: Padding(
                                 padding: const EdgeInsets.all(15.0),
                                 child: Card(
@@ -109,7 +109,7 @@ class _VisitListState extends State<VisitList> with TickerProviderStateMixin {
                                         Center(
                                           child: Text(
                                             DateFormat('EEEE').format(
-                                                visitProviderClients[index]
+                                                visitProviderClients![index]
                                                     .visitTime
                                                     .toDate()),
                                             style: textStyle7,
@@ -119,15 +119,15 @@ class _VisitListState extends State<VisitList> with TickerProviderStateMixin {
                                           thickness: 1,
                                         ),
                                         Text(
-                                          'Client Name: ${visitProviderClients[index].clientName}',
+                                          'Client Name: ${visitProviderClients![index].clientName}',
                                           style: textStyle5,
                                         ),
                                         Text(
-                                          'Visit Purpose: ${visitProviderClients[index].visitPurpose}',
+                                          'Visit Purpose: ${visitProviderClients![index].visitPurpose}',
                                           style: textStyle5,
                                         ),
                                         Text(
-                                          'Visit Details: ${visitProviderClients[index].visitDetails.length > 50 ? visitProviderClients[index].visitDetails.substring(0, 50) : visitProviderClients[index].visitDetails}',
+                                          'Visit Details: ${visitProviderClients![index].visitDetails!.length > 50 ? visitProviderClients![index].visitDetails!.substring(0, 50) : visitProviderClients![index].visitDetails}',
                                           style: textStyle5,
                                           softWrap: true,
                                         ),
@@ -155,13 +155,13 @@ class _VisitListState extends State<VisitList> with TickerProviderStateMixin {
         //Build the project tab
         SingleChildScrollView(
           child: SizedBox(
-            height: size.height - 10,
-            width: size.width - 10,
-            child: visitProviderClients.isEmpty
-                ? Column(
+            height: size!.height - 10,
+            width: size!.width - 10,
+            child: visitProviderClients!.isEmpty
+                ? const Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    children: const [
+                    children: [
                       Text(
                         'No visits for selected dates!',
                         style: textStyle3,
@@ -169,14 +169,14 @@ class _VisitListState extends State<VisitList> with TickerProviderStateMixin {
                     ],
                   )
                 : SizedBox(
-                    height: size.height - 10,
-                    width: size.width - 10,
+                    height: size!.height - 10,
+                    width: size!.width - 10,
                     child: ListView.builder(
                         scrollDirection: Axis.vertical,
-                        itemCount: visitProviderProjects.length,
+                        itemCount: visitProviderProjects!.length,
                         itemBuilder: (context, index) {
-                          if (visitProviderClients[index] != null) {
-                            var date = visitProviderClients[index]
+                          if (visitProviderClients![index] != null) {
+                            var date = visitProviderClients![index]
                                 .visitTime
                                 .toDate()
                                 .toString()
@@ -190,14 +190,14 @@ class _VisitListState extends State<VisitList> with TickerProviderStateMixin {
                                   builder: (_) => VisitDetailsClass(
                                     currentUser: widget.currentUser,
                                     selectedUser: widget.selectedUser,
-                                    projectVisit: visitProviderProjects[index],
+                                    projectVisit: visitProviderProjects![index],
                                     visitType: 'Project',
                                   ),
                                 ),
                               ),
                               child: SizedBox(
-                                height: size.height / 4,
-                                width: size.width - 30,
+                                height: size!.height / 4,
+                                width: size!.width - 30,
                                 child: Padding(
                                   padding: const EdgeInsets.all(15.0),
                                   child: Card(
@@ -214,7 +214,7 @@ class _VisitListState extends State<VisitList> with TickerProviderStateMixin {
                                           Center(
                                             child: Text(
                                               DateFormat('EEEE').format(
-                                                  visitProviderClients[index]
+                                                  visitProviderClients![index]
                                                       .visitTime
                                                       .toDate()),
                                               style: textStyle7,
@@ -224,15 +224,15 @@ class _VisitListState extends State<VisitList> with TickerProviderStateMixin {
                                             thickness: 1,
                                           ),
                                           Text(
-                                            'Project Name: ${visitProviderClients[index].clientName}',
+                                            'Project Name: ${visitProviderClients![index].clientName}',
                                             style: textStyle5,
                                           ),
                                           Text(
-                                            'Visit Purpose: ${visitProviderClients[index].visitPurpose}',
+                                            'Visit Purpose: ${visitProviderClients![index].visitPurpose}',
                                             style: textStyle5,
                                           ),
                                           Text(
-                                            'Visit Details: ${visitProviderClients[index].visitDetails}',
+                                            'Visit Details: ${visitProviderClients![index].visitDetails}',
                                             style: textStyle5,
                                             softWrap: true,
                                           ),

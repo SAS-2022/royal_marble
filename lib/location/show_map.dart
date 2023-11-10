@@ -87,8 +87,8 @@ class _ShowMapState extends State<ShowMap> {
     super.initState();
     getSharedPreferences();
 
-    _center = LatLng(widget.currentUser!.homeAddress['Lat'],
-        widget.currentUser!.homeAddress['Lng']);
+    _center = LatLng(widget.currentUser!.homeAddress!['Lat'],
+        widget.currentUser!.homeAddress!['Lng']);
     _getApiKey();
     _getMyCurrentLocation = _determinePosition();
     _identifyMapMarkers();
@@ -136,42 +136,42 @@ class _ShowMapState extends State<ShowMap> {
   //Function will get the client markers assign by each sales depending on their previlage
   Future<Set<Marker>> _getClientMarker() async {
     //listMarkers.clear();
-    if (widget.currentUser!.roles.contains('isAdmin')) {
+    if (widget.currentUser!.roles!.contains('isAdmin')) {
       var currentClients = await db.getClientFuture();
       if (currentClients.isNotEmpty) {
         for (var client in currentClients) {
           clientMarkers.putIfAbsent(
-              client.uid,
+              client.uid!,
               () => Marker(
-                    markerId: MarkerId(client.clientName),
-                    position: LatLng(client.clientAddress['Lat'],
-                        client.clientAddress['Lng']),
+                    markerId: MarkerId(client.clientName!),
+                    position: LatLng(client.clientAddress!['Lat'],
+                        client.clientAddress!['Lng']),
                     icon: BitmapDescriptor.defaultMarkerWithHue(
                         BitmapDescriptor.hueGreen),
                     infoWindow: InfoWindow(
                         title: client.clientName,
-                        snippet: client.phoneNumber.phoneNumber,
+                        snippet: client.phoneNumber!.phoneNumber,
                         onTap: () {}),
                   ));
         }
       }
     }
-    if (widget.currentUser!.roles.contains('isSales')) {
+    if (widget.currentUser!.roles!.contains('isSales')) {
       var currentClients =
           await db.getSalesUserClientFuture(userId: widget.currentUser!.uid);
       if (currentClients.isNotEmpty) {
         for (var client in currentClients) {
           clientMarkers.putIfAbsent(
-              client.uid,
+              client.uid!,
               () => Marker(
-                    markerId: MarkerId(client.clientName),
-                    position: LatLng(client.clientAddress['Lat'],
-                        client.clientAddress['Lng']),
+                    markerId: MarkerId(client.clientName!),
+                    position: LatLng(client.clientAddress!['Lat'],
+                        client.clientAddress!['Lng']),
                     icon: BitmapDescriptor.defaultMarkerWithHue(
                         BitmapDescriptor.hueGreen),
                     infoWindow: InfoWindow(
                         title: client.clientName,
-                        snippet: client.phoneNumber.phoneNumber,
+                        snippet: client.phoneNumber!.phoneNumber,
                         onTap: () {}),
                   ));
         }
@@ -272,7 +272,7 @@ class _ShowMapState extends State<ShowMap> {
                             if (projectData != null &&
                                 projectData.uid != null) {
                               if (projectData.assignedWorkers != null &&
-                                  projectData.assignedWorkers.isNotEmpty) {
+                                  projectData.assignedWorkers!.isNotEmpty) {
                                 _snackBarWidget.content =
                                     'Please remove workers before deletion';
                                 _snackBarWidget.showSnack();
@@ -286,7 +286,7 @@ class _ShowMapState extends State<ShowMap> {
                             //will check if we are deleting a project or a mockup
                             if (mockupData != null && mockupData.uid != null) {
                               if (mockupData.assignedWorkers != null &&
-                                  mockupData.assignedWorkers.isNotEmpty) {
+                                  mockupData.assignedWorkers!.isNotEmpty) {
                                 _snackBarWidget.content =
                                     'Please remove workers before deletion';
                                 _snackBarWidget.showSnack();
@@ -970,9 +970,9 @@ class _ShowMapState extends State<ShowMap> {
                                     setState(() {
                                       _center = LatLng(
                                           clientProvider![index]
-                                              .clientAddress['Lat'],
+                                              .clientAddress!['Lat'],
                                           clientProvider![index]
-                                              .clientAddress['Lng']);
+                                              .clientAddress!['Lng']);
                                     });
                                     _mapController!.animateCamera(
                                         CameraUpdate.newCameraPosition(
@@ -990,7 +990,7 @@ class _ShowMapState extends State<ShowMap> {
                                         borderRadius:
                                             BorderRadius.circular(15)),
                                     child: Text(
-                                      clientProvider![index].clientName,
+                                      clientProvider![index].clientName!,
                                       textAlign: TextAlign.center,
                                       style: textStyle13,
                                     ),

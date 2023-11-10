@@ -89,14 +89,14 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key key}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        StreamProvider<UserData>.value(
+        StreamProvider<UserData?>.value(
             value: AuthService().user,
             initialData: UserData(),
             catchError: (context, err) => UserData(error: err.toString())),
@@ -112,7 +112,7 @@ class MyApp extends StatelessWidget {
 }
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key key}) : super(key: key);
+  const SplashScreen({Key? key}) : super(key: key);
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -121,11 +121,11 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   //Device info generator
   final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
-  String identifier;
-  Size _size;
-  bool _changeLogo = true;
-  Timer _logoTimer;
-  Timer _screenTimer;
+  String? identifier;
+  Size? _size;
+  bool? _changeLogo = true;
+  Timer? _logoTimer;
+  Timer? _screenTimer;
 
   @override
   void initState() {
@@ -134,7 +134,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // _getLocationAccess();
     _logoTimer = Timer(const Duration(seconds: 1), () {
       setState(() {
-        _changeLogo = !_changeLogo;
+        _changeLogo = !_changeLogo!;
       });
     });
     _screenTimer = Timer(
@@ -149,8 +149,8 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void dispose() {
     super.dispose();
-    _logoTimer.cancel();
-    _screenTimer.cancel();
+    _logoTimer!.cancel();
+    _screenTimer!.cancel();
   }
 
   //Get device info
@@ -198,9 +198,9 @@ class _SplashScreenState extends State<SplashScreen> {
                 child: Image.asset('assets/images/logo_2.jpg'),
               ),
               Positioned(
-                top: _size.height / 6,
+                top: _size!.height / 6,
                 child: SizedBox(
-                  width: _size.width,
+                  width: _size!.width,
                   child: Center(
                     child: AnimatedTextKit(
                       animatedTexts: [
@@ -215,18 +215,18 @@ class _SplashScreenState extends State<SplashScreen> {
                 ),
               ),
               AnimatedPositioned(
-                  bottom: _changeLogo ? -50 : 50,
+                  bottom: _changeLogo! ? -50 : 50,
                   duration: const Duration(seconds: 1),
                   curve: Curves.fastOutSlowIn,
                   child: Center(
                     child: SizedBox(
-                      height: _size.height / 8,
-                      width: _size.width,
+                      height: _size!.height / 8,
+                      width: _size!.width,
                       child: TextLiquidFill(
                         textAlign: TextAlign.center,
                         waveDuration: const Duration(seconds: 4),
                         loadUntil: 0.9,
-                        boxWidth: _size.width,
+                        boxWidth: _size!.width,
                         text: 'Welcome To Royal Marble',
                         waveColor: const Color.fromARGB(255, 191, 180, 66),
                         boxBackgroundColor: Colors.black,

@@ -20,7 +20,7 @@ class _ClientGridState extends State<ClientGrid> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        widget.currentUser!.roles.contains('isAdmin')
+        widget.currentUser!.roles!.contains('isAdmin')
             ? StreamProvider<List<ClientData>>.value(
                 value: db.getAllClients(),
                 initialData: const [],

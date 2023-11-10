@@ -7,33 +7,33 @@ import 'package:royal_marble/services/database.dart';
 
 class VisitsGrid extends StatelessWidget {
   const VisitsGrid(
-      {Key key,
+      {Key? key,
       this.currentUser,
       this.fromDate,
       this.toDate,
       this.selectedUser})
       : super(key: key);
-  final UserData currentUser;
-  final UserData selectedUser;
-  final DateTime fromDate;
-  final DateTime toDate;
+  final UserData? currentUser;
+  final UserData? selectedUser;
+  final DateTime? fromDate;
+  final DateTime? toDate;
 
   @override
   Widget build(BuildContext context) {
     DatabaseService db = DatabaseService();
     return MultiProvider(
       providers: [
-        StreamProvider<List<ClientVisitDetails>>.value(
+        StreamProvider<List<ClientVisitDetails?>>.value(
           value: db.getSalesVisitDetailsStream(
-              userId: selectedUser.uid, fromDate: fromDate, toDate: toDate),
+              userId: selectedUser!.uid, fromDate: fromDate, toDate: toDate),
           initialData: const [],
           catchError: (context, error) {
             return [];
           },
         ),
-        StreamProvider<List<ProjectVisitDetails>>.value(
+        StreamProvider<List<ProjectVisitDetails?>>.value(
           value: db.getSalesVisitDetailsStreamProjects(
-              userId: selectedUser.uid, fromDate: fromDate, toDate: toDate),
+              userId: selectedUser!.uid, fromDate: fromDate, toDate: toDate),
           initialData: const [],
           catchError: (context, error) {
             return [];
