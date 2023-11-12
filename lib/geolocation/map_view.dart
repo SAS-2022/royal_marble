@@ -151,7 +151,7 @@ class MapViewState extends State<MapView>
     // 2.  A CircleMarker for the actual location of the geofence event.
     // 3.  A black PolyLine joining the two above.
     bg.Location location = event.location;
-    LatLng center = LatLng(geofence.latitude, geofence.longitude);
+    LatLng center = LatLng(geofence.latitude!, geofence.longitude!);
     LatLng hit = LatLng(location.coords.latitude, location.coords.longitude);
 
     // Update current position marker.
@@ -160,7 +160,7 @@ class MapViewState extends State<MapView>
     double bearing = Geospatial.getBearing(center, hit);
     // Compute a coordinate at the intersection of the line joining center point -> event location and the circle.
     LatLng edge =
-        Geospatial.computeOffsetCoordinate(center, geofence.radius, bearing);
+        Geospatial.computeOffsetCoordinate(center, geofence.radius!, bearing);
     // Green for ENTER, Red for EXIT.
     Color color = Colors.green;
     if (event.action == "EXIT") {
@@ -340,11 +340,11 @@ class GeofenceMarker extends CircleMarker {
   GeofenceMarker(bg.Geofence geofence, [bool triggered = false])
       : super(
             useRadiusInMeter: true,
-            radius: geofence.radius,
+            radius: geofence.radius!,
             color: (triggered)
                 ? Colors.black26.withOpacity(0.2)
                 : Colors.green.withOpacity(0.3),
-            point: LatLng(geofence.latitude, geofence.longitude)) {
+            point: LatLng(geofence.latitude!, geofence.longitude!)) {
     this.geofence = geofence;
   }
 }

@@ -133,23 +133,23 @@ class _ProjectFormState extends State<ProjectForm> {
     return Scaffold(
       appBar: AppBar(
         title: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Text('Project Form'),
             //Project status
             Padding(
-              padding: const EdgeInsets.only(left: 15),
+              padding: const EdgeInsets.only(left: 5),
               child: Container(
-                padding: const EdgeInsets.all(4),
-                width: _size!.width / 3.5,
+                padding: const EdgeInsets.all(2),
+                width: _size!.width / 5,
                 decoration: BoxDecoration(
                   color: _statusColor,
                   borderRadius: BorderRadius.circular(25),
                 ),
                 child: Text(
                   newProject.projectStatus!.toUpperCase(),
-                  style: textStyle12,
+                  style: textStyle12.copyWith(fontSize: 12),
                   textAlign: TextAlign.center,
                 ),
               ),

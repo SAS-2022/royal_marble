@@ -1,4 +1,4 @@
-package com.royalmarble.royal_marble
+package com.royalmarble.tracking
 
 import io.flutter.embedding.android.FlutterActivity
 

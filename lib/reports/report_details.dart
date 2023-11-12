@@ -260,6 +260,7 @@ class _ReportDetailsState extends State<ReportDetails> {
                                                             255, 216, 133, 33)),
                                             headingRowHeight: 28.0,
                                             dataRowMaxHeight: 20.0,
+                                            dataRowMinHeight: 10.0,
                                             dataRowColor: MaterialStateProperty
                                                 .resolveWith((states) =>
                                                     const Color.fromARGB(
@@ -403,7 +404,6 @@ class _ReportDetailsState extends State<ReportDetails> {
       dateBasedData.add(data);
       mapAllData.addAll({currentDate: dateBasedData});
     }
-    debugPrint('All Data: $mapAllData');
   }
 
   //build sales report details

@@ -291,7 +291,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    userProvider = Provider.of<UserData>(context);
+    userProvider = Provider.of<UserData?>(context);
     allUsers = Provider.of<List<UserData>>(context);
     allProjectProvider = Provider.of<List<ProjectData>>(context);
     allMockupProvider = Provider.of<List<MockupData>>(context);

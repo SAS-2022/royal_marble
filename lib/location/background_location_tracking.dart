@@ -189,9 +189,7 @@ class _LiveViewState extends State<LiveView>
     if (mounted) {
       setState(() {
         events.insert(
-            0,
-            Event(
-                bg.Event.LOCATION, location, location.toString(compact: true)));
+            0, Event(bg.Event.LOCATION, location, location.toString()));
         _odometer = (location.odometer / 1000.0).toStringAsFixed(1);
       });
     }
@@ -212,9 +210,7 @@ class _LiveViewState extends State<LiveView>
     if (mounted) {
       setState(() {
         events.insert(
-            0,
-            Event(bg.Event.MOTIONCHANGE, location,
-                location.toString(compact: true)));
+            0, Event(bg.Event.MOTIONCHANGE, location, location.toString()));
         _isMoving = location.isMoving;
       });
     }
@@ -240,8 +236,7 @@ class _LiveViewState extends State<LiveView>
     });
     if (mounted) {
       setState(() {
-        events.insert(
-            0, Event(bg.Event.GEOFENCE, event, event.toString(compact: false)));
+        events.insert(0, Event(bg.Event.GEOFENCE, event, event.toString()));
       });
     }
   }

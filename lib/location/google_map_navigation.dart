@@ -298,7 +298,9 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
           altitude: 0,
           heading: 0,
           speed: 0,
-          speedAccuracy: 0);
+          speedAccuracy: 0,
+          altitudeAccuracy: 0,
+          headingAccuracy: 0);
     }).whenComplete(() => print('Location determining has been completed'));
 
     //currentLocation = Position(latitude: widget.lat, longitude: widget.lng);

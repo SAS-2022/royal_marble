@@ -30,14 +30,14 @@ class _WrapperState extends State<Wrapper> {
 
   @override
   Widget build(BuildContext context) {
-    var userData = Provider.of<UserData>(context);
+    var userData = Provider.of<UserData?>(context);
     if (userData == null || userData.uid == null) {
       return const SignInScreen();
     } else {
       return MultiProvider(
         providers: [
           //a provider to show current user
-          StreamProvider<UserData>.value(
+          StreamProvider<UserData?>.value(
             value: db.getUserPerId(uid: userData.uid),
             initialData: UserData(),
             catchError: (context, err) {

@@ -48,14 +48,14 @@ class OurImageProvider extends ImageProvider<_OurKey> {
   Future<Uint8List> whiteToAlpha(Uint8List bytes) async {
     final image = decodeImage(bytes);
 
-    final pixels = image!.getBytes(format: Format.rgba);
+    final pixels = image!.getBytes();
     final length = pixels.lengthInBytes;
     for (var i = 0; i < length; i += 4) {
       if (pixels[i] == 255 && pixels[i + 1] == 255 && pixels[i + 2] == 255) {
         pixels[i + 3] = 0;
       }
     }
-    return encodePng(image) as Uint8List;
+    return encodePng(image);
   }
 }
 

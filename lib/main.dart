@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:io';
+//import 'dart:io';
 import 'dart:ui';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:device_info_plus/device_info_plus.dart';
+//import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -120,7 +120,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   //Device info generator
-  final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
+  //final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
   String? identifier;
   Size? _size;
   bool? _changeLogo = true;
@@ -130,7 +130,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _getDeviceInfo();
+    // _getDeviceInfo();
     // _getLocationAccess();
     _logoTimer = Timer(const Duration(seconds: 1), () {
       setState(() {
@@ -154,19 +154,19 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   //Get device info
-  Future _getDeviceInfo() async {
-    try {
-      if (Platform.isAndroid) {
-        var build = await deviceInfoPlugin.androidInfo;
-        identifier = build.id.toString();
-      } else if (Platform.isIOS) {
-        var data = await deviceInfoPlugin.iosInfo;
-        identifier = data.identifierForVendor;
-      }
-    } on PlatformException {
-      return null;
-    }
-  }
+  // Future _getDeviceInfo() async {
+  //   try {
+  //     if (Platform.isAndroid) {
+  //       var build = await deviceInfoPlugin.androidInfo;
+  //       identifier = build.id.toString();
+  //     } else if (Platform.isIOS) {
+  //       var data = await deviceInfoPlugin.iosInfo;
+  //       identifier = data.identifierForVendor;
+  //     }
+  //   } on PlatformException {
+  //     return null;
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
