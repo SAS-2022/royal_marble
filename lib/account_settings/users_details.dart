@@ -515,6 +515,14 @@ class _UserDetailsState extends State<UserDetails> {
                           borderRadius: BorderRadius.circular(25))),
                   onPressed: () async {
                     var result;
+                    if (widget.currentUser!.roles!.contains('isSupervisor')) {
+                      if (selectedRoles != null && selectedRoles == 'Admin') {
+                        _snackBarWidget.content =
+                            'Supervisor cannot assign admin role';
+                        _snackBarWidget.showSnack();
+                        return;
+                      }
+                    }
                     if (selectedRoles != null) {
                       result = await db.assignUserRole(
                           selectedRole: selectedRoles!,

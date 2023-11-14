@@ -63,7 +63,6 @@ void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
 
     case bg.Event.ACTIVITYCHANGE:
       bg.ActivityChangeEvent activity = headlessEvent.event;
-      print('Activity Changed: $activity');
       break;
   }
 }
