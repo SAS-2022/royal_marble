@@ -1,7 +1,7 @@
 name: royal_marble
 description: An app that would track the live location of workers.
 
-version: 4.0.0
+version: 8.0.0
 
 environment:
   sdk: ">=2.19.0<3.1.5"

@@ -1454,8 +1454,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   Expanded(
                                                     flex: 2,
                                                     child: Text(
-                                                      snapshot.data.mockupName
-                                                          .toUpperCase(),
+                                                      snapshot.data
+                                                                  .mockupName !=
+                                                              null
+                                                          ? snapshot
+                                                              .data.mockupName
+                                                              .toUpperCase()
+                                                          : '',
                                                       style: textStyle5,
                                                     ),
                                                   ),
