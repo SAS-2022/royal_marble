@@ -1,7 +1,7 @@
 name: royal_marble
 description: An app that would track the live location of workers.
 
-version: 8.0.0
+version: 9.0.0
 
 environment:
   sdk: ">=2.19.0<3.1.5"
@@ -18,7 +18,6 @@ dependencies:
   firebase_messaging: ^14.7.4
   firebase_database: ^10.3.4
   google_maps_flutter: ^2.5.0
-  #device_info_plus: ^9.0.2
   sentry_flutter: ^7.12.0
   provider: ^6.1.1
   country_picker: ^2.0.20

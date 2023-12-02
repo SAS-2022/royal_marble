@@ -2,26 +2,29 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
 import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_flutter_platform_interface/src/types/marker_updates.dart';
 import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:royal_marble/location/.env.dart';
 import 'package:royal_marble/location/direction_repo.dart';
-import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/mockups/mockup_form.dart';
+import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/projects/project_form.dart';
 import 'package:royal_marble/shared/constants.dart';
 import 'package:royal_marble/shared/snack_bar.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import '../models/directions.dart';
 import '../models/user_model.dart';
 import '../services/database.dart';
 import '../shared/loading.dart';
-import 'package:google_maps_flutter_platform_interface/src/types/marker_updates.dart';
 
 class ShowMap extends StatefulWidget {
   const ShowMap({
@@ -870,7 +873,7 @@ class _ShowMapState extends State<ShowMap> {
                     ]),
               ),
               SizedBox(
-                height: _size!.height - 105,
+                height: _size!.height - 100,
                 child: TabBarView(children: [
                   StatefulBuilder(builder: (context, setState) {
                     return SizedBox(

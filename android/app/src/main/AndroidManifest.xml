@@ -27,6 +27,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <meta-data android:name="google_analytics_adid_collection_enabled" android:value="false" />
         <meta-data android:name="com.transistorsoft.locationmanager.license" android:value="10099eb9ab9f180974796841d001c4978cefc892d9e3254a8ee078acbd8c3b0c" />
         <meta-data android:name="com.transistorsoft.firebaseproxy.license" android:value="fbbfbf11e8271fdc68c7a6cec3c831e32008aeda4a8113b9e709625b3e81fbf0" />
         <!-- Don't delete the meta-data below.

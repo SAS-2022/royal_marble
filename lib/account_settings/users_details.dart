@@ -1010,7 +1010,63 @@ class _UserDetailsState extends State<UserDetails> {
                       'Update',
                       style: textStyle2,
                     )),
-              )
+              ),
+              //Delete account button
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Center(
+                  child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: widget.currentUser!.isActive!
+                              ? const Color.fromARGB(255, 0, 0, 0)
+                              : const Color.fromARGB(255, 147, 145, 142),
+                          fixedSize: Size(_size!.width / 2, 45),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25))),
+                      onPressed: _isUpdating
+                          ? null
+                          : () async {
+                              showDialog(
+                                  context: context,
+                                  builder: (_) {
+                                    return AlertDialog(
+                                      title: const Text('Account Deletion'),
+                                      content: const Text(
+                                          'Are you sure you want to delete your account? but proceeding you will lose all your data and the possibility of Signin again. This step cannot be recovered'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text(
+                                            'Cancel',
+                                            style: textStyle1.copyWith(
+                                                fontSize: 15,
+                                                color: Colors.red),
+                                          ),
+                                        ),
+                                        TextButton(
+                                            onPressed: () async {
+                                              await db.deleteUser(
+                                                uid: widget.currentUser!.uid,
+                                              );
+                                            },
+                                            child: Text(
+                                              'Delete',
+                                              style: textStyle1.copyWith(
+                                                  fontSize: 12,
+                                                  color: Colors.black),
+                                            ))
+                                      ],
+                                    );
+                                  });
+                            },
+                      child: Text(
+                        'Delete Account',
+                        style: textStyle2.copyWith(fontSize: 12),
+                      )),
+                ),
+              ),
             ],
           ),
         ),

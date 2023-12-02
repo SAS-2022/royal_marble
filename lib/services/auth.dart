@@ -135,9 +135,36 @@ class AuthService {
     }
   }
 
-  Future deleteUser(String uid) async {
-    try {} catch (e, stackTrace) {
+  Future<void> reauthenticateAndDelete() async {
+    try {
+      final provider = _auth.currentUser?.providerData.first;
+
+      if (AppleAuthProvider().providerId == provider!.providerId) {
+        await _auth.currentUser!
+            .reauthenticateWithProvider(AppleAuthProvider());
+      } else if (GoogleAuthProvider().providerId == provider.providerId) {
+        await _auth.currentUser!
+            .reauthenticateWithProvider(GoogleAuthProvider());
+      }
+
+      await _auth.currentUser!.delete();
+    } catch (e, stackTrace) {
       await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+    }
+  }
+
+  Future deleteUser(String uid) async {
+    try {
+      await _auth.currentUser!.delete();
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        await reauthenticateAndDelete();
+      } else {
+        return e;
+      }
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return e.toString();
     }
   }
 }
