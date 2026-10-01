@@ -1,15 +1,12 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:royal_marble/auth/forgot_pass.dart';
 import 'package:royal_marble/auth/register.dart';
+import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/services/auth.dart';
-import 'package:royal_marble/shared/loading.dart';
-import 'package:permission_handler/permission_handler.dart' as ph;
-
-import '../shared/constants.dart';
-import '../wrapper.dart';
 
 class SignInScreen extends StatefulWidget {
-  const SignInScreen({Key? key}) : super(key: key);
+  const SignInScreen({super.key});
 
   @override
   State<SignInScreen> createState() => _SignInState();
@@ -17,240 +14,180 @@ class SignInScreen extends StatefulWidget {
 
 class _SignInState extends State<SignInScreen> {
   final _formKey = GlobalKey<FormState>();
-  final AuthService _auth = AuthService();
-  String? emailAddress;
-  String? password;
-  bool _isObsecure = true;
-  bool showEmailVerification = false;
-  dynamic result;
-  String? error;
-  bool _isLoading = false;
-  Size? size;
-  ph.PermissionStatus? permissionStatus;
+  final _auth = AuthService();
+  final _email = TextEditingController();
+  final _password = TextEditingController();
+  bool _obscure = true;
+  bool _loading = false;
+  String? _error;
 
   @override
-  void initState() {
-    super.initState();
+  void dispose() {
+    _email.dispose();
+    _password.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    FocusScope.of(context).unfocus();
+    if (!_formKey.currentState!.validate()) return;
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    // On success the auth stream swaps this screen for the home screen.
+    final error = await _auth.signIn(_email.text, _password.text);
+    if (mounted) {
+      setState(() {
+        _loading = false;
+        _error = error;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    size = MediaQuery.of(context).size;
-
+    final top = MediaQuery.of(context).padding.top;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sign In'),
-        backgroundColor: const Color.fromARGB(255, 191, 180, 66),
-      ),
-      body: _buildSignInBody(),
-    );
-  }
-
-  Widget _buildSignInBody() {
-    return _isLoading
-        ? const Loading()
-        : SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 35, horizontal: 15),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    //We will add the logo on top
-                    Image.asset(
-                      'assets/images/logo_2.jpg',
-                      height: size!.height / 3,
-                    ),
-                    const SizedBox(
-                      height: 25.0,
-                    ),
-                    TextFormField(
-                      decoration: InputDecoration(
-                        hintText: 'example@royalMarble.com',
-                        labelText: 'Email Address',
-                        filled: true,
-                        fillColor: Colors.grey[100],
-                        enabledBorder: const OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(15.0)),
-                            borderSide: BorderSide(color: Colors.grey)),
-                        focusedBorder: const OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(15.0)),
-                            borderSide: BorderSide(color: Colors.blue)),
-                      ),
-                      validator: (val) =>
-                          val!.isEmpty ? 'Email Address cannot be empty' : null,
-                      onChanged: (val) {
-                        setState(() {
-                          emailAddress = val.trim().toString();
-                        });
-                      },
-                    ),
-
-                    const SizedBox(
-                      height: 15.0,
-                    ),
-                    //Password
-                    TextFormField(
-                      obscureText: _isObsecure,
-                      decoration: textInputDecoration.copyWith(
-                        suffixIcon: IconButton(
-                          onPressed: () async {
-                            setState(() {
-                              _isObsecure = !_isObsecure;
-                            });
-                          },
-                          icon: Icon(!_isObsecure
-                              ? Icons.visibility
-                              : Icons.visibility_off),
-                        ),
-                        labelText: 'Password',
-                        filled: true,
-                        fillColor: Colors.grey[100],
-                        enabledBorder: const OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(15.0)),
-                            borderSide: BorderSide(color: Colors.grey)),
-                        focusedBorder: const OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(15.0)),
-                            borderSide: BorderSide(color: Colors.blue)),
-                      ),
-                      validator: (val) =>
-                          val!.isEmpty ? 'Password cannot be left empty' : null,
-                      onChanged: (val) {
-                        setState(() {
-                          password = val;
-                        });
-                      },
-                    ),
-                    const SizedBox(
-                      height: 15.0,
-                    ),
-
-                    error != null && error!.isNotEmpty
-                        ? Text(
-                            error.toString(),
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.red,
-                            ),
-                          )
-                        : const SizedBox(
-                            height: 1.0,
-                          ),
-                    const SizedBox(
-                      height: 15.0,
-                    ),
-                    showEmailVerification
-                        ? GestureDetector(
-                            child:
-                                const Text('Verify Account', style: textStyle7),
-                            onTap: () => emailAddress!.isNotEmpty
-                                ? _verifyAccount(emailAddress!)
-                                : error = 'Email is Empty')
-                        : const SizedBox.shrink(),
-                    const SizedBox(
-                      height: 15.0,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+      backgroundColor: AppColors.charcoal,
+      body: SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints:
+              BoxConstraints(minHeight: MediaQuery.of(context).size.height),
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(24, top + 40, 24, 32),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.asset('assets/images/logo_2.jpg', height: 170),
+                ),
+              ),
+              Container(
+                width: double.infinity,
+                constraints: BoxConstraints(
+                    minHeight: MediaQuery.of(context).size.height - top - 242),
+                decoration: const BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                ),
+                padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+                child: AutofillGroup(
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 10),
-                          child: GestureDetector(
-                            child: const Text('Forgot Password,',
-                                style: textStyle7),
-                            onTap: () => Navigator.push(
+                        const Text('Welcome back',
+                            style: TextStyle(
+                                fontSize: 26, fontWeight: FontWeight.w800)),
+                        const SizedBox(height: 4),
+                        const Text('Sign in to continue',
+                            style: TextStyle(color: AppColors.muted)),
+                        const SizedBox(height: 28),
+                        TextFormField(
+                          controller: _email,
+                          keyboardType: TextInputType.emailAddress,
+                          autofillHints: const [AutofillHints.email],
+                          textInputAction: TextInputAction.next,
+                          decoration: const InputDecoration(
+                            labelText: 'Email',
+                            prefixIcon: Icon(Icons.mail_outline),
+                          ),
+                          validator: (v) => EmailValidator.validate(
+                                  (v ?? '').trim())
+                              ? null
+                              : 'Enter a valid email',
+                        ),
+                        const SizedBox(height: 14),
+                        TextFormField(
+                          controller: _password,
+                          obscureText: _obscure,
+                          autofillHints: const [AutofillHints.password],
+                          textInputAction: TextInputAction.done,
+                          onFieldSubmitted: (_) => _submit(),
+                          decoration: InputDecoration(
+                            labelText: 'Password',
+                            prefixIcon: const Icon(Icons.lock_outline),
+                            suffixIcon: IconButton(
+                              onPressed: () =>
+                                  setState(() => _obscure = !_obscure),
+                              icon: Icon(_obscure
+                                  ? Icons.visibility_off
+                                  : Icons.visibility),
+                            ),
+                          ),
+                          validator: (v) =>
+                              (v ?? '').isEmpty ? 'Enter your password' : null,
+                        ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: () => Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => ForgotPassScreen(
-                                  emailAddress: emailAddress,
-                                ),
+                                builder: (_) => ForgotPassScreen(
+                                    emailAddress: _email.text.trim()),
                               ),
                             ),
+                            child: const Text('Forgot password?'),
                           ),
                         ),
-                        GestureDetector(
-                          child: const Text('New User', style: textStyle8),
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const RegisterScreen(),
+                        if (_error != null)
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppColors.badSoft,
+                              borderRadius: BorderRadius.circular(12),
                             ),
+                            child: Row(children: [
+                              const Icon(Icons.error_outline,
+                                  color: AppColors.bad, size: 20),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(_error!,
+                                    style:
+                                        const TextStyle(color: AppColors.bad)),
+                              ),
+                            ]),
                           ),
+                        FilledButton(
+                          onPressed: _loading ? null : _submit,
+                          child: _loading
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2.5, color: Colors.white),
+                                )
+                              : const Text('Sign in'),
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text('New to Royal Marble?',
+                                style: TextStyle(color: AppColors.muted)),
+                            TextButton(
+                              onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => const RegisterScreen()),
+                              ),
+                              child: const Text('Create account'),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    const SizedBox(
-                      height: 15.0,
-                    ),
-                    //A sign in button to sign in new users
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width / 2,
-                      child: ElevatedButton(
-                        style: ButtonStyle(
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                          ),
-                          backgroundColor:
-                              MaterialStateProperty.resolveWith<Color>(
-                            (Set<MaterialState> states) {
-                              if (states.contains(MaterialState.pressed)) {
-                                return const Color.fromARGB(255, 103, 48, 11);
-                              }
-                              return const Color.fromARGB(255, 37, 36, 25);
-                            },
-                          ),
-                        ),
-                        child: const Text(
-                          'Login',
-                          style: buttonStyle,
-                        ),
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            setState(() {
-                              _isLoading = true;
-                            });
-
-                            result = 'not null';
-                            result = await _auth.signInWithUserNameandPassword(
-                                emailAddress, password);
-
-                            if (result != null) {
-                              await Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const Wrapper(),
-                                ),
-                                ModalRoute.withName('/home'),
-                              );
-                            } else {
-                              if (mounted) {
-                                setState(() {
-                                  _isLoading = false;
-                                  error = 'Wrong user name or password';
-                                });
-                              }
-                            }
-                          } //end form validation
-                        },
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          );
-  }
-
-  _verifyAccount(String emailAddress) {
-    _auth.userFromFirebaseVerification(emailAddress);
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

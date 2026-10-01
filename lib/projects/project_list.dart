@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:royal_marble/screens/site_details_screen.dart';
+import 'package:royal_marble/core/roles.dart';
 import 'package:provider/provider.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/models/user_model.dart';
@@ -27,20 +29,22 @@ class _ProjectListState extends State<ProjectList> {
     if (widget.singleProject != null) {
       projectProvider = Provider.of<ProjectData>(context);
       allWorkers = Provider.of<List<UserData>>(context);
-      return allWorkers!.isNotEmpty
-          ? ProjectForm(
-              selectedProject: projectProvider,
-              isNewProject: false,
-              allWorkers: allWorkers,
-              currentUser: widget.currentUser,
+      final role = primaryRole(widget.currentUser?.roles);
+      // Workers never receive the roster (see the grid), so don't wait for it.
+      final needsRoster =
+          role != AppRole.worker && role != AppRole.siteEngineer;
+      return projectProvider.uid != null && (!needsRoster || allWorkers!.isNotEmpty)
+          ? SiteDetailsScreen.project(
+              project: projectProvider,
+              currentUser: widget.currentUser!,
+              allWorkers: allWorkers!,
             )
-          : const Loading();
+          : const Scaffold(body: Loading());
     } else {
       projectProvider = Provider.of<List<ProjectData>>(context);
       return Scaffold(
         appBar: AppBar(
           title: const Text('Project List'),
-          backgroundColor: const Color.fromARGB(255, 191, 180, 66),
         ),
         body: _buildProjectList(),
       );

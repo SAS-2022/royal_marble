@@ -277,7 +277,6 @@ class _LiveViewState extends State<LiveView>
       appBar: AppBar(
         title: const Text('BG Geo'),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 191, 180, 66),
         foregroundColor: Colors.black,
         bottom: TabBar(
           controller: _tabController,

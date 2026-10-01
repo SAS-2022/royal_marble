@@ -53,7 +53,6 @@ class _VisitDetailsClassState extends State<VisitDetailsClass> {
     return Scaffold(
         appBar: AppBar(
           title: const Text('Daily Visits Details'),
-          backgroundColor: const Color.fromARGB(255, 191, 180, 66),
           actions: [
             //create an edit button to edit content
             TextButton(

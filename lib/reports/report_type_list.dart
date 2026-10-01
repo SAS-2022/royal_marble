@@ -25,7 +25,6 @@ class _ReportTypeListState extends State<ReportTypeList> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Report Type - ${widget.reportType!.toUpperCase()}'),
-        backgroundColor: const Color.fromARGB(255, 191, 180, 66),
       ),
       body: _buildListOfReportTypes(),
     );

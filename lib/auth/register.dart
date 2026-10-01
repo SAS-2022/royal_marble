@@ -58,7 +58,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Register User'),
-        backgroundColor: const Color.fromARGB(255, 191, 180, 66),
       ),
       body: loading ? const Center(child: Loading()) : _buildRegisterBody(),
       bottomNavigationBar: _imageRequested

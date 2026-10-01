@@ -29,7 +29,6 @@ class _FileViewerState extends State<FileViewer> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Excel File'),
-        backgroundColor: const Color.fromARGB(255, 191, 180, 66),
       ),
       body: _buildFileViewerBody(),
     );

@@ -36,7 +36,6 @@ class _VisitListState extends State<VisitList> with TickerProviderStateMixin {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Daily Visits List'),
-        backgroundColor: const Color.fromARGB(255, 191, 180, 66),
         bottom: TabBar(
           controller: _tabController,
           tabs: const [

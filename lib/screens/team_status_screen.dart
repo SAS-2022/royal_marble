@@ -171,7 +171,19 @@ class AlertsFeed extends StatelessWidget {
       stream: stream(limit: limit),
       builder: (context, snap) {
         if (snap.hasError) {
-          return Center(child: Text('Could not load alerts: ${snap.error}'));
+          final denied = '${snap.error}'.contains('permission-denied');
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(
+                denied
+                    ? 'Alerts are not enabled on the server yet.'
+                    : 'Could not load alerts. Check your connection.',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: AppColors.muted),
+              ),
+            ),
+          );
         }
         if (!snap.hasData) {
           return const Center(child: CircularProgressIndicator());

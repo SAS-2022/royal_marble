@@ -76,7 +76,6 @@ class _ClientFormState extends State<ClientForm> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Client Form'),
-        backgroundColor: const Color.fromARGB(255, 191, 180, 66),
         actions: [
           !widget.isNewClient!
               ? TextButton(

@@ -784,7 +784,7 @@ class DatabaseService {
           }
         }
 
-        return userResult;
+        return userResult ?? 'Completed';
       } else {
         return '[Failed]: $result';
       }
@@ -1083,7 +1083,7 @@ class DatabaseService {
               });
         }
 
-        return userResult;
+        return userResult ?? 'Completed';
       } else {
         return '[Failed]: $result';
       }

@@ -36,7 +36,6 @@ class _ProjectStatusState extends State<ProjectStatus> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Project Status'),
-        backgroundColor: const Color.fromARGB(255, 191, 180, 66),
       ),
       body: Stack(
         children: [

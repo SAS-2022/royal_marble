@@ -75,7 +75,6 @@ class _WorkerCurrentStateState extends State<WorkerCurrentState> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Worker State'),
-        backgroundColor: const Color.fromARGB(255, 191, 180, 66),
       ),
       body: _projectProvider.uid != null
           ? _buildWorkerStateBodyProject()

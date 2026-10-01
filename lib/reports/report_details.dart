@@ -47,7 +47,6 @@ class _ReportDetailsState extends State<ReportDetails> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Report Details - ${widget.reportType}'),
-        backgroundColor: const Color.fromARGB(255, 191, 180, 66),
         actions: [
           //Generate document pdf
           TextButton(

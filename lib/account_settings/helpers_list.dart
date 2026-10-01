@@ -28,7 +28,6 @@ class _HelpersListState extends State<HelpersList> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Assigned Helpers'),
-        backgroundColor: const Color.fromARGB(255, 191, 180, 66),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),

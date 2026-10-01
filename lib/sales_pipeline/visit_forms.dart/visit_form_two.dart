@@ -46,7 +46,6 @@ class _VisitFormTwoState extends State<VisitFormTwo> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sales Pipeline '),
-        backgroundColor: const Color.fromARGB(255, 191, 180, 66),
       ),
       body: Stack(
         children: [

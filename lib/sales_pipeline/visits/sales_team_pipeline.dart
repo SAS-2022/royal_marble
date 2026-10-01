@@ -24,7 +24,6 @@ class _SalesTeamPipelineState extends State<SalesTeamPipeline> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sales Team'),
-        backgroundColor: const Color.fromARGB(255, 191, 180, 66),
       ),
       body: _buildSalesTeamList(),
     );

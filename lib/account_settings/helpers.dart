@@ -76,7 +76,6 @@ class _HelpersPageState extends State<HelpersPage> {
             : const Text(
                 'Assigned Helpers',
               ),
-        backgroundColor: const Color.fromARGB(255, 191, 180, 66),
         actions: [
           //Save changes
           widget.currentUser!.roles!.contains('isAdmin')

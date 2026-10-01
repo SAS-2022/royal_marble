@@ -32,7 +32,6 @@ class _ClientListState extends State<ClientList> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Client List'),
-        backgroundColor: const Color.fromARGB(255, 191, 180, 66),
       ),
       body: _buildClientList(),
       resizeToAvoidBottomInset: false,

@@ -48,6 +48,27 @@ class AuthService {
     }
   }
 
+  /// Signs in; returns null on success or a message to show the user.
+  Future<String?> signIn(String email, String password) async {
+    try {
+      await _auth.signInWithEmailAndPassword(
+          email: email.trim(), password: password);
+      return null;
+    } on FirebaseAuthException catch (e) {
+      return switch (e.code) {
+        'invalid-email' => 'That email address doesn\'t look right.',
+        'user-disabled' => 'This account has been disabled. Contact your admin.',
+        'too-many-requests' =>
+          'Too many attempts. Wait a few minutes and try again.',
+        'network-request-failed' => 'No internet connection.',
+        _ => 'Wrong email or password.',
+      };
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      return 'Could not sign in. Please try again.';
+    }
+  }
+
   //Sign in without requesting any credentials
   Future signInAnonymously() async {
     try {

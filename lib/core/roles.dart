@@ -20,7 +20,7 @@ extension AppRoleKey on AppRole {
         AppRole.supervisor => 'Supervisor',
         AppRole.sales => 'Sales',
         AppRole.siteEngineer => 'Site Engineer',
-        AppRole.worker => 'Worker',
+        AppRole.worker => 'Mason',
       };
 
   /// Roles that can see other people's locations, device alerts and reports.

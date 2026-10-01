@@ -1,312 +1,173 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:royal_marble/account_settings/users_details.dart';
-import 'package:royal_marble/shared/constants.dart';
-
-import '../models/user_model.dart';
+import 'package:royal_marble/core/app_theme.dart';
+import 'package:royal_marble/core/roles.dart';
+import 'package:royal_marble/models/device_status.dart';
+import 'package:royal_marble/models/user_model.dart';
+import 'package:royal_marble/widgets/status_widgets.dart';
 
 class UserList extends StatefulWidget {
-  const UserList({Key? key, this.currentUser}) : super(key: key);
-  final UserData? currentUser;
+  const UserList({super.key, required this.currentUser});
+  final UserData currentUser;
+
   @override
   State<UserList> createState() => _UserListState();
 }
 
 class _UserListState extends State<UserList> {
-  List<UserData> listOfUsers = [];
-  List<UserData> nonActiveUser = [];
-  double listOfUsersHeight = 100.00;
-  final _searchController = TextEditingController();
-  List<UserData>? _searchResult = [];
-  bool _emptySearchResults = false;
-  Size? size;
+  String _query = '';
+  AppRole? _role;
 
-  @override
-  void initState() {
-    super.initState();
-    _onSearchTextChnaged('');
+  bool _matches(UserData u) {
+    if (_role != null && primaryRole(u.roles) != _role) return false;
+    if (_query.isEmpty) return true;
+    final q = _query.toLowerCase();
+    return [u.firstName, u.lastName, u.emailAddress, u.phoneNumber, u.company]
+        .any((f) => f?.toLowerCase().contains(q) == true);
   }
 
   @override
   Widget build(BuildContext context) {
-    listOfUsers = Provider.of<List<UserData>>(context)
-        .where((element) => element.isActive == true)
-        .toList();
-    nonActiveUser = Provider.of<List<UserData>>(context)
-        .where((element) => element.isActive == false)
-        .toList();
-    size = MediaQuery.of(context).size;
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Main Page'),
-        backgroundColor: const Color.fromARGB(255, 191, 180, 66),
+    final users = Provider.of<List<UserData>>(context)
+        .where((u) => u.error == null && u.uid != null)
+        .toList()
+      ..sort((a, b) => '${a.firstName} ${a.lastName}'
+          .toLowerCase()
+          .compareTo('${b.firstName} ${b.lastName}'.toLowerCase()));
+    final active = users.where((u) => u.isActive == true).toList();
+    final pending = users.where((u) => u.isActive != true).toList();
+
+    return DefaultTabController(
+      length: 2,
+      // Land on pending approvals when there are any waiting.
+      initialIndex: pending.isNotEmpty ? 1 : 0,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Users'),
+          bottom: TabBar(
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white60,
+            indicatorColor: AppColors.gold,
+            tabs: [
+              Tab(text: 'Active (${active.length})'),
+              Tab(text: 'Pending (${pending.length})'),
+            ],
+          ),
+        ),
+        body: Column(children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            child: TextField(
+              decoration: const InputDecoration(
+                hintText: 'Search name, email or phone',
+                prefixIcon: Icon(Icons.search),
+                isDense: true,
+              ),
+              onChanged: (v) => setState(() => _query = v.trim()),
+            ),
+          ),
+          SizedBox(
+            height: 48,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              children: [
+                for (final r in [null, ...AppRole.values])
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: ChoiceChip(
+                      label: Text(r?.label ?? 'All'),
+                      selected: _role == r,
+                      onSelected: (_) => setState(() => _role = r),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: TabBarView(children: [
+              _list(active.where(_matches).toList(), 'No active users match.'),
+              _list(pending.where(_matches).toList(),
+                  'Nobody is waiting for approval.'),
+            ]),
+          ),
+        ]),
       ),
-      body: _buildUserList(),
     );
   }
 
-  Widget _buildUserList() {
-    if (listOfUsers.isNotEmpty && nonActiveUser.isNotEmpty) {
-      listOfUsersHeight = (size!.height / 2) - 40;
-    } else if (listOfUsers.isNotEmpty && nonActiveUser.isEmpty) {
-      listOfUsersHeight = size!.height - 100;
-    } else if (listOfUsers.isEmpty && nonActiveUser.isNotEmpty) {
-      listOfUsersHeight = size!.height / 4;
-    } else {
-      listOfUsersHeight = size!.height;
+  Widget _list(List<UserData> users, String empty) {
+    if (users.isEmpty) {
+      return Center(
+          child: Text(empty, style: const TextStyle(color: AppColors.muted)));
     }
-
-    return SingleChildScrollView(
-        child: listOfUsers.isEmpty
-            ? const Padding(
-                padding: EdgeInsets.all(20),
-                child: Center(
-                  child: Text('There are no current users'),
-                ),
-              )
-            : Column(
-                children: [
-                  Column(
-                    children: [
-                      nonActiveUser.isNotEmpty
-                          ? Column(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 15, vertical: 20),
-                                  child: Text(
-                                    'Non-active users at Royal Marble. Total: ${nonActiveUser.length}',
-                                    style: textStyle6,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: nonActiveUser.isNotEmpty
-                                      ? (size!.height / 3) - 10
-                                      : size!.height / 6,
-                                  child: nonActiveUser.isNotEmpty
-                                      ? ListView.builder(
-                                          itemCount: nonActiveUser.length,
-                                          itemBuilder: (context, index) {
-                                            return Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 15,
-                                                      vertical: 20),
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                    border: Border.all(),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            25)),
-                                                child: GestureDetector(
-                                                  onTap: () async {
-                                                    await Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (_) =>
-                                                            UserDetails(
-                                                          currentUser: widget
-                                                              .currentUser,
-                                                          myAccount: false,
-                                                          selectedUser:
-                                                              nonActiveUser[
-                                                                  index],
-                                                        ),
-                                                      ),
-                                                    );
-                                                  },
-                                                  child: ListTile(
-                                                    leading: nonActiveUser[
-                                                                    index]
-                                                                .imageUrl ==
-                                                            null
-                                                        ? const CircleAvatar(
-                                                            radius: 30,
-                                                            child: Icon(
-                                                              Icons.person,
-                                                              size: 50,
-                                                            ),
-                                                          )
-                                                        : CircleAvatar(
-                                                            radius: 30,
-                                                            backgroundImage:
-                                                                NetworkImage(
-                                                              nonActiveUser[
-                                                                      index]
-                                                                  .imageUrl!,
-                                                              scale: 2,
-                                                            )),
-                                                    title: Text(
-                                                        '${nonActiveUser[index].firstName} ${nonActiveUser[index].lastName}'),
-                                                    subtitle: SizedBox(
-                                                        height: 60,
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Text(
-                                                                'Email Address: ${nonActiveUser[index].emailAddress}'),
-                                                            Text(
-                                                                'Phone Number: ${nonActiveUser[index].phoneNumber}')
-                                                          ],
-                                                        )),
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          })
-                                      : const Center(
-                                          child: Text(
-                                              'There are no non-active users'),
-                                        ),
-                                ),
-                              ],
-                            )
-                          : const SizedBox.shrink(),
-                      const Divider(
-                        height: 10,
-                        thickness: 3,
-                      ),
-                      Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 5, horizontal: 15),
-                            child: TextField(
-                              autofocus: false,
-                              controller: _searchController,
-                              decoration: InputDecoration(
-                                hintText: 'Search',
-                                filled: true,
-                                fillColor: Colors.grey[100],
-                                prefixIcon: const Icon(Icons.search),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(15.0),
-                                  borderSide: const BorderSide(width: 1.0),
-                                ),
-                              ),
-                              onChanged: (val) {
-                                _onSearchTextChnaged(val.toString());
-                              },
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 15, vertical: 20),
-                            child: Text(
-                              'Active users at Royal Marble. Total: ${listOfUsers.length}',
-                              style: textStyle6,
-                            ),
-                          ),
-                          SizedBox(
-                            height: listOfUsersHeight,
-                            child: _searchResult != null &&
-                                    _searchResult!.isNotEmpty
-                                ? ListView.builder(
-                                    // shrinkWrap: true,
-                                    itemCount: _searchResult!.length,
-                                    itemBuilder: (context, index) {
-                                      return Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 15, vertical: 10),
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                              border: Border.all(),
-                                              borderRadius:
-                                                  BorderRadius.circular(25)),
-                                          child: GestureDetector(
-                                            onTap: () async {
-                                              await Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (_) => UserDetails(
-                                                    currentUser:
-                                                        widget.currentUser,
-                                                    myAccount: false,
-                                                    selectedUser:
-                                                        _searchResult![index],
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                            child: ListTile(
-                                              leading: _searchResult![index]
-                                                          .imageUrl ==
-                                                      null
-                                                  ? const CircleAvatar(
-                                                      radius: 30,
-                                                      child: Icon(
-                                                        Icons.person,
-                                                        size: 50,
-                                                      ),
-                                                    )
-                                                  : CircleAvatar(
-                                                      radius: 30,
-                                                      backgroundImage:
-                                                          NetworkImage(
-                                                        _searchResult![index]
-                                                            .imageUrl!,
-                                                        scale: 2,
-                                                      )),
-                                              title: Text(
-                                                  '${_searchResult![index].firstName} ${_searchResult![index].lastName}'),
-                                              subtitle: SizedBox(
-                                                  height: 60,
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                          'Email Address: ${_searchResult![index].emailAddress}'),
-                                                      Text(
-                                                          'Phone Number: ${_searchResult![index].phoneNumber}')
-                                                    ],
-                                                  )),
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    })
-                                : const Center(
-                                    child: Text('There are no active users'),
-                                  ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ));
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+      itemCount: users.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      itemBuilder: (context, i) => _UserTile(
+        user: users[i],
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => UserDetails(
+              currentUser: widget.currentUser,
+              selectedUser: users[i],
+              myAccount: false,
+            ),
+          ),
+        ),
+      ),
+    );
   }
+}
 
-  //will show the User name relative the the typed data in the search field
-  void _onSearchTextChnaged(String text) {
-    List<UserData> results = [];
-    // _searchResult.clear();
-    if (text.isEmpty) {
-      //waits for the stream provider to load
-      Future.delayed(const Duration(milliseconds: 750), () {
-        setState(() {
-          _searchResult = listOfUsers;
-        });
-      });
-      return;
-    }
-    results = listOfUsers
-        .where((user) => '${user.firstName} ${user.lastName}'
-            .toString()
-            .toLowerCase()
-            .contains(text.toLowerCase()))
-        .toList();
-    setState(() {
-      _searchResult = results;
-      if (_searchResult!.isEmpty) {
-        _emptySearchResults = true;
-      } else {
-        _emptySearchResults = false;
-      }
-    });
+class _UserTile extends StatelessWidget {
+  const _UserTile({required this.user, required this.onTap});
+  final UserData user;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final role = primaryRole(user.roles);
+    final status = DeviceStatus.fromMap(user.deviceStatus);
+    final hasImage = user.imageUrl?.startsWith('http') == true;
+    final site = user.assignedProject is Map
+        ? (user.assignedProject as Map)['name']
+        : null;
+
+    return Card(
+      child: ListTile(
+        onTap: onTap,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+        leading: CircleAvatar(
+          radius: 24,
+          backgroundColor: AppColors.gold.withValues(alpha: 0.2),
+          foregroundImage: hasImage ? NetworkImage(user.imageUrl!) : null,
+          child: Text(
+            '${user.firstName?.characters.firstOrNull ?? ''}${user.lastName?.characters.firstOrNull ?? ''}',
+            style: const TextStyle(
+                fontWeight: FontWeight.w700, color: AppColors.goldDeep),
+          ),
+        ),
+        title: Text('${user.firstName ?? ''} ${user.lastName ?? ''}',
+            style: const TextStyle(fontWeight: FontWeight.w700)),
+        subtitle: Text(
+          [role.label, if (site != null) '$site'].join(' · '),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        trailing: user.isActive != true
+            ? const StatusPill('Review', tone: Tone.warn)
+            : !status.hasData
+                ? const Icon(Icons.chevron_right, color: AppColors.muted)
+                : Icon(Icons.circle,
+                    size: 12,
+                    color: status.problems.isEmpty
+                        ? AppColors.ok
+                        : AppColors.bad),
+      ),
+    );
   }
 }

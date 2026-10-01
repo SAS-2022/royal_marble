@@ -85,7 +85,6 @@ class _WorkCompletedState extends State<WorkCompleted> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Completed Work'),
-          backgroundColor: const Color.fromARGB(255, 191, 180, 66),
         ),
         body: _buildWorkCompleteForm(),
       ),

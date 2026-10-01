@@ -369,7 +369,6 @@ class _ShowMapState extends State<ShowMap> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(title),
-          backgroundColor: const Color.fromARGB(255, 191, 180, 66),
         ),
         body: _buildLocationSelection(),
         endDrawer: widget.addProject! || widget.addMockup!

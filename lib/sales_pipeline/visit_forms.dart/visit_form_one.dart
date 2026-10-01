@@ -63,7 +63,6 @@ class _VisitFormOneState extends State<VisitFormOne> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sales Pipeline'),
-        backgroundColor: const Color.fromARGB(255, 191, 180, 66),
       ),
       body: clientProvider!.isNotEmpty
           ? _buildSalesVisitFormOne()
