@@ -1,0 +1,89 @@
+rules_version = '2';
+
+// Royal Marble access rules.
+//
+// TARGET RULES. Deploy only after every phone runs the new app version: older versions write
+// check-ins straight to `time_sheet`, which these rules block (check-in now
+// goes through the `checkInOut` Cloud Function, which bypasses rules).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function me() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    function hasRole(r) { return signedIn() && r in me().get('roles', []); }
+    function isAdmin() { return hasRole('isAdmin'); }
+    function isSupervisor() { return hasRole('isSupervisor'); }
+    function isSales() { return hasRole('isSales'); }
+    function isManager() { return isAdmin() || isSupervisor(); }
+    function isActive() { return signedIn() && me().get('isActive', false) == true; }
+    function isSelf(uid) { return signedIn() && request.auth.uid == uid; }
+    function onlyChanges(keys) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys);
+    }
+
+    match /users/{uid} {
+      allow read: if isSelf(uid) || isManager() || isSales();
+
+      // Self-registration: always starts as an inactive worker.
+      allow create: if isSelf(uid)
+        && request.resource.data.roles == ['isNormalUser']
+        && request.resource.data.isActive == false;
+
+      allow update: if isAdmin()
+        // Users edit their own profile and the phone reports its status,
+        // but nobody promotes or activates themselves.
+        || (isSelf(uid) && !request.resource.data.diff(resource.data)
+              .affectedKeys().hasAny(['roles', 'isActive']))
+        // Supervisors assign workers to their sites.
+        || (isSupervisor() && onlyChanges(['assignedProject', 'assignedMockup', 'assignedHelpers']));
+
+      allow delete: if isAdmin() || isSelf(uid);
+
+      match /location/{doc} {
+        allow read: if isSelf(uid) || isManager();
+        allow write: if isSelf(uid);
+      }
+      // Sales visit logs (clientVisits, projectVisits).
+      match /{sub}/{doc=**} {
+        allow read: if isSelf(uid) || isManager();
+        allow write: if isSelf(uid) || isAdmin();
+      }
+    }
+
+    match /projects/{id} {
+      allow read: if isActive();
+      allow create, update: if isAdmin() || isSales() || isSupervisor();
+      allow delete: if isAdmin();
+    }
+
+    match /mockup/{id} {
+      allow read: if isActive();
+      allow create, update: if isAdmin() || isSales() || isSupervisor();
+      allow delete: if isAdmin();
+    }
+
+    match /clients/{id} {
+      allow read, write: if isAdmin() || isSales();
+    }
+
+    match /helper/{id} {
+      allow read: if isActive();
+      allow write: if isActive();
+    }
+
+    // Written only by the checkInOut Cloud Function (and admins correcting it).
+    match /time_sheet/{day} {
+      allow read: if isActive();
+      allow write: if isAdmin();
+    }
+
+    // Phones append their own status changes; only managers read them.
+    match /device_events/{id} {
+      allow read: if isManager();
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+  }
+}
