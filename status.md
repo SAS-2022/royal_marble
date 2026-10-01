@@ -69,6 +69,8 @@ supervisors see attendance, alerts and reports.
       `testing` collection closed, `device_events` added
 - [x] Strict role-based rules written in `firestore.strict.rules` (deploy after rollout)
 - [x] API keys moved out of source
+- [x] Phase 1: Sentry → Firebase Crashlytics (verified a test report was delivered)
+- [x] Phase 5 code: salary packages (admin editor, worker "My pay") — rules deploy on hold
 
 ## 3. Blocked / waiting on the client
 
@@ -85,10 +87,80 @@ supervisors see attendance, alerts and reports.
 - [ ] A test mason account for end-to-end testing
 - [ ] Decide: track masons 24/7 or only during working hours
 - [ ] Possible duplicate accounts: "Nemichand Saini" ×2, "Rajender"/"Rajendr" Saini
+- [ ] **User:** open Firebase console → Crashlytics once to switch on the dashboard
+- [ ] **User:** change the password of the admin test account (it was shared in chat)
+
+### Pending production deploys (all on hold — each needs explicit approval)
+| What | Command (add `--project royal-marble --account royalmarble.uae@gmail.com`) | Safe for old app? | Needs billing? |
+|---|---|---|---|
+| `payroll` rules (additive) | `firebase deploy --only firestore:rules` | ✅ yes | no |
+| Functions `checkInOut`, `detectSilentDevices` + index | `firebase deploy --only functions,firestore:indexes` | ✅ yes (old app never calls them) | **yes** |
+| Strict role-based rules | copy `firestore.strict.rules` → `firestore.rules`, deploy | ❌ **only after every phone runs the new app** | no |
+
+The new app's check-in depends on `checkInOut`. Old app versions still write
+`time_sheet` directly, and the interim rules allow that.
+
+### Business / contract notes
+- Contract (Wisora ↔ Royal Marble, dated 01 Oct 2026, USD 1,500 one-time) was
+  reviewed. Fixes suggested to the user: timeline "eight weeks (6 weeks)"
+  contradiction; define "Effective Date"; client legal entity name and title; §6/§7
+  conflict on store-account fees; typos; add delivery/acceptance definition; iOS
+  TestFlight builds expire after 90 days; source and data ownership; worker-location
+  privacy/consent (UAE PDPL); name third-party costs (Transistorsoft, Maps, Firebase).
+- Data finding to share with the client: in Nov 2023, 63 of 93 mason work-days had
+  no check-out, so those hours were never counted (old checkout crash).
 
 ---
 
-## 4. Feature audit (requested 2026-10-01)
+## 4. How to resume (dev workflow)
+
+- `git switch revive-2026`; read this file; `flutter pub get`.
+- Devices: the user's phone **23021RAAEG** (Xiaomi, adb id `76031c77`, signed in as
+  admin, connect by USB) and the emulator **Pixel_3A** (`emulator-5554`).
+  If the emulator has no DNS: `emulator -avd Pixel_3A -dns-server 8.8.8.8,1.1.1.1`.
+- Run with a PID file so hot reload can be triggered from scripts:
+  `flutter run -d <id> --dart-define-from-file=config/env.json --pid-file /tmp/f.pid`
+  then `kill -USR1 $(cat /tmp/f.pid)` (hot reload) / `-USR2` (hot restart).
+- Screenshots: `adb -s <id> exec-out screencap -p > shot.png`.
+- Test accounts: the user's admin account (ask the user for credentials; never store
+  them). There is **no mason test account yet**, so worker flows are untested end to end.
+- Functions: `cd functions && npm run build` (Node 22). Rules compile check:
+  `firebase deploy --only firestore:rules --dry-run ...`.
+- Key files: `lib/services/tracking_service.dart`, `lib/services/checkin_service.dart`,
+  `functions/src/index.ts`, `lib/home.dart`, `lib/wrapper.dart`, `lib/core/*`,
+  `lib/reports/*`, `lib/screens/*`, `firestore.rules`, `firestore.strict.rules`.
+
+### Commits on `revive-2026`
+| Commit | What |
+|---|---|
+| `0c9ed8c` | Toolchain revival, unified tracking, server check-in, new home UI |
+| `7228a25` | UI: auth, drawer, users, user admin, site details |
+| `518d741` | Removed dead code; interim rules |
+| `16ceaa9` | 3-step registration |
+| `8c7b585` | Reports rebuilt (attendance and sales, PDF/Excel) |
+| `e840466` | This status file |
+| `0a13add` | Sentry → Crashlytics |
+| `1417893` | Phase 5 salary details |
+| `4272c9d` | Production freeze noted |
+
+### Known tech debt
+- ~249 analyzer infos/warnings (mostly old style lints in untouched screens).
+- Unused packages to remove: `location`, `flutter_speed_dial`, `latlong2`,
+  `flutter_map`, `timer_builder`, `animated_text_kit` (0 imports each).
+- Build warns that several plugins still apply the Kotlin Gradle Plugin (Firebase
+  plugins, `location`); a future Flutter release will require plugin updates.
+- iOS not built yet: the Maps key is hard-coded in `ios/Runner/AppDelegate.swift`;
+  Podfile needs updating.
+- `AlertsFeed` filters a single user's alerts client-side from the latest N events
+  (fine now; needs an indexed query at scale).
+- The `CheckInCard` reads today's timesheet by the phone's date, while the server
+  uses server time plus the phone's UTC offset; this only differs if the phone clock
+  is wrong.
+- Remaining old screens listed under Phase 7.
+
+---
+
+## 5. Feature audit (requested 2026-10-01)
 
 | # | Requirement | Current state |
 |---|---|---|
@@ -119,7 +191,7 @@ supervisors see attendance, alerts and reports.
 
 ---
 
-## 5. Roadmap
+## 6. Roadmap
 
 **Why this order:** pay (6) is only fair once attendance is trustworthy (2) and
 recorded per site (3). Leaving-site alerts (4) reuse the geofences from 2. Phase 1 is
@@ -234,7 +306,7 @@ writes a snapshot to `payroll/{uid}/history/{auto}`.
 
 ---
 
-## 6. Session log
+## 7. Session log
 
 - **2026-10-01** — Revived the project, rebuilt tracking and check-in, redesigned
   major screens and reports, deployed interim rules. Found Firebase billing expired.
@@ -249,3 +321,6 @@ writes a snapshot to `payroll/{uid}/history/{auto}`.
   feed loads). Payroll rules need deploying before the feature can be tested end to end.
 - **2026-10-01 (cont.)** — Production freeze: the user will finalize with the client
   before any deploy. Payroll rules are ready but on hold.
+- **2026-10-01 (end of session)** — Paused by the user. Everything is committed on
+  `revive-2026`. Next session: Phase 7 UI (no deploys needed) unless the client has
+  signed off; then the pending deploys table above.
