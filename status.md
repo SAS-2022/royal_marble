@@ -197,6 +197,20 @@ The new app's check-in depends on `checkInOut`. Old app versions still write
 recorded per site (3). Leaving-site alerts (4) reuse the geofences from 2. Phase 1 is
 independent and needs no billing, so it goes first.
 
+### Current agenda (no deploys needed) — set 2026-10-01
+1. **Phase 8 foundation:** localization setup, RTL, language picker, translate the
+   worker-facing screens first (sign-in, registration, home, check-in, status
+   banner, My pay).
+2. **Local test backend:** Firebase Emulator Suite (Firestore + Functions) so the
+   Phase 2–4 server work can be built and tested without touching production.
+3. **Phase 2 + 3 code** against the emulator: assignment check, presence log,
+   multi-site sessions, per-site hours; migration script written but not run.
+4. **Phase 7:** redesign the remaining old screens, written with translations from
+   the start.
+5. **Phase 4 client side** (geofence exit events; push wiring ready, not deployed).
+6. **Tech debt:** remove unused packages, iOS build prep.
+7. **Admin web dashboard** (Flutter web), developed locally.
+
 **Status key:** ⬜ not started · 🔄 in progress · ✅ done · ⛔ blocked
 
 | Phase | Status | Blocked by |
@@ -208,6 +222,7 @@ independent and needs no billing, so it goes first.
 | 5 Salary details | 🔄 | `payroll` rules deploy (production freeze) |
 | 6 Hours-based pay | ⬜ | Phases 2, 3, 5; client decisions (below) |
 | 7 Remaining UI + delivery | ⬜ | — (web dashboard after 2–4) |
+| 8 Localization (en, ar, hi, ur) | 🔄 | — |
 
 ### Decisions needed from the client (Phase 6 and related)
 1. Standard working hours per day, and working days per month (UAE practice is often
@@ -296,6 +311,24 @@ writes a snapshot to `payroll/{uid}/history/{auto}`.
 - ⚠️ Pay deductions must follow UAE labour law and the WPS (Wage Protection System) —
   the app calculates; the employer approves the final payroll.
 
+### Phase 8 — Localization (English, Arabic, Hindi, Urdu)
+Workers come from different countries; each user picks a language.
+- [ ] Flutter `gen-l10n` with ARB files `lib/l10n/app_{en,ar,hi,ur}.arb`
+- [ ] Language picker on sign-in and in the drawer; choice saved on the device and in
+      `users/{uid}.language`, falling back to the phone's language
+- [ ] RTL for Arabic and Urdu (directional padding and alignment, mirrored icons where
+      needed); fonts that render Devanagari and Urdu well
+- [ ] Translate the worker-facing screens first: sign-in, password reset,
+      registration, home (worker), check-in card and work sheet, status banner,
+      My pay, pending approval
+- [ ] Then admin and supervisor screens, and reports (PDF/Excel stay English unless
+      requested)
+- [ ] Server check-in errors: return codes instead of English text so the app shows
+      them in the user's language (function code only; deploy later)
+- [ ] Role and alert labels (Mason, "Location services turned OFF"…) shown translated
+- [ ] Review: machine-quality translations need a native-speaker check (ask the
+      client for an Arabic, Hindi and Urdu reader)
+
 ### Phase 7 — Remaining UI and delivery
 - Redesign the remaining old screens: own profile, project/mock-up create/edit and
   map picker, live map, clients, sales visits, helpers, workers' current state.
@@ -324,3 +357,6 @@ writes a snapshot to `payroll/{uid}/history/{auto}`.
 - **2026-10-01 (end of session)** — Paused by the user. Everything is committed on
   `revive-2026`. Next session: Phase 7 UI (no deploys needed) unless the client has
   signed off; then the pending deploys table above.
+- **2026-10-01 (new session)** — User asked to continue with no-deploy work and to
+  add localization (English, Arabic, Hindi, Urdu). Agenda set (see Roadmap); starting
+  with the Phase 8 foundation.
