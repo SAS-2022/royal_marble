@@ -128,7 +128,7 @@ independent and needs no billing, so it goes first.
 | 2 Attendance correctness | ⬜ | Functions deploy (billing) |
 | 3 Multi-site + per-site hours | ⬜ | Phase 2; functions deploy |
 | 4 Leaving-site alerts + push | ⬜ | Phase 2; functions deploy |
-| 5 Salary details | ⬜ | — |
+| 5 Salary details | 🔄 | Rules deploy for `payroll` (approval) |
 | 6 Hours-based pay | ⬜ | Phases 2, 3, 5; client decisions (below) |
 | 7 Remaining UI + delivery | ⬜ | — (web dashboard after 2–4) |
 
@@ -194,11 +194,18 @@ Works on the free plan (no billing needed).
 - Notification settings (which alerts, quiet hours).
 
 ### Phase 5 — Salary details (e)
-- New `payroll/{uid}` collection (admin-only; the worker can read their own):
-  basic, housing, transport, food, other allowances (name + amount), currency (AED),
-  pay type (monthly / daily / hourly), effective date, history.
-- Admin: salary section on the user admin page. Worker: "My pay" screen.
-- Strict rules: only admins write; the worker reads only their own document.
+Data: `payroll/{uid}` = `{currency, payType, basic, housing, transport, food,
+other: [{name, amount}], effectiveFrom, notes, updatedAt, updatedBy}`; each save also
+writes a snapshot to `payroll/{uid}/history/{auto}`.
+- [x] Model `lib/models/salary.dart` (`SalaryPackage`, `PayType`, `Allowance`, totals)
+- [x] Service `lib/services/payroll_service.dart` (stream, batched save with history)
+- [x] Admin: Pay section on the user admin page (admins only, not supervisors) +
+      editor (`lib/screens/salary_screens.dart`)
+- [x] Worker: "My pay" in the drawer for all non-admin roles (read-only)
+- [x] Rules written in `firestore.rules` and `firestore.strict.rules` (compile OK)
+- [ ] **Deploy the `payroll` rules** — waiting for approval. Until then the Pay card
+      shows "not available yet" (seen on the emulator)
+- [ ] Verify on device: admin sets a package, the worker sees it, another user can't
 
 ### Phase 6 — Hours-based pay (f)
 - Monthly calculation from attended hours (Phase 2–3 data) against the salary
@@ -230,3 +237,7 @@ Works on the free plan (no billing needed).
 - **2026-10-01 (cont.)** — Phase 1 done: Sentry removed, Crashlytics added and
   verified (test report delivered). Next: Phase 5 (salary details) and Phase 7 UI can
   proceed without billing; Phases 2–4 wait on functions deploy.
+- **2026-10-01 (cont.)** — Phase 5 built: salary model, service, admin editor, worker
+  "My pay". Signed in on the emulator with the admin test account (credentials are
+  not stored anywhere). Confirmed the deployed `device_events` rule works (the alerts
+  feed loads). Payroll rules need deploying before the feature can be tested end to end.

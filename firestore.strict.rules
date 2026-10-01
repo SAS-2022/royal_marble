@@ -79,6 +79,16 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Pay packages: admins manage them; each worker can read only their own.
+    match /payroll/{uid} {
+      allow read: if isAdmin() || isSelf(uid);
+      allow write: if isAdmin();
+      match /history/{doc} {
+        allow read: if isAdmin() || isSelf(uid);
+        allow write: if isAdmin();
+      }
+    }
+
     // Phones append their own status changes; only managers read them.
     match /device_events/{id} {
       allow read: if isManager();

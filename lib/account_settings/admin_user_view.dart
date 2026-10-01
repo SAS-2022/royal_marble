@@ -4,6 +4,7 @@ import 'package:royal_marble/core/format.dart';
 import 'package:royal_marble/core/roles.dart';
 import 'package:royal_marble/models/device_status.dart';
 import 'package:royal_marble/models/user_model.dart';
+import 'package:royal_marble/screens/salary_screens.dart';
 import 'package:royal_marble/screens/team_status_screen.dart';
 import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/widgets/status_widgets.dart';
@@ -226,6 +227,12 @@ class AdminUserView extends StatelessWidget {
                 child: AlertsFeed(uid: user.uid, limit: 100),
               ),
             ),
+          ],
+
+          // Pay (admins only; supervisors don't see salaries)
+          if (viewerIsAdmin && active) ...[
+            const SectionTitle('Pay'),
+            SalaryCard(user: user, canEdit: true),
           ],
 
           // Role

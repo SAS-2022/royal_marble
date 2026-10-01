@@ -5,6 +5,7 @@ rules_version = '2';
 //   - users/{id}/location now requires sign-in (was open to the internet)
 //   - the unused `testing` collection is closed
 //   - adds `device_events` for the new phone-status alerts
+//   - adds `payroll` (admin-only, plus each worker's own read)
 // Switch to firestore.strict.rules once every phone runs the new app.
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -30,6 +31,16 @@ service cloud.firestore {
     match /mockup/{id}     { allow read, write: if signedIn(); }
     match /time_sheet/{id} { allow read, write: if signedIn(); }
     match /helper/{id}     { allow read, write: if signedIn(); }
+
+    // Pay packages: admins manage them; each worker can read only their own.
+    match /payroll/{uid} {
+      allow read: if hasRole('isAdmin') || (signedIn() && request.auth.uid == uid);
+      allow write: if hasRole('isAdmin');
+      match /history/{doc} {
+        allow read: if hasRole('isAdmin') || (signedIn() && request.auth.uid == uid);
+        allow write: if hasRole('isAdmin');
+      }
+    }
 
     // Phones append their own status changes; admins and supervisors read them.
     match /device_events/{id} {

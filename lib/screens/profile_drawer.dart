@@ -10,6 +10,7 @@ import 'package:royal_marble/location/map_providers.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/reports/reports_screen.dart';
 import 'package:royal_marble/sales_pipeline/visit_forms.dart/visit_form_streams.dart';
+import 'package:royal_marble/screens/salary_screens.dart';
 import 'package:royal_marble/screens/team_status_screen.dart';
 import 'package:royal_marble/services/auth.dart';
 import 'package:royal_marble/services/tracking_service.dart';
@@ -45,6 +46,9 @@ class ProfileDrawer extends StatelessWidget {
               children: [
                 _Item(Icons.person_outline, 'My profile',
                     () => open(UserDetails(currentUser: user, myAccount: true))),
+                if (!admin)
+                  _Item(Icons.payments_outlined, 'My pay',
+                      () => open(MyPayScreen(user: user))),
                 if (admin || supervisor) ...[
                   const _Group('Team'),
                   _Item(Icons.notifications_active_outlined,
