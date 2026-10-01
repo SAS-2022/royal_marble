@@ -1,640 +1,472 @@
 import 'dart:io';
 
+import 'package:country_picker/country_picker.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:royal_marble/location/http_navigation.dart';
-import 'package:royal_marble/shared/snack_bar.dart';
-import 'package:path/path.dart' as Path;
-import '../location/google_map_navigation.dart';
-import '../services/auth.dart';
-import '../shared/constants.dart';
-import '../shared/country_picker.dart';
-import '../shared/loading.dart';
+import 'package:royal_marble/core/app_theme.dart';
+import 'package:royal_marble/core/format.dart';
+import 'package:royal_marble/location/google_map_navigation.dart';
+import 'package:royal_marble/services/auth.dart';
+
+/// UAE mobile: 05XXXXXXXX, 5XXXXXXXX, +9715XXXXXXXX or 009715XXXXXXXX.
+final _uaeMobile = RegExp(r'^(?:\+971|00971|0)?5\d{8}$');
+
+/// Stores numbers the way older accounts have them: 05XXXXXXXX.
+String _normalizePhone(String raw) {
+  final digits = raw.replaceAll(RegExp(r'[\s-]'), '');
+  final m = RegExp(r'5\d{8}$').firstMatch(digits);
+  return m == null ? digits : '0${m.group(0)}';
+}
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({Key? key}) : super(key: key);
+  const RegisterScreen({super.key});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  final AuthService _auth = AuthService();
-  final _formKey = GlobalKey<FormState>();
-  final HttpNavigation _httpNavigation = HttpNavigation();
-  bool loading = false;
-  //text field state
-  String firstName = '';
-  String lastName = '';
-  String company = '';
-  String email = '';
-  String confirmEmail = '';
-  String phoneNumber = '';
-  String password = '';
-  Map<String, dynamic> nationality = {};
-  String error = '';
-  bool _isObsecure = true;
-  Map<String, dynamic> myLocation = {};
-  Size? size;
-  final SnackBarWidget _snackBarWidget = SnackBarWidget();
-  final ImagePicker _picker = ImagePicker();
-  bool _imageRequested = false;
-  XFile? pickedImage;
+  final _auth = AuthService();
+  final _forms = List.generate(3, (_) => GlobalKey<FormState>());
+  int _step = 0;
+  bool _submitting = false;
+  String? _error;
 
-  ImageSource? _imageSource;
-  @override
-  void initState() {
-    super.initState();
-    _snackBarWidget.context = context;
-  }
+  final _first = TextEditingController();
+  final _last = TextEditingController();
+  final _phone = TextEditingController();
+  final _company = TextEditingController(text: 'Royal Marble');
+  final _email = TextEditingController();
+  final _password = TextEditingController();
+  final _password2 = TextEditingController();
+  bool _obscure = true;
+
+  XFile? _photo;
+  Map<String, dynamic>? _nationality;
+  Map<String, dynamic>? _home;
+
+  static const _titles = ['About you', 'Contact', 'Account'];
 
   @override
-  Widget build(BuildContext context) {
-    size = MediaQuery.of(context).size;
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Register User'),
-      ),
-      body: loading ? const Center(child: Loading()) : _buildRegisterBody(),
-      bottomNavigationBar: _imageRequested
-          ? BottomAppBar(
-              clipBehavior: Clip.hardEdge,
-              elevation: 2,
-              child: Container(
-                decoration: BoxDecoration(
-                    color: Colors.grey[600],
-                    border: Border.all(color: Colors.grey[800]!),
-                    borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(25),
-                        topRight: Radius.circular(25))),
-                height: size!.height / 10,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        IconButton(
-                            onPressed: () async {
-                              _imageSource = ImageSource.gallery;
-                              await _openImagePicker();
-                            },
-                            icon: const Icon(
-                              Icons.photo_album,
-                              size: 50,
-                              color: Color.fromARGB(255, 191, 180, 66),
-                            )),
-                        IconButton(
-                            onPressed: () async {
-                              _imageSource = ImageSource.camera;
-                              await _openImagePicker();
-                            },
-                            icon: const Icon(
-                              Icons.camera,
-                              size: 50,
-                              color: Color.fromARGB(255, 191, 180, 66),
-                            ))
-                      ]),
-                ),
-              ))
-          : null,
-    );
+  void dispose() {
+    for (final c in [_first, _last, _phone, _company, _email, _password, _password2]) {
+      c.dispose();
+    }
+    super.dispose();
   }
 
-  Widget _buildRegisterBody() {
-    return SingleChildScrollView(
-      child: Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-          child: Column(
-            children: <Widget>[
-              const Padding(
-                padding: EdgeInsets.all(10.0),
-                child: Text(
-                  'The following form allows you to register a user along Royal Marble app, please enter all the required information',
-                  style: textStyle6,
-                ),
-              ),
-              //user photo
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: GestureDetector(
-                  onTap: () async => _selectImageSource(),
-                  child: Container(
-                    height: size!.height / 5,
-                    width: size!.width / 2,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(),
-                    ),
-                    child: pickedImage == null
-                        ? const Center(
-                            child: Text(
-                              'Add Photo',
-                              style: textStyle3,
-                            ),
-                          )
-                        : CircleAvatar(
-                            backgroundImage: FileImage(
-                            File(pickedImage!.path),
-                            scale: 2,
-                          )),
-                  ),
-                ),
-              ),
+  void _snack(String msg) => ScaffoldMessenger.of(context)
+      .showSnackBar(SnackBar(content: Text(msg)));
 
-              //First Name
-              Row(
-                children: [
-                  const Expanded(
-                    flex: 1,
-                    child: Text('First Name'),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: TextFormField(
-                      textCapitalization: TextCapitalization.sentences,
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.grey[100],
-                        enabledBorder: const OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(15.0)),
-                            borderSide: BorderSide(color: Colors.grey)),
-                        focusedBorder: const OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(15.0)),
-                            borderSide: BorderSide(color: Colors.blue)),
-                      ),
-                      validator: (val) =>
-                          val!.isEmpty ? 'First name cannot be empty' : null,
-                      onChanged: (val) {
-                        setState(() {
-                          firstName = val.trim();
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 15.0),
-              //Last Name
-              Row(
-                children: [
-                  const Expanded(
-                    flex: 1,
-                    child: Text('Last Name'),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: TextFormField(
-                      textCapitalization: TextCapitalization.sentences,
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.grey[100],
-                        enabledBorder: const OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(15.0)),
-                            borderSide: BorderSide(color: Colors.grey)),
-                        focusedBorder: const OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(15.0)),
-                            borderSide: BorderSide(color: Colors.blue)),
-                      ),
-                      validator: (val) =>
-                          val!.isEmpty ? 'Last Name cannot be empty' : null,
-                      onChanged: (val) {
-                        setState(() {
-                          lastName = val.trim();
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 15.0),
-              //Nationality
-              Row(
-                children: [
-                  const Expanded(
-                    flex: 1,
-                    child: Text('Nationality'),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.grey,
-                        ),
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      child: CountryDropDownPicker(
-                        selectCountry: selectCountry,
-                      ),
-                    ),
-                  )
-                ],
-              ),
-              const SizedBox(height: 15.0),
-              //Home Address
-              Row(
-                children: [
-                  const Expanded(
-                    flex: 1,
-                    child: Text('Home Address'),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: Column(
-                      children: [
-                        GestureDetector(
-                          onTap: () async {
-                            await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => GoogleMapNavigation(
-                                          getLocation: selecteMapLocation,
-                                          navigate: false,
-                                        )));
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                                border: Border.all(),
-                                borderRadius: BorderRadius.circular(15)),
-                            height: 50,
-                            child: Center(
-                              child: Text(
-                                myLocation.isNotEmpty
-                                    ? 'Change Address'
-                                    : 'Add Address',
-                                style: textStyle5,
-                              ),
-                            ),
-                          ),
-                        ),
-                        myLocation.isNotEmpty
-                            ? Padding(
-                                padding: const EdgeInsets.all(20.0),
-                                child: Text(
-                                  myLocation['addressName'],
-                                  style: textStyle5,
-                                ),
-                              )
-                            : const SizedBox.shrink(),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const Divider(
-                height: 40,
-                thickness: 3,
-              ),
-              //Company
-              Row(
-                children: [
-                  const Expanded(
-                    flex: 1,
-                    child: Text('Company'),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: TextFormField(
-                      textCapitalization: TextCapitalization.sentences,
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.grey[100],
-                        enabledBorder: const OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(15.0)),
-                            borderSide: BorderSide(color: Colors.grey)),
-                        focusedBorder: const OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(15.0)),
-                            borderSide: BorderSide(color: Colors.blue)),
-                      ),
-                      validator: (val) =>
-                          val!.isEmpty ? 'Company cannot be empty' : null,
-                      onChanged: (val) {
-                        setState(() {
-                          company = val.toString();
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 15.0),
-              //Mobile Number
-              Row(
-                children: [
-                  const Expanded(flex: 1, child: Text('Phone Number')),
-                  Expanded(
-                    flex: 3,
-                    child: TextFormField(
-                        keyboardType: TextInputType.number,
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.grey[100],
-                          enabledBorder: const OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(15.0)),
-                              borderSide: BorderSide(color: Colors.grey)),
-                          focusedBorder: const OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(15.0)),
-                              borderSide: BorderSide(color: Colors.blue)),
-                        ),
-                        validator: (val) {
-                          Pattern pattern = r'^(?:[05]8)?[0-9]{10}$';
-                          var regexp = RegExp(pattern.toString());
-                          if (val!.isEmpty) {
-                            return 'Phone cannot be empty';
-                          }
-                          if (!regexp.hasMatch(val)) {
-                            return 'Phone number does not match a UAE number';
-                          } else {
-                            return null;
-                          }
-                        },
-                        onChanged: (val) {
-                          setState(() {
-                            phoneNumber = val;
-                          });
-                        }),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 15.0),
-              const Divider(
-                height: 40,
-                thickness: 3,
-              ),
-              //Email Address
-              Row(
-                children: [
-                  const Expanded(
-                    flex: 1,
-                    child: Text('Email Address'),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.grey[100],
-                        enabledBorder: const OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(15.0)),
-                            borderSide: BorderSide(color: Colors.grey)),
-                        focusedBorder: const OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(15.0)),
-                            borderSide: BorderSide(color: Colors.blue)),
-                      ),
-                      validator: (val) {
-                        if (val!.isEmpty) {
-                          return 'Email Address cannot be empty';
-                        }
-                        if (!EmailValidator.validate(val)) {
-                          return 'This is not a valid email address';
-                        } else {
-                          return null;
-                        }
-                      },
-                      onChanged: (val) {
-                        setState(() {
-                          email = val.trim();
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 15.0,
-              ),
-              //Confirm email address
-              Row(
-                children: [
-                  const Expanded(flex: 1, child: Text('Confirm Email')),
-                  Expanded(
-                    flex: 3,
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.grey[100],
-                        enabledBorder: const OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(15.0)),
-                            borderSide: BorderSide(color: Colors.grey)),
-                        focusedBorder: const OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(15.0)),
-                            borderSide: BorderSide(color: Colors.blue)),
-                      ),
-                      validator: (val) =>
-                          val != email ? 'Confirming email failed' : null,
-                      onChanged: (val) {
-                        setState(() {});
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 15.0,
-              ),
-              //Password
-              Row(
-                children: [
-                  const Expanded(
-                    flex: 1,
-                    child: Text('Password'),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: TextFormField(
-                      obscureText: _isObsecure,
-                      decoration: InputDecoration(
-                        suffixIcon: IconButton(
-                          onPressed: () async {
-                            setState(() {
-                              _isObsecure = !_isObsecure;
-                            });
-                          },
-                          icon: Icon(!_isObsecure
-                              ? Icons.visibility
-                              : Icons.visibility_off),
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey[100],
-                        enabledBorder: const OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(15.0)),
-                            borderSide: BorderSide(color: Colors.grey)),
-                        focusedBorder: const OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(15.0)),
-                            borderSide: BorderSide(color: Colors.blue)),
-                      ),
-                      validator: (val) {
-                        if (val!.isEmpty) {
-                          return 'Password cannot be empty';
-                        }
-                        if (val.length < 6) {
-                          return 'Password should be more than 6 characters';
-                        } else {
-                          return null;
-                        }
-                      },
-                      onChanged: (val) {
-                        setState(() {
-                          password = val.trim();
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              //Error message container
-              Text(error, style: const TextStyle(color: Colors.red)),
-              const SizedBox(
-                height: 25.0,
-              ),
-              //Submit button
-              SizedBox(
-                width: size!.width - 50,
-                child: ElevatedButton(
-                    style: ButtonStyle(
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                      ),
-                      backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                        (Set<MaterialState> states) {
-                          if (states.contains(MaterialState.pressed)) {
-                            return const Color.fromARGB(255, 103, 48, 11);
-                          }
-                          return const Color.fromARGB(255, 37, 36, 25);
-                        },
-                      ),
-                    ),
-                    child: const Text(
-                      'Submit',
-                      style: buttonStyle,
-                    ),
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate() &&
-                          pickedImage != null) {
-                        if (myLocation.isEmpty) {
-                          _snackBarWidget.content =
-                              'Home address needs to be assigned';
-                          _snackBarWidget.showSnack();
-                          return;
-                        }
-                        setState(() {
-                          loading = true;
-                        });
-                        String imageUrl =
-                            await _uploadImage(file: pickedImage!);
-
-                        await _auth.registerWithEmailandPassword(
-                            email: email.trim(),
-                            password: password.trim(),
-                            firstName: firstName.trim(),
-                            lastName: lastName.trim(),
-                            company: company.trim(),
-                            phoneNumber: phoneNumber,
-                            nationality: nationality,
-                            homeAddress: myLocation,
-                            isActive: false,
-                            imageUrl: imageUrl,
-                            roles: ['isNormalUser']);
-
-                        setState(() {
-                          loading = false;
-                        });
-                        await Navigator.pushNamedAndRemoveUntil(
-                            context, '/home', (route) => false);
-                      }
-                    }),
-              )
-            ],
+  Future<void> _pickPhoto() async {
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      showDragHandle: true,
+      builder: (_) => SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          ListTile(
+            leading: const Icon(Icons.photo_camera_outlined),
+            title: const Text('Take a photo'),
+            onTap: () => Navigator.pop(context, ImageSource.camera),
           ),
+          ListTile(
+            leading: const Icon(Icons.photo_library_outlined),
+            title: const Text('Choose from gallery'),
+            onTap: () => Navigator.pop(context, ImageSource.gallery),
+          ),
+        ]),
+      ),
+    );
+    if (source == null) return;
+    try {
+      final img = await ImagePicker().pickImage(
+        source: source,
+        preferredCameraDevice: CameraDevice.front,
+        maxWidth: 800,
+        imageQuality: 85,
+      );
+      if (img != null) setState(() => _photo = img);
+    } catch (e) {
+      _snack('Could not open the camera or gallery.');
+    }
+  }
+
+  Future<void> _pickHome() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => GoogleMapNavigation(
+          navigate: false,
+          getLocation: ({String? locationName, LatLng? locationAddress}) async {
+            if (locationName == null || locationAddress == null) return;
+            setState(() => _home = {
+                  'addressName': locationName,
+                  'Lat': locationAddress.latitude,
+                  'Lng': locationAddress.longitude,
+                });
+          },
         ),
       ),
     );
   }
 
-  Future<String> _uploadImage({XFile? file}) async {
-    FirebaseStorage storageReference;
-    String folderName = 'profile_images';
-
-    try {
-      storageReference = FirebaseStorage.instance;
-      var ref = storageReference
-          .ref()
-          .child('$folderName/${Path.basename(file!.path)}');
-      var uploadTask = ref.putFile(File(file.path));
-      var downloadUrl = await (await uploadTask).ref.getDownloadURL();
-      return downloadUrl;
-    } catch (e, stackTrace) {
-      _snackBarWidget.content = 'Image Error: $e';
-      _snackBarWidget.showSnack();
-      return e.toString();
+  bool _validateStep() {
+    if (!_forms[_step].currentState!.validate()) return false;
+    if (_step == 0 && _photo == null) {
+      _snack('Add a photo so your supervisor can recognise you.');
+      return false;
     }
+    if (_step == 0 && _nationality == null) {
+      _snack('Select your nationality.');
+      return false;
+    }
+    if (_step == 1 && _home == null) {
+      _snack('Set your home address on the map.');
+      return false;
+    }
+    return true;
   }
 
-  void _selectImageSource() {
+  Future<String?> _uploadPhoto() async {
+    final name =
+        '${DateTime.now().millisecondsSinceEpoch}_${_email.text.trim().hashCode.abs()}.jpg';
+    final ref = FirebaseStorage.instance.ref('profile_images/$name');
+    await ref.putFile(File(_photo!.path));
+    return ref.getDownloadURL();
+  }
+
+  Future<void> _submit() async {
+    if (!_validateStep()) return;
     setState(() {
-      _imageRequested = !_imageRequested;
+      _submitting = true;
+      _error = null;
     });
-  }
-
-  Future _openImagePicker() async {
     try {
-      if (_imageRequested) {
-        pickedImage = await _picker.pickImage(
-            preferredCameraDevice: CameraDevice.front,
-            source: _imageSource!,
-            maxHeight: size!.height - 10,
-            maxWidth: size!.width - 10,
-            imageQuality: 100);
+      final imageUrl = await _uploadPhoto();
+      final result = await _auth.registerWithEmailandPassword(
+        email: _email.text.trim(),
+        password: _password.text,
+        firstName: _first.text.trim(),
+        lastName: _last.text.trim(),
+        company: _company.text.trim(),
+        phoneNumber: _normalizePhone(_phone.text),
+        nationality: _nationality,
+        homeAddress: _home,
+        isActive: false,
+        imageUrl: imageUrl,
+        roles: ['isNormalUser'],
+      );
+      // registerWithEmailandPassword returns the uid on success, or the
+      // error text ("[firebase_auth/<code>] ...") on failure.
+      if (result is String && result.startsWith('[')) {
+        throw result.contains('email-already-in-use')
+            ? 'An account with this email already exists. Try signing in.'
+            : result.contains('network-request-failed')
+                ? 'No internet connection.'
+                : 'Could not create the account. Check your details and try again.';
       }
-      _imageRequested = false;
-      setState(() {});
-      return pickedImage;
+      if (!mounted) return;
+      // The auth stream now shows the "waiting for approval" screen.
+      Navigator.of(context).popUntil((r) => r.isFirst);
     } catch (e) {
-      _snackBarWidget.content = 'Image could not be picked: $e';
-      _snackBarWidget.showSnack();
+      setState(() => _error = e is String ? e : 'Something went wrong. Please try again.');
+    } finally {
+      if (mounted) setState(() => _submitting = false);
     }
   }
 
-  Future selecteMapLocation(
-      {String? locationName, LatLng? locationAddress}) async {
-    if (locationAddress != null && locationName != null) {
-      myLocation = {
-        'addressName': locationName,
-        'Lat': locationAddress.latitude,
-        'Lng': locationAddress.longitude,
-      };
-      setState(() {});
-    }
-    return myLocation;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Create account')),
+      body: Column(children: [
+        // Progress
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
+          child: Row(children: [
+            for (var i = 0; i < 3; i++) ...[
+              Expanded(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: i <= _step ? AppColors.gold : AppColors.line,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              if (i < 2) const SizedBox(width: 6),
+            ],
+          ]),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+          child: Row(children: [
+            Text('Step ${_step + 1} of 3',
+                style: const TextStyle(color: AppColors.muted)),
+            const Spacer(),
+            Text(_titles[_step],
+                style: const TextStyle(fontWeight: FontWeight.w700)),
+          ]),
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: IndexedStack(index: _step, children: [
+              _aboutYou(),
+              _contact(),
+              _account(),
+            ]),
+          ),
+        ),
+        SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+            child: Row(children: [
+              if (_step > 0)
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: _submitting
+                        ? null
+                        : () => setState(() => _step--),
+                    child: const Text('Back'),
+                  ),
+                ),
+              if (_step > 0) const SizedBox(width: 12),
+              Expanded(
+                flex: 2,
+                child: FilledButton(
+                  onPressed: _submitting
+                      ? null
+                      : _step < 2
+                          ? () {
+                              if (_validateStep()) setState(() => _step++);
+                            }
+                          : _submit,
+                  child: _submitting
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2.5, color: Colors.white))
+                      : Text(_step < 2 ? 'Continue' : 'Create account'),
+                ),
+              ),
+            ]),
+          ),
+        ),
+      ]),
+    );
   }
 
-  selectCountry(Map<String, dynamic> country) {
-    nationality = country;
+  Widget _aboutYou() => Form(
+        key: _forms[0],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: GestureDetector(
+                onTap: _pickPhoto,
+                child: Stack(children: [
+                  CircleAvatar(
+                    radius: 56,
+                    backgroundColor: AppColors.gold.withValues(alpha: 0.2),
+                    foregroundImage:
+                        _photo != null ? FileImage(File(_photo!.path)) : null,
+                    child: const Icon(Icons.person,
+                        size: 56, color: AppColors.goldDeep),
+                  ),
+                  const Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: CircleAvatar(
+                      radius: 18,
+                      backgroundColor: AppColors.charcoal,
+                      child: Icon(Icons.photo_camera,
+                          size: 18, color: Colors.white),
+                    ),
+                  ),
+                ]),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(_photo == null ? 'Add a clear photo of your face' : 'Tap to change',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: AppColors.muted)),
+            const SizedBox(height: 24),
+            TextFormField(
+              controller: _first,
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(labelText: 'First name'),
+              validator: (v) => (v ?? '').trim().isEmpty ? 'Required' : null,
+            ),
+            const SizedBox(height: 14),
+            TextFormField(
+              controller: _last,
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(labelText: 'Last name'),
+              validator: (v) => (v ?? '').trim().isEmpty ? 'Required' : null,
+            ),
+            const SizedBox(height: 14),
+            _PickerField(
+              icon: Icons.flag_outlined,
+              label: 'Nationality',
+              value: _nationality?['countryName'],
+              onTap: () => showCountryPicker(
+                context: context,
+                showPhoneCode: false,
+                onSelect: (c) => setState(() => _nationality = {
+                      'countryCode': c.countryCode,
+                      'countryName': c.displayNameNoCountryCode,
+                    }),
+              ),
+            ),
+          ],
+        ),
+      );
+
+  Widget _contact() => Form(
+        key: _forms[1],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextFormField(
+              controller: _phone,
+              keyboardType: TextInputType.phone,
+              decoration: const InputDecoration(
+                labelText: 'Mobile number',
+                hintText: '05X XXX XXXX',
+                prefixIcon: Icon(Icons.phone_outlined),
+              ),
+              validator: (v) => _uaeMobile
+                      .hasMatch((v ?? '').replaceAll(RegExp(r'[\s-]'), ''))
+                  ? null
+                  : 'Enter a UAE mobile number (05X XXX XXXX)',
+            ),
+            const SizedBox(height: 14),
+            TextFormField(
+              controller: _company,
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(
+                labelText: 'Company',
+                prefixIcon: Icon(Icons.business_outlined),
+              ),
+              validator: (v) => (v ?? '').trim().isEmpty ? 'Required' : null,
+            ),
+            const SizedBox(height: 14),
+            _PickerField(
+              icon: Icons.home_outlined,
+              label: 'Home address',
+              value: _home == null ? null : prettyAddress(_home!['addressName']),
+              onTap: _pickHome,
+            ),
+          ],
+        ),
+      );
+
+  Widget _account() => Form(
+        key: _forms[2],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextFormField(
+              controller: _email,
+              keyboardType: TextInputType.emailAddress,
+              autofillHints: const [AutofillHints.email],
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                prefixIcon: Icon(Icons.mail_outline),
+              ),
+              validator: (v) => EmailValidator.validate((v ?? '').trim())
+                  ? null
+                  : 'Enter a valid email',
+            ),
+            const SizedBox(height: 14),
+            TextFormField(
+              controller: _password,
+              obscureText: _obscure,
+              autofillHints: const [AutofillHints.newPassword],
+              decoration: InputDecoration(
+                labelText: 'Password',
+                helperText: 'At least 6 characters',
+                prefixIcon: const Icon(Icons.lock_outline),
+                suffixIcon: IconButton(
+                  onPressed: () => setState(() => _obscure = !_obscure),
+                  icon: Icon(_obscure ? Icons.visibility_off : Icons.visibility),
+                ),
+              ),
+              validator: (v) =>
+                  (v ?? '').length < 6 ? 'Use at least 6 characters' : null,
+            ),
+            const SizedBox(height: 14),
+            TextFormField(
+              controller: _password2,
+              obscureText: _obscure,
+              decoration: const InputDecoration(
+                labelText: 'Confirm password',
+                prefixIcon: Icon(Icons.lock_outline),
+              ),
+              validator: (v) =>
+                  v != _password.text ? 'Passwords do not match' : null,
+            ),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: AppColors.gold.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Row(children: [
+                Icon(Icons.info_outline, color: AppColors.goldDeep),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'An admin reviews new accounts. You can sign in once yours is approved.',
+                    style: TextStyle(color: AppColors.ink),
+                  ),
+                ),
+              ]),
+            ),
+            if (_error != null) ...[
+              const SizedBox(height: 12),
+              Text(_error!, style: const TextStyle(color: AppColors.bad)),
+            ],
+          ],
+        ),
+      );
+}
+
+/// A tappable field that looks like a text input but opens a picker.
+class _PickerField extends StatelessWidget {
+  const _PickerField({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.onTap,
+  });
+  final IconData icon;
+  final String label;
+  final String? value;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: onTap,
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: label,
+          prefixIcon: Icon(icon),
+          suffixIcon: const Icon(Icons.chevron_right),
+        ),
+        isEmpty: value == null,
+        child: value == null ? null : Text(value!, maxLines: 2),
+      ),
+    );
   }
 }
