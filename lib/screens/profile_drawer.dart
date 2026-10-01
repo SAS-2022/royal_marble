@@ -4,6 +4,7 @@ import 'package:royal_marble/account_settings/users_grid.dart';
 import 'package:royal_marble/clients/clients_form.dart';
 import 'package:royal_marble/clients/clients_grid.dart';
 import 'package:royal_marble/core/app_theme.dart';
+import 'package:royal_marble/core/error_reporter.dart';
 import 'package:royal_marble/core/roles.dart';
 import 'package:royal_marble/location/map_providers.dart';
 import 'package:royal_marble/models/user_model.dart';
@@ -137,6 +138,7 @@ class ProfileDrawer extends StatelessWidget {
     );
     if (confirmed != true) return;
     await TrackingService.stop();
+    await ErrorReporter.setUser();
     await AuthService().signOut();
     (await SharedPreferences.getInstance()).clear();
     if (context.mounted) {

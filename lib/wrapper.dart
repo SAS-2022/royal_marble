@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:royal_marble/auth/sign_in.dart';
+import 'package:royal_marble/core/error_reporter.dart';
 import 'package:royal_marble/core/roles.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/services/database.dart';
@@ -27,6 +28,7 @@ class Wrapper extends StatelessWidget {
           return const Scaffold(body: Center(child: Loading()));
         }
         final role = primaryRole(user.roles);
+        ErrorReporter.setUser(uid: user.uid, role: role.name);
         // Only people who manage others need everyone's profiles; workers
         // get just their own data.
         final seesTeam = role != AppRole.worker && role != AppRole.siteEngineer;

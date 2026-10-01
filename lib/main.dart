@@ -1,15 +1,17 @@
 import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
 import 'package:provider/provider.dart';
 import 'package:royal_marble/core/app_theme.dart';
+import 'package:royal_marble/core/error_reporter.dart';
 import 'package:royal_marble/services/auth.dart';
 import 'package:royal_marble/services/tracking_service.dart';
 import 'package:royal_marble/wrapper.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'models/user_model.dart';
 
@@ -21,22 +23,32 @@ void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
   await TrackingService.handleEvent(headlessEvent.name, headlessEvent.event);
 }
 
-const _sentryDsn = String.fromEnvironment('SENTRY_DSN',
-    defaultValue:
-        'https://0a1354ab77cb4dfbaed15697fb5a67e0@o4504353262010368.ingest.sentry.io/4504353263255552');
+/// Debug builds don't send reports unless run with
+/// `--dart-define=CRASHLYTICS_DEBUG=true` (used to verify the setup).
+const _crashlyticsInDebug = bool.fromEnvironment('CRASHLYTICS_DEBUG');
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  final crashlytics = FirebaseCrashlytics.instance;
+  await crashlytics
+      .setCrashlyticsCollectionEnabled(!kDebugMode || _crashlyticsInDebug);
+  // Framework errors (build/layout/paint) and uncaught async errors.
+  FlutterError.onError = crashlytics.recordFlutterFatalError;
+  PlatformDispatcher.instance.onError = (error, stack) {
+    crashlytics.recordError(error, stack, fatal: true);
+    return true;
+  };
+
+  // `--dart-define=CRASHLYTICS_TEST=true` sends one test report on launch.
+  if (const bool.fromEnvironment('CRASHLYTICS_TEST')) {
+    ErrorReporter.message('Crashlytics test report from a debug build');
+  }
+
   bg.BackgroundGeolocation.registerHeadlessTask(
       backgroundGeolocationHeadlessTask);
-  await SentryFlutter.init(
-    (options) {
-      options.dsn = _sentryDsn;
-      options.tracesSampleRate = 0.2;
-    },
-    appRunner: () => runApp(const MyApp()),
-  );
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {

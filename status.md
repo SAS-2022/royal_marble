@@ -1,7 +1,8 @@
 # Royal Marble — Project Status
 
 Living tracker for this project, kept up to date across chat sessions.
-**Read this first when resuming work; update it at the end of every session.**
+**Read this first when resuming work. Update it after every step: tick tasks, change
+phase status, and add a line to the session log.**
 
 _Last updated: 2026-10-01_
 
@@ -95,16 +96,77 @@ supervisors see attendance, alerts and reports.
 
 ---
 
+### Audit details
+- **a:** `functions/src/index.ts` `checkInOut` loads the site and checks distance, but
+  never compares `siteId` with the user's `assignedProject` / `assignedMockup`.
+  Today it relies only on the home screen listing assigned sites.
+- **b:** `time_sheet/{day}` holds one entry per worker per day: first `arriving_at`,
+  last `leaving_at`. There are no events for leaving and returning during the day.
+  Nov 2023 data: masons Nemichand (10/10 days without check-out), Davaki (13/24),
+  Niwas (6/13), Ram Dev (7/13), Babu Lal (7/11). The old checkout crash for masons is
+  the likely cause (fixed in `0c9ed8c`).
+- **c:** `device_events` + Team Status cover location off, GPS off, permission changes,
+  offline, battery saver, low battery, fake GPS, tracking stopped, reboot, and
+  "silent" (server). No geofence events; no push notifications (in-app only).
+- **d:** `updateProjectWithWorkers` writes a single map to a mason's
+  `assignedProject`, so assigning one to a new site silently moves them (the old site's
+  `assignedWorkers` keeps a stale entry). Supervisors already use a list.
+
+---
+
 ## 5. Roadmap
 
+**Why this order:** pay (6) is only fair once attendance is trustworthy (2) and
+recorded per site (3). Leaving-site alerts (4) reuse the geofences from 2. Phase 1 is
+independent and needs no billing, so it goes first.
+
+**Status key:** ⬜ not started · 🔄 in progress · ✅ done · ⛔ blocked
+
+| Phase | Status | Blocked by |
+|---|---|---|
+| 1 Crashlytics | ✅ | — (open the Crashlytics page in the console once) |
+| 2 Attendance correctness | ⬜ | Functions deploy (billing) |
+| 3 Multi-site + per-site hours | ⬜ | Phase 2; functions deploy |
+| 4 Leaving-site alerts + push | ⬜ | Phase 2; functions deploy |
+| 5 Salary details | ⬜ | — |
+| 6 Hours-based pay | ⬜ | Phases 2, 3, 5; client decisions (below) |
+| 7 Remaining UI + delivery | ⬜ | — (web dashboard after 2–4) |
+
+### Decisions needed from the client (Phase 6 and related)
+1. Standard working hours per day, and working days per month (UAE practice is often
+   26 or 30 days for daily rate calculation).
+2. A day with check-in but **no check-out**: zero pay, auto check-out at the last
+   on-site time, or admin reviews each one?
+3. Overtime: paid? At what rate (UAE labour law sets 125%, or 150% at night or on rest days)?
+4. Weekends, public holidays, sick and annual leave: how are they recorded and paid?
+5. Allowances (housing, transport, food): fixed monthly, or reduced for absent days?
+6. Pay type per worker: monthly salary, daily rate, or hourly?
+7. Who approves the monthly payroll before it is final (admin only, or supervisor
+   first)?
+8. Should masons be tracked 24/7 or only during working hours (privacy and battery)?
+
+> ⚠️ Deductions must follow UAE labour law and WPS. The app produces a **suggested**
+> payroll; the employer reviews and approves it. Unpaid gaps are shown with the reason
+> so they can be challenged and corrected.
+
 ### Phase 1 — Crashlytics instead of Sentry
-- Remove `sentry_flutter`; add `firebase_crashlytics` and the Gradle plugin.
-- One `ErrorReporter.record(error, stack)` helper replaces the 64 `Sentry.*` calls in
-  `database.dart`, `auth.dart`, `tracking_service.dart`, `checkin_service.dart` and
-  `show_map.dart`.
-- Catch Flutter and async errors in `main.dart`; record user id and role as keys.
-- Verify with a test crash in debug; check the Crashlytics console.
-- Works on the free plan (no billing needed).
+Works on the free plan (no billing needed).
+- [x] Add `firebase_crashlytics` 5.4 + Gradle plugin `com.google.firebase.crashlytics` 3.0.6
+- [x] `lib/core/error_reporter.dart`: `ErrorReporter.record(error, stack)` and
+      `ErrorReporter.message(text)`
+- [x] Replace the 64 `Sentry.*` calls (`database.dart` 49, `auth.dart` 10,
+      `tracking_service.dart` 3, `checkin_service.dart` 1, `show_map.dart` 1)
+- [x] `main.dart`: remove Sentry init; route `FlutterError.onError` and
+      `PlatformDispatcher.onError` to Crashlytics; off in debug unless forced
+- [x] Set user id and role keys on sign-in (`wrapper.dart`); clear on sign-out (drawer)
+- [x] Remove `sentry_flutter` from pubspec; build passes
+- [x] Verify: test non-fatal sent from the emulator 2026-10-01 ("report successfully
+      enqueued"). To repeat: `flutter run --dart-define-from-file=config/env.json
+      --dart-define=CRASHLYTICS_DEBUG=true --dart-define=CRASHLYTICS_TEST=true`
+- [ ] **User:** open Firebase console → Crashlytics once to enable the dashboard
+      (settings report `firebase_crashlytics_enabled: false` until then)
+- Notes: debug builds don't report unless `CRASHLYTICS_DEBUG=true`. If the emulator
+  can't resolve hosts, start it with `-dns-server 8.8.8.8`.
 
 ### Phase 2 — Attendance correctness (a, b)
 - `checkInOut`: reject sites the worker isn't assigned to (projects and mock-ups).
@@ -165,3 +227,6 @@ supervisors see attendance, alerts and reports.
   major screens and reports, deployed interim rules. Found Firebase billing expired.
   Feature audit (a–f) and this roadmap created. Waiting on the client's payment and
   billing.
+- **2026-10-01 (cont.)** — Phase 1 done: Sentry removed, Crashlytics added and
+  verified (test report delivered). Next: Phase 5 (salary details) and Phase 7 UI can
+  proceed without billing; Phases 2–4 wait on functions deploy.

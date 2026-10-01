@@ -1,7 +1,7 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
-import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:royal_marble/core/error_reporter.dart';
 
 enum SiteKind { project, mockup }
 
@@ -73,7 +73,7 @@ class CheckInService {
     } on FirebaseFunctionsException catch (e) {
       return CheckInResult(false, e.message ?? 'Check-in failed (${e.code}).');
     } catch (e, st) {
-      await Sentry.captureException(e, stackTrace: st);
+      await ErrorReporter.record(e, stackTrace: st);
       return const CheckInResult(
           false, 'No connection to the server. Check your internet and try again.');
     }

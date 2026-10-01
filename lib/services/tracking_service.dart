@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
-import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:royal_marble/core/error_reporter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/user_model.dart';
@@ -91,7 +91,7 @@ class TrackingService {
       _listenersAttached = true;
       bg.BackgroundGeolocation.onLocation(
           (l) => handleEvent(bg.Event.LOCATION, l),
-          (e) => Sentry.captureMessage('bg location error: ${e.code}'));
+          (e) => ErrorReporter.message('bg location error: ${e.code}'));
       bg.BackgroundGeolocation.onMotionChange(
           (l) => handleEvent(bg.Event.MOTIONCHANGE, l));
       bg.BackgroundGeolocation.onProviderChange(
@@ -114,7 +114,7 @@ class TrackingService {
       await handleEvent(bg.Event.PROVIDERCHANGE,
           await bg.BackgroundGeolocation.providerState);
     } catch (e, st) {
-      await Sentry.captureException(e, stackTrace: st);
+      await ErrorReporter.record(e, stackTrace: st);
     }
   }
 
@@ -249,7 +249,7 @@ class TrackingService {
           await reporter.log('device_boot', 'Phone restarted', 'info');
       }
     } catch (e, st) {
-      await Sentry.captureException(e, stackTrace: st);
+      await ErrorReporter.record(e, stackTrace: st);
     }
   }
 }

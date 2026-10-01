@@ -10,7 +10,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_flutter_platform_interface/src/types/marker_updates.dart';
 import 'package:provider/provider.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:royal_marble/core/error_reporter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:royal_marble/location/direction_repo.dart';
@@ -1007,7 +1007,7 @@ class _ShowMapState extends State<ShowMap> {
   Future<void> _getLocationName(coordinates) async {
     await Geocoding().placemarkFromCoordinates(coordinates.latitude, coordinates.longitude)
         .catchError((err) {
-      Sentry.captureException(err);
+      ErrorReporter.record(err);
     }).then((value) {
       if (Platform.isIOS) {
         locationName = '${value[0]}';

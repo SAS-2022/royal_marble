@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/services/database.dart';
-import 'package:sentry/sentry.dart' as sentry;
+import 'package:royal_marble/core/error_reporter.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -22,7 +22,7 @@ class AuthService {
       await user!.sendEmailVerification();
       return user.uid;
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return e.toString();
     }
   }
@@ -44,7 +44,7 @@ class AuthService {
         return null;
       }
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
     }
   }
 
@@ -64,7 +64,7 @@ class AuthService {
         _ => 'Wrong email or password.',
       };
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Could not sign in. Please try again.';
     }
   }
@@ -80,7 +80,7 @@ class AuthService {
         return null;
       }
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return e.toString();
     }
   }
@@ -127,12 +127,12 @@ class AuthService {
           return user.uid;
         } catch (e, stackTrace) {
           print('Error sending verification email: $e');
-          await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+          await ErrorReporter.record(e, stackTrace: stackTrace);
         }
       }
     } catch (e, stackTrace) {
       print('Error creating user: $e');
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return e.toString();
     }
   }
@@ -142,7 +142,7 @@ class AuthService {
     try {
       return await _auth.signOut();
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return null;
     }
   }
@@ -151,7 +151,7 @@ class AuthService {
     try {
       return await _auth.sendPasswordResetEmail(email: email);
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Reset email error: $e';
     }
   }
@@ -170,7 +170,7 @@ class AuthService {
 
       await _auth.currentUser!.delete();
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
     }
   }
 
@@ -184,7 +184,7 @@ class AuthService {
         return e;
       }
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return e.toString();
     }
   }

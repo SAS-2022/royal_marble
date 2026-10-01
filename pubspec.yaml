@@ -17,7 +17,6 @@ dependencies:
   cloud_functions: ^6.5.0
   firebase_database: ^12.6.0
   google_maps_flutter: ^2.5.0
-  sentry_flutter: ^9.0.0
   provider: ^6.1.1
   country_picker: ^2.0.20
   email_validator: ^3.0.0
@@ -50,6 +49,7 @@ dependencies:
   open_filex: ^4.3.4
   syncfusion_flutter_xlsio: ^35.1.37
   connectivity_plus: ^7.3.1
+  firebase_crashlytics: ^5.4.0
  
 
 dev_dependencies:

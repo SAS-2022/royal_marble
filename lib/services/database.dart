@@ -4,7 +4,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/models/directions.dart';
-import 'package:sentry/sentry.dart' as sentry;
+import 'package:royal_marble/core/error_reporter.dart';
 import '../models/user_model.dart';
 
 class DatabaseService {
@@ -54,7 +54,7 @@ class DatabaseService {
         return 'your data has been updated successfully';
       });
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return ' $e';
     }
   }
@@ -72,7 +72,7 @@ class DatabaseService {
         'distanceToProject': distance,
       }).then((value) => 'Completed');
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return ' $e';
     }
   }
@@ -87,7 +87,7 @@ class DatabaseService {
           .doc('current')
           .set({'location': location});
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
     }
   }
 
@@ -100,7 +100,7 @@ class DatabaseService {
           .update({'locationPermission': permissionStatus.toString()}).then(
               (value) => 'Permission Status updated');
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
     }
   }
 
@@ -112,7 +112,7 @@ class DatabaseService {
           .delete()
           .then((value) => 'User deleted');
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error: $e';
     }
   }
@@ -124,7 +124,7 @@ class DatabaseService {
           .doc(uid)
           .update({'isActive': active}).then((value) => 'Completed');
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error: $e';
     }
   }
@@ -154,7 +154,7 @@ class DatabaseService {
         'roles': [roles]
       }).then((value) => 'Completed');
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error: $e';
     }
   }
@@ -175,7 +175,7 @@ class DatabaseService {
         'homeAddress': newUsers.homeAddress,
       }).then((value) => 'Completed');
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error: $e';
     }
   }
@@ -188,7 +188,7 @@ class DatabaseService {
           .doc(uid)
           .update({'assignedHelpers': helpers}).then((value) => 'Completed');
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error: $e';
     }
   }
@@ -210,7 +210,7 @@ class DatabaseService {
       }
       return result.toString();
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error: $e';
     }
   }
@@ -266,7 +266,7 @@ class DatabaseService {
         }).toList();
       });
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return [];
     }
   }
@@ -288,7 +288,7 @@ class DatabaseService {
         }).toList();
       });
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return [];
     }
   }
@@ -369,7 +369,7 @@ class DatabaseService {
             imageUrl: data['imageUrl']);
       });
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return UserData(error: e.toString());
     }
   }
@@ -464,7 +464,7 @@ class DatabaseService {
         }).toList();
       });
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return [];
     }
   }
@@ -486,7 +486,7 @@ class DatabaseService {
         'userId': client.userId,
       }).then((value) => 'Completed');
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error: $e';
     }
   }
@@ -507,7 +507,7 @@ class DatabaseService {
         'userId': client.userId,
       }).then((value) => 'Completed');
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error: $e';
     }
   }
@@ -517,7 +517,7 @@ class DatabaseService {
     try {
       await clientCollection.doc(clientId).delete();
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
     }
   }
 
@@ -594,7 +594,7 @@ class DatabaseService {
         }).toList();
       });
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return [];
     }
   }
@@ -621,7 +621,7 @@ class DatabaseService {
         }).toList();
       });
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return [];
     }
   }
@@ -648,7 +648,7 @@ class DatabaseService {
         'status': project.projectStatus,
       }).then((value) => 'Completed');
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error: $e';
     }
   }
@@ -674,7 +674,7 @@ class DatabaseService {
         'status': project.projectStatus,
       }).then((value) => 'Completed');
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error: $e';
     }
   }
@@ -687,7 +687,7 @@ class DatabaseService {
         'assignedWorkers': project.assignedWorkers,
       }).then((value) => 'Completed');
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error: $e';
     }
   }
@@ -789,7 +789,7 @@ class DatabaseService {
         return '[Failed]: $result';
       }
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error: $e';
     }
   }
@@ -855,7 +855,7 @@ class DatabaseService {
 
       return result;
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error: $e';
     }
   }
@@ -896,7 +896,7 @@ class DatabaseService {
 
       return result;
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return ProjectData(error: e.toString());
     }
   }
@@ -951,7 +951,7 @@ class DatabaseService {
           .delete()
           .then((value) => 'Deleted');
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error Deleting: $e';
     }
   }
@@ -978,7 +978,7 @@ class DatabaseService {
         'status': mockup.mockupStatus,
       }).then((value) => 'Completed');
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error: $e';
     }
   }
@@ -1004,7 +1004,7 @@ class DatabaseService {
         'status': mockup.mockupStatus,
       }).then((value) => 'Completed');
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error: $e';
     }
   }
@@ -1088,7 +1088,7 @@ class DatabaseService {
         return '[Failed]: $result';
       }
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error: $e';
     }
   }
@@ -1101,7 +1101,7 @@ class DatabaseService {
         'assignedWorkers': mockup.assignedWorkers,
       }).then((value) => 'Completed');
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error: $e';
     }
   }
@@ -1160,7 +1160,7 @@ class DatabaseService {
 
       return result;
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       print('An error removing users: $e');
       return 'Error: $e';
     }
@@ -1203,7 +1203,7 @@ class DatabaseService {
 
       return result;
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       print('An error obtaining project: $e');
       return MockupData(error: e.toString());
     }
@@ -1260,7 +1260,7 @@ class DatabaseService {
           .delete()
           .then((value) => 'Deleted');
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error Deleting: $e';
     }
   }
@@ -1294,7 +1294,7 @@ class DatabaseService {
         }
       }).then((value) => 'time sheet updated');
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error setting: $e';
     }
   }
@@ -1334,7 +1334,7 @@ class DatabaseService {
         }
       }).then((value) => 'time sheet updated');
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error updating: $e';
     }
   }
@@ -1356,7 +1356,7 @@ class DatabaseService {
         }
       }).then((value) => 'time sheet updated');
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error updating: $e';
     }
   }
@@ -1370,7 +1370,7 @@ class DatabaseService {
           .then((value) => {'data': value.data()})
           .catchError((err) => {'status': 'empty'});
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return {'Error': e};
     }
   }
@@ -1410,7 +1410,7 @@ class DatabaseService {
         return {};
       });
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return {};
     }
   }
@@ -1459,7 +1459,7 @@ class DatabaseService {
         'userId': userId,
       }).then((value) => 'Document added Successfully');
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       print('the error: $e');
       return e.toString();
     }
@@ -1500,7 +1500,7 @@ class DatabaseService {
         'managerComments': managerComments,
       }).then((value) => 'Document updated Successfully');
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return e.toString();
     }
   }
@@ -1529,7 +1529,7 @@ class DatabaseService {
         'managerComments': managerComments,
       }).then((value) => 'Document updated Successfully');
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
 
       return e.toString();
     }
@@ -1622,7 +1622,7 @@ class DatabaseService {
         }).toList();
       });
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return [ClientVisitDetails(error: e.toString())];
     }
   }
@@ -1652,7 +1652,7 @@ class DatabaseService {
         }).toList();
       });
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
 
       return [ProjectVisitDetails(error: e.toString())];
     }
@@ -1680,7 +1680,7 @@ class DatabaseService {
         }).toList();
       });
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return [ClientVisitDetails(error: e.toString())];
     }
   }
@@ -1710,7 +1710,7 @@ class DatabaseService {
         'mobileNumber': mobileNumber,
       }).then((value) => 'Helper Added Sucessfully');
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error Adding Helper: $e';
     }
   }
@@ -1727,7 +1727,7 @@ class DatabaseService {
         'mobileNumber': mobileNumber,
       }).then((value) => 'Helper Updated Sucessfully');
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error Updating Helper: $e';
     }
   }
@@ -1744,7 +1744,7 @@ class DatabaseService {
             mobileNumber: data['mobileNumber']);
       });
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return Helpers();
     }
   }
@@ -1753,7 +1753,7 @@ class DatabaseService {
     try {
       await helperCollection.doc(uid).delete();
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
     }
   }
 
@@ -1768,7 +1768,7 @@ class DatabaseService {
                 mobileNumber: data['mobileNumber']);
           }).toList());
     } catch (e, stackTrace) {
-      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+      await ErrorReporter.record(e, stackTrace: stackTrace);
       return [];
     }
   }
