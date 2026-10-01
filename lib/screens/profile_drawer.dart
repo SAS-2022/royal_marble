@@ -7,7 +7,7 @@ import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/core/roles.dart';
 import 'package:royal_marble/location/map_providers.dart';
 import 'package:royal_marble/models/user_model.dart';
-import 'package:royal_marble/reports/report_grid.dart';
+import 'package:royal_marble/reports/reports_screen.dart';
 import 'package:royal_marble/sales_pipeline/visit_forms.dart/visit_form_streams.dart';
 import 'package:royal_marble/screens/team_status_screen.dart';
 import 'package:royal_marble/services/auth.dart';
@@ -93,12 +93,11 @@ class ProfileDrawer extends StatelessWidget {
                 ],
                 if (admin || supervisor) ...[
                   const _Group('Reports'),
-                  _Item(Icons.construction_outlined, 'Site report',
+                  _Item(Icons.schedule_outlined, 'Attendance',
+                      () => open(const ReportsScreen())),
+                  _Item(Icons.sell_outlined, 'Sales activity',
                       () => open(
-                          ReportGrid(currentUser: user, reportType: 'site'))),
-                  _Item(Icons.sell_outlined, 'Sales report',
-                      () => open(
-                          ReportGrid(currentUser: user, reportType: 'sales'))),
+                          const ReportsScreen(initial: ReportKind.sales))),
                 ],
               ],
             ),
