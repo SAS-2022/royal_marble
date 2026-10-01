@@ -72,6 +72,11 @@ supervisors see attendance, alerts and reports.
 
 ## 3. Blocked / waiting on the client
 
+> **Production freeze (2026-10-01):** the app is live and in use. No deploys of any
+> kind (rules, functions, indexes) until the user has finalized with the client and
+> explicitly approves each one. Code work continues on `revive-2026` only.
+
+
 - [ ] **Firebase billing:** card expired → Cloud Functions can't deploy. Until
       `checkInOut` is deployed, check-in in the new app fails.
       Deploy: `firebase deploy --only functions,firestore:indexes ...`
@@ -128,7 +133,7 @@ independent and needs no billing, so it goes first.
 | 2 Attendance correctness | ⬜ | Functions deploy (billing) |
 | 3 Multi-site + per-site hours | ⬜ | Phase 2; functions deploy |
 | 4 Leaving-site alerts + push | ⬜ | Phase 2; functions deploy |
-| 5 Salary details | 🔄 | Rules deploy for `payroll` (approval) |
+| 5 Salary details | 🔄 | `payroll` rules deploy (production freeze) |
 | 6 Hours-based pay | ⬜ | Phases 2, 3, 5; client decisions (below) |
 | 7 Remaining UI + delivery | ⬜ | — (web dashboard after 2–4) |
 
@@ -203,8 +208,9 @@ writes a snapshot to `payroll/{uid}/history/{auto}`.
       editor (`lib/screens/salary_screens.dart`)
 - [x] Worker: "My pay" in the drawer for all non-admin roles (read-only)
 - [x] Rules written in `firestore.rules` and `firestore.strict.rules` (compile OK)
-- [ ] **Deploy the `payroll` rules** — waiting for approval. Until then the Pay card
-      shows "not available yet" (seen on the emulator)
+- [ ] **Deploy the `payroll` rules** — on hold (production freeze). Purely additive:
+      existing rules are unchanged and current app versions never touch `payroll`.
+      Until deployed, the Pay card shows "not available yet" (seen on the emulator)
 - [ ] Verify on device: admin sets a package, the worker sees it, another user can't
 
 ### Phase 6 — Hours-based pay (f)
@@ -241,3 +247,5 @@ writes a snapshot to `payroll/{uid}/history/{auto}`.
   "My pay". Signed in on the emulator with the admin test account (credentials are
   not stored anywhere). Confirmed the deployed `device_events` rule works (the alerts
   feed loads). Payroll rules need deploying before the feature can be tested end to end.
+- **2026-10-01 (cont.)** — Production freeze: the user will finalize with the client
+  before any deploy. Payroll rules are ready but on hold.
