@@ -7,6 +7,8 @@ import 'package:royal_marble/location/map_providers.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/reports/report_grid.dart';
 import 'package:royal_marble/sales_pipeline/visit_forms.dart/visit_form_streams.dart';
+import 'package:royal_marble/screens/team_status_screen.dart';
+import 'package:royal_marble/services/tracking_service.dart';
 import 'package:royal_marble/services/auth.dart';
 import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/shared/constants.dart';
@@ -259,6 +261,21 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                       widget.currentUser!.roles!.contains('isAdmin') ||
                               widget.currentUser!.roles!
                                   .contains('isSupervisor')
+                          ? ListTile(
+                              leading: const Icon(Icons.notifications_active),
+                              title: const Text('Team Status & Alerts'),
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => TeamStatusScreen(
+                                      users: widget.allUsers ?? const []),
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                      widget.currentUser!.roles!.contains('isAdmin') ||
+                              widget.currentUser!.roles!
+                                  .contains('isSupervisor')
                           ? ExpansionTile(
                               iconColor:
                                   const Color.fromARGB(255, 191, 180, 66),
@@ -353,6 +370,7 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                               ),
                             ),
                             onPressed: () async {
+                              await TrackingService.stop();
                               await _auth.signOut();
                               //clear sharedpreference data
                               _pref = await SharedPreferences.getInstance();

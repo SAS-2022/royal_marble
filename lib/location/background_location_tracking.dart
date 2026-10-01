@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
 import 'package:provider/provider.dart';
-import 'package:royal_marble/location/.env.dart';
+import 'package:royal_marble/core/env.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/services/database.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -221,7 +221,7 @@ class _LiveViewState extends State<LiveView>
 
     bg.BackgroundGeolocation.startBackgroundTask().then((int taskId) async {
       // Execute an HTTP request to test an async operation completes.
-      String url = "${ENV.TRACKER_HOST}/api/devices";
+      String url = "${Env.trackerHost}/api/devices";
       bg.State state = await bg.BackgroundGeolocation.state;
       http.read(Uri.parse(url), headers: {
         "Authorization": "Bearer ${state.authorization!.accessToken}"

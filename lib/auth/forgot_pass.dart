@@ -2,7 +2,6 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:royal_marble/services/auth.dart';
 import 'package:royal_marble/shared/snack_bar.dart';
-
 import '../shared/constants.dart';
 import '../shared/loading.dart';
 
@@ -83,7 +82,7 @@ class _ForgotPassScreenState extends State<ForgotPassScreen> {
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.redAccent,
+                    foregroundColor: Colors.redAccent,
                     shadowColor: Colors.brown[500],
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(25.0),

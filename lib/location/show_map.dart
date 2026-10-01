@@ -13,7 +13,6 @@ import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:royal_marble/location/.env.dart';
 import 'package:royal_marble/location/direction_repo.dart';
 import 'package:royal_marble/mockups/mockup_form.dart';
 import 'package:royal_marble/models/business_model.dart';
@@ -61,7 +60,6 @@ class _ShowMapState extends State<ShowMap> {
   int _prefTab = 0;
   var db = DatabaseService();
   // PickResult selectedPlace;
-  String? apiKey;
   LatLng? _center;
   final _elevation = 3.0;
 
@@ -92,7 +90,6 @@ class _ShowMapState extends State<ShowMap> {
 
     _center = LatLng(widget.currentUser!.homeAddress!['Lat'],
         widget.currentUser!.homeAddress!['Lng']);
-    _getApiKey();
     _getMyCurrentLocation = _determinePosition();
     _identifyMapMarkers();
     if (widget.listOfMarkers == 'users') {
@@ -380,15 +377,6 @@ class _ShowMapState extends State<ShowMap> {
             : _buildMarkersDrawer(),
       ),
     );
-  }
-
-  //Will determine api key for ios and android
-  void _getApiKey() {
-    if (Platform.isAndroid) {
-      apiKey = googleAPIKey;
-    } else {
-      apiKey = iosAPIKey;
-    }
   }
 
   void updateState() {
@@ -1018,7 +1006,7 @@ class _ShowMapState extends State<ShowMap> {
   }
 
   Future<void> _getLocationName(coordinates) async {
-    await placemarkFromCoordinates(coordinates.latitude, coordinates.longitude)
+    await Geocoding().placemarkFromCoordinates(coordinates.latitude, coordinates.longitude)
         .catchError((err) {
       Sentry.captureException(err);
     }).then((value) {

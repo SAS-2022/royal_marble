@@ -399,8 +399,10 @@ class _WorkerWidgetState extends State<WorkerWidget> {
         if (_userProvider!.assignedProject != null) {
           for (var project in _userProvider!.assignedProject) {
             if (project['id'] == widget.currentProject!.uid) {
+              // distanceToProject is measured from the site's edge, so
+              // anything <= 0 is inside the radius.
               if (_userProvider!.distanceToProject != null &&
-                  _userProvider!.distanceToProject <= project['radius']) {
+                  _userProvider!.distanceToProject <= 0) {
                 currentColor = Colors.green;
               } else {
                 currentColor = Colors.yellow;
@@ -410,8 +412,7 @@ class _WorkerWidgetState extends State<WorkerWidget> {
         }
       } else {
         if (_userProvider!.distanceToProject != null &&
-            _userProvider!.distanceToProject <=
-                _userProvider!.assignedProject['radius']) {
+            _userProvider!.distanceToProject <= 0) {
           currentColor = Colors.green;
         } else {
           currentColor = Colors.yellow;

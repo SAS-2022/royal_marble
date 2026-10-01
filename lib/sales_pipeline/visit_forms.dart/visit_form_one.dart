@@ -143,108 +143,96 @@ class _VisitFormOneState extends State<VisitFormOne> {
                         children: [
                           //Client Name o project name
                           _type == VisitType.Client
-                              ? TypeAheadFormField(
-                                  onSuggestionSelected:
-                                      (ClientData suggestions) {
+                              ? TypeAheadField<ClientData>(
+                                  controller: _clientNameText,
+                                  onSelected: (ClientData suggestion) {
                                     _clientNameText.text =
-                                        suggestions.clientName.toString();
-                                    selectedClient = suggestions;
+                                        suggestion.clientName.toString();
+                                    selectedClient = suggestion;
                                   },
-                                  textFieldConfiguration:
-                                      TextFieldConfiguration(
-                                    controller: _clientNameText,
-                                    style: textStyle3,
-                                    autofocus: false,
-                                    decoration: const InputDecoration(
-                                      enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(15.0)),
-                                          borderSide:
-                                              BorderSide(color: Colors.grey)),
-                                      focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(15.0)),
-                                          borderSide: BorderSide(
-                                              width: 3, color: Colors.green)),
-                                      hintText: 'Client Name',
-                                      filled: true,
-                                    ),
-                                  ),
+                                  builder: (context, controller, focusNode) {
+                                    return TextFormField(
+                                      controller: controller,
+                                      focusNode: focusNode,
+                                      style: textStyle3,
+                                      decoration: const InputDecoration(
+                                        enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(15.0)),
+                                            borderSide:
+                                                BorderSide(color: Colors.grey)),
+                                        focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(15.0)),
+                                            borderSide: BorderSide(
+                                                width: 3, color: Colors.green)),
+                                        hintText: 'Client Name',
+                                        filled: true,
+                                      ),
+                                      validator: (val) {
+                                        return val!.isEmpty
+                                            ? 'Client name cannot be empty'
+                                            : null;
+                                      },
+                                    );
+                                  },
                                   errorBuilder: (context, err) {
                                     return Text(err.toString());
                                   },
-                                  keepSuggestionsOnLoading: true,
+                                  retainOnLoading: true,
                                   autoFlipDirection: true,
-                                  transitionBuilder:
-                                      (context, suggestionsBox, controller) {
-                                    return suggestionsBox;
-                                  },
-                                  validator: (val) {
-                                    return val!.isEmpty
-                                        ? 'Client name cannot be empty'
-                                        : null;
-                                  },
-                                  itemBuilder:
-                                      (context, ClientData suggestion) {
+                                  itemBuilder: (context, ClientData suggestion) {
                                     return ListTile(
-                                      title: suggestion == null
-                                          ? const Text(' ')
-                                          : Text(
-                                              suggestion.clientName.toString()),
+                                      title: Text(suggestion.clientName.toString()),
                                     );
                                   },
                                   suggestionsCallback: (pattern) async {
                                     return await clientSuggestions(pattern);
                                   })
-                              : TypeAheadFormField(
-                                  noItemsFoundBuilder: (BuildContext context) {
+                              : TypeAheadField<ProjectData>(
+                                  controller: _projectNameText,
+                                  onSelected: (ProjectData suggestion) {
+                                    _projectNameText.text =
+                                        suggestion.projectName.toString();
+                                    selectedProject = suggestion;
+                                  },
+                                  builder: (context, controller, focusNode) {
+                                    return TextFormField(
+                                      controller: controller,
+                                      focusNode: focusNode,
+                                      style: textStyle3,
+                                      decoration: const InputDecoration(
+                                        enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(15.0)),
+                                            borderSide:
+                                                BorderSide(color: Colors.grey)),
+                                        focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(15.0)),
+                                            borderSide: BorderSide(
+                                                width: 3, color: Colors.green)),
+                                        hintText: 'Project Name',
+                                        filled: true,
+                                      ),
+                                      validator: (val) {
+                                        return val!.isEmpty
+                                            ? 'Project name cannot be empty'
+                                            : null;
+                                      },
+                                    );
+                                  },
+                                  emptyBuilder: (BuildContext context) {
                                     return Container();
                                   },
-                                  textFieldConfiguration:
-                                      TextFieldConfiguration(
-                                    controller: _projectNameText,
-                                    style: textStyle3,
-                                    autofocus: false,
-                                    decoration: const InputDecoration(
-                                      enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(15.0)),
-                                          borderSide:
-                                              BorderSide(color: Colors.grey)),
-                                      focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(15.0)),
-                                          borderSide: BorderSide(
-                                              width: 3, color: Colors.green)),
-                                      hintText: 'Project Name',
-                                      filled: true,
-                                    ),
-                                  ),
                                   errorBuilder: (context, err) {
                                     return Text(err.toString());
                                   },
-                                  keepSuggestionsOnLoading: true,
-                                  onSuggestionSelected: (suggestions) {
-                                    _projectNameText.text =
-                                        suggestions.projectName.toString();
-                                    selectedProject = suggestions;
-                                  },
+                                  retainOnLoading: true,
                                   autoFlipDirection: true,
-                                  transitionBuilder:
-                                      (context, suggestionsBox, controller) {
-                                    return suggestionsBox;
-                                  },
-                                  validator: (val) {
-                                    return val!.isEmpty
-                                        ? 'Project name cannot be empty'
-                                        : null;
-                                  },
-                                  itemBuilder: (context, suggestion) {
+                                  itemBuilder: (context, ProjectData suggestion) {
                                     return ListTile(
-                                      title: suggestion == null
-                                          ? const Text(' ')
-                                          : Text(suggestion.projectName
-                                              .toString()),
+                                      title: Text(suggestion.projectName.toString()),
                                     );
                                   },
                                   suggestionsCallback: (pattern) async {
@@ -401,8 +389,8 @@ class _VisitFormOneState extends State<VisitFormOne> {
   }
 
   //Project Suggestions
-  Future<List<dynamic>> projectSuggestions(String query) async {
-    var matches = [];
+  Future<List<ProjectData>> projectSuggestions(String query) async {
+    List<ProjectData> matches = [];
     matches.addAll(projectProvider!.map((e) => e));
     matches.retainWhere((element) =>
         element.toString().toLowerCase().contains(query.toLowerCase()));

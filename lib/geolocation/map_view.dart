@@ -55,8 +55,8 @@ class MapViewState extends State<MapView>
           widget.currentUser!.currentLocation!['Lng']);
       _mapOptions = MapOptions(
           onPositionChanged: _onPositionChanged,
-          center: _center,
-          zoom: 16.0,
+          initialCenter: _center!,
+          initialZoom: 16.0,
           onLongPress: _onAddGeofence);
 
       _mapController = MapController();
@@ -91,7 +91,7 @@ class MapViewState extends State<MapView>
     print('there is motion: $ll');
     _updateCurrentPositionMarker(ll);
 
-    _mapController!.move(ll, _mapController!.zoom);
+    _mapController!.move(ll, _mapController!.camera.zoom);
 
     // clear the big red stationaryRadius circle.
     _stationaryMarker.clear();
@@ -205,7 +205,7 @@ class MapViewState extends State<MapView>
 
   void _onLocation(bg.Location location) {
     LatLng ll = LatLng(location.coords.latitude, location.coords.longitude);
-    _mapController!.move(ll, _mapController!.zoom);
+    _mapController!.move(ll, _mapController!.camera.zoom);
 
     _updateCurrentPositionMarker(ll);
 
@@ -300,8 +300,8 @@ class MapViewState extends State<MapView>
         }));
   }
 
-  void _onPositionChanged(MapPosition pos, bool hasGesture) {
-    _mapOptions!.crs.scale(_mapController!.zoom);
+  void _onPositionChanged(MapCamera camera, bool hasGesture) {
+    _mapOptions!.crs.scale(_mapController!.camera.zoom);
   }
 
   @override

@@ -1,22 +1,18 @@
 import 'dart:io';
 import 'package:email_validator/email_validator.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:royal_marble/services/checkin_service.dart';
+import 'package:royal_marble/widgets/checkin_card.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:royal_marble/models/business_model.dart';
-import 'package:royal_marble/projects/work_completed.dart';
-import 'package:royal_marble/shared/calculate_distance.dart';
 import 'package:royal_marble/shared/constants.dart';
 import 'package:royal_marble/shared/loading.dart';
-import 'package:geolocator/geolocator.dart' as geo;
 import '../location/google_map_navigation.dart';
 import '../location/http_navigation.dart';
 import '../models/user_model.dart';
 import '../services/database.dart';
 import '../shared/snack_bar.dart';
-import 'package:intl/intl.dart';
-import 'package:sentry/sentry.dart';
 
 class MockupForm extends StatefulWidget {
   const MockupForm(
@@ -55,14 +51,11 @@ class _MockupFormState extends State<MockupForm> {
   List<double> availableRadius = [100, 200, 400, 600, 1000];
   double? radius;
   HttpNavigation _httpNavigation = HttpNavigation();
-  bool _isAtSite = false;
   Future? userStatus;
   bool _isLoading = false;
-  bool _checkInOutLoading = false;
   PhoneNumber phoneNumber = PhoneNumber(isoCode: 'AE');
   TextEditingController _phoneController = TextEditingController();
   Color? _statusColor;
-  bool _alreadyCheckedIn = false;
 
   @override
   void initState() {
@@ -573,111 +566,23 @@ class _MockupFormState extends State<MockupForm> {
                       height: 15,
                     ),
                     //User check in and Check out
-                    //will allow the worker to check in the project they just arrived to
-                    widget.currentUser!.roles!.contains('isNormalUser') ||
-                            widget.currentUser!.roles!
-                                .contains('isSiteEngineer') ||
-                            widget.currentUser!.roles!.contains('isSupervisor')
-                        ? FutureBuilder(
-                            future: checkCurrentUserStatus(),
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                if (snapshot.data['data'] != null) {
-                                  if (snapshot.data['data']
-                                          [widget.currentUser!.uid] !=
-                                      null) {
-                                    _isAtSite = snapshot.data['data']
-                                        [widget.currentUser!.uid]['isOnSite'];
-                                  }
-                                }
-                              }
-
-                              return !_alreadyCheckedIn
-                                  ? Stack(
-                                      children: [
-                                        Center(
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(12),
-                                            child: SizedBox(
-                                              height: _size!.width / 2,
-                                              width: _size!.width / 2,
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: Colors.black
-                                                            .withOpacity(0.3),
-                                                        spreadRadius: 5,
-                                                        blurRadius: 2,
-                                                        offset:
-                                                            const Offset(0, 4),
-                                                      )
-                                                    ]),
-                                                child: ElevatedButton(
-                                                    style: ElevatedButton.styleFrom(
-                                                        elevation: 3,
-                                                        backgroundColor:
-                                                            !_isAtSite
-                                                                ? Colors
-                                                                    .green[400]
-                                                                : Colors
-                                                                    .red[600],
-                                                        shape:
-                                                            const CircleBorder()),
-                                                    onPressed:
-                                                        !_checkInOutLoading
-                                                            ? () async {
-                                                                setState(() {
-                                                                  _checkInOutLoading =
-                                                                      true;
-                                                                });
-                                                                await checkInOut(
-                                                                    snapshot);
-                                                                setState(() {
-                                                                  _checkInOutLoading =
-                                                                      false;
-                                                                });
-                                                                Navigator.pop(
-                                                                    context);
-                                                              }
-                                                            : null,
-                                                    child: !_isAtSite
-                                                        ? const Text(
-                                                            'Check In',
-                                                            style: textStyle2,
-                                                          )
-                                                        : const Text(
-                                                            'Check Out',
-                                                            style: textStyle2,
-                                                          )),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        _checkInOutLoading
-                                            ? Center(
-                                                child: SizedBox(
-                                                    height: _size!.width / 2,
-                                                    width: _size!.width / 2,
-                                                    child: const Loading()),
-                                              )
-                                            : const SizedBox.shrink()
-                                      ],
-                                    )
-                                  : Padding(
-                                      padding: const EdgeInsets.all(12.0),
-                                      child: Center(
-                                        child: Text(
-                                          'You are still checked in at ${snapshot.data['data'][widget.currentUser!.uid]['projectName']}, please checkout from there before proceeding here.',
-                                          style: textStyle15,
-                                          textAlign: TextAlign.center,
-                                          softWrap: true,
-                                        ),
-                                      ),
-                                    );
-                            })
-                        : const SizedBox.shrink(),
+                    //check in / check out
+                    if (!widget.currentUser!.roles!.contains('isAdmin') &&
+                        !widget.currentUser!.roles!.contains('isSales'))
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: CheckInCard(
+                          user: widget.currentUser!,
+                          kind: SiteKind.mockup,
+                          siteId: widget.selectedMockUp!.uid!,
+                          siteName: widget.selectedMockUp!.mockupName ?? '',
+                          lat: (widget.selectedMockUp!.mockupAddress?['Lat'] as num?)
+                              ?.toDouble(),
+                          lng: (widget.selectedMockUp!.mockupAddress?['Lng'] as num?)
+                              ?.toDouble(),
+                          radius: widget.selectedMockUp!.radius,
+                        ),
+                      ),
                     //Assigning users to mockup
                     //this feature is only available for admin users
                     widget.currentUser!.roles!.contains('isAdmin')
@@ -1252,159 +1157,5 @@ class _MockupFormState extends State<MockupForm> {
       newMockup.mockupAddress = _myLocation;
       setState(() {});
     }
-  }
-
-  //calculates the distance between two points
-  Future<DateTime> _calculateDistance(LatLng myLocation) async {
-    try {
-      CalculateDistance _calculate = CalculateDistance();
-      var dt = DateTime.now();
-      String dateFormat = DateFormat('hh:mm a').format(dt);
-      var result = _calculate.distanceBetweenTwoPoints(
-          myLocation.latitude,
-          myLocation.longitude,
-          widget.selectedMockUp!.mockupAddress!['Lat'],
-          widget.selectedMockUp!.mockupAddress!['Lng']);
-      //will check if the worker has arrived to the site
-      if (result != null && result * 1000 <= widget.selectedMockUp!.radius!) {
-        if (_isAtSite) {
-          _snackBarWidget.content =
-              'Have a great day, you have checked out.\nTime: $dateFormat\n';
-          _snackBarWidget.showSnack();
-        } else {
-          _snackBarWidget.content =
-              'Wonderful, you have arrived to your assigned location.\nTime: $dateFormat\n';
-          _snackBarWidget.showSnack();
-        }
-
-        if (mounted) {
-          setState(() {
-            _isAtSite = !_isAtSite;
-          });
-        }
-      } else {
-        dt = DateTime(1979);
-        _snackBarWidget.content =
-            'You have ${((result * 1000) - widget.selectedMockUp!.radius!).round()} meters to arrive to your destination.';
-        _snackBarWidget.showSnack();
-      }
-
-      return dt;
-    } catch (e, stackTrace) {
-      await Sentry.captureException(e, stackTrace: stackTrace);
-      return DateTime(1979);
-    }
-  }
-
-  //will allow the working to checkin or checkout
-  Future<void> checkInOut(var data) async {
-    Map<String, dynamic> completedWork = {};
-    geo.Position userLocation = await geo.Geolocator.getCurrentPosition(
-        desiredAccuracy: geo.LocationAccuracy.high);
-
-    if (userLocation != null) {
-      var result = await _calculateDistance(
-          LatLng(userLocation.latitude, userLocation.longitude));
-      //we will check if user in at site and record it in the report collection
-      if (result != null && data.hasData) {
-        var timeSheetUpdated;
-        //check if field is available
-        var todayTimeSheet = data.data;
-        //Code will execute for isNormalUser only when trying to check out
-        if (!_isAtSite && widget.currentUser!.roles!.contains('isNormalUser')) {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => WorkCompleted(
-                  isAtSite: _isAtSite,
-                  currentUser: widget.currentUser!,
-                  timeSheetId: '${result.day}-${result.month}-${result.year}',
-                  selectedMockup: widget.selectedMockUp!,
-                  checkIn: todayTimeSheet['data'][widget.currentUser!.uid]
-                      ['arriving_at'],
-                  checkOut: result.toString()),
-            ),
-          );
-        } else {
-          //code will execute for all user including isNormalUser to check it, and for all users excluding isNormalUser to checkout
-          if (todayTimeSheet['data'] != null) {
-            if (todayTimeSheet['data'][widget.currentUser!.uid] != null) {
-              if (_isAtSite) {
-                timeSheetUpdated = await db.updateWorkerTimeSheet(
-                    isAtSite: _isAtSite,
-                    currentUser: widget.currentUser!,
-                    userRole: widget.currentUser!.roles!.first,
-                    selectedMockup: widget.selectedMockUp!,
-                    today: '${result.day}-${result.month}-${result.year}',
-                    checkOut: todayTimeSheet['data'][widget.currentUser!.uid]
-                        ['leaving_at'],
-                    checkIn: result.toString());
-              } else {
-                timeSheetUpdated = await db.updateWorkerTimeSheet(
-                    isAtSite: _isAtSite,
-                    currentUser: widget.currentUser!,
-                    selectedMockup: widget.selectedMockUp!,
-                    userRole: widget.currentUser!.roles!.first,
-                    today: '${result.day}-${result.month}-${result.year}',
-                    checkIn: todayTimeSheet['data'][widget.currentUser!.uid]
-                        ['arriving_at'],
-                    checkOut: result.toString());
-              }
-            } else {
-              //set the data base with the required information
-              timeSheetUpdated = await db.updateWorkerTimeSheet(
-                isAtSite: _isAtSite,
-                currentUser: widget.currentUser!,
-                selectedMockup: widget.selectedMockUp!,
-                userRole: widget.currentUser!.roles!.first,
-                today: '${result.day}-${result.month}-${result.year}',
-                checkIn: result.toString(),
-              );
-            }
-          } else {
-            //set the data base with the required information
-            if (_isAtSite) {
-              timeSheetUpdated = await db.setWorkerTimeSheet(
-                  userRole: widget.currentUser!.roles!.first,
-                  isAtSite: _isAtSite,
-                  currentUser: widget.currentUser!,
-                  selectedMockup: widget.selectedMockUp!,
-                  today: '${result.day}-${result.month}-${result.year}',
-                  checkIn: result.toString());
-            } else {
-              timeSheetUpdated = await db.setWorkerTimeSheet(
-                  userRole: widget.currentUser!.roles!.first,
-                  isAtSite: _isAtSite,
-                  currentUser: widget.currentUser!,
-                  selectedMockup: widget.selectedMockUp!,
-                  today: '${result.day}-${result.month}-${result.year}',
-                  checkOut: result.toString());
-            }
-          }
-        }
-      }
-    }
-  }
-
-  Future checkCurrentUserStatus() async {
-    String currentDate =
-        '${DateTime.now().day}-${DateTime.now().month}-${DateTime.now().year}';
-
-    var result = await db.getCurrentTimeSheet(today: currentDate);
-
-    if (result['data'][widget.currentUser!.uid] != null) {
-      if (result['data'][widget.currentUser!.uid]['isOnSite'] &&
-          widget.selectedMockUp!.uid ==
-              result['data'][widget.currentUser!.uid]['projectId']) {
-        _alreadyCheckedIn = false;
-      } else {
-        if (result['data'][widget.currentUser!.uid]['leaving_at'] != null) {
-          _alreadyCheckedIn = false;
-        } else {
-          _alreadyCheckedIn = true;
-        }
-      }
-    }
-    return result;
   }
 }

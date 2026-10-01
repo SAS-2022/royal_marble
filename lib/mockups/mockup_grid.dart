@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:royal_marble/core/roles.dart';
 import 'package:royal_marble/mockups/mockup_list.dart';
 import 'package:royal_marble/models/business_model.dart';
 
@@ -33,7 +34,11 @@ class MockupGrid extends StatelessWidget {
                 },
               ),
         StreamProvider<List<UserData>>.value(
-          value: db.getAllWorkers(),
+          // Workers may not list other users; only managers need the roster.
+          value: primaryRole(currentUser?.roles) == AppRole.worker ||
+                  primaryRole(currentUser?.roles) == AppRole.siteEngineer
+              ? Stream.value(const <UserData>[])
+              : db.getAllWorkers(),
           initialData: [],
           catchError: (context, error) {
             return [UserData(error: error.toString())];

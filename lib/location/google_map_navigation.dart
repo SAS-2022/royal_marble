@@ -122,7 +122,7 @@ class _GoogleMapNavigationState extends State<GoogleMapNavigation> {
                                 }),
                                 onCameraIdle: () async {
                                   List<Placemark> placeMarks =
-                                      await placemarkFromCoordinates(
+                                      await Geocoding().placemarkFromCoordinates(
                                           _cameraPosition!.target.latitude,
                                           _cameraPosition!.target.longitude);
 

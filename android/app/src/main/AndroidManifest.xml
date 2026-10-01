@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
  xmlns:tools="http://schemas.android.com/tools"
-    package="com.royalmarble.tracking">
+>
    <application
         android:usesCleartextTraffic="true"
         tools:replace="android:label"
@@ -8,7 +8,7 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <meta-data android:name="com.google.android.geo.API_KEY"
-               android:value="AIzaSyDxHsZHroTq6ZormBWI59ToYMF3qCreo-8"/>
+               android:value="${MAPS_API_KEY}"/>
         <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
         <activity
             android:name=".MainActivity"
@@ -38,7 +38,7 @@
         <service
             tools:replace="android:foregroundServiceType"
              android:name="com.transistorsoft.locationmanager.service.TrackingService" android:foregroundServiceType="location" />
-+       <service
+        <service
             tools:replace="android:foregroundServiceType"
             android:name="com.transistorsoft.locationmanager.service.LocationRequestService" android:foregroundServiceType="location" />
          <provider

@@ -16,6 +16,7 @@ class UserData {
   bool? isActive;
   String? imageUrl;
   String? permissionStatus;
+  Map<String, dynamic>? deviceStatus;
   List<dynamic>? assingedHelpers;
   String? error;
 
@@ -37,6 +38,7 @@ class UserData {
     this.distanceToProject,
     this.imageUrl,
     this.permissionStatus,
+    this.deviceStatus,
     this.assingedHelpers,
     this.error,
   });

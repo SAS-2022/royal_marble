@@ -1,6 +1,6 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:dio/dio.dart';
-import 'package:royal_marble/location/.env.dart';
+import 'package:royal_marble/core/env.dart';
 
 import '../models/directions.dart';
 
@@ -15,7 +15,7 @@ class DirectionRepository {
     final response = await _dio.get(baseUrl, queryParameters: {
       'origin': '${origin!.latitude},${origin.longitude}',
       'destination': '${destination!.latitude},${destination.longitude}',
-      'key': googleAPIKey,
+      'key': Env.mapsApiKey,
     });
     print('response: ${response.data}');
     if (response.statusCode == 200) {

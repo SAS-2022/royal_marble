@@ -44,3 +44,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Local API keys (see config/env.example.json)
+/config/env.json
+/android/build/

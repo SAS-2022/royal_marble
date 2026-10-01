@@ -77,6 +77,20 @@ class DatabaseService {
     }
   }
 
+  //mirror the latest background-geolocation fix to users/{uid}/location/current
+  Future<void> saveTrackedLocation(
+      {required String uid, required Map<dynamic, dynamic> location}) async {
+    try {
+      await userCollection
+          .doc(uid)
+          .collection('location')
+          .doc('current')
+          .set({'location': location});
+    } catch (e, stackTrace) {
+      await sentry.Sentry.captureException(e, stackTrace: stackTrace);
+    }
+  }
+
   //update user location permission status
   Future<void> updateUserPermissionStatus(
       {String? uid, ph.PermissionStatus? permissionStatus}) async {
@@ -350,6 +364,7 @@ class DatabaseService {
             assignedMockups: data['assignedMockup'],
             distanceToProject: data['distanceToProject'],
             currentLocation: data['currentLocation'],
+            deviceStatus: (data.data() as Map<String, dynamic>?)?['deviceStatus'],
             assingedHelpers: data['assignedHelpers'] ?? [],
             imageUrl: data['imageUrl']);
       });
@@ -377,6 +392,7 @@ class DatabaseService {
       assignedMockups: data['assignedMockup'],
       distanceToProject: data['distanceToProject'],
       currentLocation: data['currentLocation'],
+      deviceStatus: data['deviceStatus'],
       imageUrl: data['imageUrl'],
       assingedHelpers: data['assignedHelpers'] ?? [],
       location: data['location'],
@@ -413,6 +429,7 @@ class DatabaseService {
         assignedMockups: data['assignedMockup'],
         distanceToProject: data['distanceToProject'],
         currentLocation: data['currentLocation'],
+        deviceStatus: data['deviceStatus'],
         imageUrl: data['imageUrl'],
         permissionStatus: data['locationPermission'],
         assingedHelpers: data['assignedHelpers'] ?? [],
@@ -1406,7 +1423,7 @@ class DatabaseService {
   }
 
   Map<String, dynamic> _timeSheetDataFromSnapshot(DocumentSnapshot snapshot) {
-    var data = snapshot.data() as Map<String, dynamic>;
+    var data = snapshot.data() as Map<String, dynamic>? ?? {};
     return data;
   }
 

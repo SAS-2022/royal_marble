@@ -41,7 +41,7 @@ class Directions {
 
     return Directions(
         bounds,
-        PolylinePoints().decodePolyline(data['overview_polyline']['points']),
+        PolylinePoints.decodePolyline(data['overview_polyline']['points']),
         distance,
         duration,
         LatLng(northEast['lat'], northEast['lng']),
