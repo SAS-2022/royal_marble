@@ -325,14 +325,17 @@ Workers come from different countries; each user picks a language.
       home (all roles), check-in card and work sheet, status banner, My pay and
       breakdown, pending approval, drawer, role names, country names (Arabic only —
       the picker package has no Hindi/Urdu)
-- [ ] Admin and supervisor screens: team status and alert texts, users list, user
-      admin page, site details and team sheet, salary editor, reports (PDF/Excel stay
-      English unless requested), and the old screens as they are redesigned
+- [x] Admin and supervisor screens: team status, users list, user admin page, site
+      details and team sheet, salary editor, reports (154 more strings, 2026-10-02).
+      PDF/Excel exports stay English (records for the office) unless requested.
+- [ ] Old screens (profile editor, project/mock-up forms and map, clients, visits,
+      helpers, workers' state) — translate as each is redesigned in Phase 7
 - [x] Server check-in errors now carry `details.reason` codes; the app translates
       them (function code only; deploy later). Same change added the
       **assignment check** for feature (a).
 - [x] Role labels translated
-- [ ] Alert texts in Team Status translated by event type
+- [x] Alert texts translated by event type (stored English text is the fallback);
+      phone-problem labels are now codes (`DeviceProblem`) shown in the reader's language
 - [ ] Review: machine-quality translations need a native-speaker check (ask the
       client for an Arabic, Hindi and Urdu reader)
 
@@ -372,3 +375,7 @@ Workers come from different countries; each user picks a language.
   assignment check added to `checkInOut` (not deployed). Replaced the template
   widget test with 9 unit tests (all pass). Next: translate admin screens and alert
   texts, then the Firebase emulator setup.
+- **2026-10-02 (cont.)** — Admin screens translated; alert and phone-problem texts
+  follow the reader's language. Verified on the emulator in Arabic, Hindi and Urdu
+  (sign-in, registration, admin dashboard, Team Status). Removed empty placeholder
+  tests; `flutter test` passes. Next: Firebase emulator setup (agenda item 2).

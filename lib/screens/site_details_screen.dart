@@ -107,11 +107,11 @@ class SiteDetailsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(site.kind == SiteKind.project ? 'Project' : 'Mock-up'),
+        title: Text(site.kind == SiteKind.project ? context.l10n.project : context.l10n.mockup),
         actions: [
           if (role == AppRole.admin)
             IconButton(
-              tooltip: 'Edit',
+              tooltip: context.l10n.edit,
               icon: const Icon(Icons.edit_outlined),
               onPressed: () => _edit(context),
             ),
@@ -142,7 +142,7 @@ class SiteDetailsScreen extends StatelessWidget {
                 leading: const Icon(Icons.place_outlined),
                 title: Text(prettyAddress(site.address?['addressName'])),
                 subtitle: site.radius != null
-                    ? Text('Check-in radius ${site.radius!.round()} m')
+                    ? Text(context.l10n.checkInRadius(site.radius!.round()))
                     : null,
               ),
               if (lat != null && lng != null)
@@ -157,14 +157,14 @@ class SiteDetailsScreen extends StatelessWidget {
                       ),
                     ),
                     icon: const Icon(Icons.directions),
-                    label: const Text('Directions'),
+                    label: Text(context.l10n.directions),
                   ),
                 ),
             ]),
           ),
 
           if (!manages && role != AppRole.sales) ...[
-            const SectionTitle('Today'),
+            SectionTitle(context.l10n.today),
             CheckInCard(
               user: currentUser,
               kind: site.kind,
@@ -180,7 +180,7 @@ class SiteDetailsScreen extends StatelessWidget {
           if (site.contractor != null ||
               site.contactPerson != null ||
               site.phone != null) ...[
-            const SectionTitle('Contractor'),
+            SectionTitle(context.l10n.contractor),
             Card(
               child: Column(children: [
                 if (site.contractor?.isNotEmpty == true)
@@ -213,7 +213,7 @@ class SiteDetailsScreen extends StatelessWidget {
           ],
 
           // Team
-          SectionTitle('Team (${site.workerIds.length})',
+          SectionTitle(context.l10n.teamCount(site.workerIds.length),
               trailing: manages
                   ? TextButton.icon(
                       onPressed: () => showModalBottomSheet(
@@ -227,7 +227,7 @@ class SiteDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       icon: const Icon(Icons.group_add_outlined, size: 18),
-                      label: const Text('Manage'),
+                      label: Text(context.l10n.manage),
                     )
                   : null),
           if (team.isEmpty)
@@ -236,8 +236,8 @@ class SiteDetailsScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 child: Text(
                   site.workerIds.isEmpty
-                      ? 'Nobody is assigned yet.'
-                      : '${site.workerIds.length} people assigned.',
+                      ? context.l10n.nobodyAssigned
+                      : context.l10n.peopleAssigned(site.workerIds.length),
                   style: const TextStyle(color: AppColors.muted),
                 ),
               ),
@@ -282,10 +282,10 @@ class _TeamMemberTile extends StatelessWidget {
       trailing: !s.hasData
           ? null
           : s.problems.isNotEmpty
-              ? StatusPill(s.problems.first, tone: Tone.bad)
+              ? StatusPill(s.problems.first.text(context.l10n), tone: Tone.bad)
               : onSite
-                  ? const StatusPill('On site', tone: Tone.ok)
-                  : const StatusPill('Away'),
+                  ? StatusPill(context.l10n.onSite, tone: Tone.ok)
+                  : StatusPill(context.l10n.away),
     );
   }
 }
@@ -324,6 +324,7 @@ class _ManageTeamSheetState extends State<_ManageTeamSheet> {
   }
 
   Future<void> _save() async {
+    final l10n = context.l10n;
     setState(() => _saving = true);
     final db = DatabaseService();
     final byId = {for (final u in widget.allWorkers) u.uid: u};
@@ -350,7 +351,7 @@ class _ManageTeamSheetState extends State<_ManageTeamSheet> {
     Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       backgroundColor: ok ? AppColors.ok : AppColors.bad,
-      content: Text(ok ? 'Team updated' : 'Could not update the team: $result'),
+      content: Text(ok ? l10n.teamUpdated : l10n.teamUpdateFailed),
     ));
   }
 
@@ -380,20 +381,20 @@ class _ManageTeamSheetState extends State<_ManageTeamSheet> {
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
           child: Row(children: [
             Expanded(
-              child: Text('Team · ${widget.site.name}',
+              child: Text(context.l10n.teamOf(widget.site.name),
                   style: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.w700)),
             ),
-            Text('${_selected.length} selected',
+            Text(context.l10n.selectedCount(_selected.length),
                 style: const TextStyle(color: AppColors.muted)),
           ]),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: TextField(
-            decoration: const InputDecoration(
-              hintText: 'Search people',
-              prefixIcon: Icon(Icons.search),
+            decoration: InputDecoration(
+              hintText: context.l10n.searchPeople,
+              prefixIcon: const Icon(Icons.search),
               isDense: true,
             ),
             onChanged: (v) => setState(() => _query = v.trim()),
@@ -416,8 +417,8 @@ class _ManageTeamSheetState extends State<_ManageTeamSheet> {
                   primaryRole(u.roles).localized(context.l10n),
                   if (elsewhere != null)
                     selected && primaryRole(u.roles) != AppRole.supervisor
-                        ? 'will move from $elsewhere'
-                        : 'currently at $elsewhere',
+                        ? context.l10n.willMoveFrom(elsewhere)
+                        : context.l10n.currentlyAt(elsewhere),
                 ].join(' · ')),
               );
             },
@@ -436,7 +437,7 @@ class _ManageTeamSheetState extends State<_ManageTeamSheet> {
                       child: CircularProgressIndicator(
                           strokeWidth: 2.5, color: Colors.white),
                     )
-                  : const Text('Save team'),
+                  : Text(context.l10n.saveTeam),
             ),
           ),
         ),

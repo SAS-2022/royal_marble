@@ -46,14 +46,14 @@ class _UserListState extends State<UserList> {
       initialIndex: pending.isNotEmpty ? 1 : 0,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Users'),
+          title: Text(context.l10n.users),
           bottom: TabBar(
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white60,
             indicatorColor: AppColors.gold,
             tabs: [
-              Tab(text: 'Active (${active.length})'),
-              Tab(text: 'Pending (${pending.length})'),
+              Tab(text: context.l10n.activeTab(active.length)),
+              Tab(text: context.l10n.pendingTab(pending.length)),
             ],
           ),
         ),
@@ -61,9 +61,9 @@ class _UserListState extends State<UserList> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
             child: TextField(
-              decoration: const InputDecoration(
-                hintText: 'Search name, email or phone',
-                prefixIcon: Icon(Icons.search),
+              decoration: InputDecoration(
+                hintText: context.l10n.searchUsers,
+                prefixIcon: const Icon(Icons.search),
                 isDense: true,
               ),
               onChanged: (v) => setState(() => _query = v.trim()),
@@ -79,7 +79,7 @@ class _UserListState extends State<UserList> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: ChoiceChip(
-                      label: Text(r?.localized(context.l10n) ?? 'All'),
+                      label: Text(r?.localized(context.l10n) ?? context.l10n.usersAll),
                       selected: _role == r,
                       onSelected: (_) => setState(() => _role = r),
                     ),
@@ -89,9 +89,9 @@ class _UserListState extends State<UserList> {
           ),
           Expanded(
             child: TabBarView(children: [
-              _list(active.where(_matches).toList(), 'No active users match.'),
+              _list(active.where(_matches).toList(), context.l10n.noActiveUsersMatch),
               _list(pending.where(_matches).toList(),
-                  'Nobody is waiting for approval.'),
+                  context.l10n.nobodyWaiting),
             ]),
           ),
         ]),
@@ -161,7 +161,7 @@ class _UserTile extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         trailing: user.isActive != true
-            ? const StatusPill('Review', tone: Tone.warn)
+            ? StatusPill(context.l10n.review, tone: Tone.warn)
             : !status.hasData
                 ? const Icon(Icons.chevron_right, color: AppColors.muted)
                 : Icon(Icons.circle,

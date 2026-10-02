@@ -86,7 +86,7 @@ class SalaryCard extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: snap.hasError
-                ? const Text('Pay details are not available yet.',
+                ? Text(context.l10n.payUnavailable,
                     style: TextStyle(color: AppColors.muted))
                 : !snap.hasData && snap.connectionState == ConnectionState.waiting
                     ? const Center(child: CircularProgressIndicator())
@@ -94,7 +94,7 @@ class SalaryCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           if (p == null || p.isEmpty)
-                            const Text('No pay details yet.',
+                            Text(context.l10n.noPayDetails,
                                 style: TextStyle(color: AppColors.muted))
                           else
                             SalaryBreakdown(p),
@@ -110,7 +110,7 @@ class SalaryCard extends StatelessWidget {
                                 ),
                               ),
                               icon: Icon(p == null ? Icons.add : Icons.edit_outlined),
-                              label: Text(p == null ? 'Set pay details' : 'Edit pay details'),
+                              label: Text(p == null ? context.l10n.setPayDetails : context.l10n.editPayDetails),
                             ),
                           ],
                         ],
@@ -170,6 +170,7 @@ class _SalaryEditorScreenState extends State<SalaryEditorScreen> {
       );
 
   Future<void> _save() async {
+    final l10n = context.l10n;
     if (!_form.currentState!.validate()) return;
     setState(() => _saving = true);
     final error = await PayrollService.save(widget.user.uid!, _package);
@@ -181,8 +182,8 @@ class _SalaryEditorScreenState extends State<SalaryEditorScreen> {
       return;
     }
     Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        backgroundColor: AppColors.ok, content: Text('Pay details saved')));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: AppColors.ok, content: Text(l10n.paySaved)));
   }
 
   Widget _amount(TextEditingController c, String label, {bool required = false}) =>
@@ -199,9 +200,9 @@ class _SalaryEditorScreenState extends State<SalaryEditorScreen> {
           onChanged: (_) => setState(() {}),
           validator: (v) {
             final t = (v ?? '').replaceAll(',', '').trim();
-            if (t.isEmpty) return required ? 'Required' : null;
+            if (t.isEmpty) return required ? context.l10n.required : null;
             final n = double.tryParse(t);
-            return n == null || n < 0 ? 'Enter a valid amount' : null;
+            return n == null || n < 0 ? context.l10n.enterValidAmount : null;
           },
         ),
       );
@@ -211,27 +212,27 @@ class _SalaryEditorScreenState extends State<SalaryEditorScreen> {
     final p = _package;
     return Scaffold(
       appBar: AppBar(
-          title: Text('Pay · ${widget.user.firstName ?? ''} ${widget.user.lastName ?? ''}')),
+          title: Text(context.l10n.payFor('${widget.user.firstName ?? ''} ${widget.user.lastName ?? ''}'))),
       body: Form(
         key: _form,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
             SegmentedButton<PayType>(
-              segments: const [
-                ButtonSegment(value: PayType.monthly, label: Text('Monthly')),
-                ButtonSegment(value: PayType.daily, label: Text('Daily')),
-                ButtonSegment(value: PayType.hourly, label: Text('Hourly')),
+              segments: [
+                ButtonSegment(value: PayType.monthly, label: Text(context.l10n.monthly)),
+                ButtonSegment(value: PayType.daily, label: Text(context.l10n.daily)),
+                ButtonSegment(value: PayType.hourly, label: Text(context.l10n.hourly)),
               ],
               selected: {_type},
               onSelectionChanged: (s) => setState(() => _type = s.first),
             ),
             const SizedBox(height: 16),
-            _amount(_basic, 'Basic ${_type.unit}', required: true),
-            const SectionTitle('Monthly allowances'),
-            _amount(_housing, 'Housing'),
-            _amount(_transport, 'Transportation'),
-            _amount(_food, 'Food'),
+            _amount(_basic, '${context.l10n.basic} ${_type.localizedUnit(context.l10n)}', required: true),
+            SectionTitle(context.l10n.monthlyAllowances),
+            _amount(_housing, context.l10n.housing),
+            _amount(_transport, context.l10n.transportation),
+            _amount(_food, context.l10n.food),
             for (final (i, (name, amount)) in _other.indexed)
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),
@@ -241,14 +242,14 @@ class _SalaryEditorScreenState extends State<SalaryEditorScreen> {
                     child: TextFormField(
                       controller: name,
                       textCapitalization: TextCapitalization.sentences,
-                      decoration: const InputDecoration(labelText: 'Allowance'),
+                      decoration: InputDecoration(labelText: context.l10n.allowance),
                       validator: (v) => (v ?? '').trim().isEmpty && _val(amount) > 0
-                          ? 'Name it'
+                          ? context.l10n.nameIt
                           : null,
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Expanded(flex: 2, child: _amount(amount, 'Amount')),
+                  Expanded(flex: 2, child: _amount(amount, context.l10n.amount)),
                   IconButton(
                     onPressed: () => setState(() => _other.removeAt(i)),
                     icon: const Icon(Icons.remove_circle_outline, color: AppColors.bad),
@@ -261,10 +262,10 @@ class _SalaryEditorScreenState extends State<SalaryEditorScreen> {
                 onPressed: () => setState(() =>
                     _other.add((TextEditingController(), TextEditingController()))),
                 icon: const Icon(Icons.add),
-                label: const Text('Add another allowance'),
+                label: Text(context.l10n.addAllowance),
               ),
             ),
-            const SectionTitle('Details'),
+            SectionTitle(context.l10n.details),
             InkWell(
               onTap: () async {
                 final d = await showDatePicker(
@@ -276,18 +277,19 @@ class _SalaryEditorScreenState extends State<SalaryEditorScreen> {
                 if (d != null) setState(() => _from = d);
               },
               child: InputDecorator(
-                decoration: const InputDecoration(
-                    labelText: 'Effective from', suffixIcon: Icon(Icons.event)),
-                child: Text(DateFormat('d MMM yyyy').format(_from)),
+                decoration: InputDecoration(
+                    labelText: context.l10n.effectiveFromLabel,
+                    suffixIcon: const Icon(Icons.event)),
+                child: Text(DateFormat('d MMM yyyy', context.l10n.localeName).format(_from)),
               ),
             ),
             const SizedBox(height: 12),
             TextFormField(
               controller: _notes,
               maxLines: 2,
-              decoration: const InputDecoration(labelText: 'Notes (optional)'),
+              decoration: InputDecoration(labelText: context.l10n.notesOptional),
             ),
-            const SectionTitle('Summary'),
+            SectionTitle(context.l10n.summary),
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -303,7 +305,7 @@ class _SalaryEditorScreenState extends State<SalaryEditorScreen> {
                       height: 22,
                       child: CircularProgressIndicator(
                           strokeWidth: 2.5, color: Colors.white))
-                  : const Text('Save pay details'),
+                  : Text(context.l10n.savePayDetails),
             ),
           ],
         ),

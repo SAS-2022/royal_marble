@@ -1211,6 +1211,930 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Site'**
   String get site;
+
+  /// No description provided for @problemSilent.
+  ///
+  /// In en, this message translates to:
+  /// **'Not reporting'**
+  String get problemSilent;
+
+  /// No description provided for @problemLocationOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Location off'**
+  String get problemLocationOff;
+
+  /// No description provided for @problemPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission: {value}'**
+  String problemPermission(String value);
+
+  /// No description provided for @problemTrackingStopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking stopped'**
+  String get problemTrackingStopped;
+
+  /// No description provided for @problemOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get problemOffline;
+
+  /// No description provided for @problemApproximate.
+  ///
+  /// In en, this message translates to:
+  /// **'Approximate location'**
+  String get problemApproximate;
+
+  /// No description provided for @problemBatterySaver.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery saver on'**
+  String get problemBatterySaver;
+
+  /// No description provided for @problemBattery.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery {percent}%'**
+  String problemBattery(int percent);
+
+  /// No description provided for @permWhenInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'while in use'**
+  String get permWhenInUse;
+
+  /// No description provided for @permDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'denied'**
+  String get permDenied;
+
+  /// No description provided for @permRestricted.
+  ///
+  /// In en, this message translates to:
+  /// **'restricted'**
+  String get permRestricted;
+
+  /// No description provided for @permNotDetermined.
+  ///
+  /// In en, this message translates to:
+  /// **'not set'**
+  String get permNotDetermined;
+
+  /// No description provided for @permAlways.
+  ///
+  /// In en, this message translates to:
+  /// **'all the time'**
+  String get permAlways;
+
+  /// No description provided for @unknownUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get unknownUser;
+
+  /// No description provided for @timeNever.
+  ///
+  /// In en, this message translates to:
+  /// **'never'**
+  String get timeNever;
+
+  /// No description provided for @timeJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'just now'**
+  String get timeJustNow;
+
+  /// No description provided for @timeMinAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} min ago'**
+  String timeMinAgo(int n);
+
+  /// No description provided for @timeHoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} h ago'**
+  String timeHoursAgo(int n);
+
+  /// No description provided for @seenAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'seen {when}'**
+  String seenAgo(String when);
+
+  /// No description provided for @lastSeen.
+  ///
+  /// In en, this message translates to:
+  /// **'Last seen {when}'**
+  String lastSeen(String when);
+
+  /// No description provided for @phonesTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Phones'**
+  String get phonesTab;
+
+  /// No description provided for @alertsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts'**
+  String get alertsTab;
+
+  /// No description provided for @noActiveWorkers.
+  ///
+  /// In en, this message translates to:
+  /// **'No active workers'**
+  String get noActiveWorkers;
+
+  /// No description provided for @notOnNewApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Not on the new app version yet'**
+  String get notOnNewApp;
+
+  /// No description provided for @allGood.
+  ///
+  /// In en, this message translates to:
+  /// **'All good'**
+  String get allGood;
+
+  /// No description provided for @gpsShort.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS ±{meters} m'**
+  String gpsShort(int meters);
+
+  /// No description provided for @alertsNotEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts are not enabled on the server yet.'**
+  String get alertsNotEnabled;
+
+  /// No description provided for @alertsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load alerts. Check your connection.'**
+  String get alertsLoadError;
+
+  /// No description provided for @noAlertsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No alerts yet'**
+  String get noAlertsYet;
+
+  /// No description provided for @evLocationOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Location services turned OFF'**
+  String get evLocationOff;
+
+  /// No description provided for @evLocationOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Location services turned back on'**
+  String get evLocationOn;
+
+  /// No description provided for @evGpsOff.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS turned off (only network location)'**
+  String get evGpsOff;
+
+  /// No description provided for @evGpsOn.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS turned back on'**
+  String get evGpsOn;
+
+  /// No description provided for @evPreciseOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Precise location turned off'**
+  String get evPreciseOff;
+
+  /// No description provided for @evPreciseOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Precise location turned back on'**
+  String get evPreciseOn;
+
+  /// No description provided for @evPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission changed to \"{value}\"'**
+  String evPermission(String value);
+
+  /// No description provided for @evOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone lost internet connection'**
+  String get evOffline;
+
+  /// No description provided for @evOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone is back online'**
+  String get evOnline;
+
+  /// No description provided for @evPowerSaveOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery saver turned on (tracking may be delayed)'**
+  String get evPowerSaveOn;
+
+  /// No description provided for @evPowerSaveOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery saver turned off'**
+  String get evPowerSaveOff;
+
+  /// No description provided for @evTrackingStopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Location tracking stopped'**
+  String get evTrackingStopped;
+
+  /// No description provided for @evTrackingStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Location tracking started'**
+  String get evTrackingStarted;
+
+  /// No description provided for @evAppClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'App was closed (tracking continues)'**
+  String get evAppClosed;
+
+  /// No description provided for @evDeviceBoot.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone restarted'**
+  String get evDeviceBoot;
+
+  /// No description provided for @evMock.
+  ///
+  /// In en, this message translates to:
+  /// **'Fake GPS / mock location detected'**
+  String get evMock;
+
+  /// No description provided for @evMockCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Real GPS restored'**
+  String get evMockCleared;
+
+  /// No description provided for @evBatteryLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery low ({percent}%)'**
+  String evBatteryLow(int percent);
+
+  /// No description provided for @evBatteryOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery recovered'**
+  String get evBatteryOk;
+
+  /// No description provided for @evSilent.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone stopped reporting. It may be switched off, offline, or the app was force-stopped.'**
+  String get evSilent;
+
+  /// No description provided for @usersAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get usersAll;
+
+  /// No description provided for @activeTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Active ({count})'**
+  String activeTab(int count);
+
+  /// No description provided for @pendingTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending ({count})'**
+  String pendingTab(int count);
+
+  /// No description provided for @searchUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Search name, email or phone'**
+  String get searchUsers;
+
+  /// No description provided for @noActiveUsersMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No active users match.'**
+  String get noActiveUsersMatch;
+
+  /// No description provided for @nobodyWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody is waiting for approval.'**
+  String get nobodyWaiting;
+
+  /// No description provided for @review.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get review;
+
+  /// No description provided for @roleChangedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Role changed to {role}'**
+  String roleChangedTo(String role);
+
+  /// No description provided for @roleChangeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not change the role.'**
+  String get roleChangeFailed;
+
+  /// No description provided for @accountActivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Account activated'**
+  String get accountActivated;
+
+  /// No description provided for @accountDeactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deactivated'**
+  String get accountDeactivated;
+
+  /// No description provided for @accessUpdateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update access.'**
+  String get accessUpdateFailed;
+
+  /// No description provided for @deleteUserTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name}?'**
+  String deleteUserTitle(String name);
+
+  /// No description provided for @deleteUserBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Their profile is removed permanently. Past timesheets are kept.'**
+  String get deleteUserBody;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @statusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get statusActive;
+
+  /// No description provided for @statusPendingInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending / inactive'**
+  String get statusPendingInactive;
+
+  /// No description provided for @waitingForAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'This account is waiting for access.'**
+  String get waitingForAccess;
+
+  /// No description provided for @approve.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get approve;
+
+  /// No description provided for @sectionContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact'**
+  String get sectionContact;
+
+  /// No description provided for @sectionWork.
+  ///
+  /// In en, this message translates to:
+  /// **'Work'**
+  String get sectionWork;
+
+  /// No description provided for @noSiteAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'No site assigned'**
+  String get noSiteAssigned;
+
+  /// No description provided for @assignedSite.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned site'**
+  String get assignedSite;
+
+  /// No description provided for @phoneReportingNormally.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone is reporting normally'**
+  String get phoneReportingNormally;
+
+  /// No description provided for @recentAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent alerts'**
+  String get recentAlerts;
+
+  /// No description provided for @sectionPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay'**
+  String get sectionPay;
+
+  /// No description provided for @sectionRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get sectionRole;
+
+  /// No description provided for @sectionAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Access'**
+  String get sectionAccess;
+
+  /// No description provided for @deactivateAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate account'**
+  String get deactivateAccount;
+
+  /// No description provided for @activateAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate account'**
+  String get activateAccount;
+
+  /// No description provided for @deactivateBeforeDeleting.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate before deleting'**
+  String get deactivateBeforeDeleting;
+
+  /// No description provided for @deletePermanently.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account permanently'**
+  String get deletePermanently;
+
+  /// No description provided for @userTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get userTitle;
+
+  /// No description provided for @project.
+  ///
+  /// In en, this message translates to:
+  /// **'Project'**
+  String get project;
+
+  /// No description provided for @mockup.
+  ///
+  /// In en, this message translates to:
+  /// **'Mock-up'**
+  String get mockup;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @checkInRadius.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-in radius {meters} m'**
+  String checkInRadius(int meters);
+
+  /// No description provided for @directions.
+  ///
+  /// In en, this message translates to:
+  /// **'Directions'**
+  String get directions;
+
+  /// No description provided for @today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get today;
+
+  /// No description provided for @contractor.
+  ///
+  /// In en, this message translates to:
+  /// **'Contractor'**
+  String get contractor;
+
+  /// No description provided for @teamCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Team ({count})'**
+  String teamCount(int count);
+
+  /// No description provided for @manage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage'**
+  String get manage;
+
+  /// No description provided for @nobodyAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody is assigned yet.'**
+  String get nobodyAssigned;
+
+  /// No description provided for @peopleAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} people assigned.'**
+  String peopleAssigned(int count);
+
+  /// No description provided for @onSite.
+  ///
+  /// In en, this message translates to:
+  /// **'On site'**
+  String get onSite;
+
+  /// No description provided for @away.
+  ///
+  /// In en, this message translates to:
+  /// **'Away'**
+  String get away;
+
+  /// No description provided for @teamUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Team updated'**
+  String get teamUpdated;
+
+  /// No description provided for @teamUpdateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update the team.'**
+  String get teamUpdateFailed;
+
+  /// No description provided for @teamOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Team · {site}'**
+  String teamOf(String site);
+
+  /// No description provided for @selectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String selectedCount(int count);
+
+  /// No description provided for @searchPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'Search people'**
+  String get searchPeople;
+
+  /// No description provided for @saveTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Save team'**
+  String get saveTeam;
+
+  /// No description provided for @willMoveFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'will move from {site}'**
+  String willMoveFrom(String site);
+
+  /// No description provided for @currentlyAt.
+  ///
+  /// In en, this message translates to:
+  /// **'currently at {site}'**
+  String currentlyAt(String site);
+
+  /// No description provided for @payUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay details are not available yet.'**
+  String get payUnavailable;
+
+  /// No description provided for @noPayDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'No pay details yet.'**
+  String get noPayDetails;
+
+  /// No description provided for @setPayDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Set pay details'**
+  String get setPayDetails;
+
+  /// No description provided for @editPayDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit pay details'**
+  String get editPayDetails;
+
+  /// No description provided for @paySaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay details saved'**
+  String get paySaved;
+
+  /// No description provided for @enterValidAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid amount'**
+  String get enterValidAmount;
+
+  /// No description provided for @payFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay · {name}'**
+  String payFor(String name);
+
+  /// No description provided for @monthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get monthly;
+
+  /// No description provided for @daily.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily'**
+  String get daily;
+
+  /// No description provided for @hourly.
+  ///
+  /// In en, this message translates to:
+  /// **'Hourly'**
+  String get hourly;
+
+  /// No description provided for @monthlyAllowances.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly allowances'**
+  String get monthlyAllowances;
+
+  /// No description provided for @allowance.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowance'**
+  String get allowance;
+
+  /// No description provided for @nameIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Name it'**
+  String get nameIt;
+
+  /// No description provided for @amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get amount;
+
+  /// No description provided for @addAllowance.
+  ///
+  /// In en, this message translates to:
+  /// **'Add another allowance'**
+  String get addAllowance;
+
+  /// No description provided for @effectiveFromLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Effective from'**
+  String get effectiveFromLabel;
+
+  /// No description provided for @notesOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes (optional)'**
+  String get notesOptional;
+
+  /// No description provided for @summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary'**
+  String get summary;
+
+  /// No description provided for @savePayDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Save pay details'**
+  String get savePayDetails;
+
+  /// No description provided for @yesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get yesterday;
+
+  /// No description provided for @thisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get thisWeek;
+
+  /// No description provided for @lastWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Last week'**
+  String get lastWeek;
+
+  /// No description provided for @thisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get thisMonth;
+
+  /// No description provided for @lastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Last month'**
+  String get lastMonth;
+
+  /// No description provided for @customRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom…'**
+  String get customRange;
+
+  /// No description provided for @reportLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the report. Check your connection.'**
+  String get reportLoadError;
+
+  /// No description provided for @nothingToExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to export for this period.'**
+  String get nothingToExport;
+
+  /// No description provided for @pdfSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview, print or share'**
+  String get pdfSubtitle;
+
+  /// No description provided for @excelSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily entries and a summary sheet'**
+  String get excelSubtitle;
+
+  /// No description provided for @export.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get export;
+
+  /// No description provided for @everyone.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone'**
+  String get everyone;
+
+  /// No description provided for @rolesMasons.
+  ///
+  /// In en, this message translates to:
+  /// **'Masons'**
+  String get rolesMasons;
+
+  /// No description provided for @rolesSiteEngineers.
+  ///
+  /// In en, this message translates to:
+  /// **'Site Engineers'**
+  String get rolesSiteEngineers;
+
+  /// No description provided for @rolesSupervisors.
+  ///
+  /// In en, this message translates to:
+  /// **'Supervisors'**
+  String get rolesSupervisors;
+
+  /// No description provided for @people.
+  ///
+  /// In en, this message translates to:
+  /// **'People'**
+  String get people;
+
+  /// No description provided for @hours.
+  ///
+  /// In en, this message translates to:
+  /// **'Hours'**
+  String get hours;
+
+  /// No description provided for @areaM2.
+  ///
+  /// In en, this message translates to:
+  /// **'Area m²'**
+  String get areaM2;
+
+  /// No description provided for @missingCheckouts.
+  ///
+  /// In en, this message translates to:
+  /// **'Entries without check-out: {count}. Those hours are not counted.'**
+  String missingCheckouts(int count);
+
+  /// No description provided for @viewBy.
+  ///
+  /// In en, this message translates to:
+  /// **'View by'**
+  String get viewBy;
+
+  /// No description provided for @person.
+  ///
+  /// In en, this message translates to:
+  /// **'Person'**
+  String get person;
+
+  /// No description provided for @day.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get day;
+
+  /// No description provided for @noAttendance.
+  ///
+  /// In en, this message translates to:
+  /// **'No attendance in this period.'**
+  String get noAttendance;
+
+  /// No description provided for @noSalesTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'No sales team members.'**
+  String get noSalesTeam;
+
+  /// No description provided for @salespeople.
+  ///
+  /// In en, this message translates to:
+  /// **'Salespeople'**
+  String get salespeople;
+
+  /// No description provided for @noVisits.
+  ///
+  /// In en, this message translates to:
+  /// **'No visits in this period.'**
+  String get noVisits;
+
+  /// No description provided for @client.
+  ///
+  /// In en, this message translates to:
+  /// **'Client'**
+  String get client;
+
+  /// No description provided for @noOut.
+  ///
+  /// In en, this message translates to:
+  /// **'No out'**
+  String get noOut;
+
+  /// No description provided for @daysCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days'**
+  String daysCount(int count);
+
+  /// No description provided for @salesSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} working days · {client} client · {project} project visits'**
+  String salesSummary(int days, int client, int project);
+
+  /// No description provided for @peopleCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} people'**
+  String peopleCount(int count);
+
+  /// No description provided for @nowLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'now'**
+  String get nowLabel;
 }
 
 class _AppLocalizationsDelegate

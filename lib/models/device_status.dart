@@ -1,5 +1,46 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../l10n/app_localizations.dart';
+
+enum ProblemKind {
+  silent,
+  locationOff,
+  permission,
+  trackingStopped,
+  offline,
+  approximate,
+  batterySaver,
+  lowBattery,
+}
+
+class DeviceProblem {
+  final ProblemKind kind;
+  final String? permission;
+  final int? batteryPercent;
+  const DeviceProblem(this.kind, {this.permission, this.batteryPercent});
+
+  String text(AppLocalizations l) => switch (kind) {
+        ProblemKind.silent => l.problemSilent,
+        ProblemKind.locationOff => l.problemLocationOff,
+        ProblemKind.permission =>
+          l.problemPermission(permissionLabel(l, permission)),
+        ProblemKind.trackingStopped => l.problemTrackingStopped,
+        ProblemKind.offline => l.problemOffline,
+        ProblemKind.approximate => l.problemApproximate,
+        ProblemKind.batterySaver => l.problemBatterySaver,
+        ProblemKind.lowBattery => l.problemBattery(batteryPercent ?? 0),
+      };
+}
+
+/// Location permission values as written by the phone (`deviceStatus.permission`).
+String permissionLabel(AppLocalizations l, String? value) => switch (value) {
+      'always' => l.permAlways,
+      'whenInUse' => l.permWhenInUse,
+      'denied' => l.permDenied,
+      'restricted' => l.permRestricted,
+      _ => l.permNotDetermined,
+    };
+
 /// Snapshot of a worker's phone health, stored at `users/{uid}.deviceStatus`.
 ///
 /// Written by the phone through `DeviceStatusReporter`; `lastSeen` is a server
@@ -57,17 +98,22 @@ class DeviceStatus {
 
   bool get hasData => lastSeen != null;
 
-  /// Problems an admin should act on, most severe first.
-  List<String> get problems => [
-        if (silent) 'Not reporting',
-        if (locationEnabled == false) 'Location off',
-        if (permission != null && permission != 'always') 'Permission: $permission',
-        if (trackingEnabled == false) 'Tracking stopped',
-        if (online == false) 'Offline',
-        if (preciseLocation == false) 'Approximate location',
-        if (powerSave == true) 'Battery saver on',
+  /// Problems an admin should act on, most severe first. Use
+  /// [DeviceProblem.text] to show one in the user's language.
+  List<DeviceProblem> get problems => [
+        if (silent) const DeviceProblem(ProblemKind.silent),
+        if (locationEnabled == false) const DeviceProblem(ProblemKind.locationOff),
+        if (permission != null && permission != 'always')
+          DeviceProblem(ProblemKind.permission, permission: permission),
+        if (trackingEnabled == false)
+          const DeviceProblem(ProblemKind.trackingStopped),
+        if (online == false) const DeviceProblem(ProblemKind.offline),
+        if (preciseLocation == false)
+          const DeviceProblem(ProblemKind.approximate),
+        if (powerSave == true) const DeviceProblem(ProblemKind.batterySaver),
         if (battery != null && battery! >= 0 && battery! < 0.15 && charging != true)
-          'Battery ${(battery! * 100).round()}%',
+          DeviceProblem(ProblemKind.lowBattery,
+              batteryPercent: (battery! * 100).round()),
       ];
 
   bool get healthy => hasData && problems.isEmpty;

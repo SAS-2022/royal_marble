@@ -636,4 +636,518 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get site => 'سائٹ';
+
+  @override
+  String get problemSilent => 'رپورٹ نہیں کر رہا';
+
+  @override
+  String get problemLocationOff => 'لوکیشن بند';
+
+  @override
+  String problemPermission(String value) {
+    return 'اجازت: $value';
+  }
+
+  @override
+  String get problemTrackingStopped => 'ٹریکنگ بند';
+
+  @override
+  String get problemOffline => 'آف لائن';
+
+  @override
+  String get problemApproximate => 'تخمینی لوکیشن';
+
+  @override
+  String get problemBatterySaver => 'بیٹری سیور آن';
+
+  @override
+  String problemBattery(int percent) {
+    return 'بیٹری $percent%';
+  }
+
+  @override
+  String get permWhenInUse => 'استعمال کے دوران';
+
+  @override
+  String get permDenied => 'مسترد';
+
+  @override
+  String get permRestricted => 'محدود';
+
+  @override
+  String get permNotDetermined => 'طے نہیں';
+
+  @override
+  String get permAlways => 'ہر وقت';
+
+  @override
+  String get unknownUser => 'نامعلوم';
+
+  @override
+  String get timeNever => 'کبھی نہیں';
+
+  @override
+  String get timeJustNow => 'ابھی ابھی';
+
+  @override
+  String timeMinAgo(int n) {
+    return '$n منٹ پہلے';
+  }
+
+  @override
+  String timeHoursAgo(int n) {
+    return '$n گھنٹے پہلے';
+  }
+
+  @override
+  String seenAgo(String when) {
+    return 'آخری بار $when';
+  }
+
+  @override
+  String lastSeen(String when) {
+    return 'آخری بار دیکھا گیا $when';
+  }
+
+  @override
+  String get phonesTab => 'فونز';
+
+  @override
+  String get alertsTab => 'الرٹس';
+
+  @override
+  String get noActiveWorkers => 'کوئی فعال کارکن نہیں';
+
+  @override
+  String get notOnNewApp => 'ابھی نئی ایپ پر نہیں';
+
+  @override
+  String get allGood => 'سب ٹھیک';
+
+  @override
+  String gpsShort(int meters) {
+    return 'GPS ±$meters میٹر';
+  }
+
+  @override
+  String get alertsNotEnabled => 'سرور پر الرٹس ابھی فعال نہیں ہیں۔';
+
+  @override
+  String get alertsLoadError => 'الرٹس لوڈ نہیں ہو سکے۔ کنکشن چیک کریں۔';
+
+  @override
+  String get noAlertsYet => 'ابھی کوئی الرٹ نہیں';
+
+  @override
+  String get evLocationOff => 'لوکیشن سروس بند کر دی گئی';
+
+  @override
+  String get evLocationOn => 'لوکیشن سروس دوبارہ آن کی گئی';
+
+  @override
+  String get evGpsOff => 'GPS بند (صرف نیٹ ورک لوکیشن)';
+
+  @override
+  String get evGpsOn => 'GPS دوبارہ آن';
+
+  @override
+  String get evPreciseOff => 'درست لوکیشن بند کر دی گئی';
+
+  @override
+  String get evPreciseOn => 'درست لوکیشن دوبارہ آن';
+
+  @override
+  String evPermission(String value) {
+    return 'لوکیشن کی اجازت \"$value\" میں تبدیل ہو گئی';
+  }
+
+  @override
+  String get evOffline => 'فون کا انٹرنیٹ کنکشن منقطع ہو گیا';
+
+  @override
+  String get evOnline => 'فون دوبارہ آن لائن ہے';
+
+  @override
+  String get evPowerSaveOn => 'بیٹری سیور آن (ٹریکنگ میں تاخیر ہو سکتی ہے)';
+
+  @override
+  String get evPowerSaveOff => 'بیٹری سیور بند';
+
+  @override
+  String get evTrackingStopped => 'لوکیشن ٹریکنگ رک گئی';
+
+  @override
+  String get evTrackingStarted => 'لوکیشن ٹریکنگ شروع ہو گئی';
+
+  @override
+  String get evAppClosed => 'ایپ بند کی گئی (ٹریکنگ جاری ہے)';
+
+  @override
+  String get evDeviceBoot => 'فون ری اسٹارٹ ہوا';
+
+  @override
+  String get evMock => 'جعلی GPS لوکیشن کا پتہ چلا';
+
+  @override
+  String get evMockCleared => 'اصل GPS بحال ہو گیا';
+
+  @override
+  String evBatteryLow(int percent) {
+    return 'بیٹری کم ($percent%)';
+  }
+
+  @override
+  String get evBatteryOk => 'بیٹری بحال ہو گئی';
+
+  @override
+  String get evSilent =>
+      'فون نے رپورٹ کرنا بند کر دیا۔ ہو سکتا ہے فون بند ہو، آف لائن ہو یا ایپ زبردستی بند کی گئی ہو۔';
+
+  @override
+  String get usersAll => 'سب';
+
+  @override
+  String activeTab(int count) {
+    return 'فعال ($count)';
+  }
+
+  @override
+  String pendingTab(int count) {
+    return 'زیرِ التوا ($count)';
+  }
+
+  @override
+  String get searchUsers => 'نام، ای میل یا فون سے تلاش کریں';
+
+  @override
+  String get noActiveUsersMatch => 'کوئی فعال صارف نہیں ملا۔';
+
+  @override
+  String get nobodyWaiting => 'کوئی منظوری کا منتظر نہیں۔';
+
+  @override
+  String get review => 'جائزہ';
+
+  @override
+  String roleChangedTo(String role) {
+    return 'کردار $role میں تبدیل کر دیا گیا';
+  }
+
+  @override
+  String get roleChangeFailed => 'کردار تبدیل نہیں ہو سکا۔';
+
+  @override
+  String get accountActivated => 'اکاؤنٹ فعال کر دیا گیا';
+
+  @override
+  String get accountDeactivated => 'اکاؤنٹ غیر فعال کر دیا گیا';
+
+  @override
+  String get accessUpdateFailed => 'رسائی اپ ڈیٹ نہیں ہو سکی۔';
+
+  @override
+  String deleteUserTitle(String name) {
+    return '$name کو حذف کریں؟';
+  }
+
+  @override
+  String get deleteUserBody =>
+      'پروفائل مستقل طور پر حذف ہو جائے گی۔ پرانی حاضری محفوظ رہے گی۔';
+
+  @override
+  String get delete => 'حذف کریں';
+
+  @override
+  String get statusActive => 'فعال';
+
+  @override
+  String get statusPendingInactive => 'زیرِ التوا / غیر فعال';
+
+  @override
+  String get waitingForAccess => 'یہ اکاؤنٹ رسائی کا منتظر ہے۔';
+
+  @override
+  String get approve => 'منظور کریں';
+
+  @override
+  String get sectionContact => 'رابطہ';
+
+  @override
+  String get sectionWork => 'کام';
+
+  @override
+  String get noSiteAssigned => 'کوئی سائٹ نہیں دی گئی';
+
+  @override
+  String get assignedSite => 'مقرر سائٹ';
+
+  @override
+  String get phoneReportingNormally => 'فون معمول کے مطابق رپورٹ کر رہا ہے';
+
+  @override
+  String get recentAlerts => 'حالیہ الرٹس';
+
+  @override
+  String get sectionPay => 'تنخواہ';
+
+  @override
+  String get sectionRole => 'کردار';
+
+  @override
+  String get sectionAccess => 'رسائی';
+
+  @override
+  String get deactivateAccount => 'اکاؤنٹ غیر فعال کریں';
+
+  @override
+  String get activateAccount => 'اکاؤنٹ فعال کریں';
+
+  @override
+  String get deactivateBeforeDeleting => 'حذف کرنے سے پہلے غیر فعال کریں';
+
+  @override
+  String get deletePermanently => 'اکاؤنٹ مستقل طور پر حذف کریں';
+
+  @override
+  String get userTitle => 'صارف';
+
+  @override
+  String get project => 'پروجیکٹ';
+
+  @override
+  String get mockup => 'موک اپ';
+
+  @override
+  String get edit => 'ترمیم';
+
+  @override
+  String checkInRadius(int meters) {
+    return 'چیک اِن دائرہ $meters میٹر';
+  }
+
+  @override
+  String get directions => 'راستہ';
+
+  @override
+  String get today => 'آج';
+
+  @override
+  String get contractor => 'ٹھیکیدار';
+
+  @override
+  String teamCount(int count) {
+    return 'ٹیم ($count)';
+  }
+
+  @override
+  String get manage => 'انتظام';
+
+  @override
+  String get nobodyAssigned => 'ابھی کوئی مقرر نہیں۔';
+
+  @override
+  String peopleAssigned(int count) {
+    return '$count افراد مقرر۔';
+  }
+
+  @override
+  String get onSite => 'سائٹ پر';
+
+  @override
+  String get away => 'باہر';
+
+  @override
+  String get teamUpdated => 'ٹیم اپ ڈیٹ ہو گئی';
+
+  @override
+  String get teamUpdateFailed => 'ٹیم اپ ڈیٹ نہیں ہو سکی۔';
+
+  @override
+  String teamOf(String site) {
+    return 'ٹیم · $site';
+  }
+
+  @override
+  String selectedCount(int count) {
+    return '$count منتخب';
+  }
+
+  @override
+  String get searchPeople => 'لوگ تلاش کریں';
+
+  @override
+  String get saveTeam => 'ٹیم محفوظ کریں';
+
+  @override
+  String willMoveFrom(String site) {
+    return '$site سے منتقل ہو گا';
+  }
+
+  @override
+  String currentlyAt(String site) {
+    return 'ابھی $site پر';
+  }
+
+  @override
+  String get payUnavailable => 'تنخواہ کی تفصیلات ابھی دستیاب نہیں۔';
+
+  @override
+  String get noPayDetails => 'ابھی کوئی تنخواہ کی تفصیل نہیں۔';
+
+  @override
+  String get setPayDetails => 'تنخواہ کی تفصیل شامل کریں';
+
+  @override
+  String get editPayDetails => 'تنخواہ کی تفصیل میں ترمیم';
+
+  @override
+  String get paySaved => 'تنخواہ کی تفصیل محفوظ ہو گئی';
+
+  @override
+  String get enterValidAmount => 'درست رقم درج کریں';
+
+  @override
+  String payFor(String name) {
+    return 'تنخواہ · $name';
+  }
+
+  @override
+  String get monthly => 'ماہانہ';
+
+  @override
+  String get daily => 'یومیہ';
+
+  @override
+  String get hourly => 'فی گھنٹہ';
+
+  @override
+  String get monthlyAllowances => 'ماہانہ الاؤنس';
+
+  @override
+  String get allowance => 'الاؤنس';
+
+  @override
+  String get nameIt => 'نام لکھیں';
+
+  @override
+  String get amount => 'رقم';
+
+  @override
+  String get addAllowance => 'ایک اور الاؤنس شامل کریں';
+
+  @override
+  String get effectiveFromLabel => 'مؤثر از';
+
+  @override
+  String get notesOptional => 'نوٹس (اختیاری)';
+
+  @override
+  String get summary => 'خلاصہ';
+
+  @override
+  String get savePayDetails => 'تنخواہ کی تفصیل محفوظ کریں';
+
+  @override
+  String get yesterday => 'کل';
+
+  @override
+  String get thisWeek => 'اس ہفتے';
+
+  @override
+  String get lastWeek => 'پچھلے ہفتے';
+
+  @override
+  String get thisMonth => 'اس مہینے';
+
+  @override
+  String get lastMonth => 'پچھلے مہینے';
+
+  @override
+  String get customRange => 'اپنی مرضی…';
+
+  @override
+  String get reportLoadError => 'رپورٹ لوڈ نہیں ہو سکی۔ کنکشن چیک کریں۔';
+
+  @override
+  String get nothingToExport => 'اس مدت کے لیے برآمد کرنے کو کچھ نہیں۔';
+
+  @override
+  String get pdfSubtitle => 'دیکھیں، پرنٹ کریں یا شیئر کریں';
+
+  @override
+  String get excelSubtitle => 'روزانہ اندراجات اور خلاصہ شیٹ';
+
+  @override
+  String get export => 'برآمد';
+
+  @override
+  String get everyone => 'سب';
+
+  @override
+  String get rolesMasons => 'مستری';
+
+  @override
+  String get rolesSiteEngineers => 'سائٹ انجینئرز';
+
+  @override
+  String get rolesSupervisors => 'سپروائزرز';
+
+  @override
+  String get people => 'افراد';
+
+  @override
+  String get hours => 'گھنٹے';
+
+  @override
+  String get areaM2 => 'رقبہ م²';
+
+  @override
+  String missingCheckouts(int count) {
+    return 'بغیر چیک آؤٹ اندراجات: $count۔ ان کے گھنٹے شمار نہیں ہوئے۔';
+  }
+
+  @override
+  String get viewBy => 'اس کے مطابق دیکھیں';
+
+  @override
+  String get person => 'فرد';
+
+  @override
+  String get day => 'دن';
+
+  @override
+  String get noAttendance => 'اس مدت میں کوئی حاضری نہیں۔';
+
+  @override
+  String get noSalesTeam => 'سیلز ٹیم میں کوئی نہیں۔';
+
+  @override
+  String get salespeople => 'سیلز پرسنز';
+
+  @override
+  String get noVisits => 'اس مدت میں کوئی وزٹ نہیں۔';
+
+  @override
+  String get client => 'کلائنٹ';
+
+  @override
+  String get noOut => 'چیک آؤٹ نہیں';
+
+  @override
+  String daysCount(int count) {
+    return '$count دن';
+  }
+
+  @override
+  String salesSummary(int days, int client, int project) {
+    return '$days کام کے دن · $client کلائنٹ · $project پروجیکٹ وزٹس';
+  }
+
+  @override
+  String peopleCount(int count) {
+    return '$count افراد';
+  }
+
+  @override
+  String get nowLabel => 'ابھی';
 }

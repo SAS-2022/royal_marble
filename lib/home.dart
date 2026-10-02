@@ -362,7 +362,7 @@ class _TeamRow extends StatelessWidget {
           ? null
           : problems.isEmpty
               ? const Icon(Icons.check_circle, color: AppColors.ok)
-              : StatusPill(problems.first, tone: Tone.bad),
+              : StatusPill(problems.first.text(context.l10n), tone: Tone.bad),
     );
   }
 }
@@ -440,9 +440,12 @@ class _AdminHome extends StatelessWidget {
                   onTap: () => openTeam(),
                   title: Text('${u.firstName ?? ''} ${u.lastName ?? ''}'),
                   subtitle: Text(
-                      DeviceStatus.fromMap(u.deviceStatus).problems.join(' · ')),
+                      DeviceStatus.fromMap(u.deviceStatus)
+                          .problems
+                          .map((p) => p.text(context.l10n))
+                          .join(' · ')),
                   trailing: Text(
-                      timeAgo(DeviceStatus.fromMap(u.deviceStatus).lastSeen),
+                      timeAgo(context.l10n, DeviceStatus.fromMap(u.deviceStatus).lastSeen),
                       style: const TextStyle(fontSize: 12, color: AppColors.muted)),
                 ),
               ],

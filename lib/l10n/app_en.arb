@@ -378,5 +378,340 @@
   "workersCurrentState": "Workers' current state",
   "changeStatus": "Change status",
   "myVisits": "My visits",
-  "site": "Site"
+  "site": "Site",
+  "problemSilent": "Not reporting",
+  "problemLocationOff": "Location off",
+  "problemPermission": "Permission: {value}",
+  "@problemPermission": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "problemTrackingStopped": "Tracking stopped",
+  "problemOffline": "Offline",
+  "problemApproximate": "Approximate location",
+  "problemBatterySaver": "Battery saver on",
+  "problemBattery": "Battery {percent}%",
+  "@problemBattery": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "permWhenInUse": "while in use",
+  "permDenied": "denied",
+  "permRestricted": "restricted",
+  "permNotDetermined": "not set",
+  "permAlways": "all the time",
+  "unknownUser": "Unknown",
+  "timeNever": "never",
+  "timeJustNow": "just now",
+  "timeMinAgo": "{n} min ago",
+  "@timeMinAgo": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "timeHoursAgo": "{n} h ago",
+  "@timeHoursAgo": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "seenAgo": "seen {when}",
+  "@seenAgo": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "lastSeen": "Last seen {when}",
+  "@lastSeen": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "phonesTab": "Phones",
+  "alertsTab": "Alerts",
+  "noActiveWorkers": "No active workers",
+  "notOnNewApp": "Not on the new app version yet",
+  "allGood": "All good",
+  "gpsShort": "GPS ±{meters} m",
+  "@gpsShort": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "alertsNotEnabled": "Alerts are not enabled on the server yet.",
+  "alertsLoadError": "Could not load alerts. Check your connection.",
+  "noAlertsYet": "No alerts yet",
+  "evLocationOff": "Location services turned OFF",
+  "evLocationOn": "Location services turned back on",
+  "evGpsOff": "GPS turned off (only network location)",
+  "evGpsOn": "GPS turned back on",
+  "evPreciseOff": "Precise location turned off",
+  "evPreciseOn": "Precise location turned back on",
+  "evPermission": "Location permission changed to \"{value}\"",
+  "@evPermission": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "evOffline": "Phone lost internet connection",
+  "evOnline": "Phone is back online",
+  "evPowerSaveOn": "Battery saver turned on (tracking may be delayed)",
+  "evPowerSaveOff": "Battery saver turned off",
+  "evTrackingStopped": "Location tracking stopped",
+  "evTrackingStarted": "Location tracking started",
+  "evAppClosed": "App was closed (tracking continues)",
+  "evDeviceBoot": "Phone restarted",
+  "evMock": "Fake GPS / mock location detected",
+  "evMockCleared": "Real GPS restored",
+  "evBatteryLow": "Battery low ({percent}%)",
+  "@evBatteryLow": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "evBatteryOk": "Battery recovered",
+  "evSilent": "Phone stopped reporting. It may be switched off, offline, or the app was force-stopped.",
+  "usersAll": "All",
+  "activeTab": "Active ({count})",
+  "@activeTab": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pendingTab": "Pending ({count})",
+  "@pendingTab": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchUsers": "Search name, email or phone",
+  "noActiveUsersMatch": "No active users match.",
+  "nobodyWaiting": "Nobody is waiting for approval.",
+  "review": "Review",
+  "roleChangedTo": "Role changed to {role}",
+  "@roleChangedTo": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "roleChangeFailed": "Could not change the role.",
+  "accountActivated": "Account activated",
+  "accountDeactivated": "Account deactivated",
+  "accessUpdateFailed": "Could not update access.",
+  "deleteUserTitle": "Delete {name}?",
+  "@deleteUserTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteUserBody": "Their profile is removed permanently. Past timesheets are kept.",
+  "delete": "Delete",
+  "statusActive": "Active",
+  "statusPendingInactive": "Pending / inactive",
+  "waitingForAccess": "This account is waiting for access.",
+  "approve": "Approve",
+  "sectionContact": "Contact",
+  "sectionWork": "Work",
+  "noSiteAssigned": "No site assigned",
+  "assignedSite": "Assigned site",
+  "phoneReportingNormally": "Phone is reporting normally",
+  "recentAlerts": "Recent alerts",
+  "sectionPay": "Pay",
+  "sectionRole": "Role",
+  "sectionAccess": "Access",
+  "deactivateAccount": "Deactivate account",
+  "activateAccount": "Activate account",
+  "deactivateBeforeDeleting": "Deactivate before deleting",
+  "deletePermanently": "Delete account permanently",
+  "userTitle": "User",
+  "project": "Project",
+  "mockup": "Mock-up",
+  "edit": "Edit",
+  "checkInRadius": "Check-in radius {meters} m",
+  "@checkInRadius": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "directions": "Directions",
+  "today": "Today",
+  "contractor": "Contractor",
+  "teamCount": "Team ({count})",
+  "@teamCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "manage": "Manage",
+  "nobodyAssigned": "Nobody is assigned yet.",
+  "peopleAssigned": "{count} people assigned.",
+  "@peopleAssigned": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "onSite": "On site",
+  "away": "Away",
+  "teamUpdated": "Team updated",
+  "teamUpdateFailed": "Could not update the team.",
+  "teamOf": "Team · {site}",
+  "@teamOf": {
+    "placeholders": {
+      "site": {
+        "type": "String"
+      }
+    }
+  },
+  "selectedCount": "{count} selected",
+  "@selectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchPeople": "Search people",
+  "saveTeam": "Save team",
+  "willMoveFrom": "will move from {site}",
+  "@willMoveFrom": {
+    "placeholders": {
+      "site": {
+        "type": "String"
+      }
+    }
+  },
+  "currentlyAt": "currently at {site}",
+  "@currentlyAt": {
+    "placeholders": {
+      "site": {
+        "type": "String"
+      }
+    }
+  },
+  "payUnavailable": "Pay details are not available yet.",
+  "noPayDetails": "No pay details yet.",
+  "setPayDetails": "Set pay details",
+  "editPayDetails": "Edit pay details",
+  "paySaved": "Pay details saved",
+  "enterValidAmount": "Enter a valid amount",
+  "payFor": "Pay · {name}",
+  "@payFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "monthly": "Monthly",
+  "daily": "Daily",
+  "hourly": "Hourly",
+  "monthlyAllowances": "Monthly allowances",
+  "allowance": "Allowance",
+  "nameIt": "Name it",
+  "amount": "Amount",
+  "addAllowance": "Add another allowance",
+  "effectiveFromLabel": "Effective from",
+  "notesOptional": "Notes (optional)",
+  "summary": "Summary",
+  "savePayDetails": "Save pay details",
+  "yesterday": "Yesterday",
+  "thisWeek": "This week",
+  "lastWeek": "Last week",
+  "thisMonth": "This month",
+  "lastMonth": "Last month",
+  "customRange": "Custom…",
+  "reportLoadError": "Could not load the report. Check your connection.",
+  "nothingToExport": "Nothing to export for this period.",
+  "pdfSubtitle": "Preview, print or share",
+  "excelSubtitle": "Daily entries and a summary sheet",
+  "export": "Export",
+  "everyone": "Everyone",
+  "rolesMasons": "Masons",
+  "rolesSiteEngineers": "Site Engineers",
+  "rolesSupervisors": "Supervisors",
+  "people": "People",
+  "hours": "Hours",
+  "areaM2": "Area m²",
+  "missingCheckouts": "Entries without check-out: {count}. Those hours are not counted.",
+  "@missingCheckouts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "viewBy": "View by",
+  "person": "Person",
+  "day": "Day",
+  "noAttendance": "No attendance in this period.",
+  "noSalesTeam": "No sales team members.",
+  "salespeople": "Salespeople",
+  "noVisits": "No visits in this period.",
+  "client": "Client",
+  "noOut": "No out",
+  "daysCount": "{count} days",
+  "@daysCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "salesSummary": "{days} working days · {client} client · {project} project visits",
+  "@salesSummary": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "client": {
+        "type": "int"
+      },
+      "project": {
+        "type": "int"
+      }
+    }
+  },
+  "peopleCount": "{count} people",
+  "@peopleCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nowLabel": "now"
 }

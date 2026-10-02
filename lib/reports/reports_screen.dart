@@ -3,6 +3,9 @@ import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 
 import '../core/app_theme.dart';
+import '../core/l10n_helpers.dart';
+import '../core/locale_controller.dart';
+import '../l10n/app_localizations.dart';
 import '../core/roles.dart';
 import '../services/database.dart';
 import '../shared/save_launch_file.dart';
@@ -12,17 +15,25 @@ import 'report_export.dart';
 
 enum ReportKind { attendance, sales }
 
+String _rolePlural(AppLocalizations l, AppRole? r) => switch (r) {
+      null => l.everyone,
+      AppRole.worker => l.rolesMasons,
+      AppRole.siteEngineer => l.rolesSiteEngineers,
+      AppRole.supervisor => l.rolesSupervisors,
+      _ => r.localized(l),
+    };
+
 enum _Preset { today, yesterday, thisWeek, lastWeek, thisMonth, lastMonth, custom }
 
 extension on _Preset {
-  String get label => switch (this) {
-        _Preset.today => 'Today',
-        _Preset.yesterday => 'Yesterday',
-        _Preset.thisWeek => 'This week',
-        _Preset.lastWeek => 'Last week',
-        _Preset.thisMonth => 'This month',
-        _Preset.lastMonth => 'Last month',
-        _Preset.custom => 'Custom…',
+  String label(AppLocalizations l) => switch (this) {
+        _Preset.today => l.today,
+        _Preset.yesterday => l.yesterday,
+        _Preset.thisWeek => l.thisWeek,
+        _Preset.lastWeek => l.lastWeek,
+        _Preset.thisMonth => l.thisMonth,
+        _Preset.lastMonth => l.lastMonth,
+        _Preset.custom => l.customRange,
       };
 
   DateTimeRange? range() {
@@ -94,7 +105,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         _sales = await loadSales(salesUsers, _range);
       }
     } catch (e) {
-      _error = 'Could not load the report. Check your connection.';
+      _error = 'load';
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -129,7 +140,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         _kind == ReportKind.attendance ? _rows.isEmpty : _sales.isEmpty;
     if (empty) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Nothing to export for this period.')));
+          SnackBar(content: Text(context.l10n.nothingToExport)));
       return;
     }
     await showModalBottomSheet(
@@ -140,7 +151,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
           ListTile(
             leading: const Icon(Icons.picture_as_pdf_outlined, color: AppColors.bad),
             title: const Text('PDF'),
-            subtitle: const Text('Preview, print or share'),
+            subtitle: Text(context.l10n.pdfSubtitle),
             onTap: () async {
               Navigator.pop(sheet);
               final bytes = _kind == ReportKind.attendance
@@ -153,7 +164,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
             ListTile(
               leading: const Icon(Icons.table_chart_outlined, color: AppColors.ok),
               title: const Text('Excel'),
-              subtitle: const Text('Daily entries and a summary sheet'),
+              subtitle: Text(context.l10n.excelSubtitle),
               onTap: () async {
                 Navigator.pop(sheet);
                 await saveAndLaunchFile(
@@ -168,13 +179,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final fmt = DateFormat('d MMM');
+    final fmt = DateFormat('d MMM', context.l10n.localeName);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Reports'),
+        title: Text(context.l10n.sectionReports),
         actions: [
           IconButton(
-            tooltip: 'Export',
+            tooltip: context.l10n.export,
             onPressed: _loading ? null : _export,
             icon: const Icon(Icons.ios_share),
           ),
@@ -187,15 +198,15 @@ class _ReportsScreenState extends State<ReportsScreen> {
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
           child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             SegmentedButton<ReportKind>(
-              segments: const [
+              segments: [
                 ButtonSegment(
                     value: ReportKind.attendance,
                     icon: Icon(Icons.schedule),
-                    label: Text('Attendance')),
+                    label: Text(context.l10n.attendance)),
                 ButtonSegment(
                     value: ReportKind.sales,
                     icon: Icon(Icons.storefront),
-                    label: Text('Sales')),
+                    label: Text(context.l10n.sectionSales)),
               ],
               selected: {_kind},
               onSelectionChanged: (s) {
@@ -215,7 +226,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       child: ChoiceChip(
                         label: Text(p == _Preset.custom && _preset == p
                             ? '${fmt.format(_range.start)} – ${fmt.format(_range.end)}'
-                            : p.label),
+                            : p.label(context.l10n)),
                         selected: _preset == p,
                         onSelected: (_) => _pickPreset(p),
                       ),
@@ -234,7 +245,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: FilterChip(
-                          label: Text(r == null ? 'Everyone' : '${r.label}s'),
+                          label: Text(_rolePlural(context.l10n, r)),
                           selected: _role == r,
                           onSelected: (_) {
                             setState(() => _role = r);
@@ -253,7 +264,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
           child: _loading
               ? const Center(child: CircularProgressIndicator(color: AppColors.gold))
               : _error != null
-                  ? Center(child: Text(_error!, style: const TextStyle(color: AppColors.bad)))
+                  ? Center(child: Text(context.l10n.reportLoadError, style: const TextStyle(color: AppColors.bad)))
                   : RefreshIndicator(
                       onRefresh: _load,
                       child: _kind == ReportKind.attendance
@@ -277,12 +288,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
       children: [
         Row(children: [
-          Expanded(child: _Stat('People', '${people.length}', Icons.groups)),
+          Expanded(child: _Stat(context.l10n.people, '${people.length}', Icons.groups)),
           const SizedBox(width: 8),
-          Expanded(child: _Stat('Hours', '${total.inHours}', Icons.timer_outlined)),
+          Expanded(child: _Stat(context.l10n.hours, '${total.inHours}', Icons.timer_outlined)),
           const SizedBox(width: 8),
           Expanded(
-              child: _Stat('Area m²', area == 0 ? '–' : area.toStringAsFixed(0),
+              child: _Stat(context.l10n.areaM2, area == 0 ? '–' : area.toStringAsFixed(0),
                   Icons.square_foot)),
         ]),
         if (missing > 0) ...[
@@ -296,7 +307,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                    '$missing ${missing == 1 ? 'entry has' : 'entries have'} no check-out, so those hours are not counted.',
+                    context.l10n.missingCheckouts(missing),
                     style: const TextStyle(color: AppColors.ink)),
               ),
             ]),
@@ -304,7 +315,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         ],
         const SizedBox(height: 12),
         Row(children: [
-          const Text('VIEW BY',
+          Text(context.l10n.viewBy.toUpperCase(),
               style: TextStyle(
                   fontSize: 12,
                   letterSpacing: 1.1,
@@ -314,9 +325,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
           SegmentedButton<bool>(
             showSelectedIcon: false,
             style: const ButtonStyle(visualDensity: VisualDensity.compact),
-            segments: const [
-              ButtonSegment(value: true, label: Text('Person')),
-              ButtonSegment(value: false, label: Text('Day')),
+            segments: [
+              ButtonSegment(value: true, label: Text(context.l10n.person)),
+              ButtonSegment(value: false, label: Text(context.l10n.day)),
             ],
             selected: {_byPerson},
             onSelectionChanged: (s) => setState(() => _byPerson = s.first),
@@ -324,10 +335,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
         ]),
         const SizedBox(height: 10),
         if (_rows.isEmpty)
-          const Padding(
-            padding: EdgeInsets.only(top: 40),
+          Padding(
+            padding: const EdgeInsets.only(top: 40),
             child: Center(
-              child: Text('No attendance in this period.',
+              child: Text(context.l10n.noAttendance,
                   style: TextStyle(color: AppColors.muted)),
             ),
           )
@@ -345,11 +356,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   Widget _salesBody() {
     if (_sales.isEmpty) {
-      return ListView(children: const [
+      return ListView(children: [
         Padding(
-          padding: EdgeInsets.only(top: 80),
+          padding: const EdgeInsets.only(top: 80),
           child: Center(
-              child: Text('No sales team members.',
+              child: Text(context.l10n.noSalesTeam,
                   style: TextStyle(color: AppColors.muted))),
         ),
       ]);
@@ -359,9 +370,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
       children: [
         Row(children: [
-          Expanded(child: _Stat('Salespeople', '${_sales.length}', Icons.badge_outlined)),
+          Expanded(child: _Stat(context.l10n.salespeople, '${_sales.length}', Icons.badge_outlined)),
           const SizedBox(width: 8),
-          Expanded(child: _Stat('Visits', '$visits', Icons.handshake_outlined)),
+          Expanded(child: _Stat(context.l10n.visits, '$visits', Icons.handshake_outlined)),
         ]),
         const SizedBox(height: 12),
         for (final s in _sales)
@@ -374,15 +385,15 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 title: Text('${s.user.firstName ?? ''} ${s.user.lastName ?? ''}',
                     style: const TextStyle(fontWeight: FontWeight.w700)),
                 subtitle: Text(
-                    '${s.workingDays} working days · ${s.clientVisits.length} client · ${s.projectVisits.length} project visits'),
+                    context.l10n.salesSummary(s.workingDays, s.clientVisits.length, s.projectVisits.length)),
                 children: [
                   if (s.totalVisits == 0)
-                    const ListTile(title: Text('No visits in this period.')),
+                    ListTile(title: Text(context.l10n.noVisits)),
                   for (final v in s.clientVisits)
                     ListTile(
                       dense: true,
                       leading: const Icon(Icons.storefront_outlined),
-                      title: Text(v.clientName ?? 'Client'),
+                      title: Text(v.clientName ?? context.l10n.client),
                       subtitle: Text(v.visitPurpose ?? ''),
                       trailing: Text('${v.visitTime}'),
                     ),
@@ -390,7 +401,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     ListTile(
                       dense: true,
                       leading: const Icon(Icons.apartment_outlined),
-                      title: Text(v.projectName ?? 'Project'),
+                      title: Text(v.projectName ?? context.l10n.project),
                       subtitle: Text(v.visitPurpose ?? ''),
                       trailing: Text('${v.visitTime}'),
                     ),
@@ -451,18 +462,18 @@ class _EntryRow extends StatelessWidget {
         ),
         Expanded(
           flex: 3,
-          child: Text('${_hm(r.arrived)} → ${r.stillOnSite ? 'now' : _hm(r.left)}',
+          child: Text('${_hm(r.arrived)} → ${r.stillOnSite ? context.l10n.nowLabel : _hm(r.left)}',
               textAlign: TextAlign.right),
         ),
         SizedBox(
           width: 70,
           child: r.worked != null
-              ? Text(formatDuration(r.worked!),
+              ? Text(localizedDuration(context.l10n, r.worked!),
                   textAlign: TextAlign.right,
                   style: const TextStyle(fontWeight: FontWeight.w700))
               : Align(
                   alignment: Alignment.centerRight,
-                  child: StatusPill(r.stillOnSite ? 'On site' : 'No out',
+                  child: StatusPill(r.stillOnSite ? context.l10n.onSite : context.l10n.noOut,
                       tone: r.stillOnSite ? Tone.ok : Tone.warn),
                 ),
         ),
@@ -491,7 +502,7 @@ class _PersonCard extends StatelessWidget {
             ),
             title: Text(p.name, style: const TextStyle(fontWeight: FontWeight.w700)),
             subtitle: Text(
-                '${p.days} ${p.days == 1 ? 'day' : 'days'} · ${formatDuration(p.worked)}'
+                '${context.l10n.daysCount(p.days)} · ${localizedDuration(context.l10n, p.worked)}'
                 '${p.squareMeters > 0 ? ' · ${p.squareMeters.toStringAsFixed(1)} m²' : ''}'),
             trailing: p.missingCheckOuts > 0
                 ? StatusPill('${p.missingCheckOuts} no out', tone: Tone.warn)
@@ -499,7 +510,8 @@ class _PersonCard extends StatelessWidget {
             childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
             children: [
               for (final r in p.rows)
-                _EntryRow(r, leading: DateFormat('EEE d MMM').format(r.day)),
+                _EntryRow(r,
+                    leading: DateFormat('EEE d MMM', context.l10n.localeName).format(r.day)),
             ],
           ),
         ),
@@ -519,10 +531,10 @@ class _DayCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Row(children: [
-                Text(DateFormat('EEEE d MMMM').format(day),
+                Text(DateFormat('EEEE d MMMM', context.l10n.localeName).format(day),
                     style: const TextStyle(fontWeight: FontWeight.w800)),
                 const Spacer(),
-                Text('${rows.length} ${rows.length == 1 ? 'person' : 'people'}',
+                Text(context.l10n.peopleCount(rows.length),
                     style: const TextStyle(color: AppColors.muted)),
               ]),
               const Divider(height: 16),

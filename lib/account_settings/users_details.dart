@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:royal_marble/core/locale_controller.dart';
 import 'package:royal_marble/account_settings/admin_user_view.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -99,7 +100,9 @@ class _UserDetailsState extends State<UserDetails> {
     _size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.myAccount == true ? 'My profile' : 'User'),
+        title: Text(widget.myAccount == true
+            ? context.l10n.myProfile
+            : context.l10n.userTitle),
         actions: [
           //Button to add helpers
           widget.selectedUser != null &&

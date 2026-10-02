@@ -635,4 +635,520 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get site => 'Site';
+
+  @override
+  String get problemSilent => 'Not reporting';
+
+  @override
+  String get problemLocationOff => 'Location off';
+
+  @override
+  String problemPermission(String value) {
+    return 'Permission: $value';
+  }
+
+  @override
+  String get problemTrackingStopped => 'Tracking stopped';
+
+  @override
+  String get problemOffline => 'Offline';
+
+  @override
+  String get problemApproximate => 'Approximate location';
+
+  @override
+  String get problemBatterySaver => 'Battery saver on';
+
+  @override
+  String problemBattery(int percent) {
+    return 'Battery $percent%';
+  }
+
+  @override
+  String get permWhenInUse => 'while in use';
+
+  @override
+  String get permDenied => 'denied';
+
+  @override
+  String get permRestricted => 'restricted';
+
+  @override
+  String get permNotDetermined => 'not set';
+
+  @override
+  String get permAlways => 'all the time';
+
+  @override
+  String get unknownUser => 'Unknown';
+
+  @override
+  String get timeNever => 'never';
+
+  @override
+  String get timeJustNow => 'just now';
+
+  @override
+  String timeMinAgo(int n) {
+    return '$n min ago';
+  }
+
+  @override
+  String timeHoursAgo(int n) {
+    return '$n h ago';
+  }
+
+  @override
+  String seenAgo(String when) {
+    return 'seen $when';
+  }
+
+  @override
+  String lastSeen(String when) {
+    return 'Last seen $when';
+  }
+
+  @override
+  String get phonesTab => 'Phones';
+
+  @override
+  String get alertsTab => 'Alerts';
+
+  @override
+  String get noActiveWorkers => 'No active workers';
+
+  @override
+  String get notOnNewApp => 'Not on the new app version yet';
+
+  @override
+  String get allGood => 'All good';
+
+  @override
+  String gpsShort(int meters) {
+    return 'GPS ±$meters m';
+  }
+
+  @override
+  String get alertsNotEnabled => 'Alerts are not enabled on the server yet.';
+
+  @override
+  String get alertsLoadError => 'Could not load alerts. Check your connection.';
+
+  @override
+  String get noAlertsYet => 'No alerts yet';
+
+  @override
+  String get evLocationOff => 'Location services turned OFF';
+
+  @override
+  String get evLocationOn => 'Location services turned back on';
+
+  @override
+  String get evGpsOff => 'GPS turned off (only network location)';
+
+  @override
+  String get evGpsOn => 'GPS turned back on';
+
+  @override
+  String get evPreciseOff => 'Precise location turned off';
+
+  @override
+  String get evPreciseOn => 'Precise location turned back on';
+
+  @override
+  String evPermission(String value) {
+    return 'Location permission changed to \"$value\"';
+  }
+
+  @override
+  String get evOffline => 'Phone lost internet connection';
+
+  @override
+  String get evOnline => 'Phone is back online';
+
+  @override
+  String get evPowerSaveOn =>
+      'Battery saver turned on (tracking may be delayed)';
+
+  @override
+  String get evPowerSaveOff => 'Battery saver turned off';
+
+  @override
+  String get evTrackingStopped => 'Location tracking stopped';
+
+  @override
+  String get evTrackingStarted => 'Location tracking started';
+
+  @override
+  String get evAppClosed => 'App was closed (tracking continues)';
+
+  @override
+  String get evDeviceBoot => 'Phone restarted';
+
+  @override
+  String get evMock => 'Fake GPS / mock location detected';
+
+  @override
+  String get evMockCleared => 'Real GPS restored';
+
+  @override
+  String evBatteryLow(int percent) {
+    return 'Battery low ($percent%)';
+  }
+
+  @override
+  String get evBatteryOk => 'Battery recovered';
+
+  @override
+  String get evSilent =>
+      'Phone stopped reporting. It may be switched off, offline, or the app was force-stopped.';
+
+  @override
+  String get usersAll => 'All';
+
+  @override
+  String activeTab(int count) {
+    return 'Active ($count)';
+  }
+
+  @override
+  String pendingTab(int count) {
+    return 'Pending ($count)';
+  }
+
+  @override
+  String get searchUsers => 'Search name, email or phone';
+
+  @override
+  String get noActiveUsersMatch => 'No active users match.';
+
+  @override
+  String get nobodyWaiting => 'Nobody is waiting for approval.';
+
+  @override
+  String get review => 'Review';
+
+  @override
+  String roleChangedTo(String role) {
+    return 'Role changed to $role';
+  }
+
+  @override
+  String get roleChangeFailed => 'Could not change the role.';
+
+  @override
+  String get accountActivated => 'Account activated';
+
+  @override
+  String get accountDeactivated => 'Account deactivated';
+
+  @override
+  String get accessUpdateFailed => 'Could not update access.';
+
+  @override
+  String deleteUserTitle(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String get deleteUserBody =>
+      'Their profile is removed permanently. Past timesheets are kept.';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get statusActive => 'Active';
+
+  @override
+  String get statusPendingInactive => 'Pending / inactive';
+
+  @override
+  String get waitingForAccess => 'This account is waiting for access.';
+
+  @override
+  String get approve => 'Approve';
+
+  @override
+  String get sectionContact => 'Contact';
+
+  @override
+  String get sectionWork => 'Work';
+
+  @override
+  String get noSiteAssigned => 'No site assigned';
+
+  @override
+  String get assignedSite => 'Assigned site';
+
+  @override
+  String get phoneReportingNormally => 'Phone is reporting normally';
+
+  @override
+  String get recentAlerts => 'Recent alerts';
+
+  @override
+  String get sectionPay => 'Pay';
+
+  @override
+  String get sectionRole => 'Role';
+
+  @override
+  String get sectionAccess => 'Access';
+
+  @override
+  String get deactivateAccount => 'Deactivate account';
+
+  @override
+  String get activateAccount => 'Activate account';
+
+  @override
+  String get deactivateBeforeDeleting => 'Deactivate before deleting';
+
+  @override
+  String get deletePermanently => 'Delete account permanently';
+
+  @override
+  String get userTitle => 'User';
+
+  @override
+  String get project => 'Project';
+
+  @override
+  String get mockup => 'Mock-up';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String checkInRadius(int meters) {
+    return 'Check-in radius $meters m';
+  }
+
+  @override
+  String get directions => 'Directions';
+
+  @override
+  String get today => 'Today';
+
+  @override
+  String get contractor => 'Contractor';
+
+  @override
+  String teamCount(int count) {
+    return 'Team ($count)';
+  }
+
+  @override
+  String get manage => 'Manage';
+
+  @override
+  String get nobodyAssigned => 'Nobody is assigned yet.';
+
+  @override
+  String peopleAssigned(int count) {
+    return '$count people assigned.';
+  }
+
+  @override
+  String get onSite => 'On site';
+
+  @override
+  String get away => 'Away';
+
+  @override
+  String get teamUpdated => 'Team updated';
+
+  @override
+  String get teamUpdateFailed => 'Could not update the team.';
+
+  @override
+  String teamOf(String site) {
+    return 'Team · $site';
+  }
+
+  @override
+  String selectedCount(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String get searchPeople => 'Search people';
+
+  @override
+  String get saveTeam => 'Save team';
+
+  @override
+  String willMoveFrom(String site) {
+    return 'will move from $site';
+  }
+
+  @override
+  String currentlyAt(String site) {
+    return 'currently at $site';
+  }
+
+  @override
+  String get payUnavailable => 'Pay details are not available yet.';
+
+  @override
+  String get noPayDetails => 'No pay details yet.';
+
+  @override
+  String get setPayDetails => 'Set pay details';
+
+  @override
+  String get editPayDetails => 'Edit pay details';
+
+  @override
+  String get paySaved => 'Pay details saved';
+
+  @override
+  String get enterValidAmount => 'Enter a valid amount';
+
+  @override
+  String payFor(String name) {
+    return 'Pay · $name';
+  }
+
+  @override
+  String get monthly => 'Monthly';
+
+  @override
+  String get daily => 'Daily';
+
+  @override
+  String get hourly => 'Hourly';
+
+  @override
+  String get monthlyAllowances => 'Monthly allowances';
+
+  @override
+  String get allowance => 'Allowance';
+
+  @override
+  String get nameIt => 'Name it';
+
+  @override
+  String get amount => 'Amount';
+
+  @override
+  String get addAllowance => 'Add another allowance';
+
+  @override
+  String get effectiveFromLabel => 'Effective from';
+
+  @override
+  String get notesOptional => 'Notes (optional)';
+
+  @override
+  String get summary => 'Summary';
+
+  @override
+  String get savePayDetails => 'Save pay details';
+
+  @override
+  String get yesterday => 'Yesterday';
+
+  @override
+  String get thisWeek => 'This week';
+
+  @override
+  String get lastWeek => 'Last week';
+
+  @override
+  String get thisMonth => 'This month';
+
+  @override
+  String get lastMonth => 'Last month';
+
+  @override
+  String get customRange => 'Custom…';
+
+  @override
+  String get reportLoadError =>
+      'Could not load the report. Check your connection.';
+
+  @override
+  String get nothingToExport => 'Nothing to export for this period.';
+
+  @override
+  String get pdfSubtitle => 'Preview, print or share';
+
+  @override
+  String get excelSubtitle => 'Daily entries and a summary sheet';
+
+  @override
+  String get export => 'Export';
+
+  @override
+  String get everyone => 'Everyone';
+
+  @override
+  String get rolesMasons => 'Masons';
+
+  @override
+  String get rolesSiteEngineers => 'Site Engineers';
+
+  @override
+  String get rolesSupervisors => 'Supervisors';
+
+  @override
+  String get people => 'People';
+
+  @override
+  String get hours => 'Hours';
+
+  @override
+  String get areaM2 => 'Area m²';
+
+  @override
+  String missingCheckouts(int count) {
+    return 'Entries without check-out: $count. Those hours are not counted.';
+  }
+
+  @override
+  String get viewBy => 'View by';
+
+  @override
+  String get person => 'Person';
+
+  @override
+  String get day => 'Day';
+
+  @override
+  String get noAttendance => 'No attendance in this period.';
+
+  @override
+  String get noSalesTeam => 'No sales team members.';
+
+  @override
+  String get salespeople => 'Salespeople';
+
+  @override
+  String get noVisits => 'No visits in this period.';
+
+  @override
+  String get client => 'Client';
+
+  @override
+  String get noOut => 'No out';
+
+  @override
+  String daysCount(int count) {
+    return '$count days';
+  }
+
+  @override
+  String salesSummary(int days, int client, int project) {
+    return '$days working days · $client client · $project project visits';
+  }
+
+  @override
+  String peopleCount(int count) {
+    return '$count people';
+  }
+
+  @override
+  String get nowLabel => 'now';
 }

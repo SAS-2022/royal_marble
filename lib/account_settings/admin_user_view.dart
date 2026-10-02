@@ -40,8 +40,8 @@ class AdminUserView extends StatelessWidget {
     onBusy(false);
     if (!context.mounted) return;
     result == 'Completed'
-        ? _toast(context, 'Role changed to ${role.label}')
-        : _toast(context, 'Could not change the role: $result', ok: false);
+        ? _toast(context, context.l10n.roleChangedTo(role.localized(context.l10n)))
+        : _toast(context, context.l10n.roleChangeFailed, ok: false);
   }
 
   Future<void> _setActive(BuildContext context, bool active) async {
@@ -51,8 +51,8 @@ class AdminUserView extends StatelessWidget {
     onBusy(false);
     if (!context.mounted) return;
     result == 'Completed'
-        ? _toast(context, active ? 'Account activated' : 'Account deactivated')
-        : _toast(context, 'Could not update access: $result', ok: false);
+        ? _toast(context, active ? context.l10n.accountActivated : context.l10n.accountDeactivated)
+        : _toast(context, context.l10n.accessUpdateFailed, ok: false);
   }
 
   Future<void> _delete(BuildContext context) async {
@@ -60,17 +60,16 @@ class AdminUserView extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text('Delete $name?'),
-        content: const Text(
-            'Their profile is removed permanently. Past timesheets are kept.'),
+        title: Text(context.l10n.deleteUserTitle(name)),
+        content: Text(context.l10n.deleteUserBody),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel')),
+              child: Text(context.l10n.cancel)),
           FilledButton(
               style: FilledButton.styleFrom(backgroundColor: AppColors.bad),
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Delete')),
+              child: Text(context.l10n.delete)),
         ],
       ),
     );
@@ -124,8 +123,8 @@ class AdminUserView extends StatelessWidget {
                     StatusPill(role.localized(context.l10n),
                         icon: Icons.badge_outlined),
                     active
-                        ? const StatusPill('Active', tone: Tone.ok)
-                        : const StatusPill('Pending / inactive',
+                        ? StatusPill(context.l10n.statusActive, tone: Tone.ok)
+                        : StatusPill(context.l10n.statusPendingInactive,
                             tone: Tone.warn),
                   ]),
                 ],
@@ -142,23 +141,23 @@ class AdminUserView extends StatelessWidget {
               child: Row(children: [
                 const Icon(Icons.how_to_reg, color: AppColors.warn),
                 const SizedBox(width: 10),
-                const Expanded(
-                  child: Text('This account is waiting for access.',
-                      style: TextStyle(color: AppColors.ink)),
+                Expanded(
+                  child: Text(context.l10n.waitingForAccess,
+                      style: const TextStyle(color: AppColors.ink)),
                 ),
                 FilledButton(
                   style: FilledButton.styleFrom(
                       minimumSize: const Size(0, 40),
                       backgroundColor: AppColors.ok),
                   onPressed: () => _setActive(context, true),
-                  child: const Text('Approve'),
+                  child: Text(context.l10n.approve),
                 ),
               ]),
             ),
           ],
 
           // Contact
-          const SectionTitle('Contact'),
+          SectionTitle(context.l10n.sectionContact),
           Card(
             child: Column(children: [
               if (user.phoneNumber?.isNotEmpty == true)
@@ -196,13 +195,13 @@ class AdminUserView extends StatelessWidget {
 
           // Work and phone health
           if (active && !role.canMonitor) ...[
-            const SectionTitle('Work'),
+            SectionTitle(context.l10n.sectionWork),
             Card(
               child: Column(children: [
                 ListTile(
                   leading: const Icon(Icons.apartment_outlined),
-                  title: Text(site != null ? '$site' : 'No site assigned'),
-                  subtitle: const Text('Assigned site'),
+                  title: Text(site != null ? '$site' : context.l10n.noSiteAssigned),
+                  subtitle: Text(context.l10n.assignedSite),
                 ),
                 ListTile(
                   leading: Icon(
@@ -215,15 +214,17 @@ class AdminUserView extends StatelessWidget {
                               ? AppColors.ok
                               : AppColors.bad),
                   title: Text(!status.hasData
-                      ? 'Not on the new app version yet'
+                      ? context.l10n.notOnNewApp
                       : status.healthy
-                          ? 'Phone is reporting normally'
-                          : status.problems.join(' · ')),
-                  subtitle: Text('Last seen ${timeAgo(status.lastSeen)}'),
+                          ? context.l10n.phoneReportingNormally
+                          : status.problems
+                              .map((p) => p.text(context.l10n))
+                              .join(' · ')),
+                  subtitle: Text(context.l10n.lastSeen(timeAgo(context.l10n, status.lastSeen))),
                 ),
               ]),
             ),
-            const SectionTitle('Recent alerts'),
+            SectionTitle(context.l10n.recentAlerts),
             Card(
               child: SizedBox(
                 height: 260,
@@ -234,12 +235,12 @@ class AdminUserView extends StatelessWidget {
 
           // Pay (admins only; supervisors don't see salaries)
           if (viewerIsAdmin && active) ...[
-            const SectionTitle('Pay'),
+            SectionTitle(context.l10n.sectionPay),
             SalaryCard(user: user, canEdit: true),
           ],
 
           // Role
-          const SectionTitle('Role'),
+          SectionTitle(context.l10n.sectionRole),
           Wrap(spacing: 8, runSpacing: 8, children: [
             for (final r in AppRole.values)
               if (viewerIsAdmin || r != AppRole.admin)
@@ -251,20 +252,20 @@ class AdminUserView extends StatelessWidget {
           ]),
 
           // Access
-          const SectionTitle('Access'),
+          SectionTitle(context.l10n.sectionAccess),
           if (active)
             OutlinedButton.icon(
               style: OutlinedButton.styleFrom(foregroundColor: AppColors.bad),
               onPressed: () => _setActive(context, false),
               icon: const Icon(Icons.block),
-              label: const Text('Deactivate account'),
+              label: Text(context.l10n.deactivateAccount),
             )
           else
             FilledButton.icon(
               style: FilledButton.styleFrom(backgroundColor: AppColors.ok),
               onPressed: () => _setActive(context, true),
               icon: const Icon(Icons.check),
-              label: const Text('Activate account'),
+              label: Text(context.l10n.activateAccount),
             ),
           if (viewerIsAdmin) ...[
             const SizedBox(height: 10),
@@ -273,8 +274,8 @@ class AdminUserView extends StatelessWidget {
               onPressed: active ? null : () => _delete(context),
               icon: const Icon(Icons.delete_outline),
               label: Text(active
-                  ? 'Deactivate before deleting'
-                  : 'Delete account permanently'),
+                  ? context.l10n.deactivateBeforeDeleting
+                  : context.l10n.deletePermanently),
             ),
           ],
         ],

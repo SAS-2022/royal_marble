@@ -628,4 +628,518 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get site => 'موقع';
+
+  @override
+  String get problemSilent => 'لا يرسل بيانات';
+
+  @override
+  String get problemLocationOff => 'الموقع متوقف';
+
+  @override
+  String problemPermission(String value) {
+    return 'الإذن: $value';
+  }
+
+  @override
+  String get problemTrackingStopped => 'التتبع متوقف';
+
+  @override
+  String get problemOffline => 'غير متصل';
+
+  @override
+  String get problemApproximate => 'موقع تقريبي';
+
+  @override
+  String get problemBatterySaver => 'توفير البطارية مفعّل';
+
+  @override
+  String problemBattery(int percent) {
+    return 'البطارية $percent%';
+  }
+
+  @override
+  String get permWhenInUse => 'أثناء الاستخدام';
+
+  @override
+  String get permDenied => 'مرفوض';
+
+  @override
+  String get permRestricted => 'مقيّد';
+
+  @override
+  String get permNotDetermined => 'غير محدد';
+
+  @override
+  String get permAlways => 'طوال الوقت';
+
+  @override
+  String get unknownUser => 'غير معروف';
+
+  @override
+  String get timeNever => 'أبداً';
+
+  @override
+  String get timeJustNow => 'الآن';
+
+  @override
+  String timeMinAgo(int n) {
+    return 'منذ $n د';
+  }
+
+  @override
+  String timeHoursAgo(int n) {
+    return 'منذ $n س';
+  }
+
+  @override
+  String seenAgo(String when) {
+    return 'آخر ظهور $when';
+  }
+
+  @override
+  String lastSeen(String when) {
+    return 'آخر ظهور $when';
+  }
+
+  @override
+  String get phonesTab => 'الهواتف';
+
+  @override
+  String get alertsTab => 'التنبيهات';
+
+  @override
+  String get noActiveWorkers => 'لا يوجد عمال نشطون';
+
+  @override
+  String get notOnNewApp => 'لم يحدّث التطبيق بعد';
+
+  @override
+  String get allGood => 'كل شيء جيد';
+
+  @override
+  String gpsShort(int meters) {
+    return 'GPS ±$meters م';
+  }
+
+  @override
+  String get alertsNotEnabled => 'التنبيهات غير مفعّلة على الخادم بعد.';
+
+  @override
+  String get alertsLoadError => 'تعذّر تحميل التنبيهات. تحقق من اتصالك.';
+
+  @override
+  String get noAlertsYet => 'لا توجد تنبيهات بعد';
+
+  @override
+  String get evLocationOff => 'تم إيقاف خدمة الموقع';
+
+  @override
+  String get evLocationOn => 'تم تشغيل خدمة الموقع مجدداً';
+
+  @override
+  String get evGpsOff => 'تم إيقاف GPS (موقع الشبكة فقط)';
+
+  @override
+  String get evGpsOn => 'تم تشغيل GPS مجدداً';
+
+  @override
+  String get evPreciseOff => 'تم إيقاف الموقع الدقيق';
+
+  @override
+  String get evPreciseOn => 'تم تشغيل الموقع الدقيق مجدداً';
+
+  @override
+  String evPermission(String value) {
+    return 'تم تغيير إذن الموقع إلى \"$value\"';
+  }
+
+  @override
+  String get evOffline => 'انقطع اتصال الهاتف بالإنترنت';
+
+  @override
+  String get evOnline => 'عاد الهاتف للاتصال';
+
+  @override
+  String get evPowerSaveOn => 'تم تشغيل توفير البطارية (قد يتأخر التتبع)';
+
+  @override
+  String get evPowerSaveOff => 'تم إيقاف توفير البطارية';
+
+  @override
+  String get evTrackingStopped => 'توقف تتبع الموقع';
+
+  @override
+  String get evTrackingStarted => 'بدأ تتبع الموقع';
+
+  @override
+  String get evAppClosed => 'تم إغلاق التطبيق (يستمر التتبع)';
+
+  @override
+  String get evDeviceBoot => 'تمت إعادة تشغيل الهاتف';
+
+  @override
+  String get evMock => 'تم اكتشاف موقع مزيّف';
+
+  @override
+  String get evMockCleared => 'عاد الموقع الحقيقي';
+
+  @override
+  String evBatteryLow(int percent) {
+    return 'البطارية منخفضة ($percent%)';
+  }
+
+  @override
+  String get evBatteryOk => 'تعافت البطارية';
+
+  @override
+  String get evSilent =>
+      'توقف الهاتف عن الإرسال. قد يكون مغلقاً أو غير متصل أو تم إيقاف التطبيق.';
+
+  @override
+  String get usersAll => 'الكل';
+
+  @override
+  String activeTab(int count) {
+    return 'نشط ($count)';
+  }
+
+  @override
+  String pendingTab(int count) {
+    return 'قيد الانتظار ($count)';
+  }
+
+  @override
+  String get searchUsers => 'ابحث بالاسم أو البريد أو الهاتف';
+
+  @override
+  String get noActiveUsersMatch => 'لا يوجد مستخدمون نشطون مطابقون.';
+
+  @override
+  String get nobodyWaiting => 'لا أحد بانتظار الموافقة.';
+
+  @override
+  String get review => 'مراجعة';
+
+  @override
+  String roleChangedTo(String role) {
+    return 'تم تغيير الدور إلى $role';
+  }
+
+  @override
+  String get roleChangeFailed => 'تعذّر تغيير الدور.';
+
+  @override
+  String get accountActivated => 'تم تفعيل الحساب';
+
+  @override
+  String get accountDeactivated => 'تم إيقاف الحساب';
+
+  @override
+  String get accessUpdateFailed => 'تعذّر تحديث الصلاحية.';
+
+  @override
+  String deleteUserTitle(String name) {
+    return 'حذف $name؟';
+  }
+
+  @override
+  String get deleteUserBody =>
+      'سيتم حذف الملف نهائياً. يتم الاحتفاظ بسجلات الحضور السابقة.';
+
+  @override
+  String get delete => 'حذف';
+
+  @override
+  String get statusActive => 'نشط';
+
+  @override
+  String get statusPendingInactive => 'قيد الانتظار / غير نشط';
+
+  @override
+  String get waitingForAccess => 'هذا الحساب بانتظار الصلاحية.';
+
+  @override
+  String get approve => 'موافقة';
+
+  @override
+  String get sectionContact => 'التواصل';
+
+  @override
+  String get sectionWork => 'العمل';
+
+  @override
+  String get noSiteAssigned => 'لا يوجد موقع معيّن';
+
+  @override
+  String get assignedSite => 'الموقع المعيّن';
+
+  @override
+  String get phoneReportingNormally => 'الهاتف يرسل بشكل طبيعي';
+
+  @override
+  String get recentAlerts => 'أحدث التنبيهات';
+
+  @override
+  String get sectionPay => 'الراتب';
+
+  @override
+  String get sectionRole => 'الدور';
+
+  @override
+  String get sectionAccess => 'الصلاحية';
+
+  @override
+  String get deactivateAccount => 'إيقاف الحساب';
+
+  @override
+  String get activateAccount => 'تفعيل الحساب';
+
+  @override
+  String get deactivateBeforeDeleting => 'أوقف الحساب قبل الحذف';
+
+  @override
+  String get deletePermanently => 'حذف الحساب نهائياً';
+
+  @override
+  String get userTitle => 'المستخدم';
+
+  @override
+  String get project => 'مشروع';
+
+  @override
+  String get mockup => 'عيّنة';
+
+  @override
+  String get edit => 'تعديل';
+
+  @override
+  String checkInRadius(int meters) {
+    return 'نطاق تسجيل الحضور $meters م';
+  }
+
+  @override
+  String get directions => 'الاتجاهات';
+
+  @override
+  String get today => 'اليوم';
+
+  @override
+  String get contractor => 'المقاول';
+
+  @override
+  String teamCount(int count) {
+    return 'الفريق ($count)';
+  }
+
+  @override
+  String get manage => 'إدارة';
+
+  @override
+  String get nobodyAssigned => 'لم يتم تعيين أحد بعد.';
+
+  @override
+  String peopleAssigned(int count) {
+    return '$count أشخاص معيّنون.';
+  }
+
+  @override
+  String get onSite => 'في الموقع';
+
+  @override
+  String get away => 'خارج الموقع';
+
+  @override
+  String get teamUpdated => 'تم تحديث الفريق';
+
+  @override
+  String get teamUpdateFailed => 'تعذّر تحديث الفريق.';
+
+  @override
+  String teamOf(String site) {
+    return 'الفريق · $site';
+  }
+
+  @override
+  String selectedCount(int count) {
+    return '$count محدد';
+  }
+
+  @override
+  String get searchPeople => 'ابحث عن أشخاص';
+
+  @override
+  String get saveTeam => 'حفظ الفريق';
+
+  @override
+  String willMoveFrom(String site) {
+    return 'سينتقل من $site';
+  }
+
+  @override
+  String currentlyAt(String site) {
+    return 'حالياً في $site';
+  }
+
+  @override
+  String get payUnavailable => 'تفاصيل الراتب غير متاحة بعد.';
+
+  @override
+  String get noPayDetails => 'لا توجد تفاصيل راتب بعد.';
+
+  @override
+  String get setPayDetails => 'إضافة تفاصيل الراتب';
+
+  @override
+  String get editPayDetails => 'تعديل تفاصيل الراتب';
+
+  @override
+  String get paySaved => 'تم حفظ تفاصيل الراتب';
+
+  @override
+  String get enterValidAmount => 'أدخل مبلغاً صحيحاً';
+
+  @override
+  String payFor(String name) {
+    return 'الراتب · $name';
+  }
+
+  @override
+  String get monthly => 'شهري';
+
+  @override
+  String get daily => 'يومي';
+
+  @override
+  String get hourly => 'بالساعة';
+
+  @override
+  String get monthlyAllowances => 'البدلات الشهرية';
+
+  @override
+  String get allowance => 'البدل';
+
+  @override
+  String get nameIt => 'أدخل الاسم';
+
+  @override
+  String get amount => 'المبلغ';
+
+  @override
+  String get addAllowance => 'إضافة بدل آخر';
+
+  @override
+  String get effectiveFromLabel => 'ساري من';
+
+  @override
+  String get notesOptional => 'ملاحظات (اختياري)';
+
+  @override
+  String get summary => 'الملخص';
+
+  @override
+  String get savePayDetails => 'حفظ تفاصيل الراتب';
+
+  @override
+  String get yesterday => 'أمس';
+
+  @override
+  String get thisWeek => 'هذا الأسبوع';
+
+  @override
+  String get lastWeek => 'الأسبوع الماضي';
+
+  @override
+  String get thisMonth => 'هذا الشهر';
+
+  @override
+  String get lastMonth => 'الشهر الماضي';
+
+  @override
+  String get customRange => 'مخصص…';
+
+  @override
+  String get reportLoadError => 'تعذّر تحميل التقرير. تحقق من اتصالك.';
+
+  @override
+  String get nothingToExport => 'لا يوجد ما يُصدَّر لهذه الفترة.';
+
+  @override
+  String get pdfSubtitle => 'معاينة أو طباعة أو مشاركة';
+
+  @override
+  String get excelSubtitle => 'السجلات اليومية وورقة ملخص';
+
+  @override
+  String get export => 'تصدير';
+
+  @override
+  String get everyone => 'الجميع';
+
+  @override
+  String get rolesMasons => 'عمال البناء';
+
+  @override
+  String get rolesSiteEngineers => 'مهندسو المواقع';
+
+  @override
+  String get rolesSupervisors => 'المشرفون';
+
+  @override
+  String get people => 'الأشخاص';
+
+  @override
+  String get hours => 'الساعات';
+
+  @override
+  String get areaM2 => 'المساحة م²';
+
+  @override
+  String missingCheckouts(int count) {
+    return 'سجلات بدون تسجيل خروج: $count. لا تُحتسب ساعاتها.';
+  }
+
+  @override
+  String get viewBy => 'عرض حسب';
+
+  @override
+  String get person => 'الشخص';
+
+  @override
+  String get day => 'اليوم';
+
+  @override
+  String get noAttendance => 'لا يوجد حضور في هذه الفترة.';
+
+  @override
+  String get noSalesTeam => 'لا يوجد أعضاء في فريق المبيعات.';
+
+  @override
+  String get salespeople => 'مندوبو المبيعات';
+
+  @override
+  String get noVisits => 'لا توجد زيارات في هذه الفترة.';
+
+  @override
+  String get client => 'عميل';
+
+  @override
+  String get noOut => 'بدون خروج';
+
+  @override
+  String daysCount(int count) {
+    return '$count يوم';
+  }
+
+  @override
+  String salesSummary(int days, int client, int project) {
+    return '$days أيام عمل · $client زيارة عميل · $project زيارة مشروع';
+  }
+
+  @override
+  String peopleCount(int count) {
+    return '$count أشخاص';
+  }
+
+  @override
+  String get nowLabel => 'الآن';
 }
