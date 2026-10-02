@@ -9,6 +9,7 @@ import 'package:flutter_background_geolocation/flutter_background_geolocation.da
     as bg;
 import 'package:provider/provider.dart';
 import 'package:royal_marble/core/app_theme.dart';
+import 'package:royal_marble/core/emulators.dart';
 import 'package:royal_marble/core/error_reporter.dart';
 import 'package:royal_marble/core/locale_controller.dart';
 import 'package:royal_marble/l10n/app_localizations.dart';
@@ -23,6 +24,7 @@ import 'models/user_model.dart';
 @pragma('vm:entry-point')
 void backgroundGeolocationHeadlessTask(bg.HeadlessEvent headlessEvent) async {
   if (Firebase.apps.isEmpty) await Firebase.initializeApp();
+  await configureEmulators();
   await TrackingService.handleEvent(headlessEvent.name, headlessEvent.event);
 }
 
@@ -33,6 +35,7 @@ const _crashlyticsInDebug = bool.fromEnvironment('CRASHLYTICS_DEBUG');
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await configureEmulators();
 
   final crashlytics = FirebaseCrashlytics.instance;
   await crashlytics
@@ -85,6 +88,15 @@ class MyApp extends StatelessWidget {
           ],
           routes: <String, WidgetBuilder>{'/home': (context) => const Wrapper()},
           home: const SplashScreen(),
+          // Make it impossible to mistake a local test build for the real app.
+          builder: useEmulator
+              ? (context, child) => Banner(
+                    message: 'EMULATOR',
+                    location: BannerLocation.topStart,
+                    color: Colors.deepPurple,
+                    child: child!,
+                  )
+              : null,
         ),
       ),
     );

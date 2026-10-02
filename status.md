@@ -130,6 +130,24 @@ The new app's check-in depends on `checkInOut`. Old app versions still write
   `functions/src/index.ts`, `lib/home.dart`, `lib/wrapper.dart`, `lib/core/*`,
   `lib/reports/*`, `lib/screens/*`, `firestore.rules`, `firestore.strict.rules`.
 
+### Local test backend (Firebase Emulator Suite) — no production access
+- Start: `cd functions && npm run emulators` (Auth 9099, Firestore 8080, Functions
+  5001, UI http://127.0.0.1:4000). Uses Android Studio's Java 21.
+- Seed test data: `cd functions && npm run seed` (refuses to run unless pointed at
+  the emulators; also clears test timesheets). Accounts, password `test1234`:
+  `admin@test.local`, `supervisor@test.local`, `mason1@test.local` (Test Villa + Marina
+  Mock-up), `mason2@test.local` (Far Site), `pending@test.local` (inactive).
+- Server check-in tests: `cd functions && npm run test:checkin` — 12 scenarios
+  (in/out of range, not assigned, fake GPS, weak GPS, double check-in, check-out,
+  mock-up, inactive account). **All pass (2026-10-02).**
+- App against the emulators: `flutter run --dart-define-from-file=config/env.json
+  --dart-define=USE_EMULATOR=true` (purple EMULATOR ribbon). Real phone: add
+  `--dart-define=EMULATOR_HOST=<Mac LAN IP>`.
+- Put the emulator at Test Villa: `adb emu geo fix 55.1400 25.0800`.
+- Note: the tracking plugin goes idle when the phone isn't moving, so a teleported
+  emulator position doesn't refresh the distance; real movement does. Geofences
+  (Phase 2) report site exits even while idle.
+
 ### Commits on `revive-2026`
 | Commit | What |
 |---|---|
@@ -201,8 +219,8 @@ independent and needs no billing, so it goes first.
 1. **Phase 8 foundation:** localization setup, RTL, language picker, translate the
    worker-facing screens first (sign-in, registration, home, check-in, status
    banner, My pay).
-2. **Local test backend:** Firebase Emulator Suite (Firestore + Functions) so the
-   Phase 2–4 server work can be built and tested without touching production.
+2. ✅ **Local test backend:** Firebase Emulator Suite (Auth + Firestore + Functions),
+   seed script and 12 automated check-in scenarios — see "How to resume".
 3. **Phase 2 + 3 code** against the emulator: assignment check, presence log,
    multi-site sessions, per-site hours; migration script written but not run.
 4. **Phase 7:** redesign the remaining old screens, written with translations from
@@ -379,3 +397,9 @@ Workers come from different countries; each user picks a language.
   follow the reader's language. Verified on the emulator in Arabic, Hindi and Urdu
   (sign-in, registration, admin dashboard, Team Status). Removed empty placeholder
   tests; `flutter test` passes. Next: Firebase emulator setup (agenda item 2).
+- **2026-10-02 (cont.)** — Local test backend ready: emulators, guarded seed script,
+  12 check-in scenarios all pass. Full worker flow verified in the app against the
+  emulators (Arabic UI): sign-in as a mason, both sites in range, check-in blocked
+  while checked in elsewhere, work sheet and check-out, check-in again. Fixed:
+  durations can no longer show negative ("−56 m") when phone and server clocks
+  disagree. Next: Phase 2 + 3 code (agenda item 3).

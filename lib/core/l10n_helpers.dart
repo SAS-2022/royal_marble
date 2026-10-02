@@ -14,6 +14,8 @@ extension LocalizedRole on AppRole {
 
 /// "2h 14m" / "14m" in the user's language.
 String localizedDuration(AppLocalizations l, Duration d) {
+  // A clock mismatch between phone and server must never show "-5m".
+  if (d.isNegative) d = Duration.zero;
   final h = d.inHours;
   final m = d.inMinutes.remainder(60);
   return h > 0 ? l.durationHm(h, m) : l.durationM(m);

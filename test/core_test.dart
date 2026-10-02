@@ -81,6 +81,7 @@ void main() {
       const d = Duration(hours: 2, minutes: 5);
       expect(localizedDuration(en, d), '2h 5m');
       expect(localizedDuration(ar, d), '2 س 5 د');
+      expect(localizedDuration(en, const Duration(minutes: -56)), '0m');
       expect(AppRole.worker.localized(en), 'Mason');
       expect(AppRole.worker.localized(ar), 'عامل بناء');
     });

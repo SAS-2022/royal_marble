@@ -48,3 +48,9 @@ app.*.map.json
 # Local API keys (see config/env.example.json)
 /config/env.json
 /android/build/
+
+# Local Firebase emulator data
+/emulator-data/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
