@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:royal_marble/core/l10n_helpers.dart';
+import 'package:royal_marble/core/locale_controller.dart';
 import 'package:royal_marble/account_settings/users_details.dart';
 import 'package:royal_marble/account_settings/users_grid.dart';
 import 'package:royal_marble/clients/clients_form.dart';
@@ -14,6 +16,7 @@ import 'package:royal_marble/screens/salary_screens.dart';
 import 'package:royal_marble/screens/team_status_screen.dart';
 import 'package:royal_marble/services/auth.dart';
 import 'package:royal_marble/services/tracking_service.dart';
+import 'package:royal_marble/widgets/language_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileDrawer extends StatelessWidget {
@@ -35,6 +38,7 @@ class ProfileDrawer extends StatelessWidget {
       Navigator.push(context, MaterialPageRoute(builder: (_) => page));
     }
 
+    final l = context.l10n;
     return Drawer(
       backgroundColor: AppColors.surface,
       child: Column(
@@ -44,17 +48,17 @@ class ProfileDrawer extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 8),
               children: [
-                _Item(Icons.person_outline, 'My profile',
+                _Item(Icons.person_outline, l.myProfile,
                     () => open(UserDetails(currentUser: user, myAccount: true))),
                 if (!admin)
-                  _Item(Icons.payments_outlined, 'My pay',
+                  _Item(Icons.payments_outlined, l.myPay,
                       () => open(MyPayScreen(user: user))),
                 if (admin || supervisor) ...[
-                  const _Group('Team'),
+                  _Group(l.sectionTeam),
                   _Item(Icons.notifications_active_outlined,
-                      'Team status & alerts',
+                      l.teamStatusAlerts,
                       () => open(TeamStatusScreen(users: allUsers ?? const []))),
-                  _Item(Icons.map_outlined, 'Live map',
+                  _Item(Icons.map_outlined, l.liveMap,
                       () => open(MapProviders(
                             allUsers: allUsers,
                             currentUser: user,
@@ -62,19 +66,19 @@ class ProfileDrawer extends StatelessWidget {
                             addNewProject: false,
                             addNewMockup: false,
                           ))),
-                  _Item(Icons.people_outline, 'Users',
+                  _Item(Icons.people_outline, l.users,
                       () => open(UserGrid(currentUser: user))),
                 ],
                 if (admin || sales || supervisor) ...[
-                  const _Group('Sites'),
-                  _Item(Icons.add_business_outlined, 'New project',
+                  _Group(l.sectionSites),
+                  _Item(Icons.add_business_outlined, l.newProject,
                       () => open(MapProviders(
                             currentUser: user,
                             addNewProject: true,
                             addNewMockup: false,
                             listOfMarkers: 'Add Project',
                           ))),
-                  _Item(Icons.view_in_ar_outlined, 'New mock-up',
+                  _Item(Icons.view_in_ar_outlined, l.newMockup,
                       () => open(MapProviders(
                             currentUser: user,
                             addNewProject: false,
@@ -83,27 +87,30 @@ class ProfileDrawer extends StatelessWidget {
                           ))),
                 ],
                 if (admin || sales) ...[
-                  const _Group('Sales'),
-                  _Item(Icons.storefront_outlined, 'Clients',
+                  _Group(l.sectionSales),
+                  _Item(Icons.storefront_outlined, l.clients,
                       () => open(ClientGrid(currentUser: user))),
-                  _Item(Icons.person_add_alt, 'Add client',
+                  _Item(Icons.person_add_alt, l.addClient,
                       () => open(
                           ClientForm(isNewClient: true, currentUser: user))),
-                  _Item(Icons.edit_calendar_outlined, 'New visit',
+                  _Item(Icons.edit_calendar_outlined, l.newVisit,
                       () => open(VisitFormStreams(
                           currentUser: user, viewingVisit: false))),
-                  _Item(Icons.event_note_outlined, 'Visits',
+                  _Item(Icons.event_note_outlined, l.visits,
                       () => open(VisitFormStreams(
                           currentUser: user, viewingVisit: true))),
                 ],
                 if (admin || supervisor) ...[
-                  const _Group('Reports'),
-                  _Item(Icons.schedule_outlined, 'Attendance',
+                  _Group(l.sectionReports),
+                  _Item(Icons.schedule_outlined, l.attendance,
                       () => open(const ReportsScreen())),
-                  _Item(Icons.sell_outlined, 'Sales activity',
+                  _Item(Icons.sell_outlined, l.salesActivity,
                       () => open(
                           const ReportsScreen(initial: ReportKind.sales))),
                 ],
+                const Divider(height: 24),
+                _Item(Icons.language, l.language,
+                    () => showLanguagePicker(context)),
               ],
             ),
           ),
@@ -112,8 +119,8 @@ class ProfileDrawer extends StatelessWidget {
             top: false,
             child: ListTile(
               leading: const Icon(Icons.logout, color: AppColors.bad),
-              title: const Text('Sign out',
-                  style: TextStyle(
+              title: Text(l.signOut,
+                  style: const TextStyle(
                       color: AppColors.bad, fontWeight: FontWeight.w600)),
               onTap: () => _signOut(context),
             ),
@@ -124,19 +131,19 @@ class ProfileDrawer extends StatelessWidget {
   }
 
   Future<void> _signOut(BuildContext context) async {
+    final l = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Sign out?'),
-        content: const Text(
-            'Location tracking stops and you won\'t be able to check in until you sign in again.'),
+        title: Text(l.signOutTitle),
+        content: Text(l.signOutBody),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel')),
+              child: Text(l.cancel)),
           FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Sign out')),
+              child: Text(l.signOut)),
         ],
       ),
     );
@@ -188,7 +195,7 @@ class _Header extends StatelessWidget {
                 fontSize: 20,
                 fontWeight: FontWeight.w700)),
         const SizedBox(height: 2),
-        Text(role.label,
+        Text(role.localized(context.l10n),
             style: const TextStyle(color: AppColors.gold, fontSize: 14)),
         if (user.emailAddress != null)
           Text(user.emailAddress!,

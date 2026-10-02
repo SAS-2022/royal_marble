@@ -1,10 +1,8 @@
 {
   "@@locale": "ur",
-
   "languageName": "اردو",
   "language": "زبان",
   "chooseLanguage": "زبان منتخب کریں",
-
   "cancel": "منسوخ کریں",
   "save": "محفوظ کریں",
   "back": "واپس",
@@ -14,13 +12,11 @@
   "allow": "اجازت دیں",
   "fix": "ٹھیک کریں",
   "turnOn": "آن کریں",
-
   "roleAdmin": "ایڈمن",
   "roleSupervisor": "سپروائزر",
   "roleSales": "سیلز",
   "roleSiteEngineer": "سائٹ انجینئر",
   "roleMason": "مستری",
-
   "welcomeBack": "خوش آمدید",
   "signInToContinue": "جاری رکھنے کے لیے سائن اِن کریں",
   "email": "ای میل",
@@ -37,7 +33,6 @@
   "errNoInternet": "انٹرنیٹ کنکشن نہیں ہے۔",
   "errWrongCredentials": "ای میل یا پاس ورڈ غلط ہے۔",
   "errSignInGeneric": "سائن اِن نہیں ہو سکا۔ دوبارہ کوشش کریں۔",
-
   "resetPassword": "پاس ورڈ ری سیٹ کریں",
   "resetIntro": "جس ای میل سے آپ سائن اِن کرتے ہیں وہ درج کریں، ہم نیا پاس ورڈ منتخب کرنے کا لنک بھیجیں گے۔",
   "sendResetLink": "لنک بھیجیں",
@@ -45,7 +40,6 @@
   "resetSent": "ہم نے {email} پر ری سیٹ لنک بھیج دیا ہے۔",
   "backToSignIn": "سائن اِن پر واپس جائیں",
   "resetError": "ای میل نہیں بھیجی جا سکی۔ پتہ چیک کر کے دوبارہ کوشش کریں۔",
-
   "stepOf": "مرحلہ {step} از {total}",
   "stepAboutYou": "آپ کے بارے میں",
   "stepContact": "رابطہ",
@@ -73,7 +67,6 @@
   "emailInUse": "اس ای میل سے پہلے ہی اکاؤنٹ موجود ہے۔ سائن اِن کر کے دیکھیں۔",
   "registerFailed": "اکاؤنٹ نہیں بن سکا۔ اپنی معلومات چیک کر کے دوبارہ کوشش کریں۔",
   "somethingWrong": "کچھ غلط ہو گیا۔ دوبارہ کوشش کریں۔",
-
   "greetingMorning": "صبح بخیر، {name}",
   "greetingAfternoon": "سلام، {name}",
   "greetingEvening": "شام بخیر، {name}",
@@ -90,7 +83,6 @@
   "onSiteAtSince": "{site} پر {time} سے موجود",
   "checkedOut": "چیک آؤٹ کر لیا",
   "notCheckedIn": "چیک اِن نہیں کیا",
-
   "durationHm": "{hours} گھنٹے {minutes} منٹ",
   "durationM": "{minutes} منٹ",
   "onSiteSince": "{time} سے سائٹ پر · {duration}",
@@ -109,7 +101,6 @@
   "describeWork": "کام کی تفصیل لکھیں",
   "areaCompleted": "مکمل کیا گیا رقبہ",
   "enterNumber": "عدد درج کریں",
-
   "checkedInAt": "{time} پر چیک اِن ہو گیا۔ آپ کا دن اچھا گزرے!",
   "checkedOutAt": "{time} پر چیک آؤٹ ہو گیا۔ شکریہ!",
   "errLocationUnavailable": "آپ کا مقام معلوم نہیں ہو سکا۔ لوکیشن آن کر کے دوبارہ کوشش کریں۔",
@@ -125,7 +116,6 @@
   "errNotCheckedIn": "آپ نے چیک اِن نہیں کیا۔",
   "errCheckedInElsewhere": "آپ {site} پر چیک اِن ہیں۔ پہلے وہاں سے چیک آؤٹ کریں۔",
   "errNotAssigned": "آپ اس سائٹ پر مقرر نہیں ہیں۔",
-
   "trackingActive": "ٹریکنگ فعال ہے",
   "waitingForGps": "GPS کا انتظار…",
   "gpsAccuracy": "GPS درستگی ±{meters} میٹر",
@@ -141,7 +131,6 @@
   "batterySaverBody": "ٹریکنگ میں تاخیر ہو سکتی ہے۔ کام کے اوقات میں اسے بند رکھیں۔",
   "batteryOptTitle": "بیٹری آپٹیمائزیشن آن ہے",
   "batteryOptBody": "آپ کا فون پس منظر میں ٹریکنگ روک سکتا ہے۔",
-
   "myPay": "میری تنخواہ",
   "yourPackage": "آپ کی تنخواہ کی تفصیل",
   "payNotAddedTitle": "آپ کی تنخواہ کی تفصیلات ابھی شامل نہیں کی گئیں۔",
@@ -159,7 +148,6 @@
   "totalPerMonth": "کل ماہانہ",
   "allowancesMonthly": "الاؤنس ماہانہ رقم ہیں۔",
   "effectiveFrom": "{date} سے",
-
   "myProfile": "میری پروفائل",
   "sectionTeam": "ٹیم",
   "teamStatusAlerts": "ٹیم کی صورتحال اور الرٹس",
@@ -178,5 +166,23 @@
   "salesActivity": "سیلز سرگرمی",
   "signOut": "سائن آؤٹ",
   "signOutTitle": "سائن آؤٹ کریں؟",
-  "signOutBody": "لوکیشن ٹریکنگ بند ہو جائے گی اور دوبارہ سائن اِن کرنے تک آپ چیک اِن نہیں کر سکیں گے۔"
+  "signOutBody": "لوکیشن ٹریکنگ بند ہو جائے گی اور دوبارہ سائن اِن کرنے تک آپ چیک اِن نہیں کر سکیں گے۔",
+  "teamStatus": "ٹیم کی صورتحال",
+  "onSiteNow": "ابھی سائٹ پر",
+  "phoneAlerts": "فون الرٹس",
+  "pendingLabel": "زیرِ التوا",
+  "needsAttention": "توجہ درکار",
+  "seeAll": "سب دیکھیں",
+  "todaysAttendance": "آج کی حاضری",
+  "alertLog": "الرٹ لاگ",
+  "activeProjects": "فعال پروجیکٹس ({count})",
+  "activeMockups": "فعال موک اپس ({count})",
+  "potentialProjects": "ممکنہ پروجیکٹس ({count})",
+  "nobodyCheckedInToday": "آج ابھی تک کسی نے چیک اِن نہیں کیا۔",
+  "detailsAssignWorkers": "تفصیلات اور کارکن مقرر کریں",
+  "details": "تفصیلات",
+  "workersCurrentState": "کارکنوں کی موجودہ صورتحال",
+  "changeStatus": "صورتحال تبدیل کریں",
+  "myVisits": "میرے وزٹس",
+  "site": "سائٹ"
 }

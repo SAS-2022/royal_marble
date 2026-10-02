@@ -573,4 +573,64 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get signOutBody =>
       'लोकेशन ट्रैकिंग बंद हो जाएगी और दोबारा साइन इन करने तक आप चेक इन नहीं कर पाएँगे।';
+
+  @override
+  String get teamStatus => 'टीम की स्थिति';
+
+  @override
+  String get onSiteNow => 'अभी साइट पर';
+
+  @override
+  String get phoneAlerts => 'फ़ोन अलर्ट';
+
+  @override
+  String get pendingLabel => 'लंबित';
+
+  @override
+  String get needsAttention => 'ध्यान देने की ज़रूरत';
+
+  @override
+  String get seeAll => 'सब देखें';
+
+  @override
+  String get todaysAttendance => 'आज की हाज़िरी';
+
+  @override
+  String get alertLog => 'अलर्ट लॉग';
+
+  @override
+  String activeProjects(int count) {
+    return 'चालू प्रोजेक्ट ($count)';
+  }
+
+  @override
+  String activeMockups(int count) {
+    return 'चालू मॉक-अप ($count)';
+  }
+
+  @override
+  String potentialProjects(int count) {
+    return 'संभावित प्रोजेक्ट ($count)';
+  }
+
+  @override
+  String get nobodyCheckedInToday => 'आज अभी तक किसी ने चेक इन नहीं किया।';
+
+  @override
+  String get detailsAssignWorkers => 'विवरण और कामगार नियुक्त करें';
+
+  @override
+  String get details => 'विवरण';
+
+  @override
+  String get workersCurrentState => 'कामगारों की मौजूदा स्थिति';
+
+  @override
+  String get changeStatus => 'स्थिति बदलें';
+
+  @override
+  String get myVisits => 'मेरी विज़िट';
+
+  @override
+  String get site => 'साइट';
 }

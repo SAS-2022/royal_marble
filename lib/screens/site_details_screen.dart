@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:royal_marble/core/l10n_helpers.dart';
+import 'package:royal_marble/core/locale_controller.dart';
 import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/core/format.dart';
 import 'package:royal_marble/core/roles.dart';
@@ -276,7 +278,7 @@ class _TeamMemberTile extends StatelessWidget {
         ),
       ),
       title: Text('${user.firstName ?? ''} ${user.lastName ?? ''}'),
-      subtitle: Text(primaryRole(user.roles).label),
+      subtitle: Text(primaryRole(user.roles).localized(context.l10n)),
       trailing: !s.hasData
           ? null
           : s.problems.isNotEmpty
@@ -411,7 +413,7 @@ class _ManageTeamSheetState extends State<_ManageTeamSheet> {
                     () => v! ? _selected.add(u.uid!) : _selected.remove(u.uid)),
                 title: Text('${u.firstName ?? ''} ${u.lastName ?? ''}'),
                 subtitle: Text([
-                  primaryRole(u.roles).label,
+                  primaryRole(u.roles).localized(context.l10n),
                   if (elsewhere != null)
                     selected && primaryRole(u.roles) != AppRole.supervisor
                         ? 'will move from $elsewhere'

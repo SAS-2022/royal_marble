@@ -1,10 +1,8 @@
 {
   "@@locale": "en",
-
   "languageName": "English",
   "language": "Language",
   "chooseLanguage": "Choose language",
-
   "cancel": "Cancel",
   "save": "Save",
   "back": "Back",
@@ -14,13 +12,11 @@
   "allow": "Allow",
   "fix": "Fix",
   "turnOn": "Turn on",
-
   "roleAdmin": "Admin",
   "roleSupervisor": "Supervisor",
   "roleSales": "Sales",
   "roleSiteEngineer": "Site Engineer",
   "roleMason": "Mason",
-
   "welcomeBack": "Welcome back",
   "signInToContinue": "Sign in to continue",
   "email": "Email",
@@ -37,18 +33,31 @@
   "errNoInternet": "No internet connection.",
   "errWrongCredentials": "Wrong email or password.",
   "errSignInGeneric": "Could not sign in. Please try again.",
-
   "resetPassword": "Reset password",
   "resetIntro": "Enter the email you sign in with and we'll send you a link to choose a new password.",
   "sendResetLink": "Send reset link",
   "checkYourEmail": "Check your email",
   "resetSent": "We sent a reset link to {email}.",
-  "@resetSent": {"placeholders": {"email": {"type": "String"}}},
+  "@resetSent": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "backToSignIn": "Back to sign in",
   "resetError": "Could not send the email. Check the address and try again.",
-
   "stepOf": "Step {step} of {total}",
-  "@stepOf": {"placeholders": {"step": {"type": "int"}, "total": {"type": "int"}}},
+  "@stepOf": {
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "stepAboutYou": "About you",
   "stepContact": "Contact",
   "stepAccount": "Account",
@@ -75,13 +84,30 @@
   "emailInUse": "An account with this email already exists. Try signing in.",
   "registerFailed": "Could not create the account. Check your details and try again.",
   "somethingWrong": "Something went wrong. Please try again.",
-
   "greetingMorning": "Good morning, {name}",
-  "@greetingMorning": {"placeholders": {"name": {"type": "String"}}},
+  "@greetingMorning": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "greetingAfternoon": "Good afternoon, {name}",
-  "@greetingAfternoon": {"placeholders": {"name": {"type": "String"}}},
+  "@greetingAfternoon": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "greetingEvening": "Good evening, {name}",
-  "@greetingEvening": {"placeholders": {"name": {"type": "String"}}},
+  "@greetingEvening": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "offlineBanner": "You are offline. Changes will sync when you reconnect.",
   "pendingTitle": "Thanks for signing up",
   "pendingBody": "Your account is waiting for approval. You will get access once an admin activates it.",
@@ -91,28 +117,90 @@
   "noSiteBody": "Your supervisor will assign you to a project.",
   "noSitesAssigned": "No sites assigned.",
   "yourTeam": "Your team ({count})",
-  "@yourTeam": {"placeholders": {"count": {"type": "int"}}},
+  "@yourTeam": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "nobodyYet": "Nobody yet.",
   "onSiteAtSince": "On site at {site} since {time}",
-  "@onSiteAtSince": {"placeholders": {"site": {"type": "String"}, "time": {"type": "String"}}},
+  "@onSiteAtSince": {
+    "placeholders": {
+      "site": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "checkedOut": "Checked out",
   "notCheckedIn": "Not checked in",
-
   "durationHm": "{hours}h {minutes}m",
-  "@durationHm": {"placeholders": {"hours": {"type": "int"}, "minutes": {"type": "int"}}},
+  "@durationHm": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "durationM": "{minutes}m",
-  "@durationM": {"placeholders": {"minutes": {"type": "int"}}},
+  "@durationM": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "onSiteSince": "On site since {time} · {duration}",
-  "@onSiteSince": {"placeholders": {"time": {"type": "String"}, "duration": {"type": "String"}}},
+  "@onSiteSince": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
   "checkedInAtSite": "Checked in at {site}",
-  "@checkedInAtSite": {"placeholders": {"site": {"type": "String"}}},
+  "@checkedInAtSite": {
+    "placeholders": {
+      "site": {
+        "type": "String"
+      }
+    }
+  },
   "doneToday": "Done today · {duration}",
-  "@doneToday": {"placeholders": {"duration": {"type": "String"}}},
+  "@doneToday": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
   "withinSiteArea": "Within site area",
   "kmAway": "{km} km away",
-  "@kmAway": {"placeholders": {"km": {"type": "String"}}},
+  "@kmAway": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
   "metersAway": "{meters} m away",
-  "@metersAway": {"placeholders": {"meters": {"type": "int"}}},
+  "@metersAway": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
   "gettingGpsFix": "Getting an accurate GPS fix…",
   "checkIn": "Check in",
   "checkOut": "Check out",
@@ -123,34 +211,80 @@
   "describeWork": "Describe the work",
   "areaCompleted": "Area completed",
   "enterNumber": "Enter a number",
-
   "checkedInAt": "Checked in at {time}. Have a good day!",
-  "@checkedInAt": {"placeholders": {"time": {"type": "String"}}},
+  "@checkedInAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "checkedOutAt": "Checked out at {time}. Thank you!",
-  "@checkedOutAt": {"placeholders": {"time": {"type": "String"}}},
+  "@checkedOutAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "errLocationUnavailable": "Could not get your location. Make sure location is turned on and try again.",
   "errNoServer": "No connection to the server. Check your internet and try again.",
   "errCheckInFailed": "Check-in failed ({code}).",
-  "@errCheckInFailed": {"placeholders": {"code": {"type": "String"}}},
+  "@errCheckInFailed": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
   "errSignInAgain": "Please sign in again.",
   "errNotActive": "Your account is not active.",
   "errMockLocation": "A fake GPS app was detected. Turn it off to check in.",
   "errWeakGps": "GPS signal is too weak (±{meters} m). Step outside or wait a moment and try again.",
-  "@errWeakGps": {"placeholders": {"meters": {"type": "int"}}},
+  "@errWeakGps": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
   "errNoSiteLocation": "This site has no location set. Contact your admin.",
   "errOutOfRange": "You are {meters} m outside the site.",
-  "@errOutOfRange": {"placeholders": {"meters": {"type": "int"}}},
+  "@errOutOfRange": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
   "errAlreadyCheckedIn": "You are already checked in at {site}.",
-  "@errAlreadyCheckedIn": {"placeholders": {"site": {"type": "String"}}},
+  "@errAlreadyCheckedIn": {
+    "placeholders": {
+      "site": {
+        "type": "String"
+      }
+    }
+  },
   "errNotCheckedIn": "You are not checked in.",
   "errCheckedInElsewhere": "You are checked in at {site}. Check out from there.",
-  "@errCheckedInElsewhere": {"placeholders": {"site": {"type": "String"}}},
+  "@errCheckedInElsewhere": {
+    "placeholders": {
+      "site": {
+        "type": "String"
+      }
+    }
+  },
   "errNotAssigned": "You are not assigned to this site.",
-
   "trackingActive": "Tracking is active",
   "waitingForGps": "Waiting for GPS…",
   "gpsAccuracy": "GPS accuracy ±{meters} m",
-  "@gpsAccuracy": {"placeholders": {"meters": {"type": "int"}}},
+  "@gpsAccuracy": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
   "locationOffTitle": "Location is turned off",
   "locationOffBody": "Your admin has been notified. Turn it on to continue.",
   "allowAlwaysTitle": "Allow location \"All the time\"",
@@ -163,7 +297,6 @@
   "batterySaverBody": "Tracking may be delayed. Turn it off during work hours.",
   "batteryOptTitle": "Battery optimization is on",
   "batteryOptBody": "Your phone may stop tracking in the background.",
-
   "myPay": "My pay",
   "yourPackage": "Your package",
   "payNotAddedTitle": "Your pay details haven't been added yet.",
@@ -181,8 +314,13 @@
   "totalPerMonth": "Total per month",
   "allowancesMonthly": "Allowances are monthly amounts.",
   "effectiveFrom": "From {date}",
-  "@effectiveFrom": {"placeholders": {"date": {"type": "String"}}},
-
+  "@effectiveFrom": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "myProfile": "My profile",
   "sectionTeam": "Team",
   "teamStatusAlerts": "Team status & alerts",
@@ -201,5 +339,44 @@
   "salesActivity": "Sales activity",
   "signOut": "Sign out",
   "signOutTitle": "Sign out?",
-  "signOutBody": "Location tracking stops and you won't be able to check in until you sign in again."
+  "signOutBody": "Location tracking stops and you won't be able to check in until you sign in again.",
+  "teamStatus": "Team status",
+  "onSiteNow": "On site now",
+  "phoneAlerts": "Phone alerts",
+  "pendingLabel": "Pending",
+  "needsAttention": "Needs attention",
+  "seeAll": "See all",
+  "todaysAttendance": "Today's attendance",
+  "alertLog": "Alert log",
+  "activeProjects": "Active projects ({count})",
+  "@activeProjects": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "activeMockups": "Active mock-ups ({count})",
+  "@activeMockups": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "potentialProjects": "Potential projects ({count})",
+  "@potentialProjects": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nobodyCheckedInToday": "Nobody has checked in yet today.",
+  "detailsAssignWorkers": "Details & assign workers",
+  "details": "Details",
+  "workersCurrentState": "Workers' current state",
+  "changeStatus": "Change status",
+  "myVisits": "My visits",
+  "site": "Site"
 }

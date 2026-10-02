@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:royal_marble/core/l10n_helpers.dart';
+import 'package:royal_marble/core/locale_controller.dart';
 import 'package:intl/intl.dart';
 
 import '../core/app_theme.dart';
@@ -109,7 +111,7 @@ class _PhonesTab extends StatelessWidget {
                             style: const TextStyle(
                                 fontWeight: FontWeight.w700, fontSize: 16)),
                         Text(
-                          '${primaryRole(u.roles).label} · seen ${timeAgo(s.lastSeen)}',
+                          '${primaryRole(u.roles).localized(context.l10n)} · seen ${timeAgo(s.lastSeen)}',
                           style: const TextStyle(color: AppColors.muted),
                         ),
                       ],

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:royal_marble/core/l10n_helpers.dart';
+import 'package:royal_marble/core/locale_controller.dart';
 import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/core/format.dart';
 import 'package:royal_marble/core/roles.dart';
@@ -119,7 +121,8 @@ class AdminUserView extends StatelessWidget {
                           fontSize: 22, fontWeight: FontWeight.w800)),
                   const SizedBox(height: 6),
                   Wrap(spacing: 6, runSpacing: 6, children: [
-                    StatusPill(role.label, icon: Icons.badge_outlined),
+                    StatusPill(role.localized(context.l10n),
+                        icon: Icons.badge_outlined),
                     active
                         ? const StatusPill('Active', tone: Tone.ok)
                         : const StatusPill('Pending / inactive',
@@ -241,7 +244,7 @@ class AdminUserView extends StatelessWidget {
             for (final r in AppRole.values)
               if (viewerIsAdmin || r != AppRole.admin)
                 ChoiceChip(
-                  label: Text(r.label),
+                  label: Text(r.localized(context.l10n)),
                   selected: role == r,
                   onSelected: role == r ? null : (_) => _setRole(context, r),
                 ),

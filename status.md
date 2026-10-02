@@ -261,7 +261,8 @@ Works on the free plan (no billing needed).
   can't resolve hosts, start it with `-dns-server 8.8.8.8`.
 
 ### Phase 2 — Attendance correctness (a, b)
-- `checkInOut`: reject sites the worker isn't assigned to (projects and mock-ups).
+- [x] `checkInOut`: reject sites the worker isn't assigned to (code done 2026-10-02,
+      not deployed).
 - Presence log: a geofence for each assigned site; record enter/exit while checked in
   as `presence` events on the day's entry (time inside vs. outside).
 - Missing check-outs: auto check-out at the last on-site time when the worker leaves
@@ -313,19 +314,25 @@ writes a snapshot to `payroll/{uid}/history/{auto}`.
 
 ### Phase 8 — Localization (English, Arabic, Hindi, Urdu)
 Workers come from different countries; each user picks a language.
-- [ ] Flutter `gen-l10n` with ARB files `lib/l10n/app_{en,ar,hi,ur}.arb`
-- [ ] Language picker on sign-in and in the drawer; choice saved on the device and in
+- [x] Flutter `gen-l10n` with ARB files `lib/l10n/app_{en,ar,hi,ur}.arb` (~160 strings each;
+      a unit test checks that all four have the same keys)
+- [x] Language picker on sign-in and in the drawer; choice saved on the device and in
       `users/{uid}.language`, falling back to the phone's language
-- [ ] RTL for Arabic and Urdu (directional padding and alignment, mirrored icons where
-      needed); fonts that render Devanagari and Urdu well
-- [ ] Translate the worker-facing screens first: sign-in, password reset,
-      registration, home (worker), check-in card and work sheet, status banner,
-      My pay, pending approval
-- [ ] Then admin and supervisor screens, and reports (PDF/Excel stay English unless
-      requested)
-- [ ] Server check-in errors: return codes instead of English text so the app shows
-      them in the user's language (function code only; deploy later)
-- [ ] Role and alert labels (Mason, "Location services turned OFF"…) shown translated
+      (`lib/core/locale_controller.dart`, `lib/widgets/language_picker.dart`)
+- [x] RTL for Arabic and Urdu — verified on the emulator (sign-in, registration)
+- [ ] Optional: bundle a Nastaliq font for Urdu (system Naskh is used now)
+- [x] Translate the worker-facing screens: sign-in, password reset, registration,
+      home (all roles), check-in card and work sheet, status banner, My pay and
+      breakdown, pending approval, drawer, role names, country names (Arabic only —
+      the picker package has no Hindi/Urdu)
+- [ ] Admin and supervisor screens: team status and alert texts, users list, user
+      admin page, site details and team sheet, salary editor, reports (PDF/Excel stay
+      English unless requested), and the old screens as they are redesigned
+- [x] Server check-in errors now carry `details.reason` codes; the app translates
+      them (function code only; deploy later). Same change added the
+      **assignment check** for feature (a).
+- [x] Role labels translated
+- [ ] Alert texts in Team Status translated by event type
 - [ ] Review: machine-quality translations need a native-speaker check (ask the
       client for an Arabic, Hindi and Urdu reader)
 
@@ -360,3 +367,8 @@ Workers come from different countries; each user picks a language.
 - **2026-10-01 (new session)** — User asked to continue with no-deploy work and to
   add localization (English, Arabic, Hindi, Urdu). Agenda set (see Roadmap); starting
   with the Phase 8 foundation.
+- **2026-10-02** — Phase 8 foundation done: 4 languages, language picker, RTL; all
+  worker-facing screens and the home screen translated; server errors use codes;
+  assignment check added to `checkInOut` (not deployed). Replaced the template
+  widget test with 9 unit tests (all pass). Next: translate admin screens and alert
+  texts, then the Firebase emulator setup.

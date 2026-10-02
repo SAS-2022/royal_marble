@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:royal_marble/core/l10n_helpers.dart';
+import 'package:royal_marble/core/locale_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:royal_marble/account_settings/users_details.dart';
 import 'package:royal_marble/core/app_theme.dart';
@@ -77,7 +79,7 @@ class _UserListState extends State<UserList> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: ChoiceChip(
-                      label: Text(r?.label ?? 'All'),
+                      label: Text(r?.localized(context.l10n) ?? 'All'),
                       selected: _role == r,
                       onSelected: (_) => setState(() => _role = r),
                     ),
@@ -154,7 +156,7 @@ class _UserTile extends StatelessWidget {
         title: Text('${user.firstName ?? ''} ${user.lastName ?? ''}',
             style: const TextStyle(fontWeight: FontWeight.w700)),
         subtitle: Text(
-          [role.label, if (site != null) '$site'].join(' · '),
+          [role.localized(context.l10n), if (site != null) '$site'].join(' · '),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),

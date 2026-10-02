@@ -1,10 +1,8 @@
 {
   "@@locale": "ar",
-
   "languageName": "العربية",
   "language": "اللغة",
   "chooseLanguage": "اختر اللغة",
-
   "cancel": "إلغاء",
   "save": "حفظ",
   "back": "رجوع",
@@ -14,13 +12,11 @@
   "allow": "سماح",
   "fix": "إصلاح",
   "turnOn": "تشغيل",
-
   "roleAdmin": "مدير",
   "roleSupervisor": "مشرف",
   "roleSales": "مبيعات",
   "roleSiteEngineer": "مهندس موقع",
   "roleMason": "عامل بناء",
-
   "welcomeBack": "مرحباً بعودتك",
   "signInToContinue": "سجّل الدخول للمتابعة",
   "email": "البريد الإلكتروني",
@@ -37,7 +33,6 @@
   "errNoInternet": "لا يوجد اتصال بالإنترنت.",
   "errWrongCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
   "errSignInGeneric": "تعذّر تسجيل الدخول. حاول مرة أخرى.",
-
   "resetPassword": "إعادة تعيين كلمة المرور",
   "resetIntro": "أدخل البريد الإلكتروني الذي تسجّل به وسنرسل لك رابطاً لاختيار كلمة مرور جديدة.",
   "sendResetLink": "إرسال الرابط",
@@ -45,7 +40,6 @@
   "resetSent": "أرسلنا رابط إعادة التعيين إلى {email}.",
   "backToSignIn": "العودة لتسجيل الدخول",
   "resetError": "تعذّر إرسال البريد. تحقق من العنوان وحاول مرة أخرى.",
-
   "stepOf": "الخطوة {step} من {total}",
   "stepAboutYou": "معلوماتك",
   "stepContact": "التواصل",
@@ -73,7 +67,6 @@
   "emailInUse": "يوجد حساب بهذا البريد الإلكتروني. جرّب تسجيل الدخول.",
   "registerFailed": "تعذّر إنشاء الحساب. تحقق من بياناتك وحاول مرة أخرى.",
   "somethingWrong": "حدث خطأ ما. حاول مرة أخرى.",
-
   "greetingMorning": "صباح الخير، {name}",
   "greetingAfternoon": "مساء الخير، {name}",
   "greetingEvening": "مساء الخير، {name}",
@@ -90,7 +83,6 @@
   "onSiteAtSince": "في الموقع {site} منذ {time}",
   "checkedOut": "سجّل الخروج",
   "notCheckedIn": "لم يسجّل الحضور",
-
   "durationHm": "{hours} س {minutes} د",
   "durationM": "{minutes} د",
   "onSiteSince": "في الموقع منذ {time} · {duration}",
@@ -109,7 +101,6 @@
   "describeWork": "صف العمل",
   "areaCompleted": "المساحة المنجزة",
   "enterNumber": "أدخل رقماً",
-
   "checkedInAt": "تم تسجيل الحضور الساعة {time}. يوماً موفقاً!",
   "checkedOutAt": "تم تسجيل الخروج الساعة {time}. شكراً لك!",
   "errLocationUnavailable": "تعذّر تحديد موقعك. تأكد من تشغيل خدمة الموقع وحاول مرة أخرى.",
@@ -125,7 +116,6 @@
   "errNotCheckedIn": "لم تسجّل الحضور.",
   "errCheckedInElsewhere": "أنت مسجّل الحضور في {site}. سجّل الخروج من هناك أولاً.",
   "errNotAssigned": "أنت غير معيّن على هذا الموقع.",
-
   "trackingActive": "التتبع يعمل",
   "waitingForGps": "بانتظار إشارة GPS…",
   "gpsAccuracy": "دقة GPS ±{meters} م",
@@ -141,7 +131,6 @@
   "batterySaverBody": "قد يتأخر التتبع. أوقفه خلال ساعات العمل.",
   "batteryOptTitle": "تحسين البطارية مفعّل",
   "batteryOptBody": "قد يتوقف هاتفك عن التتبع في الخلفية.",
-
   "myPay": "راتبي",
   "yourPackage": "تفاصيل راتبك",
   "payNotAddedTitle": "لم تتم إضافة تفاصيل راتبك بعد.",
@@ -159,7 +148,6 @@
   "totalPerMonth": "الإجمالي الشهري",
   "allowancesMonthly": "البدلات مبالغ شهرية.",
   "effectiveFrom": "اعتباراً من {date}",
-
   "myProfile": "ملفي الشخصي",
   "sectionTeam": "الفريق",
   "teamStatusAlerts": "حالة الفريق والتنبيهات",
@@ -178,5 +166,23 @@
   "salesActivity": "نشاط المبيعات",
   "signOut": "تسجيل الخروج",
   "signOutTitle": "تسجيل الخروج؟",
-  "signOutBody": "سيتوقف تتبع الموقع ولن تتمكن من تسجيل الحضور حتى تسجّل الدخول مرة أخرى."
+  "signOutBody": "سيتوقف تتبع الموقع ولن تتمكن من تسجيل الحضور حتى تسجّل الدخول مرة أخرى.",
+  "teamStatus": "حالة الفريق",
+  "onSiteNow": "في الموقع الآن",
+  "phoneAlerts": "تنبيهات الهواتف",
+  "pendingLabel": "قيد الانتظار",
+  "needsAttention": "يحتاج إلى متابعة",
+  "seeAll": "عرض الكل",
+  "todaysAttendance": "حضور اليوم",
+  "alertLog": "سجل التنبيهات",
+  "activeProjects": "المشاريع النشطة ({count})",
+  "activeMockups": "العيّنات النشطة ({count})",
+  "potentialProjects": "مشاريع محتملة ({count})",
+  "nobodyCheckedInToday": "لم يسجّل أحد الحضور اليوم بعد.",
+  "detailsAssignWorkers": "التفاصيل وتعيين العمال",
+  "details": "التفاصيل",
+  "workersCurrentState": "الحالة الحالية للعمال",
+  "changeStatus": "تغيير الحالة",
+  "myVisits": "زياراتي",
+  "site": "موقع"
 }

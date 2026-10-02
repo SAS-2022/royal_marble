@@ -97,9 +97,9 @@ class _HomeScreenState extends State<HomeScreen> {
               width: double.infinity,
               color: AppColors.warnSoft,
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              child: const Row(children: [
-                Icon(Icons.cloud_off, size: 18, color: AppColors.warn),
-                SizedBox(width: 8),
+              child: Row(children: [
+                const Icon(Icons.cloud_off, size: 18, color: AppColors.warn),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(context.l10n.offlineBanner,
                       style: const TextStyle(color: AppColors.warn)),
@@ -174,7 +174,7 @@ Widget _cardFor(BuildContext context, UserData user, Map<String, dynamic> a,
       user: user,
       kind: kind,
       siteId: a['id'],
-      siteName: '${a['name'] ?? 'Site'}',
+      siteName: '${a['name'] ?? context.l10n.site}',
       details: prettyAddress(address?['addressName']),
       lat: (address?['Lat'] as num?)?.toDouble(),
       lng: (address?['Lng'] as num?)?.toDouble(),
@@ -198,19 +198,19 @@ class _PendingApproval extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(32),
+        padding: const EdgeInsets.all(32),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.hourglass_top, size: 56, color: AppColors.gold),
-          SizedBox(height: 16),
-          Text('Thanks for signing up',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
-          SizedBox(height: 8),
+          const Icon(Icons.hourglass_top, size: 56, color: AppColors.gold),
+          const SizedBox(height: 16),
+          Text(context.l10n.pendingTitle,
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 8),
           Text(
-            'Your account is waiting for approval. You will get access once an admin activates it.',
+            context.l10n.pendingBody,
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.muted),
+            style: const TextStyle(color: AppColors.muted),
           ),
         ]),
       ),
@@ -231,7 +231,7 @@ class _AlertsAction extends StatelessWidget {
             DeviceStatus.fromMap(u.deviceStatus).problems.isNotEmpty)
         .length;
     return IconButton(
-      tooltip: 'Team status',
+      tooltip: context.l10n.teamStatus,
       onPressed: () => Navigator.push(context,
           MaterialPageRoute(builder: (_) => TeamStatusScreen(users: users))),
       icon: Badge(
@@ -258,18 +258,18 @@ class _WorkerHome extends StatelessWidget {
       children: [
         _Greeting(user),
         const DeviceStatusBanner(),
-        const SectionTitle('Your site'),
+        SectionTitle(context.l10n.yourSite),
         if (projects.isEmpty && mockups.isEmpty)
-          const Card(
+          Card(
             child: Padding(
-              padding: EdgeInsets.all(24),
+              padding: const EdgeInsets.all(24),
               child: Column(children: [
-                Icon(Icons.location_city, size: 40, color: AppColors.muted),
-                SizedBox(height: 8),
-                Text('No site assigned yet',
-                    style: TextStyle(fontWeight: FontWeight.w700)),
-                Text('Your supervisor will assign you to a project.',
-                    style: TextStyle(color: AppColors.muted)),
+                const Icon(Icons.location_city, size: 40, color: AppColors.muted),
+                const SizedBox(height: 8),
+                Text(context.l10n.noSiteTitle,
+                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                Text(context.l10n.noSiteBody,
+                    style: const TextStyle(color: AppColors.muted)),
               ]),
             ),
           ),
@@ -306,12 +306,12 @@ class _SupervisorHome extends StatelessWidget {
       children: [
         _Greeting(user),
         const DeviceStatusBanner(),
-        const SectionTitle('Your sites'),
+        SectionTitle(context.l10n.yourSites),
         if (projects.isEmpty && mockups.isEmpty)
-          const Text('No sites assigned.', style: TextStyle(color: AppColors.muted)),
+          Text(context.l10n.noSitesAssigned, style: const TextStyle(color: AppColors.muted)),
         for (final p in projects) _cardFor(context, user, p, SiteKind.project),
         for (final m in mockups) _cardFor(context, user, m, SiteKind.mockup),
-        SectionTitle('Your team (${team.length})'),
+        SectionTitle(context.l10n.yourTeam(team.length)),
         _TeamList(users: team, timesheet: timesheet),
       ],
     );
@@ -327,7 +327,7 @@ class _TeamList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (users.isEmpty) {
-      return const Text('Nobody yet.', style: TextStyle(color: AppColors.muted));
+      return Text(context.l10n.nobodyYet, style: const TextStyle(color: AppColors.muted));
     }
     return Card(
       child: Column(children: [
@@ -354,10 +354,10 @@ class _TeamRow extends StatelessWidget {
     return ListTile(
       title: Text('${user.firstName ?? ''} ${user.lastName ?? ''}'),
       subtitle: Text(onSite && arrived != null
-          ? 'On site at ${entry?['projectName']} since ${DateFormat('HH:mm').format(arrived)}'
+          ? context.l10n.onSiteAtSince('${entry?['projectName']}', DateFormat('HH:mm').format(arrived))
           : entry?['leaving_at'] != null
-              ? 'Checked out'
-              : 'Not checked in'),
+              ? context.l10n.checkedOut
+              : context.l10n.notCheckedIn),
       trailing: !status.hasData
           ? null
           : problems.isEmpty
@@ -408,14 +408,14 @@ class _AdminHome extends StatelessWidget {
         Row(children: [
           Expanded(
               child: _StatTile(
-                  label: 'On site now',
+                  label: context.l10n.onSiteNow,
                   value: '$onSite',
                   icon: Icons.engineering,
                   tone: Tone.ok)),
           const SizedBox(width: 10),
           Expanded(
               child: _StatTile(
-                  label: 'Phone alerts',
+                  label: context.l10n.phoneAlerts,
                   value: '${attention.length}',
                   icon: Icons.notifications_active,
                   tone: attention.isEmpty ? Tone.neutral : Tone.bad,
@@ -423,15 +423,15 @@ class _AdminHome extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
               child: _StatTile(
-                  label: 'Pending',
+                  label: context.l10n.pendingLabel,
                   value: '$pending',
                   icon: Icons.person_add_alt,
                   tone: pending == 0 ? Tone.neutral : Tone.warn)),
         ]),
         if (attention.isNotEmpty) ...[
-          SectionTitle('Needs attention',
+          SectionTitle(context.l10n.needsAttention,
               trailing: TextButton(
-                  onPressed: () => openTeam(), child: const Text('See all'))),
+                  onPressed: () => openTeam(), child: Text(context.l10n.seeAll))),
           Card(
             child: Column(children: [
               for (final (i, u) in attention.take(5).indexed) ...[
@@ -449,18 +449,18 @@ class _AdminHome extends StatelessWidget {
             ]),
           ),
         ],
-        SectionTitle('Today\'s attendance',
+        SectionTitle(context.l10n.todaysAttendance,
             trailing: TextButton(
-                onPressed: () => openTeam(1), child: const Text('Alert log'))),
+                onPressed: () => openTeam(1), child: Text(context.l10n.alertLog))),
         _Attendance(timesheet: timesheet),
-        SectionTitle('Active projects (${active.length})'),
+        SectionTitle(context.l10n.activeProjects(active.length)),
         for (final p in active) _ProjectTile.project(p, user),
         if (activeMockups.isNotEmpty) ...[
-          SectionTitle('Active mock-ups (${activeMockups.length})'),
+          SectionTitle(context.l10n.activeMockups(activeMockups.length)),
           for (final m in activeMockups) _ProjectTile.mockup(m, user),
         ],
         if (potential.isNotEmpty) ...[
-          SectionTitle('Potential projects (${potential.length})'),
+          SectionTitle(context.l10n.potentialProjects(potential.length)),
           for (final p in potential) _ProjectTile.project(p, user),
         ],
       ],
@@ -518,11 +518,11 @@ class _Attendance extends StatelessWidget {
         .toList()
       ..sort((a, b) => '${a['arriving_at']}'.compareTo('${b['arriving_at']}'));
     if (rows.isEmpty) {
-      return const Card(
+      return Card(
         child: Padding(
-          padding: EdgeInsets.all(20),
-          child: Text('Nobody has checked in yet today.',
-              style: TextStyle(color: AppColors.muted)),
+          padding: const EdgeInsets.all(20),
+          child: Text(context.l10n.nobodyCheckedInToday,
+              style: const TextStyle(color: AppColors.muted)),
         ),
       );
     }
@@ -589,7 +589,7 @@ class _ProjectTile extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.group_add),
-            title: Text(isAdmin ? 'Details & assign workers' : 'Details'),
+            title: Text(isAdmin ? context.l10n.detailsAssignWorkers : context.l10n.details),
             onTap: () => go(project != null
                 ? ProjectGrid(currentUser: user, selectedProject: project)
                 : MockupGrid(currentUser: user, selectedMockup: mockup)),
@@ -597,13 +597,13 @@ class _ProjectTile extends StatelessWidget {
           if (isAdmin) ...[
             ListTile(
               leading: const Icon(Icons.groups),
-              title: const Text('Workers\' current state'),
+              title: Text(context.l10n.workersCurrentState),
               onTap: () => go(WorkerCurrentStream(
                   selectedProject: project, selectedMockup: mockup)),
             ),
             ListTile(
               leading: const Icon(Icons.flag),
-              title: const Text('Change status'),
+              title: Text(context.l10n.changeStatus),
               onTap: () => go(project != null
                   ? ProjectStatus(selectedProject: project)
                   : MockupStatus(selectedMockup: mockup)),
@@ -662,7 +662,7 @@ class _SalesHome extends StatelessWidget {
             child: FilledButton.icon(
               onPressed: () => visits(false),
               icon: const Icon(Icons.add),
-              label: const Text('New visit'),
+              label: Text(context.l10n.newVisit),
             ),
           ),
           const SizedBox(width: 10),
@@ -670,13 +670,13 @@ class _SalesHome extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: () => visits(true),
               icon: const Icon(Icons.list_alt),
-              label: const Text('My visits'),
+              label: Text(context.l10n.myVisits),
             ),
           ),
         ]),
-        SectionTitle('Potential projects (${potential.length})'),
+        SectionTitle(context.l10n.potentialProjects(potential.length)),
         for (final p in potential) _ProjectTile.project(p, user),
-        SectionTitle('Active projects (${active.length})'),
+        SectionTitle(context.l10n.activeProjects(active.length)),
         for (final p in active) _ProjectTile.project(p, user),
       ],
     );

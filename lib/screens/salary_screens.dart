@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../core/app_theme.dart';
+import '../core/l10n_helpers.dart';
+import '../core/locale_controller.dart';
 import '../models/salary.dart';
 import '../models/user_model.dart';
 import '../services/payroll_service.dart';
@@ -18,6 +20,7 @@ class SalaryBreakdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     Widget row(String label, double amount, {bool bold = false, String? suffix}) =>
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 6),
@@ -37,27 +40,27 @@ class SalaryBreakdown extends StatelessWidget {
 
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Row(children: [
-        StatusPill(p.payType.label, icon: Icons.payments_outlined),
+        StatusPill(p.payType.localized(l), icon: Icons.payments_outlined),
         const Spacer(),
         if (p.effectiveFrom != null)
-          Text('From ${DateFormat('d MMM yyyy').format(p.effectiveFrom!)}',
+          Text(l.effectiveFrom(DateFormat('d MMM yyyy', l.localeName).format(p.effectiveFrom!)),
               style: const TextStyle(fontSize: 12, color: AppColors.muted)),
       ]),
       const SizedBox(height: 8),
-      row('Basic', p.basic, suffix: ' ${p.payType.unit}'),
-      if (p.housing > 0) row('Housing', p.housing),
-      if (p.transport > 0) row('Transportation', p.transport),
-      if (p.food > 0) row('Food', p.food),
+      row(l.basic, p.basic, suffix: ' ${p.payType.localizedUnit(l)}'),
+      if (p.housing > 0) row(l.housing, p.housing),
+      if (p.transport > 0) row(l.transportation, p.transport),
+      if (p.food > 0) row(l.food, p.food),
       for (final a in p.other) row(a.name, a.amount),
       if (p.monthlyAllowances > 0 && p.payType != PayType.monthly)
-        const Padding(
-          padding: EdgeInsets.only(top: 2),
-          child: Text('Allowances are monthly amounts.',
-              style: TextStyle(fontSize: 12, color: AppColors.muted)),
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Text(l.allowancesMonthly,
+              style: const TextStyle(fontSize: 12, color: AppColors.muted)),
         ),
       if (p.monthlyTotal != null) ...[
         const Divider(height: 18),
-        row('Total per month', p.monthlyTotal!, bold: true),
+        row(l.totalPerMonth, p.monthlyTotal!, bold: true),
       ],
       if (p.notes?.isNotEmpty == true) ...[
         const SizedBox(height: 8),
@@ -317,7 +320,7 @@ class MyPayScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('My pay')),
+      appBar: AppBar(title: Text(context.l10n.myPay)),
       body: StreamBuilder<SalaryPackage?>(
         stream: PayrollService.watch(user.uid!),
         builder: (context, snap) {
@@ -329,22 +332,23 @@ class MyPayScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             children: [
               if (snap.hasError || p == null || p.isEmpty)
-                const Card(
+                Card(
                   child: Padding(
-                    padding: EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(24),
                     child: Column(children: [
-                      Icon(Icons.payments_outlined, size: 40, color: AppColors.muted),
-                      SizedBox(height: 8),
-                      Text('Your pay details haven\'t been added yet.',
+                      const Icon(Icons.payments_outlined,
+                          size: 40, color: AppColors.muted),
+                      const SizedBox(height: 8),
+                      Text(context.l10n.payNotAddedTitle,
                           textAlign: TextAlign.center),
-                      Text('Ask your admin if you think this is a mistake.',
+                      Text(context.l10n.payNotAddedBody,
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: AppColors.muted)),
+                          style: const TextStyle(color: AppColors.muted)),
                     ]),
                   ),
                 )
               else ...[
-                const SectionTitle('Your package'),
+                SectionTitle(context.l10n.yourPackage),
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16),

@@ -575,4 +575,64 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get signOutBody =>
       'Location tracking stops and you won\'t be able to check in until you sign in again.';
+
+  @override
+  String get teamStatus => 'Team status';
+
+  @override
+  String get onSiteNow => 'On site now';
+
+  @override
+  String get phoneAlerts => 'Phone alerts';
+
+  @override
+  String get pendingLabel => 'Pending';
+
+  @override
+  String get needsAttention => 'Needs attention';
+
+  @override
+  String get seeAll => 'See all';
+
+  @override
+  String get todaysAttendance => 'Today\'s attendance';
+
+  @override
+  String get alertLog => 'Alert log';
+
+  @override
+  String activeProjects(int count) {
+    return 'Active projects ($count)';
+  }
+
+  @override
+  String activeMockups(int count) {
+    return 'Active mock-ups ($count)';
+  }
+
+  @override
+  String potentialProjects(int count) {
+    return 'Potential projects ($count)';
+  }
+
+  @override
+  String get nobodyCheckedInToday => 'Nobody has checked in yet today.';
+
+  @override
+  String get detailsAssignWorkers => 'Details & assign workers';
+
+  @override
+  String get details => 'Details';
+
+  @override
+  String get workersCurrentState => 'Workers\' current state';
+
+  @override
+  String get changeStatus => 'Change status';
+
+  @override
+  String get myVisits => 'My visits';
+
+  @override
+  String get site => 'Site';
 }

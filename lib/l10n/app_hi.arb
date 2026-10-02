@@ -1,10 +1,8 @@
 {
   "@@locale": "hi",
-
   "languageName": "हिन्दी",
   "language": "भाषा",
   "chooseLanguage": "भाषा चुनें",
-
   "cancel": "रद्द करें",
   "save": "सेव करें",
   "back": "वापस",
@@ -14,13 +12,11 @@
   "allow": "अनुमति दें",
   "fix": "ठीक करें",
   "turnOn": "चालू करें",
-
   "roleAdmin": "एडमिन",
   "roleSupervisor": "सुपरवाइज़र",
   "roleSales": "सेल्स",
   "roleSiteEngineer": "साइट इंजीनियर",
   "roleMason": "मिस्त्री",
-
   "welcomeBack": "फिर से स्वागत है",
   "signInToContinue": "आगे बढ़ने के लिए साइन इन करें",
   "email": "ईमेल",
@@ -37,7 +33,6 @@
   "errNoInternet": "इंटरनेट कनेक्शन नहीं है।",
   "errWrongCredentials": "ईमेल या पासवर्ड गलत है।",
   "errSignInGeneric": "साइन इन नहीं हो सका। फिर कोशिश करें।",
-
   "resetPassword": "पासवर्ड रीसेट करें",
   "resetIntro": "जिस ईमेल से आप साइन इन करते हैं वह डालें, हम नया पासवर्ड चुनने का लिंक भेजेंगे।",
   "sendResetLink": "लिंक भेजें",
@@ -45,7 +40,6 @@
   "resetSent": "हमने {email} पर रीसेट लिंक भेजा है।",
   "backToSignIn": "साइन इन पर वापस जाएँ",
   "resetError": "ईमेल नहीं भेजा जा सका। पता जाँचें और फिर कोशिश करें।",
-
   "stepOf": "चरण {step} / {total}",
   "stepAboutYou": "आपके बारे में",
   "stepContact": "संपर्क",
@@ -73,7 +67,6 @@
   "emailInUse": "इस ईमेल से पहले से खाता है। साइन इन करके देखें।",
   "registerFailed": "खाता नहीं बन सका। अपनी जानकारी जाँचें और फिर कोशिश करें।",
   "somethingWrong": "कुछ गड़बड़ हो गई। फिर कोशिश करें।",
-
   "greetingMorning": "सुप्रभात, {name}",
   "greetingAfternoon": "नमस्ते, {name}",
   "greetingEvening": "शुभ संध्या, {name}",
@@ -90,7 +83,6 @@
   "onSiteAtSince": "{site} पर {time} से मौजूद",
   "checkedOut": "चेक आउट किया",
   "notCheckedIn": "चेक इन नहीं किया",
-
   "durationHm": "{hours} घं {minutes} मि",
   "durationM": "{minutes} मि",
   "onSiteSince": "{time} से साइट पर · {duration}",
@@ -109,7 +101,6 @@
   "describeWork": "काम के बारे में लिखें",
   "areaCompleted": "पूरा किया गया क्षेत्र",
   "enterNumber": "संख्या डालें",
-
   "checkedInAt": "{time} पर चेक इन हो गया। आपका दिन अच्छा हो!",
   "checkedOutAt": "{time} पर चेक आउट हो गया। धन्यवाद!",
   "errLocationUnavailable": "आपकी लोकेशन नहीं मिल सकी। लोकेशन चालू करके फिर कोशिश करें।",
@@ -125,7 +116,6 @@
   "errNotCheckedIn": "आपने चेक इन नहीं किया है।",
   "errCheckedInElsewhere": "आप {site} पर चेक इन हैं। पहले वहाँ से चेक आउट करें।",
   "errNotAssigned": "आप इस साइट पर नियुक्त नहीं हैं।",
-
   "trackingActive": "ट्रैकिंग चालू है",
   "waitingForGps": "GPS का इंतज़ार…",
   "gpsAccuracy": "GPS सटीकता ±{meters} मी",
@@ -141,7 +131,6 @@
   "batterySaverBody": "ट्रैकिंग में देरी हो सकती है। काम के समय इसे बंद रखें।",
   "batteryOptTitle": "बैटरी ऑप्टिमाइज़ेशन चालू है",
   "batteryOptBody": "आपका फ़ोन बैकग्राउंड में ट्रैकिंग रोक सकता है।",
-
   "myPay": "मेरा वेतन",
   "yourPackage": "आपका वेतन विवरण",
   "payNotAddedTitle": "आपका वेतन विवरण अभी नहीं जोड़ा गया है।",
@@ -159,7 +148,6 @@
   "totalPerMonth": "कुल मासिक",
   "allowancesMonthly": "भत्ते मासिक राशि हैं।",
   "effectiveFrom": "{date} से",
-
   "myProfile": "मेरी प्रोफ़ाइल",
   "sectionTeam": "टीम",
   "teamStatusAlerts": "टीम की स्थिति और अलर्ट",
@@ -178,5 +166,23 @@
   "salesActivity": "सेल्स गतिविधि",
   "signOut": "साइन आउट",
   "signOutTitle": "साइन आउट करें?",
-  "signOutBody": "लोकेशन ट्रैकिंग बंद हो जाएगी और दोबारा साइन इन करने तक आप चेक इन नहीं कर पाएँगे।"
+  "signOutBody": "लोकेशन ट्रैकिंग बंद हो जाएगी और दोबारा साइन इन करने तक आप चेक इन नहीं कर पाएँगे।",
+  "teamStatus": "टीम की स्थिति",
+  "onSiteNow": "अभी साइट पर",
+  "phoneAlerts": "फ़ोन अलर्ट",
+  "pendingLabel": "लंबित",
+  "needsAttention": "ध्यान देने की ज़रूरत",
+  "seeAll": "सब देखें",
+  "todaysAttendance": "आज की हाज़िरी",
+  "alertLog": "अलर्ट लॉग",
+  "activeProjects": "चालू प्रोजेक्ट ({count})",
+  "activeMockups": "चालू मॉक-अप ({count})",
+  "potentialProjects": "संभावित प्रोजेक्ट ({count})",
+  "nobodyCheckedInToday": "आज अभी तक किसी ने चेक इन नहीं किया।",
+  "detailsAssignWorkers": "विवरण और कामगार नियुक्त करें",
+  "details": "विवरण",
+  "workersCurrentState": "कामगारों की मौजूदा स्थिति",
+  "changeStatus": "स्थिति बदलें",
+  "myVisits": "मेरी विज़िट",
+  "site": "साइट"
 }

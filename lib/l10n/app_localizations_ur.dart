@@ -576,4 +576,64 @@ class AppLocalizationsUr extends AppLocalizations {
   @override
   String get signOutBody =>
       'لوکیشن ٹریکنگ بند ہو جائے گی اور دوبارہ سائن اِن کرنے تک آپ چیک اِن نہیں کر سکیں گے۔';
+
+  @override
+  String get teamStatus => 'ٹیم کی صورتحال';
+
+  @override
+  String get onSiteNow => 'ابھی سائٹ پر';
+
+  @override
+  String get phoneAlerts => 'فون الرٹس';
+
+  @override
+  String get pendingLabel => 'زیرِ التوا';
+
+  @override
+  String get needsAttention => 'توجہ درکار';
+
+  @override
+  String get seeAll => 'سب دیکھیں';
+
+  @override
+  String get todaysAttendance => 'آج کی حاضری';
+
+  @override
+  String get alertLog => 'الرٹ لاگ';
+
+  @override
+  String activeProjects(int count) {
+    return 'فعال پروجیکٹس ($count)';
+  }
+
+  @override
+  String activeMockups(int count) {
+    return 'فعال موک اپس ($count)';
+  }
+
+  @override
+  String potentialProjects(int count) {
+    return 'ممکنہ پروجیکٹس ($count)';
+  }
+
+  @override
+  String get nobodyCheckedInToday => 'آج ابھی تک کسی نے چیک اِن نہیں کیا۔';
+
+  @override
+  String get detailsAssignWorkers => 'تفصیلات اور کارکن مقرر کریں';
+
+  @override
+  String get details => 'تفصیلات';
+
+  @override
+  String get workersCurrentState => 'کارکنوں کی موجودہ صورتحال';
+
+  @override
+  String get changeStatus => 'صورتحال تبدیل کریں';
+
+  @override
+  String get myVisits => 'میرے وزٹس';
+
+  @override
+  String get site => 'سائٹ';
 }

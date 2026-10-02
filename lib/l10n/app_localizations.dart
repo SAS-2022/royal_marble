@@ -1103,6 +1103,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Location tracking stops and you won\'t be able to check in until you sign in again.'**
   String get signOutBody;
+
+  /// No description provided for @teamStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Team status'**
+  String get teamStatus;
+
+  /// No description provided for @onSiteNow.
+  ///
+  /// In en, this message translates to:
+  /// **'On site now'**
+  String get onSiteNow;
+
+  /// No description provided for @phoneAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone alerts'**
+  String get phoneAlerts;
+
+  /// No description provided for @pendingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get pendingLabel;
+
+  /// No description provided for @needsAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs attention'**
+  String get needsAttention;
+
+  /// No description provided for @seeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get seeAll;
+
+  /// No description provided for @todaysAttendance.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s attendance'**
+  String get todaysAttendance;
+
+  /// No description provided for @alertLog.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert log'**
+  String get alertLog;
+
+  /// No description provided for @activeProjects.
+  ///
+  /// In en, this message translates to:
+  /// **'Active projects ({count})'**
+  String activeProjects(int count);
+
+  /// No description provided for @activeMockups.
+  ///
+  /// In en, this message translates to:
+  /// **'Active mock-ups ({count})'**
+  String activeMockups(int count);
+
+  /// No description provided for @potentialProjects.
+  ///
+  /// In en, this message translates to:
+  /// **'Potential projects ({count})'**
+  String potentialProjects(int count);
+
+  /// No description provided for @nobodyCheckedInToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody has checked in yet today.'**
+  String get nobodyCheckedInToday;
+
+  /// No description provided for @detailsAssignWorkers.
+  ///
+  /// In en, this message translates to:
+  /// **'Details & assign workers'**
+  String get detailsAssignWorkers;
+
+  /// No description provided for @details.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get details;
+
+  /// No description provided for @workersCurrentState.
+  ///
+  /// In en, this message translates to:
+  /// **'Workers\' current state'**
+  String get workersCurrentState;
+
+  /// No description provided for @changeStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Change status'**
+  String get changeStatus;
+
+  /// No description provided for @myVisits.
+  ///
+  /// In en, this message translates to:
+  /// **'My visits'**
+  String get myVisits;
+
+  /// No description provided for @site.
+  ///
+  /// In en, this message translates to:
+  /// **'Site'**
+  String get site;
 }
 
 class _AppLocalizationsDelegate

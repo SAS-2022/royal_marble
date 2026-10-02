@@ -568,4 +568,64 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get signOutBody =>
       'سيتوقف تتبع الموقع ولن تتمكن من تسجيل الحضور حتى تسجّل الدخول مرة أخرى.';
+
+  @override
+  String get teamStatus => 'حالة الفريق';
+
+  @override
+  String get onSiteNow => 'في الموقع الآن';
+
+  @override
+  String get phoneAlerts => 'تنبيهات الهواتف';
+
+  @override
+  String get pendingLabel => 'قيد الانتظار';
+
+  @override
+  String get needsAttention => 'يحتاج إلى متابعة';
+
+  @override
+  String get seeAll => 'عرض الكل';
+
+  @override
+  String get todaysAttendance => 'حضور اليوم';
+
+  @override
+  String get alertLog => 'سجل التنبيهات';
+
+  @override
+  String activeProjects(int count) {
+    return 'المشاريع النشطة ($count)';
+  }
+
+  @override
+  String activeMockups(int count) {
+    return 'العيّنات النشطة ($count)';
+  }
+
+  @override
+  String potentialProjects(int count) {
+    return 'مشاريع محتملة ($count)';
+  }
+
+  @override
+  String get nobodyCheckedInToday => 'لم يسجّل أحد الحضور اليوم بعد.';
+
+  @override
+  String get detailsAssignWorkers => 'التفاصيل وتعيين العمال';
+
+  @override
+  String get details => 'التفاصيل';
+
+  @override
+  String get workersCurrentState => 'الحالة الحالية للعمال';
+
+  @override
+  String get changeStatus => 'تغيير الحالة';
+
+  @override
+  String get myVisits => 'زياراتي';
+
+  @override
+  String get site => 'موقع';
 }

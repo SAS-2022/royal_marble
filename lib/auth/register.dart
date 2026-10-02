@@ -284,8 +284,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: const Icon(Icons.person,
                         size: 56, color: AppColors.goldDeep),
                   ),
-                  const Positioned(
-                    right: 0,
+                  const PositionedDirectional(
+                    end: 0,
                     bottom: 0,
                     child: CircleAvatar(
                       radius: 18,

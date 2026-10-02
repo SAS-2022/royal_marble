@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:country_picker/country_picker.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -78,7 +79,10 @@ class MyApp extends StatelessWidget {
           theme: AppTheme.light(),
           locale: l.locale,
           supportedLocales: AppLocalizations.supportedLocales,
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          localizationsDelegates: const [
+            ...AppLocalizations.localizationsDelegates,
+            CountryLocalizations.delegate,
+          ],
           routes: <String, WidgetBuilder>{'/home': (context) => const Wrapper()},
           home: const SplashScreen(),
         ),
