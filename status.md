@@ -403,3 +403,5 @@ Workers come from different countries; each user picks a language.
   while checked in elsewhere, work sheet and check-out, check-in again. Fixed:
   durations can no longer show negative ("−56 m") when phone and server clocks
   disagree. Next: Phase 2 + 3 code (agenda item 3).
+- **2026-10-02 (end of session)** — Paused by the user; all work committed on
+  `revive-2026`. Resume with agenda item 3 (Phase 2 + 3 code on the emulators).
