@@ -144,7 +144,11 @@ class ProfileDrawer extends StatelessWidget {
     await TrackingService.stop();
     await ErrorReporter.setUser();
     await AuthService().signOut();
-    (await SharedPreferences.getInstance()).clear();
+    // Clear session data but keep the device's language choice.
+    final prefs = await SharedPreferences.getInstance();
+    final lang = prefs.getString('appLocale');
+    await prefs.clear();
+    if (lang != null) await prefs.setString('appLocale', lang);
     if (context.mounted) {
       Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
     }

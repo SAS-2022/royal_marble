@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart' as geo;
 import 'package:permission_handler/permission_handler.dart' as ph;
 
 import '../core/app_theme.dart';
+import '../core/locale_controller.dart';
 import '../services/tracking_service.dart';
 
 enum Tone { ok, warn, bad, neutral }
@@ -128,18 +129,19 @@ class _DeviceStatusBannerState extends State<DeviceStatusBanner>
     } catch (_) {}
   }
 
-  List<_Issue> _issues(LiveDeviceState s) => [
+  List<_Issue> _issues(LiveDeviceState s) {
+    final l = context.l10n;
+    return [
         if (s.locationEnabled == false)
-          _Issue(Icons.location_off, 'Location is turned off',
-              'Your admin has been notified. Turn it on to continue.', Tone.bad,
-              'Turn on', () async => geo.Geolocator.openLocationSettings()),
+          _Issue(Icons.location_off, l.locationOffTitle, l.locationOffBody,
+              Tone.bad, l.turnOn, () async => geo.Geolocator.openLocationSettings()),
         if (s.authorization != null && !s.hasAlwaysPermission)
           _Issue(
               Icons.lock_outline,
-              'Allow location "All the time"',
-              'Needed so check-in works when the app is closed.',
+              l.allowAlwaysTitle,
+              l.allowAlwaysBody,
               Tone.bad,
-              'Fix', () async {
+              l.fix, () async {
             final status = await bg.BackgroundGeolocation.requestPermission()
                 .catchError((_) => -1);
             if (status != bg.Config.AUTHORIZATION_STATUS_ALWAYS) {
@@ -147,28 +149,25 @@ class _DeviceStatusBannerState extends State<DeviceStatusBanner>
             }
           }),
         if (s.preciseLocation == false)
-          _Issue(Icons.gps_not_fixed, 'Precise location is off',
-              'Turn on "Use precise location" for this app.', Tone.bad,
-              'Settings', () async => ph.openAppSettings()),
+          _Issue(Icons.gps_not_fixed, l.preciseOffTitle, l.preciseOffBody,
+              Tone.bad, l.settings, () async => ph.openAppSettings()),
         if (s.online == false)
-          const _Issue(Icons.cloud_off, 'No internet connection',
-              'Location is saved and will upload when you reconnect.',
-              Tone.warn),
+          _Issue(Icons.cloud_off, l.noInternetTitle, l.noInternetBody, Tone.warn),
         if (s.powerSave == true)
-          const _Issue(Icons.battery_saver, 'Battery saver is on',
-              'Tracking may be delayed. Turn it off during work hours.',
+          _Issue(Icons.battery_saver, l.batterySaverTitle, l.batterySaverBody,
               Tone.warn),
         if (_batteryOptimized == true)
           _Issue(
               Icons.battery_alert,
-              'Battery optimization is on',
-              'Your phone may stop tracking in the background.',
+              l.batteryOptTitle,
+              l.batteryOptBody,
               Tone.warn,
-              'Allow', () async {
+              l.allow, () async {
             final req = await bg.DeviceSettings.showIgnoreBatteryOptimizations();
             await bg.DeviceSettings.show(req);
           }),
-      ];
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -184,10 +183,10 @@ class _DeviceStatusBannerState extends State<DeviceStatusBanner>
                 backgroundColor: AppColors.okSoft,
                 child: Icon(Icons.my_location, color: AppColors.ok),
               ),
-              title: const Text('Tracking is active'),
+              title: Text(context.l10n.trackingActive),
               subtitle: Text(acc == null
-                  ? 'Waiting for GPS…'
-                  : 'GPS accuracy ±${acc.round()} m'),
+                  ? context.l10n.waitingForGps
+                  : context.l10n.gpsAccuracy(acc.round())),
             ),
           );
         }

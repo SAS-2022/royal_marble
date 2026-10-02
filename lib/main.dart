@@ -9,6 +9,8 @@ import 'package:flutter_background_geolocation/flutter_background_geolocation.da
 import 'package:provider/provider.dart';
 import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/core/error_reporter.dart';
+import 'package:royal_marble/core/locale_controller.dart';
+import 'package:royal_marble/l10n/app_localizations.dart';
 import 'package:royal_marble/services/auth.dart';
 import 'package:royal_marble/services/tracking_service.dart';
 import 'package:royal_marble/wrapper.dart';
@@ -48,24 +50,38 @@ void main() async {
 
   bg.BackgroundGeolocation.registerHeadlessTask(
       backgroundGeolocationHeadlessTask);
-  runApp(const MyApp());
+
+  final locale = LocaleController();
+  await locale.load();
+  runApp(MyApp(locale: locale));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({super.key, required this.locale});
+  final LocaleController locale;
 
   @override
   Widget build(BuildContext context) {
-    return StreamProvider<UserData?>.value(
-      value: AuthService().user,
-      initialData: UserData(),
-      catchError: (context, err) => UserData(error: err.toString()),
-      child: MaterialApp(
-        title: 'Royal Marble',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light(),
-        routes: <String, WidgetBuilder>{'/home': (context) => const Wrapper()},
-        home: const SplashScreen(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: locale),
+        StreamProvider<UserData?>.value(
+          value: AuthService().user,
+          initialData: UserData(),
+          catchError: (context, err) => UserData(error: err.toString()),
+        ),
+      ],
+      child: Consumer<LocaleController>(
+        builder: (context, l, _) => MaterialApp(
+          title: 'Royal Marble',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light(),
+          locale: l.locale,
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          routes: <String, WidgetBuilder>{'/home': (context) => const Wrapper()},
+          home: const SplashScreen(),
+        ),
       ),
     );
   }

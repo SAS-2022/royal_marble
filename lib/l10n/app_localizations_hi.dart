@@ -1,0 +1,576 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for Hindi (`hi`).
+class AppLocalizationsHi extends AppLocalizations {
+  AppLocalizationsHi([String locale = 'hi']) : super(locale);
+
+  @override
+  String get languageName => 'हिन्दी';
+
+  @override
+  String get language => 'भाषा';
+
+  @override
+  String get chooseLanguage => 'भाषा चुनें';
+
+  @override
+  String get cancel => 'रद्द करें';
+
+  @override
+  String get save => 'सेव करें';
+
+  @override
+  String get back => 'वापस';
+
+  @override
+  String get continueLabel => 'आगे बढ़ें';
+
+  @override
+  String get required => 'ज़रूरी';
+
+  @override
+  String get settings => 'सेटिंग्स';
+
+  @override
+  String get allow => 'अनुमति दें';
+
+  @override
+  String get fix => 'ठीक करें';
+
+  @override
+  String get turnOn => 'चालू करें';
+
+  @override
+  String get roleAdmin => 'एडमिन';
+
+  @override
+  String get roleSupervisor => 'सुपरवाइज़र';
+
+  @override
+  String get roleSales => 'सेल्स';
+
+  @override
+  String get roleSiteEngineer => 'साइट इंजीनियर';
+
+  @override
+  String get roleMason => 'मिस्त्री';
+
+  @override
+  String get welcomeBack => 'फिर से स्वागत है';
+
+  @override
+  String get signInToContinue => 'आगे बढ़ने के लिए साइन इन करें';
+
+  @override
+  String get email => 'ईमेल';
+
+  @override
+  String get password => 'पासवर्ड';
+
+  @override
+  String get enterValidEmail => 'सही ईमेल डालें';
+
+  @override
+  String get enterPassword => 'अपना पासवर्ड डालें';
+
+  @override
+  String get forgotPassword => 'पासवर्ड भूल गए?';
+
+  @override
+  String get signIn => 'साइन इन';
+
+  @override
+  String get newToApp => 'रॉयल मार्बल पर नए हैं?';
+
+  @override
+  String get createAccount => 'खाता बनाएँ';
+
+  @override
+  String get errInvalidEmail => 'यह ईमेल पता सही नहीं लग रहा।';
+
+  @override
+  String get errUserDisabled =>
+      'यह खाता बंद कर दिया गया है। अपने एडमिन से संपर्क करें।';
+
+  @override
+  String get errTooManyRequests =>
+      'बहुत ज़्यादा कोशिशें। कुछ मिनट रुककर फिर कोशिश करें।';
+
+  @override
+  String get errNoInternet => 'इंटरनेट कनेक्शन नहीं है।';
+
+  @override
+  String get errWrongCredentials => 'ईमेल या पासवर्ड गलत है।';
+
+  @override
+  String get errSignInGeneric => 'साइन इन नहीं हो सका। फिर कोशिश करें।';
+
+  @override
+  String get resetPassword => 'पासवर्ड रीसेट करें';
+
+  @override
+  String get resetIntro =>
+      'जिस ईमेल से आप साइन इन करते हैं वह डालें, हम नया पासवर्ड चुनने का लिंक भेजेंगे।';
+
+  @override
+  String get sendResetLink => 'लिंक भेजें';
+
+  @override
+  String get checkYourEmail => 'अपना ईमेल देखें';
+
+  @override
+  String resetSent(String email) {
+    return 'हमने $email पर रीसेट लिंक भेजा है।';
+  }
+
+  @override
+  String get backToSignIn => 'साइन इन पर वापस जाएँ';
+
+  @override
+  String get resetError =>
+      'ईमेल नहीं भेजा जा सका। पता जाँचें और फिर कोशिश करें।';
+
+  @override
+  String stepOf(int step, int total) {
+    return 'चरण $step / $total';
+  }
+
+  @override
+  String get stepAboutYou => 'आपके बारे में';
+
+  @override
+  String get stepContact => 'संपर्क';
+
+  @override
+  String get stepAccount => 'खाता';
+
+  @override
+  String get addPhotoHint => 'अपने चेहरे की साफ़ फ़ोटो लगाएँ';
+
+  @override
+  String get tapToChange => 'बदलने के लिए टैप करें';
+
+  @override
+  String get takePhoto => 'फ़ोटो लें';
+
+  @override
+  String get chooseFromGallery => 'गैलरी से चुनें';
+
+  @override
+  String get firstName => 'पहला नाम';
+
+  @override
+  String get lastName => 'उपनाम';
+
+  @override
+  String get nationality => 'राष्ट्रीयता';
+
+  @override
+  String get mobileNumber => 'मोबाइल नंबर';
+
+  @override
+  String get mobileInvalid => 'UAE मोबाइल नंबर डालें (05X XXX XXXX)';
+
+  @override
+  String get company => 'कंपनी';
+
+  @override
+  String get homeAddress => 'घर का पता';
+
+  @override
+  String get passwordHelper => 'कम से कम 6 अक्षर';
+
+  @override
+  String get passwordTooShort => 'कम से कम 6 अक्षर रखें';
+
+  @override
+  String get confirmPassword => 'पासवर्ड दोबारा डालें';
+
+  @override
+  String get passwordsDontMatch => 'पासवर्ड मेल नहीं खाते';
+
+  @override
+  String get approvalNotice =>
+      'एडमिन नए खातों की जाँच करता है। मंज़ूरी मिलने के बाद आप साइन इन कर सकेंगे।';
+
+  @override
+  String get photoRequired =>
+      'फ़ोटो लगाएँ ताकि आपका सुपरवाइज़र आपको पहचान सके।';
+
+  @override
+  String get nationalityRequired => 'अपनी राष्ट्रीयता चुनें।';
+
+  @override
+  String get homeRequired => 'नक्शे पर अपना घर का पता चुनें।';
+
+  @override
+  String get cameraError => 'कैमरा या गैलरी नहीं खुल सकी।';
+
+  @override
+  String get emailInUse => 'इस ईमेल से पहले से खाता है। साइन इन करके देखें।';
+
+  @override
+  String get registerFailed =>
+      'खाता नहीं बन सका। अपनी जानकारी जाँचें और फिर कोशिश करें।';
+
+  @override
+  String get somethingWrong => 'कुछ गड़बड़ हो गई। फिर कोशिश करें।';
+
+  @override
+  String greetingMorning(String name) {
+    return 'सुप्रभात, $name';
+  }
+
+  @override
+  String greetingAfternoon(String name) {
+    return 'नमस्ते, $name';
+  }
+
+  @override
+  String greetingEvening(String name) {
+    return 'शुभ संध्या, $name';
+  }
+
+  @override
+  String get offlineBanner =>
+      'आप ऑफ़लाइन हैं। कनेक्शन आने पर बदलाव अपने-आप भेज दिए जाएँगे।';
+
+  @override
+  String get pendingTitle => 'रजिस्टर करने के लिए धन्यवाद';
+
+  @override
+  String get pendingBody =>
+      'आपका खाता मंज़ूरी का इंतज़ार कर रहा है। एडमिन के चालू करने के बाद आप ऐप इस्तेमाल कर सकेंगे।';
+
+  @override
+  String get yourSite => 'आपकी साइट';
+
+  @override
+  String get yourSites => 'आपकी साइटें';
+
+  @override
+  String get noSiteTitle => 'अभी कोई साइट नहीं दी गई';
+
+  @override
+  String get noSiteBody => 'आपका सुपरवाइज़र आपको किसी प्रोजेक्ट पर लगाएगा।';
+
+  @override
+  String get noSitesAssigned => 'कोई साइट नहीं दी गई।';
+
+  @override
+  String yourTeam(int count) {
+    return 'आपकी टीम ($count)';
+  }
+
+  @override
+  String get nobodyYet => 'अभी कोई नहीं।';
+
+  @override
+  String onSiteAtSince(String site, String time) {
+    return '$site पर $time से मौजूद';
+  }
+
+  @override
+  String get checkedOut => 'चेक आउट किया';
+
+  @override
+  String get notCheckedIn => 'चेक इन नहीं किया';
+
+  @override
+  String durationHm(int hours, int minutes) {
+    return '$hours घं $minutes मि';
+  }
+
+  @override
+  String durationM(int minutes) {
+    return '$minutes मि';
+  }
+
+  @override
+  String onSiteSince(String time, String duration) {
+    return '$time से साइट पर · $duration';
+  }
+
+  @override
+  String checkedInAtSite(String site) {
+    return '$site पर चेक इन';
+  }
+
+  @override
+  String doneToday(String duration) {
+    return 'आज का काम पूरा · $duration';
+  }
+
+  @override
+  String get withinSiteArea => 'साइट के दायरे में';
+
+  @override
+  String kmAway(String km) {
+    return '$km किमी दूर';
+  }
+
+  @override
+  String metersAway(int meters) {
+    return '$meters मीटर दूर';
+  }
+
+  @override
+  String get gettingGpsFix => 'सटीक GPS लोकेशन ली जा रही है…';
+
+  @override
+  String get checkIn => 'चेक इन';
+
+  @override
+  String get checkOut => 'चेक आउट';
+
+  @override
+  String get workCompletedTitle => 'आज किया गया काम';
+
+  @override
+  String get workSystem => 'सिस्टम';
+
+  @override
+  String get workTiles => 'टाइल्स';
+
+  @override
+  String get workOthers => 'अन्य';
+
+  @override
+  String get describeWork => 'काम के बारे में लिखें';
+
+  @override
+  String get areaCompleted => 'पूरा किया गया क्षेत्र';
+
+  @override
+  String get enterNumber => 'संख्या डालें';
+
+  @override
+  String checkedInAt(String time) {
+    return '$time पर चेक इन हो गया। आपका दिन अच्छा हो!';
+  }
+
+  @override
+  String checkedOutAt(String time) {
+    return '$time पर चेक आउट हो गया। धन्यवाद!';
+  }
+
+  @override
+  String get errLocationUnavailable =>
+      'आपकी लोकेशन नहीं मिल सकी। लोकेशन चालू करके फिर कोशिश करें।';
+
+  @override
+  String get errNoServer =>
+      'सर्वर से कनेक्शन नहीं है। इंटरनेट जाँचें और फिर कोशिश करें।';
+
+  @override
+  String errCheckInFailed(String code) {
+    return 'चेक इन नहीं हो सका ($code)।';
+  }
+
+  @override
+  String get errSignInAgain => 'कृपया फिर से साइन इन करें।';
+
+  @override
+  String get errNotActive => 'आपका खाता चालू नहीं है।';
+
+  @override
+  String get errMockLocation =>
+      'नकली GPS ऐप मिला है। चेक इन के लिए उसे बंद करें।';
+
+  @override
+  String errWeakGps(int meters) {
+    return 'GPS सिग्नल कमज़ोर है (±$meters मी)। बाहर खुली जगह जाएँ या थोड़ा रुककर फिर कोशिश करें।';
+  }
+
+  @override
+  String get errNoSiteLocation =>
+      'इस साइट की लोकेशन सेट नहीं है। एडमिन से संपर्क करें।';
+
+  @override
+  String errOutOfRange(int meters) {
+    return 'आप साइट से $meters मीटर बाहर हैं।';
+  }
+
+  @override
+  String errAlreadyCheckedIn(String site) {
+    return 'आप पहले से $site पर चेक इन हैं।';
+  }
+
+  @override
+  String get errNotCheckedIn => 'आपने चेक इन नहीं किया है।';
+
+  @override
+  String errCheckedInElsewhere(String site) {
+    return 'आप $site पर चेक इन हैं। पहले वहाँ से चेक आउट करें।';
+  }
+
+  @override
+  String get errNotAssigned => 'आप इस साइट पर नियुक्त नहीं हैं।';
+
+  @override
+  String get trackingActive => 'ट्रैकिंग चालू है';
+
+  @override
+  String get waitingForGps => 'GPS का इंतज़ार…';
+
+  @override
+  String gpsAccuracy(int meters) {
+    return 'GPS सटीकता ±$meters मी';
+  }
+
+  @override
+  String get locationOffTitle => 'लोकेशन बंद है';
+
+  @override
+  String get locationOffBody =>
+      'आपके एडमिन को सूचना दे दी गई है। आगे बढ़ने के लिए इसे चालू करें।';
+
+  @override
+  String get allowAlwaysTitle => 'लोकेशन \"हर समय\" की अनुमति दें';
+
+  @override
+  String get allowAlwaysBody =>
+      'ऐप बंद होने पर भी चेक इन काम करे, इसके लिए ज़रूरी है।';
+
+  @override
+  String get preciseOffTitle => 'सटीक लोकेशन बंद है';
+
+  @override
+  String get preciseOffBody => 'इस ऐप के लिए \"सटीक लोकेशन\" चालू करें।';
+
+  @override
+  String get noInternetTitle => 'इंटरनेट कनेक्शन नहीं है';
+
+  @override
+  String get noInternetBody =>
+      'लोकेशन सेव हो रही है और कनेक्शन आने पर भेज दी जाएगी।';
+
+  @override
+  String get batterySaverTitle => 'बैटरी सेवर चालू है';
+
+  @override
+  String get batterySaverBody =>
+      'ट्रैकिंग में देरी हो सकती है। काम के समय इसे बंद रखें।';
+
+  @override
+  String get batteryOptTitle => 'बैटरी ऑप्टिमाइज़ेशन चालू है';
+
+  @override
+  String get batteryOptBody => 'आपका फ़ोन बैकग्राउंड में ट्रैकिंग रोक सकता है।';
+
+  @override
+  String get myPay => 'मेरा वेतन';
+
+  @override
+  String get yourPackage => 'आपका वेतन विवरण';
+
+  @override
+  String get payNotAddedTitle => 'आपका वेतन विवरण अभी नहीं जोड़ा गया है।';
+
+  @override
+  String get payNotAddedBody =>
+      'अगर आपको लगता है कि यह गलती है तो अपने एडमिन से पूछें।';
+
+  @override
+  String get payTypeMonthly => 'मासिक वेतन';
+
+  @override
+  String get payTypeDaily => 'दैनिक मज़दूरी';
+
+  @override
+  String get payTypeHourly => 'घंटे के हिसाब से';
+
+  @override
+  String get perMonth => '/ महीना';
+
+  @override
+  String get perDay => '/ दिन';
+
+  @override
+  String get perHour => '/ घंटा';
+
+  @override
+  String get basic => 'मूल वेतन';
+
+  @override
+  String get housing => 'आवास भत्ता';
+
+  @override
+  String get transportation => 'यातायात भत्ता';
+
+  @override
+  String get food => 'भोजन भत्ता';
+
+  @override
+  String get totalPerMonth => 'कुल मासिक';
+
+  @override
+  String get allowancesMonthly => 'भत्ते मासिक राशि हैं।';
+
+  @override
+  String effectiveFrom(String date) {
+    return '$date से';
+  }
+
+  @override
+  String get myProfile => 'मेरी प्रोफ़ाइल';
+
+  @override
+  String get sectionTeam => 'टीम';
+
+  @override
+  String get teamStatusAlerts => 'टीम की स्थिति और अलर्ट';
+
+  @override
+  String get liveMap => 'लाइव मैप';
+
+  @override
+  String get users => 'यूज़र';
+
+  @override
+  String get sectionSites => 'साइटें';
+
+  @override
+  String get newProject => 'नया प्रोजेक्ट';
+
+  @override
+  String get newMockup => 'नया मॉक-अप';
+
+  @override
+  String get sectionSales => 'सेल्स';
+
+  @override
+  String get clients => 'क्लाइंट';
+
+  @override
+  String get addClient => 'क्लाइंट जोड़ें';
+
+  @override
+  String get newVisit => 'नई विज़िट';
+
+  @override
+  String get visits => 'विज़िट';
+
+  @override
+  String get sectionReports => 'रिपोर्ट';
+
+  @override
+  String get attendance => 'हाज़िरी';
+
+  @override
+  String get salesActivity => 'सेल्स गतिविधि';
+
+  @override
+  String get signOut => 'साइन आउट';
+
+  @override
+  String get signOutTitle => 'साइन आउट करें?';
+
+  @override
+  String get signOutBody =>
+      'लोकेशन ट्रैकिंग बंद हो जाएगी और दोबारा साइन इन करने तक आप चेक इन नहीं कर पाएँगे।';
+}

@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/core/format.dart';
+import 'package:royal_marble/core/locale_controller.dart';
 import 'package:royal_marble/core/roles.dart';
 import 'package:royal_marble/mockups/mockup_grid.dart';
 import 'package:royal_marble/mockups/mockup_status.dart';
@@ -100,8 +101,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 Icon(Icons.cloud_off, size: 18, color: AppColors.warn),
                 SizedBox(width: 8),
                 Expanded(
-                  child: Text('You are offline. Changes will sync when you reconnect.',
-                      style: TextStyle(color: AppColors.warn)),
+                  child: Text(context.l10n.offlineBanner,
+                      style: const TextStyle(color: AppColors.warn)),
                 ),
               ]),
             ),
@@ -123,13 +124,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
 // ───────────────────────── shared pieces ─────────────────────────
 
-String _greeting() {
+String _greeting(BuildContext context, String name) {
+  final l = context.l10n;
   final h = DateTime.now().hour;
   return h < 12
-      ? 'Good morning'
+      ? l.greetingMorning(name)
       : h < 17
-          ? 'Good afternoon'
-          : 'Good evening';
+          ? l.greetingAfternoon(name)
+          : l.greetingEvening(name);
 }
 
 class _Greeting extends StatelessWidget {
@@ -141,10 +143,12 @@ class _Greeting extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 8, 4, 12),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(DateFormat('EEEE, d MMMM').format(DateTime.now()),
+        Text(
+            DateFormat('EEEE, d MMMM', context.l10n.localeName)
+                .format(DateTime.now()),
             style: const TextStyle(color: AppColors.muted)),
         const SizedBox(height: 2),
-        Text('${_greeting()}, ${user.firstName ?? ''}',
+        Text(_greeting(context, user.firstName ?? ''),
             style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700)),
       ]),
     );

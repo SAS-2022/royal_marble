@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:royal_marble/core/app_theme.dart';
+import 'package:royal_marble/core/locale_controller.dart';
 import 'package:royal_marble/core/format.dart';
 import 'package:royal_marble/location/google_map_navigation.dart';
 import 'package:royal_marble/services/auth.dart';
@@ -48,7 +49,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Map<String, dynamic>? _nationality;
   Map<String, dynamic>? _home;
 
-  static const _titles = ['About you', 'Contact', 'Account'];
+  List<String> get _titles =>
+      [context.l10n.stepAboutYou, context.l10n.stepContact, context.l10n.stepAccount];
 
   @override
   void dispose() {
@@ -62,6 +64,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       .showSnackBar(SnackBar(content: Text(msg)));
 
   Future<void> _pickPhoto() async {
+    final l10n = context.l10n;
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
       showDragHandle: true,
@@ -69,12 +72,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           ListTile(
             leading: const Icon(Icons.photo_camera_outlined),
-            title: const Text('Take a photo'),
+            title: Text(l10n.takePhoto),
             onTap: () => Navigator.pop(context, ImageSource.camera),
           ),
           ListTile(
             leading: const Icon(Icons.photo_library_outlined),
-            title: const Text('Choose from gallery'),
+            title: Text(l10n.chooseFromGallery),
             onTap: () => Navigator.pop(context, ImageSource.gallery),
           ),
         ]),
@@ -90,7 +93,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
       if (img != null) setState(() => _photo = img);
     } catch (e) {
-      _snack('Could not open the camera or gallery.');
+      _snack(l10n.cameraError);
     }
   }
 
@@ -116,15 +119,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _validateStep() {
     if (!_forms[_step].currentState!.validate()) return false;
     if (_step == 0 && _photo == null) {
-      _snack('Add a photo so your supervisor can recognise you.');
+      _snack(context.l10n.photoRequired);
       return false;
     }
     if (_step == 0 && _nationality == null) {
-      _snack('Select your nationality.');
+      _snack(context.l10n.nationalityRequired);
       return false;
     }
     if (_step == 1 && _home == null) {
-      _snack('Set your home address on the map.');
+      _snack(context.l10n.homeRequired);
       return false;
     }
     return true;
@@ -139,6 +142,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _submit() async {
+    final l10n = context.l10n;
     if (!_validateStep()) return;
     setState(() {
       _submitting = true;
@@ -163,16 +167,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
       // error text ("[firebase_auth/<code>] ...") on failure.
       if (result is String && result.startsWith('[')) {
         throw result.contains('email-already-in-use')
-            ? 'An account with this email already exists. Try signing in.'
+            ? l10n.emailInUse
             : result.contains('network-request-failed')
-                ? 'No internet connection.'
-                : 'Could not create the account. Check your details and try again.';
+                ? l10n.errNoInternet
+                : l10n.registerFailed;
       }
       if (!mounted) return;
       // The auth stream now shows the "waiting for approval" screen.
       Navigator.of(context).popUntil((r) => r.isFirst);
     } catch (e) {
-      setState(() => _error = e is String ? e : 'Something went wrong. Please try again.');
+      setState(() => _error = e is String ? e : l10n.somethingWrong);
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -181,7 +185,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create account')),
+      appBar: AppBar(title: Text(context.l10n.createAccount)),
       body: Column(children: [
         // Progress
         Padding(
@@ -205,7 +209,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
           child: Row(children: [
-            Text('Step ${_step + 1} of 3',
+            Text(context.l10n.stepOf(_step + 1, 3),
                 style: const TextStyle(color: AppColors.muted)),
             const Spacer(),
             Text(_titles[_step],
@@ -233,7 +237,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     onPressed: _submitting
                         ? null
                         : () => setState(() => _step--),
-                    child: const Text('Back'),
+                    child: Text(context.l10n.back),
                   ),
                 ),
               if (_step > 0) const SizedBox(width: 12),
@@ -253,7 +257,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           height: 22,
                           child: CircularProgressIndicator(
                               strokeWidth: 2.5, color: Colors.white))
-                      : Text(_step < 2 ? 'Continue' : 'Create account'),
+                      : Text(_step < 2 ? context.l10n.continueLabel : context.l10n.createAccount),
                 ),
               ),
             ]),
@@ -294,27 +298,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            Text(_photo == null ? 'Add a clear photo of your face' : 'Tap to change',
+            Text(_photo == null ? context.l10n.addPhotoHint : context.l10n.tapToChange,
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: AppColors.muted)),
             const SizedBox(height: 24),
             TextFormField(
               controller: _first,
               textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(labelText: 'First name'),
-              validator: (v) => (v ?? '').trim().isEmpty ? 'Required' : null,
+              decoration: InputDecoration(labelText: context.l10n.firstName),
+              validator: (v) => (v ?? '').trim().isEmpty ? context.l10n.required : null,
             ),
             const SizedBox(height: 14),
             TextFormField(
               controller: _last,
               textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(labelText: 'Last name'),
-              validator: (v) => (v ?? '').trim().isEmpty ? 'Required' : null,
+              decoration: InputDecoration(labelText: context.l10n.lastName),
+              validator: (v) => (v ?? '').trim().isEmpty ? context.l10n.required : null,
             ),
             const SizedBox(height: 14),
             _PickerField(
               icon: Icons.flag_outlined,
-              label: 'Nationality',
+              label: context.l10n.nationality,
               value: _nationality?['countryName'],
               onTap: () => showCountryPicker(
                 context: context,
@@ -337,30 +341,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
             TextFormField(
               controller: _phone,
               keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(
-                labelText: 'Mobile number',
+              decoration: InputDecoration(
+                labelText: context.l10n.mobileNumber,
                 hintText: '05X XXX XXXX',
                 prefixIcon: Icon(Icons.phone_outlined),
               ),
               validator: (v) => _uaeMobile
                       .hasMatch((v ?? '').replaceAll(RegExp(r'[\s-]'), ''))
                   ? null
-                  : 'Enter a UAE mobile number (05X XXX XXXX)',
+                  : context.l10n.mobileInvalid,
             ),
             const SizedBox(height: 14),
             TextFormField(
               controller: _company,
               textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(
-                labelText: 'Company',
+              decoration: InputDecoration(
+                labelText: context.l10n.company,
                 prefixIcon: Icon(Icons.business_outlined),
               ),
-              validator: (v) => (v ?? '').trim().isEmpty ? 'Required' : null,
+              validator: (v) => (v ?? '').trim().isEmpty ? context.l10n.required : null,
             ),
             const SizedBox(height: 14),
             _PickerField(
               icon: Icons.home_outlined,
-              label: 'Home address',
+              label: context.l10n.homeAddress,
               value: _home == null ? null : prettyAddress(_home!['addressName']),
               onTap: _pickHome,
             ),
@@ -377,13 +381,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
               controller: _email,
               keyboardType: TextInputType.emailAddress,
               autofillHints: const [AutofillHints.email],
-              decoration: const InputDecoration(
-                labelText: 'Email',
+              decoration: InputDecoration(
+                labelText: context.l10n.email,
                 prefixIcon: Icon(Icons.mail_outline),
               ),
               validator: (v) => EmailValidator.validate((v ?? '').trim())
                   ? null
-                  : 'Enter a valid email',
+                  : context.l10n.enterValidEmail,
             ),
             const SizedBox(height: 14),
             TextFormField(
@@ -391,8 +395,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
               obscureText: _obscure,
               autofillHints: const [AutofillHints.newPassword],
               decoration: InputDecoration(
-                labelText: 'Password',
-                helperText: 'At least 6 characters',
+                labelText: context.l10n.password,
+                helperText: context.l10n.passwordHelper,
                 prefixIcon: const Icon(Icons.lock_outline),
                 suffixIcon: IconButton(
                   onPressed: () => setState(() => _obscure = !_obscure),
@@ -400,18 +404,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               validator: (v) =>
-                  (v ?? '').length < 6 ? 'Use at least 6 characters' : null,
+                  (v ?? '').length < 6 ? context.l10n.passwordTooShort : null,
             ),
             const SizedBox(height: 14),
             TextFormField(
               controller: _password2,
               obscureText: _obscure,
-              decoration: const InputDecoration(
-                labelText: 'Confirm password',
+              decoration: InputDecoration(
+                labelText: context.l10n.confirmPassword,
                 prefixIcon: Icon(Icons.lock_outline),
               ),
               validator: (v) =>
-                  v != _password.text ? 'Passwords do not match' : null,
+                  v != _password.text ? context.l10n.passwordsDontMatch : null,
             ),
             const SizedBox(height: 20),
             Container(
@@ -420,12 +424,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 color: AppColors.gold.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: const Row(children: [
+              child: Row(children: [
                 Icon(Icons.info_outline, color: AppColors.goldDeep),
                 SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'An admin reviews new accounts. You can sign in once yours is approved.',
+                    context.l10n.approvalNotice,
                     style: TextStyle(color: AppColors.ink),
                   ),
                 ),

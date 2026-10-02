@@ -3,6 +3,15 @@ import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/core/error_reporter.dart';
 
+enum SignInError {
+  invalidEmail,
+  userDisabled,
+  tooManyRequests,
+  noInternet,
+  wrongCredentials,
+  other,
+}
+
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   UserData? currentUser;
@@ -48,24 +57,23 @@ class AuthService {
     }
   }
 
-  /// Signs in; returns null on success or a message to show the user.
-  Future<String?> signIn(String email, String password) async {
+  /// Signs in; returns null on success or why it failed.
+  Future<SignInError?> signIn(String email, String password) async {
     try {
       await _auth.signInWithEmailAndPassword(
           email: email.trim(), password: password);
       return null;
     } on FirebaseAuthException catch (e) {
       return switch (e.code) {
-        'invalid-email' => 'That email address doesn\'t look right.',
-        'user-disabled' => 'This account has been disabled. Contact your admin.',
-        'too-many-requests' =>
-          'Too many attempts. Wait a few minutes and try again.',
-        'network-request-failed' => 'No internet connection.',
-        _ => 'Wrong email or password.',
+        'invalid-email' => SignInError.invalidEmail,
+        'user-disabled' => SignInError.userDisabled,
+        'too-many-requests' => SignInError.tooManyRequests,
+        'network-request-failed' => SignInError.noInternet,
+        _ => SignInError.wrongCredentials,
       };
     } catch (e, stackTrace) {
       await ErrorReporter.record(e, stackTrace: stackTrace);
-      return 'Could not sign in. Please try again.';
+      return SignInError.other;
     }
   }
 

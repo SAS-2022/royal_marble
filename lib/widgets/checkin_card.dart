@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../core/app_theme.dart';
+import '../core/l10n_helpers.dart';
+import '../core/locale_controller.dart';
 import '../core/roles.dart';
 import '../models/user_model.dart';
 import '../services/checkin_service.dart';
@@ -14,12 +16,6 @@ import 'status_widgets.dart';
 String timesheetDayId([DateTime? at]) {
   final d = at ?? DateTime.now();
   return '${d.day}-${d.month}-${d.year}';
-}
-
-String _hm(Duration d) {
-  final h = d.inHours;
-  final m = d.inMinutes.remainder(60);
-  return h > 0 ? '${h}h ${m}m' : '${m}m';
 }
 
 /// A site the user can check in to: name, live distance, today's status and
@@ -86,6 +82,7 @@ class _CheckInCardState extends State<CheckInCard> {
   }
 
   Future<void> _submit(bool checkIn) async {
+    final l10n = context.l10n;
     String? workType;
     double? squareMeters;
     if (!checkIn && primaryRole(widget.user.roles) == AppRole.worker) {
@@ -95,6 +92,7 @@ class _CheckInCardState extends State<CheckInCard> {
     }
     setState(() => _busy = true);
     final result = await CheckInService.submit(
+      l10n: l10n,
       checkIn: checkIn,
       kind: widget.kind,
       siteId: widget.siteId,
@@ -116,6 +114,7 @@ class _CheckInCardState extends State<CheckInCard> {
       child: StreamBuilder<Map<String, dynamic>?>(
         stream: _todayEntry,
         builder: (context, snap) {
+          final l10n = context.l10n;
           final entry = snap.data;
           final here = entry?['projectId'] == widget.siteId;
           final onSite = entry?['isOnSite'] == true && entry?['leaving_at'] == null;
@@ -125,18 +124,19 @@ class _CheckInCardState extends State<CheckInCard> {
 
           final (String statusText, Tone statusTone) = switch (null) {
             _ when onSite && here && arrived != null => (
-                'On site since ${TimeOfDay.fromDateTime(arrived).format(context)} · ${_hm(DateTime.now().difference(arrived))}',
+                l10n.onSiteSince(TimeOfDay.fromDateTime(arrived).format(context),
+                    localizedDuration(l10n, DateTime.now().difference(arrived))),
                 Tone.ok
               ),
             _ when elsewhere => (
-                'Checked in at ${entry?['projectName']}',
+                l10n.checkedInAtSite('${entry?['projectName']}'),
                 Tone.warn
               ),
             _ when here && arrived != null && left != null => (
-                'Done today · ${_hm(left.difference(arrived))}',
+                l10n.doneToday(localizedDuration(l10n, left.difference(arrived))),
                 Tone.neutral
               ),
-            _ => ('Not checked in', Tone.neutral),
+            _ => (l10n.notCheckedIn, Tone.neutral),
           };
 
           return Column(
@@ -186,12 +186,12 @@ class _CheckInCardState extends State<CheckInCard> {
                       final d = _distanceToEdge(s);
                       if (d == null) return const SizedBox.shrink();
                       return d <= 0
-                          ? const StatusPill('Within site area',
+                          ? StatusPill(l10n.withinSiteArea,
                               tone: Tone.ok, icon: Icons.place)
                           : StatusPill(
                               d >= 1000
-                                  ? '${(d / 1000).toStringAsFixed(1)} km away'
-                                  : '${d.round()} m away',
+                                  ? l10n.kmAway((d / 1000).toStringAsFixed(1))
+                                  : l10n.metersAway(d.round()),
                               icon: Icons.near_me);
                     },
                   ),
@@ -200,19 +200,19 @@ class _CheckInCardState extends State<CheckInCard> {
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: _busy
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 52,
                         child: Center(
                           child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                SizedBox(
+                                const SizedBox(
                                     width: 20,
                                     height: 20,
                                     child: CircularProgressIndicator(
                                         strokeWidth: 2.5)),
-                                SizedBox(width: 12),
-                                Text('Getting an accurate GPS fix…'),
+                                const SizedBox(width: 12),
+                                Text(l10n.gettingGpsFix),
                               ]),
                         ),
                       )
@@ -225,7 +225,7 @@ class _CheckInCardState extends State<CheckInCard> {
                             ? null
                             : () => _submit(!(onSite && here)),
                         icon: Icon(onSite && here ? Icons.logout : Icons.login),
-                        label: Text(onSite && here ? 'Check out' : 'Check in'),
+                        label: Text(onSite && here ? l10n.checkOut : l10n.checkIn),
                       ),
               ),
             ],
@@ -238,7 +238,15 @@ class _CheckInCardState extends State<CheckInCard> {
 
 /// Asks a worker what they did today before checking out.
 Future<(String, double)?> showWorkCompletedSheet(BuildContext context) {
+  final l10n = context.l10n;
+  // Stored values stay in English so reports are consistent; only the labels
+  // are translated.
   const types = ['Installing System', 'Installing Tiles', 'Others'];
+  final labels = {
+    'Installing System': l10n.workSystem,
+    'Installing Tiles': l10n.workTiles,
+    'Others': l10n.workOthers,
+  };
   String type = types.first;
   final other = TextEditingController();
   final meters = TextEditingController();
@@ -258,13 +266,13 @@ Future<(String, double)?> showWorkCompletedSheet(BuildContext context) {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('Work completed today',
+              Text(l10n.workCompletedTitle,
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
               const SizedBox(height: 16),
               SegmentedButton<String>(
                 segments: [
                   for (final t in types)
-                    ButtonSegment(value: t, label: Text(t.replaceFirst('Installing ', ''))),
+                    ButtonSegment(value: t, label: Text(labels[t]!)),
                 ],
                 selected: {type},
                 onSelectionChanged: (v) => setSheet(() => type = v.first),
@@ -273,9 +281,9 @@ Future<(String, double)?> showWorkCompletedSheet(BuildContext context) {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: other,
-                  decoration: const InputDecoration(labelText: 'Describe the work'),
+                  decoration: InputDecoration(labelText: l10n.describeWork),
                   validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Required' : null,
+                      (v == null || v.trim().isEmpty) ? l10n.required : null,
                 ),
               ],
               const SizedBox(height: 12),
@@ -283,10 +291,10 @@ Future<(String, double)?> showWorkCompletedSheet(BuildContext context) {
                 controller: meters,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
-                    labelText: 'Area completed', suffixText: 'm²'),
+                decoration: InputDecoration(
+                    labelText: l10n.areaCompleted, suffixText: 'm²'),
                 validator: (v) =>
-                    double.tryParse(v ?? '') == null ? 'Enter a number' : null,
+                    double.tryParse(v ?? '') == null ? l10n.enterNumber : null,
               ),
               const SizedBox(height: 20),
               FilledButton(
@@ -297,7 +305,7 @@ Future<(String, double)?> showWorkCompletedSheet(BuildContext context) {
                     double.parse(meters.text),
                   ));
                 },
-                child: const Text('Check out'),
+                child: Text(l10n.checkOut),
               ),
             ],
           ),

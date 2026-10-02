@@ -63,31 +63,43 @@ interface CheckInRequest {
  */
 export const checkInOut = onCall(async (req: CallableRequest<CheckInRequest>) => {
   const uid = req.auth?.uid;
-  if (!uid) throw new HttpsError("unauthenticated", "Please sign in again.");
+  if (!uid) throw new HttpsError("unauthenticated", "Please sign in again.", { reason: "sign_in_again" });
   const d = req.data;
   if (!d || (d.action !== "in" && d.action !== "out") || !d.siteId ||
       typeof d.lat !== "number" || typeof d.lng !== "number" ||
       typeof d.accuracy !== "number") {
-    throw new HttpsError("invalid-argument", "Missing location data.");
+    throw new HttpsError("invalid-argument", "Missing location data.", { reason: "bad_request" });
   }
   const offset = Math.max(-14 * 60, Math.min(14 * 60, Math.round(d.utcOffsetMinutes ?? 0)));
 
   const userSnap = await db.collection("users").doc(uid).get();
   const user = userSnap.data();
   if (!user || user.isActive !== true) {
-    throw new HttpsError("permission-denied", "Your account is not active.");
+    throw new HttpsError("permission-denied", "Your account is not active.", { reason: "not_active" });
+  }
+
+  // Workers may only check in at sites they are assigned to. Masons hold a
+  // single map, supervisors a list; mock-ups are always a list.
+  const assigned = d.kind === "mockup" ? user.assignedMockup : user.assignedProject;
+  const assignedIds = (Array.isArray(assigned) ? assigned : [assigned])
+    .filter((a) => a && typeof a === "object")
+    .map((a) => a.id);
+  if (!assignedIds.includes(d.siteId)) {
+    throw new HttpsError("permission-denied", "You are not assigned to this site.",
+      { reason: "not_assigned" });
   }
 
   if (d.mock) {
     await logEvent(uid, user, "mock_location",
       `Tried to check ${d.action} with a fake GPS location`, "critical");
     throw new HttpsError("failed-precondition",
-      "A fake GPS app was detected. Turn it off to check in.");
+      "A fake GPS app was detected. Turn it off to check in.", { reason: "mock_location" });
   }
   if (d.accuracy > MAX_ACCURACY_M) {
     throw new HttpsError("failed-precondition",
       `GPS signal is too weak (±${Math.round(d.accuracy)} m). ` +
-      "Step outside or wait a moment and try again.");
+      "Step outside or wait a moment and try again.",
+      { reason: "weak_gps", meters: Math.round(d.accuracy) });
   }
 
   const siteRef = db.collection(d.kind === "mockup" ? "mockup" : "projects").doc(d.siteId);
@@ -95,7 +107,8 @@ export const checkInOut = onCall(async (req: CallableRequest<CheckInRequest>) =>
   // Projects store their pin as `selectedAddress`; mock-ups as `address`.
   const addr = site?.selectedAddress ?? site?.address;
   if (!site || typeof addr?.Lat !== "number" || typeof addr?.Lng !== "number") {
-    throw new HttpsError("not-found", "This site has no location set. Contact your admin.");
+    throw new HttpsError("not-found", "This site has no location set. Contact your admin.",
+      { reason: "no_site_location" });
   }
   const radius = Number(site.radius ?? 0);
   const distance = haversineMeters(d.lat, d.lng, addr.Lat, addr.Lng);
@@ -103,7 +116,8 @@ export const checkInOut = onCall(async (req: CallableRequest<CheckInRequest>) =>
   if (effective > radius) {
     throw new HttpsError("out-of-range",
       `You are ${Math.round(distance - radius)} m outside the site.`,
-      { distance: Math.round(distance), radius });
+      { reason: "out_of_range", meters: Math.round(distance - radius),
+        distance: Math.round(distance), radius });
   }
 
   const { dayId, stamp } = localClock(offset);
@@ -123,7 +137,8 @@ export const checkInOut = onCall(async (req: CallableRequest<CheckInRequest>) =>
     if (d.action === "in") {
       if (onSite) {
         throw new HttpsError("already-exists",
-          `You are already checked in at ${entry?.projectName ?? "a site"}.`);
+          `You are already checked in at ${entry?.projectName ?? "a site"}.`,
+          { reason: "already_checked_in", site: entry?.projectName ?? "" });
       }
       const firstToday = entry?.arriving_at == null || entry?.projectId !== d.siteId;
       tx.set(sheetRef, {
@@ -146,11 +161,13 @@ export const checkInOut = onCall(async (req: CallableRequest<CheckInRequest>) =>
     }
 
     if (!onSite) {
-      throw new HttpsError("failed-precondition", "You are not checked in.");
+      throw new HttpsError("failed-precondition", "You are not checked in.",
+        { reason: "not_checked_in" });
     }
     if (entry?.projectId !== d.siteId) {
       throw new HttpsError("failed-precondition",
-        `You are checked in at ${entry?.projectName}. Check out from there.`);
+        `You are checked in at ${entry?.projectName}. Check out from there.`,
+        { reason: "checked_in_elsewhere", site: entry?.projectName ?? "" });
     }
     tx.set(sheetRef, {
       [uid]: {

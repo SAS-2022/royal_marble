@@ -17,6 +17,7 @@ class UserData {
   String? imageUrl;
   String? permissionStatus;
   Map<String, dynamic>? deviceStatus;
+  String? language;
   List<dynamic>? assingedHelpers;
   String? error;
 
@@ -39,6 +40,7 @@ class UserData {
     this.imageUrl,
     this.permissionStatus,
     this.deviceStatus,
+    this.language,
     this.assingedHelpers,
     this.error,
   });
