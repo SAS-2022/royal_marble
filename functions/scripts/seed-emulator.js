@@ -48,18 +48,22 @@ async function user(email, data) {
 }
 
 async function main() {
-  // Start every run from a clean attendance slate (emulator only).
-  const sheets = await db.collection("time_sheet").listDocuments();
-  await Promise.all(sheets.map((d) => d.delete()));
+  // Start every run from a clean attendance and alert slate (emulator only).
+  for (const col of ["time_sheet", "device_events"]) {
+    const docs = await db.collection(col).listDocuments();
+    await Promise.all(docs.map((d) => d.delete()));
+  }
 
   const admin = await user("admin@test.local",
     { firstName: "Test", lastName: "Admin", roles: ["isAdmin"] });
   const supervisor = await user("supervisor@test.local",
     { firstName: "Sam", lastName: "Supervisor", roles: ["isSupervisor"],
       assignedProject: [site("p_marina", "Test Villa", MARINA, 150)] });
+  // mason1 uses the list shape (new app), mason2 the single map older
+  // versions wrote, so both stay covered.
   const mason1 = await user("mason1@test.local",
     { firstName: "Ravi", lastName: "Mason", roles: ["isNormalUser"],
-      assignedProject: site("p_marina", "Test Villa", MARINA, 150),
+      assignedProject: [site("p_marina", "Test Villa", MARINA, 150)],
       assignedMockup: [site("m_marina", "Marina Mock-up", MARINA, 150)] });
   const mason2 = await user("mason2@test.local",
     { firstName: "Imran", lastName: "Mason", roles: ["isNormalUser"],

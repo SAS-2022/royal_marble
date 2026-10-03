@@ -1,11 +1,18 @@
 import { initializeApp } from "firebase-admin/app";
 import { FieldValue, getFirestore, Timestamp } from "firebase-admin/firestore";
 import { logger } from "firebase-functions/v2";
-import { CallableRequest, HttpsError, onCall } from "firebase-functions/v2/https";
+import { CallableRequest, HttpsError, onCall, onRequest } from "firebase-functions/v2/https";
 import { onSchedule } from "firebase-functions/v2/scheduler";
+
+import {
+  Entry, PresenceEvent, Session, SiteKind, autoCloseDecision, clampOffset, instant, isOpen,
+  legacyFields, localClock, openSession, sessionsOf, stampToMs,
+} from "./attendance";
 
 initializeApp();
 const db = getFirestore();
+// Sessions carry optional fields; let Firestore drop the unset ones.
+db.settings({ ignoreUndefinedProperties: true });
 
 /** A fix worse than this (metres) is rejected outright. */
 const MAX_ACCURACY_M = 50;
@@ -13,6 +20,8 @@ const MAX_ACCURACY_M = 50;
 const ACCURACY_TOLERANCE_M = 30;
 /** A tracked phone that hasn't reported for this long is flagged as silent. */
 const SILENT_AFTER_MIN = 20;
+/** Entries written before the phone sent its offset are from Dubai (UTC+4). */
+const DEFAULT_OFFSET_MIN = 240;
 
 function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const r = 6371000;
@@ -24,32 +33,29 @@ function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number)
   return 2 * r * Math.asin(Math.sqrt(a));
 }
 
-const pad = (n: number, w = 2) => String(n).padStart(w, "0");
+const offsetOf = (entry: Entry | undefined) =>
+  entry?.utcOffsetMinutes == null ? DEFAULT_OFFSET_MIN : clampOffset(entry.utcOffsetMinutes);
 
-/**
- * Server time shifted into the worker's local zone. Returns the legacy
- * `d-m-yyyy` timesheet doc id and a `yyyy-MM-dd HH:mm:ss.SSS` string that
- * matches what older app versions stored (Dart's DateTime.toString()).
- */
-function localClock(utcOffsetMinutes: number) {
-  const local = new Date(Date.now() + utcOffsetMinutes * 60_000);
-  return {
-    dayId: `${local.getUTCDate()}-${local.getUTCMonth() + 1}-${local.getUTCFullYear()}`,
-    stamp: `${local.getUTCFullYear()}-${pad(local.getUTCMonth() + 1)}-${pad(local.getUTCDate())} ` +
-      `${pad(local.getUTCHours())}:${pad(local.getUTCMinutes())}:${pad(local.getUTCSeconds())}.` +
-      `${pad(local.getUTCMilliseconds(), 3)}`,
-  };
+const roleOf = (user: FirebaseFirestore.DocumentData) =>
+  Array.isArray(user.roles) && user.roles.length ? user.roles[0] : "isNormalUser";
+
+/** Entry fields to merge after [sessions] changed. */
+function entryUpdate(sessions: Session[], extra: Record<string, unknown> = {}) {
+  return { ...legacyFields(sessions), ...extra };
 }
 
 interface CheckInRequest {
   action: "in" | "out";
-  kind: "project" | "mockup";
+  kind: SiteKind;
   siteId: string;
   lat: number;
   lng: number;
   accuracy: number;
   mock: boolean;
   utcOffsetMinutes: number;
+  /** Check-in only: close a session open at another site instead of refusing. */
+  switchSite?: boolean;
+  /** Work report for the session being closed (check-out, or a switch). */
   workType?: string;
   squareMeters?: number;
 }
@@ -59,7 +65,8 @@ interface CheckInRequest {
  *
  * The phone supplies its GPS fix, but the distance check, the timestamp and
  * the timesheet write all happen here, so a wrong phone clock or an edited
- * app can't fake attendance.
+ * app can't fake attendance. Each stay at a site is its own session; checking
+ * in at a second site with `switchSite` closes the first.
  */
 export const checkInOut = onCall(async (req: CallableRequest<CheckInRequest>) => {
   const uid = req.auth?.uid;
@@ -70,7 +77,8 @@ export const checkInOut = onCall(async (req: CallableRequest<CheckInRequest>) =>
       typeof d.accuracy !== "number") {
     throw new HttpsError("invalid-argument", "Missing location data.", { reason: "bad_request" });
   }
-  const offset = Math.max(-14 * 60, Math.min(14 * 60, Math.round(d.utcOffsetMinutes ?? 0)));
+  const kind: SiteKind = d.kind === "mockup" ? "mockup" : "project";
+  const offset = clampOffset(d.utcOffsetMinutes);
 
   const userSnap = await db.collection("users").doc(uid).get();
   const user = userSnap.data();
@@ -78,9 +86,9 @@ export const checkInOut = onCall(async (req: CallableRequest<CheckInRequest>) =>
     throw new HttpsError("permission-denied", "Your account is not active.", { reason: "not_active" });
   }
 
-  // Workers may only check in at sites they are assigned to. Masons hold a
-  // single map, supervisors a list; mock-ups are always a list.
-  const assigned = d.kind === "mockup" ? user.assignedMockup : user.assignedProject;
+  // Workers may only check in at sites they are assigned to. Assignments are
+  // a list, or a single map for masons assigned by older app versions.
+  const assigned = kind === "mockup" ? user.assignedMockup : user.assignedProject;
   const assignedIds = (Array.isArray(assigned) ? assigned : [assigned])
     .filter((a) => a && typeof a === "object")
     .map((a) => a.id);
@@ -102,7 +110,7 @@ export const checkInOut = onCall(async (req: CallableRequest<CheckInRequest>) =>
       { reason: "weak_gps", meters: Math.round(d.accuracy) });
   }
 
-  const siteRef = db.collection(d.kind === "mockup" ? "mockup" : "projects").doc(d.siteId);
+  const siteRef = db.collection(kind === "mockup" ? "mockup" : "projects").doc(d.siteId);
   const site = (await siteRef.get()).data();
   // Projects store their pin as `selectedAddress`; mock-ups as `address`.
   const addr = site?.selectedAddress ?? site?.address;
@@ -120,84 +128,319 @@ export const checkInOut = onCall(async (req: CallableRequest<CheckInRequest>) =>
         distance: Math.round(distance), radius });
   }
 
-  const { dayId, stamp } = localClock(offset);
+  const now = Date.now();
+  const nowTs = Timestamp.fromMillis(now);
+  const { dayId, stamp } = localClock(now, offset);
   const sheetRef = db.collection("time_sheet").doc(dayId);
-  const role = Array.isArray(user.roles) && user.roles.length ? user.roles[0] : "isNormalUser";
   const siteName = site.projectName ?? site.name ?? "";
   const evidence = {
     lat: d.lat, lng: d.lng, accuracy: d.accuracy,
-    distance: Math.round(distance), at: Timestamp.now(),
+    distance: Math.round(distance), at: nowTs,
   };
+  const work = d.workType ? { workType: d.workType, squareMeters: d.squareMeters ?? null } : null;
+  // Older report screens read `workCompleted`, including this misspelt key.
+  const legacyWork = work ? { workCompleted: { ...work, sqaureMeters: work.squareMeters } } : {};
 
   return db.runTransaction(async (tx) => {
     const sheet = (await tx.get(sheetRef)).data() ?? {};
-    const entry = sheet[uid] as Record<string, unknown> | undefined;
-    const onSite = entry?.isOnSite === true && entry?.leaving_at == null;
+    const entry = sheet[uid] as Entry | undefined;
+    const sessions = sessionsOf(entry);
+    const open = openSession(sessions);
+    const base = {
+      firstName: user.firstName ?? "",
+      lastName: user.lastName ?? "",
+      roles: roleOf(user),
+      utcOffsetMinutes: offset,
+    };
 
     if (d.action === "in") {
-      if (onSite) {
+      if (open && (open.siteId === d.siteId || !d.switchSite)) {
         throw new HttpsError("already-exists",
-          `You are already checked in at ${entry?.projectName ?? "a site"}.`,
-          { reason: "already_checked_in", site: entry?.projectName ?? "" });
+          `You are already checked in at ${open.siteName || "a site"}.`,
+          { reason: "already_checked_in", site: open.siteName, siteId: open.siteId });
       }
-      const firstToday = entry?.arriving_at == null || entry?.projectId !== d.siteId;
+      if (open) {
+        open.out = stamp;
+        open.outTs = nowTs;
+        open.switched = true;
+        if (work) open.work = work;
+      }
+      sessions.push({ siteId: d.siteId, siteKind: kind, siteName, in: stamp, inTs: nowTs, events: [] });
       tx.set(sheetRef, {
-        [uid]: {
-          firstName: user.firstName ?? "",
-          lastName: user.lastName ?? "",
-          projectId: d.siteId,
-          projectName: siteName,
-          siteKind: d.kind,
-          roles: role,
-          isOnSite: true,
-          arriving_at: firstToday ? stamp : entry?.arriving_at,
-          leaving_at: null,
-          checkInAt: firstToday ? FieldValue.serverTimestamp() : entry?.checkInAt ?? null,
+        [uid]: entryUpdate(sessions, {
+          ...base,
+          ...(open ? legacyWork : {}),
+          checkInAt: entry?.checkInAt ?? FieldValue.serverTimestamp(),
           checkInEvidence: evidence,
-          sessions: FieldValue.arrayUnion({ in: stamp }),
-        },
+        }),
       }, { merge: true });
-      return { status: "checked_in", day: dayId, time: stamp, distance: Math.round(distance) };
+      return {
+        status: open ? "switched" : "checked_in", day: dayId, time: stamp,
+        distance: Math.round(distance), ...(open ? { previousSite: open.siteName } : {}),
+      };
     }
 
-    if (!onSite) {
+    if (!open) {
       throw new HttpsError("failed-precondition", "You are not checked in.",
         { reason: "not_checked_in" });
     }
-    if (entry?.projectId !== d.siteId) {
+    if (open.siteId !== d.siteId) {
       throw new HttpsError("failed-precondition",
-        `You are checked in at ${entry?.projectName}. Check out from there.`,
-        { reason: "checked_in_elsewhere", site: entry?.projectName ?? "" });
+        `You are checked in at ${open.siteName}. Check out from there.`,
+        { reason: "checked_in_elsewhere", site: open.siteName });
     }
+    open.out = stamp;
+    open.outTs = nowTs;
+    if (work) open.work = work;
     tx.set(sheetRef, {
-      [uid]: {
-        isOnSite: false,
-        leaving_at: stamp,
+      [uid]: entryUpdate(sessions, {
+        ...base,
+        ...legacyWork,
         checkOutAt: FieldValue.serverTimestamp(),
         checkOutEvidence: evidence,
-        sessions: FieldValue.arrayUnion({ out: stamp }),
-        ...(d.workType ? {
-          workCompleted: {
-            workType: d.workType,
-            squareMeters: d.squareMeters ?? null,
-            // Older report screens read this misspelt key.
-            sqaureMeters: d.squareMeters ?? null,
-          },
-        } : {}),
-      },
+      }),
     }, { merge: true });
     return { status: "checked_out", day: dayId, time: stamp, distance: Math.round(distance) };
+  });
+});
+
+interface PresenceRequest {
+  kind: SiteKind;
+  siteId: string;
+  transition: "enter" | "exit";
+  /** When the phone saw the transition (ISO 8601); events can arrive late. */
+  at?: string;
+  lat?: number;
+  lng?: number;
+  accuracy?: number;
+  mock?: boolean;
+  utcOffsetMinutes: number;
+}
+
+/** How far back a late-delivered geofence event is still trusted. */
+const MAX_EVENT_DELAY_MS = 12 * 3600_000;
+
+/**
+ * Geofence transitions from the phone. While the worker is checked in at
+ * that site, each exit/return is recorded on the open session and admins get
+ * a `left_site` / `returned_to_site` alert. Anything else is ignored.
+ */
+export const reportPresence = onCall(async (req: CallableRequest<PresenceRequest>) => {
+  const uid = req.auth?.uid;
+  if (!uid) throw new HttpsError("unauthenticated", "Please sign in again.", { reason: "sign_in_again" });
+  const d = req.data;
+  if (!d?.siteId || (d.transition !== "enter" && d.transition !== "exit")) {
+    throw new HttpsError("invalid-argument", "Missing geofence data.", { reason: "bad_request" });
+  }
+  // A faked position says nothing about where the worker really is.
+  if (d.mock) return { status: "ignored" };
+
+  const now = Date.now();
+  const offset = clampOffset(d.utcOffsetMinutes);
+  const reported = Date.parse(d.at ?? "");
+  const seen = Number.isFinite(reported) && reported <= now + 120_000 &&
+    reported >= now - MAX_EVENT_DELAY_MS ? Math.min(reported, now) : now;
+  const sheetRef = db.collection("time_sheet").doc(localClock(seen, offset).dayId);
+
+  const result = await db.runTransaction(async (tx) => {
+    const entry = (await tx.get(sheetRef)).data()?.[uid] as Entry | undefined;
+    const sessions = sessionsOf(entry);
+    const open = openSession(sessions);
+    if (!open || open.siteId !== d.siteId || !Array.isArray(entry?.sessions)) {
+      return { status: "ignored" } as const;
+    }
+    const last = open.events?.[open.events.length - 1];
+    // The first "enter" right after check-in only confirms the worker is there.
+    if ((last?.type ?? "enter") === d.transition) return { status: "ignored" } as const;
+
+    const startMs = instant(open.inTs, open.in, offset) ?? seen;
+    const atMs = Math.max(seen, startMs);
+    const event: PresenceEvent = {
+      type: d.transition,
+      at: localClock(atMs, offset).stamp,
+      atTs: Timestamp.fromMillis(atMs),
+      ...(typeof d.lat === "number" ? { lat: d.lat, lng: d.lng, accuracy: d.accuracy } : {}),
+    };
+    open.events = [...(open.events ?? []), event];
+    tx.set(sheetRef, { [uid]: entryUpdate(sessions) }, { merge: true });
+    return { status: "recorded", siteName: open.siteName, entry } as const;
+  });
+  if (result.status !== "recorded") return { status: result.status };
+
+  const names = result.entry ?? {};
+  await logEvent(uid, names, d.transition === "exit" ? "left_site" : "returned_to_site",
+    d.transition === "exit"
+      ? `Left ${result.siteName || "the site"} while checked in`
+      : `Returned to ${result.siteName || "the site"}`,
+    d.transition === "exit" ? "warning" : "info", { site: result.siteName });
+  return { status: "recorded" };
+});
+
+/**
+ * Closes sessions the worker forgot to check out of (see [autoCloseDecision]).
+ * Only entries written by `checkInOut` are touched, never ones the 2023 app
+ * manages. Returns how many sessions were closed.
+ */
+async function runAutoCheckout(nowMs: number): Promise<number> {
+  // Every timezone's "today" is within a day of UTC's.
+  const dayIds = new Set([-1, 0, 1].map((k) => localClock(nowMs + k * 86400_000, 0).dayId));
+  let closed = 0;
+  for (const dayId of dayIds) {
+    const ref = db.collection("time_sheet").doc(dayId);
+    const snap = await ref.get();
+    for (const [uid, value] of Object.entries(snap.data() ?? {})) {
+      if (!value || typeof value !== "object" || !Array.isArray(value.sessions)) continue;
+      if (!openSession(sessionsOf(value))) continue;
+      const lastSeen = ((await db.collection("users").doc(uid).get())
+        .get("deviceStatus.lastSeen") as Timestamp | undefined)?.toMillis() ?? null;
+
+      const done = await db.runTransaction(async (tx) => {
+        const entry = (await tx.get(ref)).data()?.[uid] as Entry | undefined;
+        const sessions = sessionsOf(entry);
+        const s = openSession(sessions);
+        if (!s) return null;
+        const offset = offsetOf(entry);
+        const decision = autoCloseDecision(s, dayId, offset, nowMs, lastSeen);
+        if (!decision) return null;
+        s.out = localClock(decision.outMs, offset).stamp;
+        s.outTs = Timestamp.fromMillis(decision.outMs);
+        s.auto = decision.reason;
+        tx.set(ref, { [uid]: entryUpdate(sessions) }, { merge: true });
+        return { s, entry: entry ?? {} };
+      });
+      if (!done) continue;
+      closed++;
+      await logEvent(uid, done.entry, "auto_checkout",
+        `Checked out automatically from ${done.s.siteName} at ${done.s.out?.slice(11, 16)} ` +
+        (done.s.auto === "left_site" ? "(left the site and did not return)" : "(no check-out by end of day)"),
+        "warning", { site: done.s.siteName, reason: done.s.auto });
+    }
+  }
+  return closed;
+}
+
+export const autoCheckout = onSchedule("every 15 minutes", async () => {
+  logger.info(`autoCheckout: closed ${await runAutoCheckout(Date.now())}`);
+});
+
+// Lets the emulator tests run the scheduled job at a chosen time. Firebase
+// discovers functions without FUNCTIONS_EMULATOR set, so this is never deployed.
+if (process.env.FUNCTIONS_EMULATOR === "true") {
+  exports.devRunAutoCheckout = onRequest(async (req, res) => {
+    const now = req.query.now ? Date.parse(String(req.query.now)) : Date.now();
+    res.json({ closed: await runAutoCheckout(now) });
+  });
+}
+
+interface CorrectedSession {
+  siteId: string;
+  siteKind: SiteKind;
+  siteName: string;
+  in: string;
+  out: string | null;
+  /** Index of the session this one edits, to keep its events and work report. */
+  from?: number | null;
+}
+
+interface CorrectionRequest {
+  day: string;
+  uid: string;
+  sessions: CorrectedSession[];
+  note?: string;
+}
+
+/**
+ * Admin correction of one worker's day: replace the sessions (fix times, add
+ * a forgotten day, remove a mistake) or approve them unchanged. Every save is
+ * kept in the entry's `corrections` list with who, when, why and the previous
+ * sessions.
+ */
+export const correctAttendance = onCall(async (req: CallableRequest<CorrectionRequest>) => {
+  const callerId = req.auth?.uid;
+  if (!callerId) throw new HttpsError("unauthenticated", "Please sign in again.", { reason: "sign_in_again" });
+  const caller = (await db.collection("users").doc(callerId).get()).data();
+  if (!caller || caller.isActive !== true || !caller.roles?.includes("isAdmin")) {
+    throw new HttpsError("permission-denied", "Only admins can correct attendance.", { reason: "not_admin" });
+  }
+  const d = req.data;
+  const day = /^(\d{1,2})-(\d{1,2})-(\d{4})$/.exec(d?.day ?? "");
+  if (!day || !d.uid || !Array.isArray(d.sessions)) {
+    throw new HttpsError("invalid-argument", "Missing correction data.", { reason: "bad_request" });
+  }
+  const datePart = `${day[3]}-${day[2].padStart(2, "0")}-${day[1].padStart(2, "0")}`;
+  const bad = (why: string) => new HttpsError("invalid-argument", why, { reason: "bad_sessions" });
+
+  const incoming = d.sessions.map((s) => ({ ...s, out: s.out || null }))
+    .sort((a, b) => a.in.localeCompare(b.in));
+  for (const [i, s] of incoming.entries()) {
+    if (!s.siteId || stampToMs(s.in, 0) == null || !s.in.startsWith(datePart)) {
+      throw bad("Each session needs a site and a start time on that day.");
+    }
+    if (s.out && (stampToMs(s.out, 0) == null || s.out <= s.in)) throw bad("End time must be after start time.");
+    if (!s.out && i !== incoming.length - 1) throw bad("Only the last session can be left open.");
+    if (i > 0 && (incoming[i - 1].out ?? "") > s.in) throw bad("Sessions overlap.");
+  }
+
+  const worker = (await db.collection("users").doc(d.uid).get()).data();
+  if (!worker) throw new HttpsError("not-found", "Unknown worker.", { reason: "bad_request" });
+  const sheetRef = db.collection("time_sheet").doc(d.day);
+
+  return db.runTransaction(async (tx) => {
+    const entry = (await tx.get(sheetRef)).data()?.[d.uid] as Entry | undefined;
+    const before = sessionsOf(entry);
+    const offset = offsetOf(entry);
+    const ts = (stamp: string | null) => {
+      const ms = stampToMs(stamp, offset);
+      return ms == null ? null : Timestamp.fromMillis(ms);
+    };
+    const after: Session[] = incoming.map((s) => {
+      const prev = s.from != null ? before[s.from] : undefined;
+      const sameIn = prev?.in === s.in;
+      const sameOut = (prev?.out ?? null) === s.out;
+      return {
+        ...(prev ?? {}),
+        siteId: s.siteId,
+        siteKind: s.siteKind === "mockup" ? "mockup" : "project",
+        siteName: s.siteName ?? "",
+        in: s.in,
+        inTs: sameIn ? prev?.inTs ?? ts(s.in) : ts(s.in),
+        out: s.out,
+        outTs: sameOut ? prev?.outTs ?? ts(s.out) : ts(s.out),
+        noCheckout: false,
+        ...(prev && sameIn && sameOut ? {} : { corrected: true }),
+      };
+    });
+    if (after.filter(isOpen).length > 1) throw bad("Only one session can be open.");
+
+    const by = `${caller.firstName ?? ""} ${caller.lastName ?? ""}`.trim();
+    const record = {
+      by: callerId, byName: by, at: Timestamp.now(), note: d.note ?? "",
+      before: before.map((s) => ({ siteName: s.siteName, in: s.in, out: s.out ?? null, auto: s.auto ?? null })),
+    };
+    tx.set(sheetRef, {
+      [d.uid]: entryUpdate(after, {
+        firstName: entry?.firstName ?? worker.firstName ?? "",
+        lastName: entry?.lastName ?? worker.lastName ?? "",
+        roles: entry?.roles ?? roleOf(worker),
+        utcOffsetMinutes: offset,
+        reviewed: { by: callerId, byName: by, at: record.at },
+        corrections: FieldValue.arrayUnion(record),
+      }),
+    }, { merge: true });
+    return { status: "saved", sessions: after.length };
   });
 });
 
 async function logEvent(
   uid: string, user: FirebaseFirestore.DocumentData, type: string,
   message: string, severity: "info" | "warning" | "critical",
+  extra: Record<string, unknown> = {},
 ) {
   await db.collection("device_events").add({
     uid,
     userName: `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim(),
     type, message, severity,
+    ...extra,
     at: Timestamp.now(),
     receivedAt: FieldValue.serverTimestamp(),
     source: "server",
