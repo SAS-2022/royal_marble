@@ -8,6 +8,47 @@ _Last updated: 2026-10-03_
 
 ---
 
+## 0. Next session — start here (written 2026-10-03)
+
+**Where things stand:** all work is pushed to `revive-2026` on GitHub (latest
+`455db2d` + this note). Nothing deployed; production freeze still on. Phases 2+3 code
+done, Phase 7 groups 1 (sites) and 2 (profile + helpers) done.
+
+**To start:** `cd functions && npm run emulators` (terminal 1), `npm run seed`, then
+run the app with `--dart-define=USE_EMULATOR=true` (see section 4). Test accounts in
+section 4; the app was last left in Arabic.
+
+**Work queue (no deploys needed), in order:**
+1. **Phase 7 group 3 — sales screens:** clients list + form (`lib/clients/*`), new
+   visit 2-step form, visits list + details (`lib/sales_pipeline/*`). Rebuild in the
+   new style with translations; reuse the site pin picker for client addresses;
+   remove the old files. Check the Sales activity report still reads visits.
+2. **Phase 7 group 4 — live map:** rebuild `lib/location/show_map.dart` (crashes
+   with a null-check in `initState`): workers' last positions, site circles, tap a
+   worker for status. Then remove `map_providers.dart` and unused location helpers.
+3. **Phase 7 group 5 — dead code:** `reports/report_details.dart`,
+   `shared/date_picker.dart`, `shared/export_excel.dart`,
+   `shared/generating_pdf.dart`, `shared/pdf_builder.dart`, unused grids; unused
+   packages (`location`, `flutter_speed_dial`, `latlong2`, `flutter_map`,
+   `timer_builder`, `animated_text_kit`).
+4. **Phase 4 client side:** push notifications wiring (`firebase_messaging`, FCM
+   tokens per user, function on `device_events` for `left_site` etc.) — written and
+   tested on the emulators, not deployed.
+5. iOS build prep (Maps key out of `AppDelegate.swift`, Podfile), then the admin web
+   dashboard.
+
+**Needs a real phone / the user:**
+- Walk out of and back into a site with a real phone to confirm geofence
+  `left_site` / `returned_to_site` and the 60-min auto check-out.
+- Tap through "Delete my account" in the app once (verified only via script).
+
+**Waiting on the client (unchanged):** payment, Firebase billing (functions deploy),
+decisions in section 6 (esp. #2 auto check-out rules and whether short absences
+are paid), native-speaker review of Arabic/Hindi/Urdu, production test mason
+account, then the pending deploys table in section 3.
+
+---
+
 ## 1. Overview
 
 Workforce app for **Royal Marble** (marble/tiling contractor, Dubai). Workers' phones
@@ -480,3 +521,5 @@ Workers come from different countries; each user picks a language.
   sets his home address, saves (role and access untouched); deletion tested on the
   login emulator (wrong password refused; profile and login removed). Next: group 3
   (clients and sales visits).
+- **2026-10-03 (end of session)** — Paused by the user. Everything committed and
+  pushed to GitHub (`revive-2026`). Plan for next time in section 0.
