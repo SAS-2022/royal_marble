@@ -26,6 +26,8 @@ const PASSWORD = "test1234";
 
 // Dubai Marina; put the emulator here with: adb emu geo fix 55.1400 25.0800
 const MARINA = { Lat: 25.0800, Lng: 55.1400, addressName: "Test Villa, Dubai Marina, Dubai" };
+// ~70 m from Test Villa, so a worker standing there is inside both sites.
+const TOWER = { Lat: 25.0805, Lng: 55.1405, addressName: "Marina Tower, Dubai Marina, Dubai" };
 const FAR = { Lat: 25.2700, Lng: 55.3300, addressName: "Far Site, Deira, Dubai" };
 
 const site = (id, name, address, radius) => ({ id, name, projectAddress: address, radius });
@@ -63,7 +65,8 @@ async function main() {
   // versions wrote, so both stay covered.
   const mason1 = await user("mason1@test.local",
     { firstName: "Ravi", lastName: "Mason", roles: ["isNormalUser"],
-      assignedProject: [site("p_marina", "Test Villa", MARINA, 150)],
+      assignedProject: [site("p_marina", "Test Villa", MARINA, 150),
+        site("p_tower", "Marina Tower", TOWER, 150)],
       assignedMockup: [site("m_marina", "Marina Mock-up", MARINA, 150)] });
   const mason2 = await user("mason2@test.local",
     { firstName: "Imran", lastName: "Mason", roles: ["isNormalUser"],
@@ -78,6 +81,7 @@ async function main() {
     emailAddress: "site@test.local", projectStatus: "active", assignedWorkers: workers,
   });
   await db.collection("projects").doc("p_marina").set(project("Test Villa", MARINA, [supervisor, mason1]));
+  await db.collection("projects").doc("p_tower").set(project("Marina Tower", TOWER, [mason1]));
   await db.collection("projects").doc("p_far").set(project("Far Site", FAR, [mason2]));
   await db.collection("mockup").doc("m_marina").set({
     name: "Marina Mock-up", details: "Emulator test mock-up", address: MARINA, radius: 150,
@@ -94,7 +98,7 @@ async function main() {
   });
 
   console.log(`Seeded. Password for every account: ${PASSWORD}`);
-  console.log("  admin@test.local, supervisor@test.local, mason1@test.local (at Test Villa),");
+  console.log("  admin@test.local, supervisor@test.local, mason1@test.local (Test Villa + Marina Tower),");
   console.log("  mason2@test.local (assigned to Far Site), pending@test.local (inactive)");
 }
 

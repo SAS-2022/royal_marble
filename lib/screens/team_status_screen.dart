@@ -46,6 +46,9 @@ String eventMessage(AppLocalizations l, DeviceEvent e) {
     'battery_low' when digits != null => l.evBatteryLow(digits),
     'battery_ok' => l.evBatteryOk,
     'silent' => l.evSilent,
+    'left_site' when e.site != null => l.evLeftSite(e.site!),
+    'returned_to_site' when e.site != null => l.evReturnedToSite(e.site!),
+    'auto_checkout' when e.site != null => l.evAutoCheckout(e.site!),
     _ => e.message,
   };
 }
@@ -255,6 +258,8 @@ class AlertTile extends StatelessWidget {
         'tracking_stopped' || 'tracking_started' => Icons.pause_circle,
         'device_boot' => Icons.restart_alt,
         'app_closed' => Icons.close,
+        'left_site' || 'returned_to_site' => Icons.directions_walk,
+        'auto_checkout' => Icons.timer_off,
         _ => Icons.info_outline,
       };
 

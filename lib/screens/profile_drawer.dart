@@ -103,7 +103,7 @@ class ProfileDrawer extends StatelessWidget {
                 if (admin || supervisor) ...[
                   _Group(l.sectionReports),
                   _Item(Icons.schedule_outlined, l.attendance,
-                      () => open(const ReportsScreen())),
+                      () => open(ReportsScreen(canCorrect: admin))),
                   _Item(Icons.sell_outlined, l.salesActivity,
                       () => open(
                           const ReportsScreen(initial: ReportKind.sales))),

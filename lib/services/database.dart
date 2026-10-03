@@ -5,6 +5,7 @@ import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/models/directions.dart';
 import 'package:royal_marble/core/error_reporter.dart';
+import '../models/attendance.dart' show siteAssignments;
 import '../models/user_model.dart';
 
 class DatabaseService {
@@ -694,168 +695,73 @@ class DatabaseService {
     }
   }
 
-  //update project with assigned users
-  //we will update the project with a list of users ids
-  //we will update each user with the assigned project and its coordinates
+  /// Adds or removes one site in a user's `assignedProject` /
+  /// `assignedMockup`. Always stores a list (older versions kept a single map
+  /// for masons, which moved them off their other site) and matches by site
+  /// id, so a site renamed since the assignment is still removed.
+  Future<void> _setAssignment(String uid, String field,
+          Map<String, dynamic> site, {required bool assign}) =>
+      FirebaseFirestore.instance.runTransaction((tx) async {
+        final ref = userCollection.doc(uid);
+        final data = (await tx.get(ref)).data() as Map<String, dynamic>?;
+        final sites = siteAssignments(data?[field])
+          ..removeWhere((a) => a['id'] == site['id']);
+        if (assign) sites.add(site);
+        tx.update(ref, {field: sites});
+      });
+
+  Map<String, dynamic> _projectSite(ProjectData p) => {
+        'id': p.uid,
+        'name': p.projectName,
+        'projectAddress': p.projectAddress,
+        'radius': p.radius,
+      };
+
+  Map<String, dynamic> _mockupSite(MockupData m) => {
+        'id': m.uid,
+        'name': m.mockupName,
+        'projectAddress': m.mockupAddress,
+        'radius': m.radius,
+      };
+
+  /// Sets a project's team to [selectedUserIds] and updates each added or
+  /// removed user's assignments. Workers keep their other sites.
   Future<String> updateProjectWithWorkers(
       {ProjectData? project,
       List<UserData>? addedUsers,
       List<String>? selectedUserIds,
       List<UserData>? removedUsers}) async {
     try {
-      //update the project data first
-      var result = await projectCollection
+      await projectCollection
           .doc(project!.uid)
-          .update({
-            'assignedWorkers': selectedUserIds,
-          })
-          .then((value) => 'Completed')
-          .catchError((err) => 'Error: $err');
-
-      if (result == 'Completed') {
-        var userResult;
-        //check which users were removed to remove them
-        if (removedUsers != null && removedUsers.isNotEmpty) {
-          for (var user in removedUsers) {
-            if (user.roles!.contains('isSupervisor')) {
-              await userCollection
-                  .doc(user.uid)
-                  .update({
-                    'assignedProject': FieldValue.arrayRemove(
-                      [
-                        {
-                          'id': project.uid,
-                          'name': project.projectName,
-                          'projectAddress': project.projectAddress,
-                          'radius': project.radius,
-                        }
-                      ],
-                    )
-                  })
-                  .then((value) => print(
-                      'the user ${user.firstName} ${user.lastName} was removed'))
-                  .catchError((err) => print(
-                      'Error remove user ${user.firstName} ${user.lastName}'));
-            } else {
-              await userCollection
-                  .doc(user.uid)
-                  .update({'assignedProject': {}})
-                  .then((value) => print(
-                      'the user ${user.firstName} ${user.lastName} was removed'))
-                  .catchError((err) => print(
-                      'Error remove user ${user.firstName} ${user.lastName}'));
-            }
-          }
-        }
-        //add new users
-        for (var user in addedUsers!) {
-          if (user.roles!.contains('isSupervisor')) {
-            userResult = await userCollection
-                .doc(user.uid)
-                .update({
-                  'assignedProject': FieldValue.arrayUnion([
-                    {
-                      'id': project.uid,
-                      'name': project.projectName,
-                      'projectAddress': project.projectAddress,
-                      'radius': project.radius,
-                    }
-                  ])
-                })
-                .then((value) => 'Completed')
-                .catchError((err) {
-                  print('Error updating users: $err');
-                  return err;
-                });
-          } else {
-            userResult = await userCollection
-                .doc(user.uid)
-                .update({
-                  'assignedProject': {
-                    'id': project.uid,
-                    'name': project.projectName,
-                    'projectAddress': project.projectAddress,
-                    'radius': project.radius,
-                  }
-                })
-                .then((value) => 'Completed')
-                .catchError((err) {
-                  print('Error updating users: $err');
-                  return err;
-                });
-          }
-        }
-
-        return userResult ?? 'Completed';
-      } else {
-        return '[Failed]: $result';
+          .update({'assignedWorkers': selectedUserIds});
+      final site = _projectSite(project);
+      for (final u in removedUsers ?? const <UserData>[]) {
+        await _setAssignment(u.uid!, 'assignedProject', site, assign: false);
       }
+      for (final u in addedUsers ?? const <UserData>[]) {
+        await _setAssignment(u.uid!, 'assignedProject', site, assign: true);
+      }
+      return 'Completed';
     } catch (e, stackTrace) {
       await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error: $e';
     }
   }
 
-  //removing users from a selected project
+  /// Removes one user from a project's team.
   Future<String> removeUserFromProject(
       {ProjectData? selectedProject,
       String? userId,
       UserData? removedUser}) async {
-    var result;
     try {
-      //first remove user id from the project
-      List<dynamic> projectAssignedUsers =
-          await projectCollection.doc(selectedProject!.uid).get().then((value) {
-        var data = value.data() as Map<String, dynamic>;
-        return data['assignedWorkers'];
+      await projectCollection.doc(selectedProject!.uid).update({
+        'assignedWorkers': FieldValue.arrayRemove([userId])
       });
-      //will remove current user
-      if (projectAssignedUsers != null && projectAssignedUsers.isNotEmpty) {
-        projectAssignedUsers.removeWhere((element) => element == userId);
-        //now assign the new list to the project
-        await projectCollection
-            .doc(selectedProject.uid)
-            .update({'assignedWorkers': projectAssignedUsers}).catchError(
-                (err) => print('Could not update project assigned workers'));
-      }
-
-      //now we need to remove the assigned project from the user's document
-      var assignedProject =
-          await userCollection.doc(removedUser!.uid).get().then((value) {
-        var data = value.data() as Map<String, dynamic>;
-        return data['assignedProject'];
-      });
-
-      if (removedUser!.roles!.contains('isSupervisor')) {
-        for (var project in assignedProject) {
-          if (project['id'] == selectedProject.uid) {
-            result = await userCollection
-                .doc(userId)
-                .update({
-                  'assignedProject': FieldValue.arrayRemove([
-                    {
-                      'id': selectedProject.uid,
-                      'name': selectedProject.projectName,
-                      'projectAddress': selectedProject.projectAddress,
-                      'radius': selectedProject.radius,
-                    }
-                  ])
-                })
-                .then((value) => 'Deleted User')
-                .catchError((err) => 'Error: $err');
-          }
-        }
-      } else {
-        if (assignedProject['id'] == selectedProject.uid) {
-          result = await userCollection
-              .doc(userId)
-              .update({'assignedProject': {}})
-              .then((value) => 'Deleted User')
-              .catchError((err) => 'Error: $err');
-        }
-      }
-
-      return result;
+      await _setAssignment(
+          userId!, 'assignedProject', _projectSite(selectedProject),
+          assign: false);
+      return 'Deleted User';
     } catch (e, stackTrace) {
       await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error: $e';
@@ -1011,84 +917,25 @@ class DatabaseService {
     }
   }
 
-  //update mockup with assigned users
-  //we will update the mockup with a list of users ids
-  //we will update each user with the assigned mockup and its coordinates
+  /// Sets a mock-up's team to [selectedUserIds] and updates each added or
+  /// removed user's assignments.
   Future<String> updateMockupWithWorkers(
       {MockupData? mockup,
       List<UserData>? addedUsers,
       List<String>? selectedUserIds,
       List<UserData>? removedUsers}) async {
     try {
-      //update the project data first
-      var result = await mockupCollection
+      await mockupCollection
           .doc(mockup!.uid)
-          .update({
-            'assignedWorkers': selectedUserIds,
-          })
-          .then((value) => 'Completed')
-          .catchError((err) => 'Error: $err');
-
-      if (result == 'Completed') {
-        var userResult;
-        //check which users were removed to remove them
-        if (removedUsers != null && removedUsers.isNotEmpty) {
-          for (var user in removedUsers) {
-            if (user.roles!.contains('isSupervisor')) {
-              await userCollection
-                  .doc(user.uid)
-                  .update({
-                    'assignedMockup': FieldValue.arrayRemove(
-                      [
-                        {
-                          'id': mockup.uid,
-                          'name': mockup.mockupName,
-                          'projectAddress': mockup.mockupAddress,
-                          'radius': mockup.radius,
-                        }
-                      ],
-                    )
-                  })
-                  .then((value) => print(
-                      'the user ${user.firstName} ${user.lastName} was removed'))
-                  .catchError((err) => print(
-                      'Error remove user ${user.firstName} ${user.lastName}'));
-            } else {
-              await userCollection
-                  .doc(user.uid)
-                  .update({'assignedMockup': {}})
-                  .then((value) => print(
-                      'the user ${user.firstName} ${user.lastName} was removed'))
-                  .catchError((err) => print(
-                      'Error remove user ${user.firstName} ${user.lastName}'));
-            }
-          }
-        }
-        //add new users
-        for (var user in addedUsers!) {
-          userResult = await userCollection
-              .doc(user.uid)
-              .update({
-                'assignedMockup': FieldValue.arrayUnion([
-                  {
-                    'id': mockup.uid,
-                    'name': mockup.mockupName,
-                    'projectAddress': mockup.mockupAddress,
-                    'radius': mockup.radius,
-                  }
-                ])
-              })
-              .then((value) => 'Completed')
-              .catchError((err) {
-                print('Error updating users: $err');
-                return err;
-              });
-        }
-
-        return userResult ?? 'Completed';
-      } else {
-        return '[Failed]: $result';
+          .update({'assignedWorkers': selectedUserIds});
+      final site = _mockupSite(mockup);
+      for (final u in removedUsers ?? const <UserData>[]) {
+        await _setAssignment(u.uid!, 'assignedMockup', site, assign: false);
       }
+      for (final u in addedUsers ?? const <UserData>[]) {
+        await _setAssignment(u.uid!, 'assignedMockup', site, assign: true);
+      }
+      return 'Completed';
     } catch (e, stackTrace) {
       await ErrorReporter.record(e, stackTrace: stackTrace);
       return 'Error: $e';
@@ -1108,62 +955,21 @@ class DatabaseService {
     }
   }
 
-  //removing users from a selected mockup
+  /// Removes one user from a mock-up's team.
   Future<String> removeUserFromMockup(
       {MockupData? selectedMockup,
       String? userId,
       UserData? removedUser}) async {
-    var result;
     try {
-      //first remove user id from the project
-      List<dynamic> mockupAssignedUsers =
-          await mockupCollection.doc(selectedMockup!.uid).get().then((value) {
-        var data = value.data() as Map<String, dynamic>;
-        return data['assignedWorkers'];
+      await mockupCollection.doc(selectedMockup!.uid).update({
+        'assignedWorkers': FieldValue.arrayRemove([userId])
       });
-      //will remove current user
-      if (mockupAssignedUsers != null && mockupAssignedUsers.isNotEmpty) {
-        mockupAssignedUsers.removeWhere((element) => element == userId);
-        //now assign the new list to the project
-        await mockupCollection
-            .doc(selectedMockup.uid)
-            .update({'assignedWorkers': mockupAssignedUsers}).catchError(
-                (err) => print('Could not update project assigned workers'));
-      }
-
-      //now we need to remove the assigned project from the user's document
-      var assignedMockup =
-          await userCollection.doc(removedUser!.uid).get().then((value) {
-        var data = value.data() as Map<String, dynamic>;
-        return data['assignedMockup'];
-      });
-
-      for (var mockup in assignedMockup) {
-        print('the mockup: ${mockup['id']} - ${selectedMockup.uid} - $userId');
-        print(
-            'the mockup: ${selectedMockup.uid} ${selectedMockup.mockupName} ${selectedMockup.mockupAddress} ${selectedMockup.radius}');
-        if (mockup['id'] == selectedMockup.uid) {
-          result = await userCollection
-              .doc(userId)
-              .update({
-                'assignedMockup': FieldValue.arrayRemove([
-                  {
-                    'id': selectedMockup.uid,
-                    'name': selectedMockup.mockupName,
-                    'projectAddress': selectedMockup.mockupAddress,
-                    'radius': selectedMockup.radius,
-                  }
-                ])
-              })
-              .then((value) => 'Deleted User')
-              .catchError((err) => 'Error: $err');
-        }
-      }
-
-      return result;
+      await _setAssignment(
+          userId!, 'assignedMockup', _mockupSite(selectedMockup),
+          assign: false);
+      return 'Deleted User';
     } catch (e, stackTrace) {
       await ErrorReporter.record(e, stackTrace: stackTrace);
-      print('An error removing users: $e');
       return 'Error: $e';
     }
   }

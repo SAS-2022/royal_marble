@@ -979,13 +979,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get saveTeam => 'Save team';
 
   @override
-  String willMoveFrom(String site) {
-    return 'will move from $site';
-  }
-
-  @override
   String currentlyAt(String site) {
-    return 'currently at $site';
+    return 'also at $site';
   }
 
   @override
@@ -1151,4 +1146,135 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nowLabel => 'now';
+
+  @override
+  String get switchHere => 'Switch to this site';
+
+  @override
+  String get switchSiteTitle => 'Switch site?';
+
+  @override
+  String switchSiteBody(String from, String to) {
+    return 'You will be checked out of $from and checked in at $to.';
+  }
+
+  @override
+  String outsideSiteSince(String time) {
+    return 'Outside the site since $time';
+  }
+
+  @override
+  String get autoCheckedOut => 'Checked out automatically';
+
+  @override
+  String evLeftSite(String site) {
+    return 'Left $site while checked in';
+  }
+
+  @override
+  String evReturnedToSite(String site) {
+    return 'Returned to $site';
+  }
+
+  @override
+  String evAutoCheckout(String site) {
+    return 'Checked out automatically from $site';
+  }
+
+  @override
+  String get allSites => 'All sites';
+
+  @override
+  String autoCheckoutsToReview(int count) {
+    return 'Automatic check-outs to review: $count.';
+  }
+
+  @override
+  String autoCheckoutsToReviewTap(int count) {
+    return 'Automatic check-outs to review: $count. Tap an entry to fix or approve it.';
+  }
+
+  @override
+  String awayFor(String duration) {
+    return 'away $duration';
+  }
+
+  @override
+  String get autoLeftSiteShort => 'Auto: left site';
+
+  @override
+  String get autoEndOfDayShort => 'Auto: end of day';
+
+  @override
+  String get editedByAdmin => 'Edited';
+
+  @override
+  String noOutCount(int count) {
+    return '$count no out';
+  }
+
+  @override
+  String get errEndBeforeStart => 'Check-out must be after check-in.';
+
+  @override
+  String get errOnlyLastOpen =>
+      'Only the last stay can be left without a check-out.';
+
+  @override
+  String get errSessionsOverlap => 'Two stays overlap. Adjust the times.';
+
+  @override
+  String get attendanceSaved => 'Attendance saved';
+
+  @override
+  String get errNotAdmin => 'Only admins can correct attendance.';
+
+  @override
+  String get reviewHint =>
+      'The system closed this day automatically. Fix the times if needed, or approve them as they are.';
+
+  @override
+  String get addSession => 'Add a stay';
+
+  @override
+  String get correctionNote => 'Reason';
+
+  @override
+  String get correctionNoteHint =>
+      'e.g. Forgot to check out, confirmed by supervisor';
+
+  @override
+  String get saveChanges => 'Save changes';
+
+  @override
+  String get approveAsIs => 'Approve as is';
+
+  @override
+  String get correctionHistory => 'Change history';
+
+  @override
+  String previously(String sessions) {
+    return 'Before: $sessions';
+  }
+
+  @override
+  String get removeSession => 'Remove this stay';
+
+  @override
+  String get inLabel => 'In';
+
+  @override
+  String get outLabel => 'Out';
+
+  @override
+  String get setCheckOut => 'Set check-out';
+
+  @override
+  String get leaveOpen => 'Leave open (still on site)';
+
+  @override
+  String get leftAt => 'Left';
+
+  @override
+  String get returnedAt => 'Back';
 }

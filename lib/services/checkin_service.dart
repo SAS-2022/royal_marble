@@ -36,12 +36,14 @@ class CheckInService {
   }
 
   /// [l10n] is captured by the caller before awaiting, so messages come back
-  /// in the user's language.
+  /// in the user's language. With [switchSite], a session open at another
+  /// site is closed first ([workType]/[squareMeters] then describe that one).
   static Future<CheckInResult> submit({
     required AppLocalizations l10n,
     required bool checkIn,
     required SiteKind kind,
     required String siteId,
+    bool switchSite = false,
     String? workType,
     double? squareMeters,
   }) async {
@@ -64,6 +66,7 @@ class CheckInService {
         'accuracy': fix.coords.accuracy,
         'mock': fix.mock,
         'utcOffsetMinutes': DateTime.now().timeZoneOffset.inMinutes,
+        if (switchSite) 'switchSite': true,
         if (workType != null) 'workType': workType,
         if (squareMeters != null) 'squareMeters': squareMeters,
       });

@@ -1818,16 +1818,10 @@ abstract class AppLocalizations {
   /// **'Save team'**
   String get saveTeam;
 
-  /// No description provided for @willMoveFrom.
-  ///
-  /// In en, this message translates to:
-  /// **'will move from {site}'**
-  String willMoveFrom(String site);
-
   /// No description provided for @currentlyAt.
   ///
   /// In en, this message translates to:
-  /// **'currently at {site}'**
+  /// **'also at {site}'**
   String currentlyAt(String site);
 
   /// No description provided for @payUnavailable.
@@ -2135,6 +2129,222 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'now'**
   String get nowLabel;
+
+  /// No description provided for @switchHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to this site'**
+  String get switchHere;
+
+  /// No description provided for @switchSiteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch site?'**
+  String get switchSiteTitle;
+
+  /// No description provided for @switchSiteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You will be checked out of {from} and checked in at {to}.'**
+  String switchSiteBody(String from, String to);
+
+  /// No description provided for @outsideSiteSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Outside the site since {time}'**
+  String outsideSiteSince(String time);
+
+  /// No description provided for @autoCheckedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked out automatically'**
+  String get autoCheckedOut;
+
+  /// No description provided for @evLeftSite.
+  ///
+  /// In en, this message translates to:
+  /// **'Left {site} while checked in'**
+  String evLeftSite(String site);
+
+  /// No description provided for @evReturnedToSite.
+  ///
+  /// In en, this message translates to:
+  /// **'Returned to {site}'**
+  String evReturnedToSite(String site);
+
+  /// No description provided for @evAutoCheckout.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked out automatically from {site}'**
+  String evAutoCheckout(String site);
+
+  /// No description provided for @allSites.
+  ///
+  /// In en, this message translates to:
+  /// **'All sites'**
+  String get allSites;
+
+  /// No description provided for @autoCheckoutsToReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic check-outs to review: {count}.'**
+  String autoCheckoutsToReview(int count);
+
+  /// No description provided for @autoCheckoutsToReviewTap.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic check-outs to review: {count}. Tap an entry to fix or approve it.'**
+  String autoCheckoutsToReviewTap(int count);
+
+  /// No description provided for @awayFor.
+  ///
+  /// In en, this message translates to:
+  /// **'away {duration}'**
+  String awayFor(String duration);
+
+  /// No description provided for @autoLeftSiteShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto: left site'**
+  String get autoLeftSiteShort;
+
+  /// No description provided for @autoEndOfDayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto: end of day'**
+  String get autoEndOfDayShort;
+
+  /// No description provided for @editedByAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Edited'**
+  String get editedByAdmin;
+
+  /// No description provided for @noOutCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} no out'**
+  String noOutCount(int count);
+
+  /// No description provided for @errEndBeforeStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-out must be after check-in.'**
+  String get errEndBeforeStart;
+
+  /// No description provided for @errOnlyLastOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the last stay can be left without a check-out.'**
+  String get errOnlyLastOpen;
+
+  /// No description provided for @errSessionsOverlap.
+  ///
+  /// In en, this message translates to:
+  /// **'Two stays overlap. Adjust the times.'**
+  String get errSessionsOverlap;
+
+  /// No description provided for @attendanceSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance saved'**
+  String get attendanceSaved;
+
+  /// No description provided for @errNotAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Only admins can correct attendance.'**
+  String get errNotAdmin;
+
+  /// No description provided for @reviewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The system closed this day automatically. Fix the times if needed, or approve them as they are.'**
+  String get reviewHint;
+
+  /// No description provided for @addSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a stay'**
+  String get addSession;
+
+  /// No description provided for @correctionNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get correctionNote;
+
+  /// No description provided for @correctionNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Forgot to check out, confirmed by supervisor'**
+  String get correctionNoteHint;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get saveChanges;
+
+  /// No description provided for @approveAsIs.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve as is'**
+  String get approveAsIs;
+
+  /// No description provided for @correctionHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Change history'**
+  String get correctionHistory;
+
+  /// No description provided for @previously.
+  ///
+  /// In en, this message translates to:
+  /// **'Before: {sessions}'**
+  String previously(String sessions);
+
+  /// No description provided for @removeSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this stay'**
+  String get removeSession;
+
+  /// No description provided for @inLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'In'**
+  String get inLabel;
+
+  /// No description provided for @outLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Out'**
+  String get outLabel;
+
+  /// No description provided for @setCheckOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Set check-out'**
+  String get setCheckOut;
+
+  /// No description provided for @leaveOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave open (still on site)'**
+  String get leaveOpen;
+
+  /// No description provided for @leftAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Left'**
+  String get leftAt;
+
+  /// No description provided for @returnedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get returnedAt;
 }
 
 class _AppLocalizationsDelegate

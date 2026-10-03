@@ -4,6 +4,7 @@ import 'package:royal_marble/core/locale_controller.dart';
 import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/core/format.dart';
 import 'package:royal_marble/core/roles.dart';
+import 'package:royal_marble/models/attendance.dart';
 import 'package:royal_marble/models/device_status.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/screens/salary_screens.dart';
@@ -87,9 +88,8 @@ class AdminUserView extends StatelessWidget {
     final status = DeviceStatus.fromMap(user.deviceStatus);
     final active = user.isActive == true;
     final hasImage = user.imageUrl?.startsWith('http') == true;
-    final site = user.assignedProject is Map
-        ? (user.assignedProject as Map)['name']
-        : null;
+    final sites = siteAssignments(user.assignedProject).map((a) => a['name']);
+    final site = sites.isEmpty ? null : sites.join(', ');
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
@@ -200,7 +200,7 @@ class AdminUserView extends StatelessWidget {
               child: Column(children: [
                 ListTile(
                   leading: const Icon(Icons.apartment_outlined),
-                  title: Text(site != null ? '$site' : context.l10n.noSiteAssigned),
+                  title: Text(site ?? context.l10n.noSiteAssigned),
                   subtitle: Text(context.l10n.assignedSite),
                 ),
                 ListTile(

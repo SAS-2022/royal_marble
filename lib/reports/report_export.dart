@@ -18,6 +18,14 @@ const _gold = PdfColor.fromInt(0xFFC2A64A);
 const _charcoal = PdfColor.fromInt(0xFF23221C);
 const _line = PdfColor.fromInt(0xFFE6E1D3);
 
+/// Why a row needs a second look, in English like the rest of the export.
+String _note(AttendanceRow r) => [
+      if (r.autoReason == 'left_site') 'Auto check-out: left the site',
+      if (r.autoReason == 'end_of_day') 'Auto check-out: end of day',
+      if (r.corrected) 'Edited by admin',
+      if (r.away.inMinutes > 0) 'Away ${formatDuration(r.away)}',
+    ].join('; ');
+
 /// Attendance report as a PDF: summary per person, then each day's entries.
 Future<Uint8List> attendancePdf({
   required String title,
@@ -83,13 +91,32 @@ Future<Uint8List> attendancePdf({
             ]
         ],
       ),
+      if (totalsBySite(rows).length > 1) ...[
+        pw.SizedBox(height: 16),
+        pw.Text('Hours by site',
+            style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 12)),
+        pw.SizedBox(height: 6),
+        table(
+          ['Site', 'People', 'Days', 'Hours', 'Area (m²)'],
+          [
+            for (final t in totalsBySite(rows))
+              [
+                t.name,
+                '${t.people}',
+                '${t.days}',
+                formatDuration(t.worked),
+                t.squareMeters == 0 ? '' : t.squareMeters.toStringAsFixed(1),
+              ]
+          ],
+        ),
+      ],
       for (final e in byDay.entries) ...[
         pw.SizedBox(height: 16),
         pw.Text(_day.format(e.key),
             style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 11)),
         pw.SizedBox(height: 4),
         table(
-          ['Name', 'Site', 'In', 'Out', 'Hours', 'Work', 'Area (m²)'],
+          ['Name', 'Site', 'In', 'Out', 'Hours', 'Work', 'Area (m²)', 'Note'],
           [
             for (final r in e.value)
               [
@@ -100,6 +127,7 @@ Future<Uint8List> attendancePdf({
                 r.worked == null ? '' : formatDuration(r.worked!),
                 r.workType ?? '',
                 r.squareMeters?.toStringAsFixed(1) ?? '',
+                _note(r),
               ]
           ],
         ),
@@ -129,8 +157,9 @@ List<int> attendanceXlsx({
   }
 
   final daily = book.worksheets[0]..name = 'Daily';
-  headers(daily,
-      ['Date', 'Name', 'Site', 'In', 'Out', 'Hours', 'Work', 'Area (m²)']);
+  headers(daily, [
+    'Date', 'Name', 'Site', 'In', 'Out', 'Hours', 'Work', 'Area (m²)', 'Note'
+  ]);
   for (var i = 0; i < rows.length; i++) {
     final r = rows[i];
     final row = i + 2;
@@ -147,8 +176,9 @@ List<int> attendanceXlsx({
     if (r.squareMeters != null) {
       daily.getRangeByIndex(row, 8).setNumber(r.squareMeters!);
     }
+    daily.getRangeByIndex(row, 9).setText(_note(r));
   }
-  daily.getRangeByIndex(1, 1, rows.length + 1, 8).autoFitColumns();
+  daily.getRangeByIndex(1, 1, rows.length + 1, 9).autoFitColumns();
 
   final summary = book.worksheets.addWithName('Summary');
   headers(summary, ['Name', 'Days', 'Hours', 'Area (m²)', 'Missing check-outs']);
@@ -164,6 +194,21 @@ List<int> attendanceXlsx({
     summary.getRangeByIndex(row, 5).setNumber(p.missingCheckOuts.toDouble());
   }
   summary.getRangeByIndex(1, 1, people.length + 1, 5).autoFitColumns();
+
+  final bySite = book.worksheets.addWithName('By site');
+  headers(bySite, ['Site', 'People', 'Days', 'Hours', 'Area (m²)']);
+  final sites = totalsBySite(rows);
+  for (var i = 0; i < sites.length; i++) {
+    final t = sites[i];
+    final row = i + 2;
+    bySite.getRangeByIndex(row, 1).setText(t.name);
+    bySite.getRangeByIndex(row, 2).setNumber(t.people.toDouble());
+    bySite.getRangeByIndex(row, 3).setNumber(t.days.toDouble());
+    bySite.getRangeByIndex(row, 4).setNumber(
+        double.parse((t.worked.inMinutes / 60).toStringAsFixed(2)));
+    bySite.getRangeByIndex(row, 5).setNumber(t.squareMeters);
+  }
+  bySite.getRangeByIndex(1, 1, sites.length + 1, 5).autoFitColumns();
 
   final bytes = book.saveAsStream();
   book.dispose();

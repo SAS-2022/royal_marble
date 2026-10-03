@@ -971,13 +971,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get saveTeam => 'حفظ الفريق';
 
   @override
-  String willMoveFrom(String site) {
-    return 'سينتقل من $site';
-  }
-
-  @override
   String currentlyAt(String site) {
-    return 'حالياً في $site';
+    return 'أيضاً في $site';
   }
 
   @override
@@ -1142,4 +1137,133 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get nowLabel => 'الآن';
+
+  @override
+  String get switchHere => 'الانتقال إلى هذا الموقع';
+
+  @override
+  String get switchSiteTitle => 'تغيير الموقع؟';
+
+  @override
+  String switchSiteBody(String from, String to) {
+    return 'سيتم تسجيل خروجك من $from وتسجيل دخولك في $to.';
+  }
+
+  @override
+  String outsideSiteSince(String time) {
+    return 'خارج الموقع منذ $time';
+  }
+
+  @override
+  String get autoCheckedOut => 'تم تسجيل الخروج تلقائياً';
+
+  @override
+  String evLeftSite(String site) {
+    return 'غادر $site أثناء تسجيل الدخول';
+  }
+
+  @override
+  String evReturnedToSite(String site) {
+    return 'عاد إلى $site';
+  }
+
+  @override
+  String evAutoCheckout(String site) {
+    return 'تم تسجيل خروجه تلقائياً من $site';
+  }
+
+  @override
+  String get allSites => 'كل المواقع';
+
+  @override
+  String autoCheckoutsToReview(int count) {
+    return 'عمليات خروج تلقائية بانتظار المراجعة: $count.';
+  }
+
+  @override
+  String autoCheckoutsToReviewTap(int count) {
+    return 'عمليات خروج تلقائية بانتظار المراجعة: $count. اضغط على أي سجل لتصحيحه أو اعتماده.';
+  }
+
+  @override
+  String awayFor(String duration) {
+    return 'خارج الموقع $duration';
+  }
+
+  @override
+  String get autoLeftSiteShort => 'تلقائي: غادر الموقع';
+
+  @override
+  String get autoEndOfDayShort => 'تلقائي: نهاية اليوم';
+
+  @override
+  String get editedByAdmin => 'معدّل';
+
+  @override
+  String noOutCount(int count) {
+    return '$count بدون خروج';
+  }
+
+  @override
+  String get errEndBeforeStart => 'يجب أن يكون الخروج بعد الدخول.';
+
+  @override
+  String get errOnlyLastOpen => 'يمكن ترك آخر فترة فقط بدون خروج.';
+
+  @override
+  String get errSessionsOverlap => 'فترتان متداخلتان. عدّل الأوقات.';
+
+  @override
+  String get attendanceSaved => 'تم حفظ الحضور';
+
+  @override
+  String get errNotAdmin => 'يمكن للمسؤولين فقط تصحيح الحضور.';
+
+  @override
+  String get reviewHint =>
+      'أغلق النظام هذا اليوم تلقائياً. صحّح الأوقات إذا لزم، أو اعتمدها كما هي.';
+
+  @override
+  String get addSession => 'إضافة فترة';
+
+  @override
+  String get correctionNote => 'السبب';
+
+  @override
+  String get correctionNoteHint => 'مثال: نسي تسجيل الخروج، أكده المشرف';
+
+  @override
+  String get saveChanges => 'حفظ التغييرات';
+
+  @override
+  String get approveAsIs => 'اعتماد كما هو';
+
+  @override
+  String get correctionHistory => 'سجل التغييرات';
+
+  @override
+  String previously(String sessions) {
+    return 'سابقاً: $sessions';
+  }
+
+  @override
+  String get removeSession => 'حذف هذه الفترة';
+
+  @override
+  String get inLabel => 'دخول';
+
+  @override
+  String get outLabel => 'خروج';
+
+  @override
+  String get setCheckOut => 'تحديد الخروج';
+
+  @override
+  String get leaveOpen => 'إبقاؤها مفتوحة (ما زال في الموقع)';
+
+  @override
+  String get leftAt => 'غادر';
+
+  @override
+  String get returnedAt => 'عاد';
 }

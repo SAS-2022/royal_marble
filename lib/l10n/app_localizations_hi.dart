@@ -976,13 +976,8 @@ class AppLocalizationsHi extends AppLocalizations {
   String get saveTeam => 'टीम सेव करें';
 
   @override
-  String willMoveFrom(String site) {
-    return '$site से हटेगा';
-  }
-
-  @override
   String currentlyAt(String site) {
-    return 'अभी $site पर';
+    return '$site पर भी';
   }
 
   @override
@@ -1147,4 +1142,136 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get nowLabel => 'अभी';
+
+  @override
+  String get switchHere => 'इस साइट पर जाएँ';
+
+  @override
+  String get switchSiteTitle => 'साइट बदलें?';
+
+  @override
+  String switchSiteBody(String from, String to) {
+    return 'आपको $from से चेक-आउट और $to पर चेक-इन किया जाएगा।';
+  }
+
+  @override
+  String outsideSiteSince(String time) {
+    return '$time से साइट के बाहर';
+  }
+
+  @override
+  String get autoCheckedOut => 'अपने-आप चेक-आउट हुआ';
+
+  @override
+  String evLeftSite(String site) {
+    return 'चेक-इन रहते हुए $site से बाहर गया';
+  }
+
+  @override
+  String evReturnedToSite(String site) {
+    return '$site पर वापस आया';
+  }
+
+  @override
+  String evAutoCheckout(String site) {
+    return '$site से अपने-आप चेक-आउट हुआ';
+  }
+
+  @override
+  String get allSites => 'सभी साइटें';
+
+  @override
+  String autoCheckoutsToReview(int count) {
+    return 'समीक्षा के लिए अपने-आप हुए चेक-आउट: $count।';
+  }
+
+  @override
+  String autoCheckoutsToReviewTap(int count) {
+    return 'समीक्षा के लिए अपने-आप हुए चेक-आउट: $count। ठीक करने या मंज़ूर करने के लिए किसी प्रविष्टि पर टैप करें।';
+  }
+
+  @override
+  String awayFor(String duration) {
+    return '$duration बाहर';
+  }
+
+  @override
+  String get autoLeftSiteShort => 'अपने-आप: साइट छोड़ी';
+
+  @override
+  String get autoEndOfDayShort => 'अपने-आप: दिन का अंत';
+
+  @override
+  String get editedByAdmin => 'संपादित';
+
+  @override
+  String noOutCount(int count) {
+    return '$count बिना चेक-आउट';
+  }
+
+  @override
+  String get errEndBeforeStart => 'चेक-आउट, चेक-इन के बाद होना चाहिए।';
+
+  @override
+  String get errOnlyLastOpen =>
+      'केवल आख़िरी प्रविष्टि बिना चेक-आउट के छोड़ी जा सकती है।';
+
+  @override
+  String get errSessionsOverlap =>
+      'दो प्रविष्टियों का समय टकरा रहा है। समय ठीक करें।';
+
+  @override
+  String get attendanceSaved => 'हाज़िरी सहेजी गई';
+
+  @override
+  String get errNotAdmin => 'केवल एडमिन हाज़िरी सुधार सकते हैं।';
+
+  @override
+  String get reviewHint =>
+      'सिस्टम ने यह दिन अपने-आप बंद किया। ज़रूरत हो तो समय ठीक करें, या जैसा है वैसा मंज़ूर करें।';
+
+  @override
+  String get addSession => 'प्रविष्टि जोड़ें';
+
+  @override
+  String get correctionNote => 'कारण';
+
+  @override
+  String get correctionNoteHint =>
+      'जैसे: चेक-आउट भूल गया, सुपरवाइज़र ने पुष्टि की';
+
+  @override
+  String get saveChanges => 'बदलाव सहेजें';
+
+  @override
+  String get approveAsIs => 'जैसा है वैसा मंज़ूर करें';
+
+  @override
+  String get correctionHistory => 'बदलाव का इतिहास';
+
+  @override
+  String previously(String sessions) {
+    return 'पहले: $sessions';
+  }
+
+  @override
+  String get removeSession => 'यह प्रविष्टि हटाएँ';
+
+  @override
+  String get inLabel => 'इन';
+
+  @override
+  String get outLabel => 'आउट';
+
+  @override
+  String get setCheckOut => 'चेक-आउट समय डालें';
+
+  @override
+  String get leaveOpen => 'खुला छोड़ें (अभी साइट पर है)';
+
+  @override
+  String get leftAt => 'बाहर गया';
+
+  @override
+  String get returnedAt => 'वापस आया';
 }

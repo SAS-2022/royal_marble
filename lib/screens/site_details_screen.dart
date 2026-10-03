@@ -6,6 +6,7 @@ import 'package:royal_marble/core/format.dart';
 import 'package:royal_marble/core/roles.dart';
 import 'package:royal_marble/location/google_map_navigation.dart';
 import 'package:royal_marble/mockups/mockup_form.dart';
+import 'package:royal_marble/models/attendance.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/models/device_status.dart';
 import 'package:royal_marble/models/user_model.dart';
@@ -309,18 +310,15 @@ class _ManageTeamSheetState extends State<_ManageTeamSheet> {
   String _query = '';
   bool _saving = false;
 
-  /// Where a worker is currently assigned, if somewhere else.
+  /// The worker's other sites of the same kind, if any. Adding them here
+  /// keeps those assignments.
   String? _elsewhere(UserData u) {
-    final a = widget.site.kind == SiteKind.project
-        ? u.assignedProject
-        : u.assignedMockups;
-    final list = a is List ? a : [a];
-    for (final x in list) {
-      if (x is Map && x['id'] != null && x['id'] != widget.site.id) {
-        return '${x['name']}';
-      }
-    }
-    return null;
+    final others = siteAssignments(widget.site.kind == SiteKind.project
+            ? u.assignedProject
+            : u.assignedMockups)
+        .where((a) => a['id'] != widget.site.id)
+        .map((a) => '${a['name']}');
+    return others.isEmpty ? null : others.join(', ');
   }
 
   Future<void> _save() async {
@@ -415,10 +413,7 @@ class _ManageTeamSheetState extends State<_ManageTeamSheet> {
                 title: Text('${u.firstName ?? ''} ${u.lastName ?? ''}'),
                 subtitle: Text([
                   primaryRole(u.roles).localized(context.l10n),
-                  if (elsewhere != null)
-                    selected && primaryRole(u.roles) != AppRole.supervisor
-                        ? context.l10n.willMoveFrom(elsewhere)
-                        : context.l10n.currentlyAt(elsewhere),
+                  if (elsewhere != null) context.l10n.currentlyAt(elsewhere),
                 ].join(' · ')),
               );
             },

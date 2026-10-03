@@ -2,16 +2,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../core/roles.dart';
+import '../models/attendance.dart';
 import '../models/business_model.dart';
 import '../models/user_model.dart';
 import '../services/database.dart';
 
-/// One person's attendance on one day, read from `time_sheet/{d-m-yyyy}`.
+/// One stay at one site, read from `time_sheet/{d-m-yyyy}`. A worker who
+/// visits two sites in a day has two rows.
 class AttendanceRow {
   final DateTime day;
   final String uid;
   final String name;
   final String role;
+  final String siteId;
   final String project;
   final DateTime? arrived;
   final DateTime? left;
@@ -19,17 +22,34 @@ class AttendanceRow {
   final String? workType;
   final double? squareMeters;
 
+  /// `left_site` / `end_of_day` when the system checked the worker out.
+  final String? autoReason;
+
+  /// Time spent outside the site area while checked in.
+  final Duration away;
+
+  /// An admin edited this session.
+  final bool corrected;
+
+  /// An admin has reviewed (corrected or approved) this worker's day.
+  final bool reviewed;
+
   const AttendanceRow({
     required this.day,
     required this.uid,
     required this.name,
     required this.role,
+    this.siteId = '',
     required this.project,
     this.arrived,
     this.left,
     this.stillOnSite = false,
     this.workType,
     this.squareMeters,
+    this.autoReason,
+    this.away = Duration.zero,
+    this.corrected = false,
+    this.reviewed = false,
   });
 
   /// Worked time; null while still on site or when a time is missing.
@@ -37,6 +57,11 @@ class AttendanceRow {
       arrived != null && left != null && left!.isAfter(arrived!)
           ? left!.difference(arrived!)
           : null;
+
+  bool get missingCheckOut => left == null && !stillOnSite;
+
+  /// Closed by the system, or never closed, and not yet reviewed.
+  bool get needsReview => !reviewed && (autoReason != null || missingCheckOut);
 }
 
 DateTime dayOnly(DateTime d) => DateTime(d.year, d.month, d.day);
@@ -51,7 +76,7 @@ List<DateTime> daysIn(DateTimeRange range) {
   ];
 }
 
-double? _num(dynamic v) => v is num ? v.toDouble() : double.tryParse('$v');
+String dayId(DateTime d) => '${d.day}-${d.month}-${d.year}';
 
 /// Loads attendance for every day in [range] in parallel. [role] filters by
 /// the role stored on the entry; null means everyone.
@@ -59,8 +84,8 @@ Future<List<AttendanceRow>> loadAttendance(
     DateTimeRange range, AppRole? role) async {
   final col = FirebaseFirestore.instance.collection('time_sheet');
   final days = daysIn(range);
-  final snaps = await Future.wait(
-      days.map((d) => col.doc('${d.day}-${d.month}-${d.year}').get()));
+  final snaps = await Future.wait(days.map((d) => col.doc(dayId(d)).get()));
+  final today = dayOnly(DateTime.now());
 
   final rows = <AttendanceRow>[];
   for (var i = 0; i < days.length; i++) {
@@ -72,59 +97,77 @@ Future<List<AttendanceRow>> loadAttendance(
       // Older first check-ins stored `role` instead of `roles`.
       final entryRole = '${v['roles'] ?? v['role'] ?? ''}';
       if (role != null && entryRole != role.key) continue;
-      final work = v['workCompleted'] as Map?;
-      rows.add(AttendanceRow(
-        day: days[i],
-        uid: e.key,
-        name: '${v['firstName'] ?? ''} ${v['lastName'] ?? ''}'.trim(),
-        role: entryRole,
-        project: '${v['projectName'] ?? ''}',
-        arrived: DateTime.tryParse('${v['arriving_at']}'),
-        left: DateTime.tryParse('${v['leaving_at']}'),
-        // An open entry only means "on site" today; on a past day the
-        // worker simply never checked out.
-        stillOnSite: v['isOnSite'] == true &&
-            v['leaving_at'] == null &&
-            days[i] == dayOnly(DateTime.now()),
-        workType: (work?['workType'] as String?)?.trim().isEmpty == true
-            ? null
-            : work?['workType'] as String?,
-        squareMeters: _num(work?['squareMeters'] ?? work?['sqaureMeters']),
-      ));
+      final entry = DayEntry.fromMap(v);
+      for (final s in entry.sessions) {
+        rows.add(AttendanceRow(
+          day: days[i],
+          uid: e.key,
+          name: '${v['firstName'] ?? ''} ${v['lastName'] ?? ''}'.trim(),
+          role: entryRole,
+          siteId: s.siteId,
+          project: s.siteName,
+          arrived: s.start,
+          left: s.end,
+          // An open session only means "on site" today; on a past day the
+          // worker simply never checked out.
+          stillOnSite: s.isOpen && days[i] == today,
+          workType: s.workType?.trim().isEmpty == true ? null : s.workType,
+          squareMeters: s.squareMeters,
+          autoReason: s.auto,
+          away: s.away(),
+          corrected: s.corrected,
+          reviewed: entry.reviewed,
+        ));
+      }
     }
   }
   rows.sort((a, b) {
     final d = a.day.compareTo(b.day);
-    return d != 0 ? d : a.name.compareTo(b.name);
+    if (d != 0) return d;
+    final n = a.name.compareTo(b.name);
+    return n != 0 ? n : (a.arrived ?? a.day).compareTo(b.arrived ?? b.day);
   });
   return rows;
 }
 
-/// Per-person totals over a set of rows.
-class PersonTotals {
-  final String uid;
+/// Totals over a group of rows (one person, or one site).
+class AttendanceTotals {
+  final String key;
   final String name;
   final List<AttendanceRow> rows;
-  PersonTotals(this.uid, this.name, this.rows);
+  AttendanceTotals(this.key, this.name, this.rows);
 
+  /// Distinct days with any attendance.
   int get days => rows.map((r) => r.day).toSet().length;
+
+  /// Distinct people.
+  int get people => rows.map((r) => r.uid).toSet().length;
   Duration get worked =>
       rows.fold(Duration.zero, (t, r) => t + (r.worked ?? Duration.zero));
   double get squareMeters =>
       rows.fold(0.0, (t, r) => t + (r.squareMeters ?? 0));
-  int get missingCheckOuts =>
-      rows.where((r) => r.left == null && !r.stillOnSite).length;
+  int get missingCheckOuts => rows.where((r) => r.missingCheckOut).length;
+  int get toReview => rows.where((r) => r.needsReview).length;
 }
 
-List<PersonTotals> totalsByPerson(List<AttendanceRow> rows) {
-  final byUid = <String, List<AttendanceRow>>{};
+List<AttendanceTotals> _totalsBy(List<AttendanceRow> rows,
+    String Function(AttendanceRow) key, String Function(AttendanceRow) name) {
+  final groups = <String, List<AttendanceRow>>{};
   for (final r in rows) {
-    byUid.putIfAbsent(r.uid, () => []).add(r);
+    groups.putIfAbsent(key(r), () => []).add(r);
   }
   return [
-    for (final e in byUid.entries) PersonTotals(e.key, e.value.first.name, e.value)
+    for (final e in groups.entries)
+      AttendanceTotals(e.key, name(e.value.first), e.value)
   ]..sort((a, b) => b.worked.compareTo(a.worked));
 }
+
+List<AttendanceTotals> totalsByPerson(List<AttendanceRow> rows) =>
+    _totalsBy(rows, (r) => r.uid, (r) => r.name);
+
+/// Hours per site; sessions from before site ids were stored group by name.
+List<AttendanceTotals> totalsBySite(List<AttendanceRow> rows) => _totalsBy(
+    rows, (r) => r.siteId.isEmpty ? r.project : r.siteId, (r) => r.project);
 
 /// A salesperson's visits in the range.
 class SalesSummary {

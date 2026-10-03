@@ -979,13 +979,8 @@ class AppLocalizationsUr extends AppLocalizations {
   String get saveTeam => 'ٹیم محفوظ کریں';
 
   @override
-  String willMoveFrom(String site) {
-    return '$site سے منتقل ہو گا';
-  }
-
-  @override
   String currentlyAt(String site) {
-    return 'ابھی $site پر';
+    return '$site پر بھی';
   }
 
   @override
@@ -1150,4 +1145,136 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get nowLabel => 'ابھی';
+
+  @override
+  String get switchHere => 'اس سائٹ پر جائیں';
+
+  @override
+  String get switchSiteTitle => 'سائٹ بدلیں؟';
+
+  @override
+  String switchSiteBody(String from, String to) {
+    return 'آپ کو $from سے چیک آؤٹ اور $to پر چیک اِن کیا جائے گا۔';
+  }
+
+  @override
+  String outsideSiteSince(String time) {
+    return '$time سے سائٹ سے باہر';
+  }
+
+  @override
+  String get autoCheckedOut => 'خودکار طور پر چیک آؤٹ ہوا';
+
+  @override
+  String evLeftSite(String site) {
+    return 'چیک اِن کے دوران $site سے باہر گیا';
+  }
+
+  @override
+  String evReturnedToSite(String site) {
+    return '$site پر واپس آیا';
+  }
+
+  @override
+  String evAutoCheckout(String site) {
+    return '$site سے خودکار طور پر چیک آؤٹ ہوا';
+  }
+
+  @override
+  String get allSites => 'تمام سائٹیں';
+
+  @override
+  String autoCheckoutsToReview(int count) {
+    return 'جائزے کے لیے خودکار چیک آؤٹ: $count۔';
+  }
+
+  @override
+  String autoCheckoutsToReviewTap(int count) {
+    return 'جائزے کے لیے خودکار چیک آؤٹ: $count۔ درست یا منظور کرنے کے لیے کسی اندراج پر ٹیپ کریں۔';
+  }
+
+  @override
+  String awayFor(String duration) {
+    return '$duration باہر';
+  }
+
+  @override
+  String get autoLeftSiteShort => 'خودکار: سائٹ چھوڑی';
+
+  @override
+  String get autoEndOfDayShort => 'خودکار: دن کا اختتام';
+
+  @override
+  String get editedByAdmin => 'ترمیم شدہ';
+
+  @override
+  String noOutCount(int count) {
+    return '$count بغیر چیک آؤٹ';
+  }
+
+  @override
+  String get errEndBeforeStart => 'چیک آؤٹ، چیک اِن کے بعد ہونا چاہیے۔';
+
+  @override
+  String get errOnlyLastOpen =>
+      'صرف آخری اندراج بغیر چیک آؤٹ کے چھوڑا جا سکتا ہے۔';
+
+  @override
+  String get errSessionsOverlap =>
+      'دو اندراجات کا وقت آپس میں ٹکرا رہا ہے۔ وقت درست کریں۔';
+
+  @override
+  String get attendanceSaved => 'حاضری محفوظ ہو گئی';
+
+  @override
+  String get errNotAdmin => 'صرف ایڈمن حاضری درست کر سکتے ہیں۔';
+
+  @override
+  String get reviewHint =>
+      'سسٹم نے یہ دن خودکار طور پر بند کیا۔ ضرورت ہو تو وقت درست کریں، یا جیسا ہے ویسا منظور کریں۔';
+
+  @override
+  String get addSession => 'اندراج شامل کریں';
+
+  @override
+  String get correctionNote => 'وجہ';
+
+  @override
+  String get correctionNoteHint =>
+      'مثلاً: چیک آؤٹ بھول گیا، سپروائزر نے تصدیق کی';
+
+  @override
+  String get saveChanges => 'تبدیلیاں محفوظ کریں';
+
+  @override
+  String get approveAsIs => 'جیسا ہے ویسا منظور کریں';
+
+  @override
+  String get correctionHistory => 'تبدیلیوں کی تاریخ';
+
+  @override
+  String previously(String sessions) {
+    return 'پہلے: $sessions';
+  }
+
+  @override
+  String get removeSession => 'یہ اندراج ہٹائیں';
+
+  @override
+  String get inLabel => 'اِن';
+
+  @override
+  String get outLabel => 'آؤٹ';
+
+  @override
+  String get setCheckOut => 'چیک آؤٹ کا وقت ڈالیں';
+
+  @override
+  String get leaveOpen => 'کھلا چھوڑیں (ابھی سائٹ پر ہے)';
+
+  @override
+  String get leftAt => 'باہر گیا';
+
+  @override
+  String get returnedAt => 'واپس آیا';
 }

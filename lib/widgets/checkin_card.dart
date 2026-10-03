@@ -7,6 +7,7 @@ import '../core/app_theme.dart';
 import '../core/l10n_helpers.dart';
 import '../core/locale_controller.dart';
 import '../core/roles.dart';
+import '../models/attendance.dart';
 import '../models/user_model.dart';
 import '../services/checkin_service.dart';
 import '../services/tracking_service.dart';
@@ -67,11 +68,11 @@ class _CheckInCardState extends State<CheckInCard> {
     super.dispose();
   }
 
-  Stream<Map<String, dynamic>?> get _todayEntry => FirebaseFirestore.instance
+  Stream<DayEntry> get _today => FirebaseFirestore.instance
       .collection('time_sheet')
       .doc(timesheetDayId())
       .snapshots()
-      .map((s) => s.data()?[widget.user.uid] as Map<String, dynamic>?);
+      .map((s) => DayEntry.fromMap(s.data()?[widget.user.uid] as Map?));
 
   double? _distanceToEdge(LiveDeviceState s) {
     final l = s.lastLocation;
@@ -81,11 +82,34 @@ class _CheckInCardState extends State<CheckInCard> {
         (widget.radius ?? 0);
   }
 
-  Future<void> _submit(bool checkIn) async {
+  /// Checks in here while checked in at [open]: confirms, asks a mason what
+  /// they did at the other site, then lets the server close that session.
+  Future<void> _switch(WorkSession open) async {
+    final l10n = context.l10n;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.switchSiteTitle),
+        content: Text(l10n.switchSiteBody(open.siteName, widget.siteName)),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(l10n.cancel)),
+          FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l10n.switchHere)),
+        ],
+      ),
+    );
+    if (ok == true && mounted) await _submit(true, switchSite: true);
+  }
+
+  Future<void> _submit(bool checkIn, {bool switchSite = false}) async {
     final l10n = context.l10n;
     String? workType;
     double? squareMeters;
-    if (!checkIn && primaryRole(widget.user.roles) == AppRole.worker) {
+    if ((!checkIn || switchSite) &&
+        primaryRole(widget.user.roles) == AppRole.worker) {
       final work = await showWorkCompletedSheet(context);
       if (work == null) return;
       (workType, squareMeters) = work;
@@ -96,6 +120,7 @@ class _CheckInCardState extends State<CheckInCard> {
       checkIn: checkIn,
       kind: widget.kind,
       siteId: widget.siteId,
+      switchSite: switchSite,
       workType: workType,
       squareMeters: squareMeters,
     );
@@ -111,33 +136,34 @@ class _CheckInCardState extends State<CheckInCard> {
   Widget build(BuildContext context) {
     return Card(
       clipBehavior: Clip.antiAlias,
-      child: StreamBuilder<Map<String, dynamic>?>(
-        stream: _todayEntry,
+      child: StreamBuilder<DayEntry>(
+        stream: _today,
         builder: (context, snap) {
           final l10n = context.l10n;
-          final entry = snap.data;
-          final here = entry?['projectId'] == widget.siteId;
-          final onSite = entry?['isOnSite'] == true && entry?['leaving_at'] == null;
-          final elsewhere = onSite && !here;
-          final arrived = DateTime.tryParse('${entry?['arriving_at']}');
-          final left = DateTime.tryParse('${entry?['leaving_at']}');
+          final day = snap.data ?? DayEntry.empty;
+          final open = day.open;
+          final onSite = open != null && open.siteId == widget.siteId;
+          final elsewhere = open != null && !onSite;
+          final here = day.atSite(widget.siteId).toList();
+          final doneHere =
+              here.fold(Duration.zero, (t, s) => t + s.worked());
+          String hm(DateTime t) => TimeOfDay.fromDateTime(t).format(context);
 
           final (String statusText, Tone statusTone) = switch (null) {
-            _ when onSite && here && arrived != null => (
-                l10n.onSiteSince(TimeOfDay.fromDateTime(arrived).format(context),
-                    localizedDuration(l10n, DateTime.now().difference(arrived))),
+            _ when onSite => (
+                l10n.onSiteSince(
+                    hm(open.start), localizedDuration(l10n, open.worked())),
                 Tone.ok
               ),
-            _ when elsewhere => (
-                l10n.checkedInAtSite('${entry?['projectName']}'),
-                Tone.warn
-              ),
-            _ when here && arrived != null && left != null => (
-                l10n.doneToday(localizedDuration(l10n, left.difference(arrived))),
+            _ when elsewhere => (l10n.checkedInAtSite(open.siteName), Tone.warn),
+            _ when here.isNotEmpty => (
+                l10n.doneToday(localizedDuration(l10n, doneHere)),
                 Tone.neutral
               ),
             _ => (l10n.notCheckedIn, Tone.neutral),
           };
+          final outside = onSite ? open.outsideSince : null;
+          final autoClosed = !onSite && here.any((s) => s.auto != null);
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -180,6 +206,12 @@ class _CheckInCardState extends State<CheckInCard> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Wrap(spacing: 8, runSpacing: 6, children: [
                   StatusPill(statusText, tone: statusTone, icon: Icons.schedule),
+                  if (outside != null)
+                    StatusPill(l10n.outsideSiteSince(hm(outside)),
+                        tone: Tone.warn, icon: Icons.directions_walk),
+                  if (autoClosed)
+                    StatusPill(l10n.autoCheckedOut,
+                        tone: Tone.warn, icon: Icons.timer_off),
                   ValueListenableBuilder<LiveDeviceState>(
                     valueListenable: TrackingService.state,
                     builder: (_, s, __) {
@@ -216,17 +248,21 @@ class _CheckInCardState extends State<CheckInCard> {
                               ]),
                         ),
                       )
-                    : FilledButton.icon(
-                        style: FilledButton.styleFrom(
-                          backgroundColor:
-                              onSite && here ? AppColors.bad : AppColors.ok,
-                        ),
-                        onPressed: elsewhere
-                            ? null
-                            : () => _submit(!(onSite && here)),
-                        icon: Icon(onSite && here ? Icons.logout : Icons.login),
-                        label: Text(onSite && here ? l10n.checkOut : l10n.checkIn),
-                      ),
+                    : elsewhere
+                        ? OutlinedButton.icon(
+                            onPressed: () => _switch(open),
+                            icon: const Icon(Icons.swap_horiz),
+                            label: Text(l10n.switchHere),
+                          )
+                        : FilledButton.icon(
+                            style: FilledButton.styleFrom(
+                              backgroundColor:
+                                  onSite ? AppColors.bad : AppColors.ok,
+                            ),
+                            onPressed: () => _submit(!onSite),
+                            icon: Icon(onSite ? Icons.logout : Icons.login),
+                            label: Text(onSite ? l10n.checkOut : l10n.checkIn),
+                          ),
               ),
             ],
           );

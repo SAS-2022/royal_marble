@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:royal_marble/account_settings/users_details.dart';
 import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/core/roles.dart';
+import 'package:royal_marble/models/attendance.dart';
 import 'package:royal_marble/models/device_status.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/widgets/status_widgets.dart';
@@ -135,9 +136,8 @@ class _UserTile extends StatelessWidget {
     final role = primaryRole(user.roles);
     final status = DeviceStatus.fromMap(user.deviceStatus);
     final hasImage = user.imageUrl?.startsWith('http') == true;
-    final site = user.assignedProject is Map
-        ? (user.assignedProject as Map)['name']
-        : null;
+    final sites = siteAssignments(user.assignedProject).map((a) => a['name']);
+    final site = sites.isEmpty ? null : sites.join(', ');
 
     return Card(
       child: ListTile(
@@ -156,7 +156,7 @@ class _UserTile extends StatelessWidget {
         title: Text('${user.firstName ?? ''} ${user.lastName ?? ''}',
             style: const TextStyle(fontWeight: FontWeight.w700)),
         subtitle: Text(
-          [role.localized(context.l10n), if (site != null) '$site'].join(' · '),
+          [role.localized(context.l10n), if (site != null) site].join(' · '),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),

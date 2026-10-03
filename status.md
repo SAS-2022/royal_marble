@@ -4,7 +4,7 @@ Living tracker for this project, kept up to date across chat sessions.
 **Read this first when resuming work. Update it after every step: tick tasks, change
 phase status, and add a line to the session log.**
 
-_Last updated: 2026-10-01_
+_Last updated: 2026-10-03_
 
 ---
 
@@ -45,7 +45,7 @@ supervisors see attendance, alerts and reports.
 | `users/{uid}/location/current` | Latest raw background-location fix |
 | `users/{uid}/clientVisits`, `/projectVisits` | Sales visit logs |
 | `projects`, `mockup` | Sites (`selectedAddress` / `address` = `{addressName, Lat, Lng}`, `radius`, `assignedWorkers`) |
-| `time_sheet/{d-m-yyyy}` | One doc per day, a map keyed by uid: `arriving_at`, `leaving_at` (local-time strings), `isOnSite`, `roles`, `projectId`, `workCompleted` |
+| `time_sheet/{d-m-yyyy}` | One doc per day, a map keyed by uid. **`sessions`** (one per stay at a site: `siteId`, `siteKind`, `siteName`, `in`/`out` local stamps + `inTs`/`outTs`, `events` enter/exit, `work`, `auto`, `switched`, `corrected`), plus `reviewed` / `corrections` (admin audit). The flat legacy fields `arriving_at`, `leaving_at`, `isOnSite`, `projectId`, `projectName`, `workCompleted` are derived from sessions on every server write so the 2023 app keeps working. Entries without `sessions` are read as one session. |
 | `device_events` | Phone status changes (location off, offline, silent, fake GPS…) |
 | `clients`, `helper` | Sales clients; masons' helpers |
 
@@ -71,6 +71,9 @@ supervisors see attendance, alerts and reports.
 - [x] API keys moved out of source
 - [x] Phase 1: Sentry → Firebase Crashlytics (verified a test report was delivered)
 - [x] Phase 5 code: salary packages (admin editor, worker "My pay") — rules deploy on hold
+- [x] Phase 2 + 3 code (2026-10-03): per-site sessions, site switching, geofence presence log,
+      auto check-out, admin correction screen with audit, multi-site assignments, per-site
+      reports — **functions not deployed**; verified on the emulators
 
 ## 3. Blocked / waiting on the client
 
@@ -84,7 +87,7 @@ supervisors see attendance, alerts and reports.
       Deploy: `firebase deploy --only functions,firestore:indexes ...`
 - [ ] **Payment** under the contract (work paused until received)
 - [ ] Rotate or restrict the Google Maps API keys (exposed in git history)
-- [ ] A test mason account for end-to-end testing
+- [ ] A test mason account in production for end-to-end testing (emulator accounts exist)
 - [ ] Decide: track masons 24/7 or only during working hours
 - [ ] Possible duplicate accounts: "Nemichand Saini" ×2, "Rajender"/"Rajendr" Saini
 - [ ] **User:** open Firebase console → Crashlytics once to switch on the dashboard
@@ -94,7 +97,8 @@ supervisors see attendance, alerts and reports.
 | What | Command (add `--project royal-marble --account royalmarble.uae@gmail.com`) | Safe for old app? | Needs billing? |
 |---|---|---|---|
 | `payroll` rules (additive) | `firebase deploy --only firestore:rules` | ✅ yes | no |
-| Functions `checkInOut`, `detectSilentDevices` + index | `firebase deploy --only functions,firestore:indexes` | ✅ yes (old app never calls them) | **yes** |
+| Functions `checkInOut`, `reportPresence`, `autoCheckout`, `correctAttendance`, `detectSilentDevices` + index | `firebase deploy --only functions,firestore:indexes` | ✅ yes (old app never calls them; `autoCheckout` only touches entries that have `sessions`, which only the new server writes) | **yes** |
+| Assignment migration (`functions/scripts/migrate-assignments.js`: mason map → list, stale team entries) | dry run first, then `--project royal-marble --apply` | ❌ **only after every phone runs the new app** (old app reads a mason's assignment as a map) | no |
 | Strict role-based rules | copy `firestore.strict.rules` → `firestore.rules`, deploy | ❌ **only after every phone runs the new app** | no |
 
 The new app's check-in depends on `checkInOut`. Old app versions still write
@@ -137,9 +141,16 @@ The new app's check-in depends on `checkInOut`. Old app versions still write
   the emulators; also clears test timesheets). Accounts, password `test1234`:
   `admin@test.local`, `supervisor@test.local`, `mason1@test.local` (Test Villa + Marina
   Mock-up), `mason2@test.local` (Far Site), `pending@test.local` (inactive).
-- Server check-in tests: `cd functions && npm run test:checkin` — 12 scenarios
-  (in/out of range, not assigned, fake GPS, weak GPS, double check-in, check-out,
-  mock-up, inactive account). **All pass (2026-10-02).**
+- Server attendance tests: `cd functions && npm run test:checkin` (re-seeds first) — 31
+  scenarios: check-in rules (range, assignment, fake/weak GPS, double check-in, inactive),
+  site switching and session shape, presence enter/exit, alerts, auto check-out (away
+  60 min, end of day) via the emulator-only `devRunAutoCheckout` trigger, admin
+  corrections. **All pass (2026-10-03).** Run before 21:00 local: after 22:00 the
+  end-of-day rule fires early and one check fails.
+- `mason1` is assigned (list shape) to Test Villa + Marina Tower (70 m apart, both in
+  range at the geo fix below) and Marina Mock-up; `mason2` keeps the legacy map shape.
+- If the app shows stale data / `INVALID_REFRESH_TOKEN` after the emulators restart,
+  sign out and in again.
 - App against the emulators: `flutter run --dart-define-from-file=config/env.json
   --dart-define=USE_EMULATOR=true` (purple EMULATOR ribbon). Real phone: add
   `--dart-define=EMULATOR_HOST=<Mac LAN IP>`.
@@ -182,10 +193,10 @@ The new app's check-in depends on `checkInOut`. Old app versions still write
 
 | # | Requirement | Current state |
 |---|---|---|
-| a | Workers check in/out **only at assigned sites** | ⚠️ Partly. The app only shows assigned sites, but the server function does **not** verify the assignment. |
-| b | Timesheet per worker, **monitoring presence** on site | ⚠️ Partly. A daily entry records check-in/out. Presence *during* the day is not logged, and 63 of 93 mason-days in Nov 2023 had no check-out. |
-| c | **Admin notified when a worker leaves** the site | ❌ Not built. Alerts exist for location off/offline/silent, but not for leaving the site, and nothing pushes to the admin's phone. |
-| d | Worker on **several sites**, hours **per site** | ❌ Not supported. A mason holds one assignment, and a timesheet day holds one site per worker (a second check-in overwrites the site). |
+| a | Workers check in/out **only at assigned sites** | ✅ Code done (server checks assignment); deploy pending. |
+| b | Timesheet per worker, **monitoring presence** on site | ✅ Code done: presence log, auto check-out, admin review; deploy pending. |
+| c | **Admin notified when a worker leaves** the site | 🔄 In-app `left_site` alert done; push notifications not built. |
+| d | Worker on **several sites**, hours **per site** | ✅ Code done: multi-site assignments, sessions, per-site reports; migration at rollout. |
 | e | **Salary details** (basic, housing, transport, food…) | ❌ Not built. |
 | f | Pay based on **worked hours**; no check-in/out → unpaid | ❌ Not built. Needs policy decisions (see Phase 6). |
 
@@ -221,7 +232,7 @@ independent and needs no billing, so it goes first.
    banner, My pay).
 2. ✅ **Local test backend:** Firebase Emulator Suite (Auth + Firestore + Functions),
    seed script and 12 automated check-in scenarios — see "How to resume".
-3. **Phase 2 + 3 code** against the emulator: assignment check, presence log,
+3. ✅ **Phase 2 + 3 code** against the emulator: assignment check, presence log,
    multi-site sessions, per-site hours; migration script written but not run.
 4. **Phase 7:** redesign the remaining old screens, written with translations from
    the start.
@@ -234,9 +245,9 @@ independent and needs no billing, so it goes first.
 | Phase | Status | Blocked by |
 |---|---|---|
 | 1 Crashlytics | ✅ | — (open the Crashlytics page in the console once) |
-| 2 Attendance correctness | ⬜ | Functions deploy (billing) |
-| 3 Multi-site + per-site hours | ⬜ | Phase 2; functions deploy |
-| 4 Leaving-site alerts + push | ⬜ | Phase 2; functions deploy |
+| 2 Attendance correctness | 🔄 code ✅ | Functions deploy (billing); client decision #2 |
+| 3 Multi-site + per-site hours | 🔄 code ✅ | Functions deploy; migration at rollout |
+| 4 Leaving-site alerts + push | 🔄 | `left_site` alerts done (in-app); push not started |
 | 5 Salary details | 🔄 | `payroll` rules deploy (production freeze) |
 | 6 Hours-based pay | ⬜ | Phases 2, 3, 5; client decisions (below) |
 | 7 Remaining UI + delivery | ⬜ | — (web dashboard after 2–4) |
@@ -246,7 +257,10 @@ independent and needs no billing, so it goes first.
 1. Standard working hours per day, and working days per month (UAE practice is often
    26 or 30 days for daily rate calculation).
 2. A day with check-in but **no check-out**: zero pay, auto check-out at the last
-   on-site time, or admin reviews each one?
+   on-site time, or admin reviews each one? *Built for now:* auto check-out after 60 min
+   outside the site (at the exit time) or at 22:00 local (at the phone's last report),
+   flagged for admin review — `AWAY_LIMIT_MIN` / `END_OF_DAY_HOUR` in
+   `functions/src/attendance.ts`. Is time briefly outside the site (lunch) paid?
 3. Overtime: paid? At what rate (UAE labour law sets 125%, or 150% at night or on rest days)?
 4. Weekends, public holidays, sick and annual leave: how are they recorded and paid?
 5. Allowances (housing, transport, food): fixed monthly, or reduced for absent days?
@@ -279,23 +293,32 @@ Works on the free plan (no billing needed).
   can't resolve hosts, start it with `-dns-server 8.8.8.8`.
 
 ### Phase 2 — Attendance correctness (a, b)
-- [x] `checkInOut`: reject sites the worker isn't assigned to (code done 2026-10-02,
-      not deployed).
-- Presence log: a geofence for each assigned site; record enter/exit while checked in
-  as `presence` events on the day's entry (time inside vs. outside).
-- Missing check-outs: auto check-out at the last on-site time when the worker leaves
-  the site area or at a set end of day, marked `autoCheckout: true` so admins can see it.
-- Admin correction screen: fix or approve an entry, with an audit trail.
-- Needs functions deployed (billing).
+Code done 2026-10-03, verified on the emulators; nothing deployed.
+- [x] `checkInOut`: reject sites the worker isn't assigned to.
+- [x] Presence log: a geofence per assigned site (`TrackingService`, min radius 150 m);
+      enter/exit go to the `reportPresence` callable, recorded as `events` on the open
+      session only while checked in there; `left_site` / `returned_to_site` alerts.
+- [x] Auto check-out: scheduled `autoCheckout` (every 15 min) — 60 min outside → closed
+      at the exit time (`auto: left_site`); still open at 22:00 local → closed at the
+      phone's last report (`auto: end_of_day`); `auto_checkout` alert.
+- [x] Admin correction screen (`lib/screens/attendance_edit_screen.dart`, opened by
+      tapping a report row): change site/times, add or remove a stay, or approve as is;
+      `correctAttendance` keeps `corrections` (who, when, reason, previous sessions).
+- [ ] Verify geofence events on a real phone (the emulator can't move realistically).
+- [ ] Night shifts across midnight aren't modelled (a session belongs to its start day).
 
 ### Phase 3 — Multiple sites per worker, hours per site (d)
-- Data model: masons get `assignments: [{id, kind, name, address, radius}]`
-  (a list, like supervisors); keep reading the old single map during migration.
-- Timesheet: per-site **sessions** (`{siteId, in, out}`) under each worker's daily
-  entry; one open session at a time; switching site closes the previous session.
-- Migration script for existing users and the timesheet shape (old reports keep working).
-- Reports: hours per site and per worker; site filter.
-- Manage-team sheet: stop moving masons off other sites; add instead.
+- [x] Assignments are a list for everyone; the team sheet adds a site instead of moving
+      the worker; removal matches by site id (`DatabaseService._setAssignment`).
+      Readers accept the old single map (`siteAssignments`).
+- [x] Timesheet sessions, one open at a time; "Switch to this site" on the check-in card
+      closes the old session (mason fills the work sheet for it) and opens the new one.
+- [x] Reports: one row per stay, site filter, "By site" view, auto/edited tags, away
+      time; PDF/Excel get a Note column and an hours-by-site table/sheet.
+- [x] Migration script `functions/scripts/migrate-assignments.js` (dry run by default;
+      tried on the emulator). **Not run on production.**
+- Home: admin's "Today's attendance" lists each worker's sites in order; supervisors'
+  roster shows the current site and "outside the site since".
 
 ### Phase 4 — Admin alerts when a worker leaves (c)
 - Geofence exit while checked in → `device_events` type `left_site` (plus return).
@@ -405,3 +428,13 @@ Workers come from different countries; each user picks a language.
   disagree. Next: Phase 2 + 3 code (agenda item 3).
 - **2026-10-02 (end of session)** — Paused by the user; all work committed on
   `revive-2026`. Resume with agenda item 3 (Phase 2 + 3 code on the emulators).
+- **2026-10-03** — Agenda item 3 done (Phase 2 + 3 code, nothing deployed). Server:
+  per-site sessions with legacy fields kept, site switching, `reportPresence`,
+  `autoCheckout`, `correctAttendance`; 31 emulator scenarios pass. App: sessions model,
+  check-in card with "Switch to this site" and outside/auto pills, geofences per site,
+  multi-site team assignment, reports by site with review flow, correction screen,
+  35 new strings in 4 languages; 17 unit tests pass. Verified in the app on the emulator
+  (Arabic): mason check-in → switch site with work sheet; admin dashboard, report,
+  approve an auto check-out. Fixed RTL time ranges ("16:30 → 07:00"). Migration script
+  written, tried on the emulator only. Next: agenda item 4 (Phase 7 screens) or Phase 4
+  push wiring.

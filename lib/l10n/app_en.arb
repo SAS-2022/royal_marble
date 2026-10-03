@@ -606,15 +606,7 @@
   },
   "searchPeople": "Search people",
   "saveTeam": "Save team",
-  "willMoveFrom": "will move from {site}",
-  "@willMoveFrom": {
-    "placeholders": {
-      "site": {
-        "type": "String"
-      }
-    }
-  },
-  "currentlyAt": "currently at {site}",
+  "currentlyAt": "also at {site}",
   "@currentlyAt": {
     "placeholders": {
       "site": {
@@ -713,5 +705,114 @@
       }
     }
   },
-  "nowLabel": "now"
+  "nowLabel": "now",
+  "switchHere": "Switch to this site",
+  "switchSiteTitle": "Switch site?",
+  "switchSiteBody": "You will be checked out of {from} and checked in at {to}.",
+  "@switchSiteBody": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "outsideSiteSince": "Outside the site since {time}",
+  "@outsideSiteSince": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "autoCheckedOut": "Checked out automatically",
+  "evLeftSite": "Left {site} while checked in",
+  "@evLeftSite": {
+    "placeholders": {
+      "site": {
+        "type": "String"
+      }
+    }
+  },
+  "evReturnedToSite": "Returned to {site}",
+  "@evReturnedToSite": {
+    "placeholders": {
+      "site": {
+        "type": "String"
+      }
+    }
+  },
+  "evAutoCheckout": "Checked out automatically from {site}",
+  "@evAutoCheckout": {
+    "placeholders": {
+      "site": {
+        "type": "String"
+      }
+    }
+  },
+  "allSites": "All sites",
+  "autoCheckoutsToReview": "Automatic check-outs to review: {count}.",
+  "@autoCheckoutsToReview": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "autoCheckoutsToReviewTap": "Automatic check-outs to review: {count}. Tap an entry to fix or approve it.",
+  "@autoCheckoutsToReviewTap": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "awayFor": "away {duration}",
+  "@awayFor": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "autoLeftSiteShort": "Auto: left site",
+  "autoEndOfDayShort": "Auto: end of day",
+  "editedByAdmin": "Edited",
+  "noOutCount": "{count} no out",
+  "@noOutCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "errEndBeforeStart": "Check-out must be after check-in.",
+  "errOnlyLastOpen": "Only the last stay can be left without a check-out.",
+  "errSessionsOverlap": "Two stays overlap. Adjust the times.",
+  "attendanceSaved": "Attendance saved",
+  "errNotAdmin": "Only admins can correct attendance.",
+  "reviewHint": "The system closed this day automatically. Fix the times if needed, or approve them as they are.",
+  "addSession": "Add a stay",
+  "correctionNote": "Reason",
+  "correctionNoteHint": "e.g. Forgot to check out, confirmed by supervisor",
+  "saveChanges": "Save changes",
+  "approveAsIs": "Approve as is",
+  "correctionHistory": "Change history",
+  "previously": "Before: {sessions}",
+  "@previously": {
+    "placeholders": {
+      "sessions": {
+        "type": "String"
+      }
+    }
+  },
+  "removeSession": "Remove this stay",
+  "inLabel": "In",
+  "outLabel": "Out",
+  "setCheckOut": "Set check-out",
+  "leaveOpen": "Leave open (still on site)",
+  "leftAt": "Left",
+  "returnedAt": "Back"
 }

@@ -1,13 +1,16 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
 import 'package:royal_marble/core/error_reporter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../models/attendance.dart' show siteAssignments;
 import '../models/user_model.dart';
 
 /// What the phone currently knows about its own tracking health.
@@ -75,7 +78,11 @@ class TrackingService {
 
   static const _prefUserId = 'userId';
   static const _prefUserName = 'userName';
-  static const _prefProject = 'trackedProject';
+  static const _prefSites = 'trackedSites';
+
+  /// Android geofences smaller than this fire late or not at all, so small
+  /// sites get a slightly larger fence (exits are then reported a bit later).
+  static const _minGeofenceRadius = 150.0;
 
   /// Starts tracking for [user]. Safe to call repeatedly (e.g. on every
   /// rebuild of the home screen); work is only redone when needed.
@@ -85,7 +92,7 @@ class TrackingService {
     await prefs.setString(_prefUserId, user.uid!);
     await prefs.setString(
         _prefUserName, '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim());
-    await rememberProject(user.assignedProject);
+    final sites = await rememberSites(user);
 
     if (!_listenersAttached) {
       _listenersAttached = true;
@@ -104,12 +111,15 @@ class TrackingService {
           (e) => handleEvent(bg.Event.ENABLEDCHANGE, e));
       bg.BackgroundGeolocation.onHeartbeat(
           (e) => handleEvent(bg.Event.HEARTBEAT, e));
+      bg.BackgroundGeolocation.onGeofence(
+          (e) => handleEvent(bg.Event.GEOFENCE, e));
     }
 
     try {
       final s = await bg.BackgroundGeolocation.ready(_config());
       if (!s.enabled) await bg.BackgroundGeolocation.start();
       state.value = state.value.copyWith(trackingEnabled: true);
+      await _syncGeofences(sites);
       // Seed the banner and the server copy with the current provider state.
       await handleEvent(bg.Event.PROVIDERCHANGE,
           await bg.BackgroundGeolocation.providerState);
@@ -126,28 +136,54 @@ class TrackingService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_prefUserId);
     await prefs.remove(_prefUserName);
-    await prefs.remove(_prefProject);
+    await prefs.remove(_prefSites);
     for (final k in prefs.getKeys().where((k) => k.startsWith('ds.'))) {
       await prefs.remove(k);
     }
   }
 
-  /// Caches the assigned project's centre and radius so the headless task
-  /// can compute distance-to-site without reading Firestore.
-  static Future<void> rememberProject(dynamic assignedProject) async {
+  /// Caches every assigned site (projects and mock-ups) so the headless
+  /// task can compute distance-to-site without reading Firestore.
+  static Future<List<TrackedSite>> rememberSites(UserData user) async {
+    final sites = [
+      for (final (kind, value) in [
+        ('project', user.assignedProject),
+        ('mockup', user.assignedMockups),
+      ])
+        for (final a in siteAssignments(value))
+          if (TrackedSite.fromAssignment(kind, a) case final site?) site,
+    ];
     final prefs = await SharedPreferences.getInstance();
-    if (assignedProject is Map &&
-        assignedProject['projectAddress'] is Map &&
-        assignedProject['radius'] != null) {
-      final a = assignedProject['projectAddress'];
-      await prefs.setStringList(_prefProject, [
-        '${a['Lat']}',
-        '${a['Lng']}',
-        '${assignedProject['radius']}',
-      ]);
-    } else {
-      await prefs.remove(_prefProject);
+    await prefs.setString(
+        _prefSites, jsonEncode([for (final s in sites) s.toJson()]));
+    return sites;
+  }
+
+  static List<TrackedSite> _cachedSites(SharedPreferences prefs) {
+    try {
+      final raw = jsonDecode(prefs.getString(_prefSites) ?? '[]') as List;
+      return [for (final m in raw) TrackedSite.fromJson(m as Map)];
+    } catch (_) {
+      return const [];
     }
+  }
+
+  /// One geofence per assigned site; their enter/exit events become the
+  /// presence log while the worker is checked in.
+  static Future<void> _syncGeofences(List<TrackedSite> sites) async {
+    await bg.BackgroundGeolocation.removeGeofences();
+    if (sites.isEmpty) return;
+    await bg.BackgroundGeolocation.addGeofences([
+      for (final s in sites)
+        bg.Geofence(
+          identifier: s.geofenceId,
+          latitude: s.lat,
+          longitude: s.lng,
+          radius: max(s.radius, _minGeofenceRadius),
+          notifyOnEntry: true,
+          notifyOnExit: true,
+        ),
+    ]);
   }
 
   static bg.Config _config() => bg.Config(
@@ -194,7 +230,9 @@ class TrackingService {
           final l = event as bg.Location;
           if (l.sample) return;
           state.value = state.value.copyWith(lastLocation: l);
-          await reporter.location(l, prefs.getStringList(_prefProject));
+          await reporter.location(l, _cachedSites(prefs));
+        case bg.Event.GEOFENCE:
+          await reporter.geofence(event as bg.GeofenceEvent);
         case bg.Event.HEARTBEAT:
           final l = (event as bg.HeartbeatEvent).location;
           await reporter.heartbeat(l);
@@ -347,17 +385,13 @@ class _Reporter {
     }
   }
 
-  Future<void> location(bg.Location l, List<String>? project) async {
+  Future<void> location(bg.Location l, List<TrackedSite> sites) async {
+    // Distance to the edge of the nearest assigned site (≤ 0 means inside).
     double? distanceToEdge;
-    if (project != null && project.length == 3) {
-      final lat = double.tryParse(project[0]);
-      final lng = double.tryParse(project[1]);
-      final radius = double.tryParse(project[2]);
-      if (lat != null && lng != null && radius != null) {
-        distanceToEdge =
-            haversineMeters(l.coords.latitude, l.coords.longitude, lat, lng) -
-                radius;
-      }
+    for (final s in sites) {
+      final d = haversineMeters(l.coords.latitude, l.coords.longitude, s.lat, s.lng) -
+          s.radius;
+      if (distanceToEdge == null || d < distanceToEdge) distanceToEdge = d;
     }
 
     await _user.update({
@@ -406,6 +440,24 @@ class _Reporter {
     }
   }
 
+  /// Sends a site enter/exit to the server, which records it only while the
+  /// worker is checked in at that site.
+  Future<void> geofence(bg.GeofenceEvent e) async {
+    final (kind, siteId) = TrackedSite.parseGeofenceId(e.identifier);
+    if (siteId == null || (e.action != 'ENTER' && e.action != 'EXIT')) return;
+    await FirebaseFunctions.instance.httpsCallable('reportPresence').call({
+      'kind': kind,
+      'siteId': siteId,
+      'transition': e.action == 'ENTER' ? 'enter' : 'exit',
+      'at': DateTime.tryParse(e.timestamp)?.toUtc().toIso8601String(),
+      'lat': e.location.coords.latitude,
+      'lng': e.location.coords.longitude,
+      'accuracy': e.location.coords.accuracy,
+      'mock': e.location.mock,
+      'utcOffsetMinutes': DateTime.now().timeZoneOffset.inMinutes,
+    });
+  }
+
   Future<void> heartbeat(bg.Location? l) async {
     await _status({
       if (l != null) 'battery': l.battery.level,
@@ -422,4 +474,43 @@ double haversineMeters(double lat1, double lng1, double lat2, double lng2) {
   final a = sin(dLat / 2) * sin(dLat / 2) +
       cos(lat1 * pi / 180) * cos(lat2 * pi / 180) * sin(dLng / 2) * sin(dLng / 2);
   return 2 * r * asin(sqrt(a));
+}
+
+/// An assigned site as cached for tracking: centre, radius and geofence id.
+@immutable
+class TrackedSite {
+  final String kind;
+  final String id;
+  final double lat;
+  final double lng;
+  final double radius;
+
+  const TrackedSite(this.kind, this.id, this.lat, this.lng, this.radius);
+
+  static TrackedSite? fromAssignment(String kind, Map<String, dynamic> a) {
+    final address = a['projectAddress'];
+    final lat = address is Map ? (address['Lat'] as num?)?.toDouble() : null;
+    final lng = address is Map ? (address['Lng'] as num?)?.toDouble() : null;
+    final radius = (a['radius'] as num?)?.toDouble() ??
+        double.tryParse('${a['radius']}');
+    if (lat == null || lng == null || radius == null) return null;
+    return TrackedSite(kind, '${a['id']}', lat, lng, radius);
+  }
+
+  factory TrackedSite.fromJson(Map m) => TrackedSite(
+      '${m['kind']}', '${m['id']}', (m['lat'] as num).toDouble(),
+      (m['lng'] as num).toDouble(), (m['radius'] as num).toDouble());
+
+  Map<String, dynamic> toJson() =>
+      {'kind': kind, 'id': id, 'lat': lat, 'lng': lng, 'radius': radius};
+
+  String get geofenceId => '$kind:$id';
+
+  static (String, String?) parseGeofenceId(String identifier) {
+    final i = identifier.indexOf(':');
+    if (i <= 0) return ('', null);
+    final kind = identifier.substring(0, i);
+    if (kind != 'project' && kind != 'mockup') return ('', null);
+    return (kind, identifier.substring(i + 1));
+  }
 }

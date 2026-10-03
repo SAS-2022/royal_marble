@@ -129,6 +129,9 @@ class DeviceEvent {
   final String severity;
   final DateTime? at;
 
+  /// Site name for attendance alerts (left site, auto check-out).
+  final String? site;
+
   const DeviceEvent({
     required this.id,
     required this.uid,
@@ -137,6 +140,7 @@ class DeviceEvent {
     required this.message,
     required this.severity,
     this.at,
+    this.site,
   });
 
   factory DeviceEvent.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
@@ -149,6 +153,7 @@ class DeviceEvent {
       message: d['message'] ?? '',
       severity: d['severity'] ?? 'info',
       at: ((d['at'] ?? d['receivedAt']) as Timestamp?)?.toDate(),
+      site: d['site'] as String?,
     );
   }
 }

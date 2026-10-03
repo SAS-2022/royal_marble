@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import 'package:provider/provider.dart';
 import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/core/format.dart';
@@ -11,6 +11,7 @@ import 'package:royal_marble/core/locale_controller.dart';
 import 'package:royal_marble/core/roles.dart';
 import 'package:royal_marble/mockups/mockup_grid.dart';
 import 'package:royal_marble/mockups/mockup_status.dart';
+import 'package:royal_marble/models/attendance.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/models/device_status.dart';
 import 'package:royal_marble/models/user_model.dart';
@@ -64,7 +65,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void _ensureTracking(UserData user) {
     if (user.uid == null || user.isActive != true) return;
     final track = primaryRole(user.roles) != AppRole.admin;
-    final key = '${user.uid}|$track|${user.assignedProject}';
+    final key =
+        '${user.uid}|$track|${user.assignedProject}|${user.assignedMockups}';
     if (_trackingStartedFor == key) return;
     _trackingStartedFor = key;
     // Older versions tracked admins too and set the service to start on boot.
@@ -155,16 +157,6 @@ class _Greeting extends StatelessWidget {
   }
 }
 
-/// A user's assignment field is a single map for workers and a list for
-/// supervisors; normalise both to a list of non-empty maps.
-List<Map<String, dynamic>> _assignments(dynamic value) {
-  final list = value is List ? value : [value];
-  return [
-    for (final v in list)
-      if (v is Map && v['id'] != null) Map<String, dynamic>.from(v),
-  ];
-}
-
 Widget _cardFor(BuildContext context, UserData user, Map<String, dynamic> a,
     SiteKind kind) {
   final address = a['projectAddress'] as Map?;
@@ -251,8 +243,8 @@ class _WorkerHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final projects = _assignments(user.assignedProject);
-    final mockups = _assignments(user.assignedMockups);
+    final projects = siteAssignments(user.assignedProject);
+    final mockups = siteAssignments(user.assignedMockups);
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       children: [
@@ -290,15 +282,15 @@ class _SupervisorHome extends StatelessWidget {
   Widget build(BuildContext context) {
     final allUsers = Provider.of<List<UserData>>(context);
     final timesheet = Provider.of<Map<String, dynamic>>(context);
-    final projects = _assignments(user.assignedProject);
-    final mockups = _assignments(user.assignedMockups);
+    final projects = siteAssignments(user.assignedProject);
+    final mockups = siteAssignments(user.assignedMockups);
     final siteIds = {...projects.map((p) => p['id']), ...mockups.map((m) => m['id'])};
     final team = allUsers
         .where((u) =>
             u.uid != user.uid &&
             u.isActive == true &&
-            (_assignments(u.assignedProject).any((a) => siteIds.contains(a['id'])) ||
-                _assignments(u.assignedMockups).any((a) => siteIds.contains(a['id']))))
+            (siteAssignments(u.assignedProject).any((a) => siteIds.contains(a['id'])) ||
+                siteAssignments(u.assignedMockups).any((a) => siteIds.contains(a['id']))))
         .toList();
 
     return ListView(
@@ -348,14 +340,20 @@ class _TeamRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final status = DeviceStatus.fromMap(user.deviceStatus);
-    final onSite = entry?['isOnSite'] == true && entry?['leaving_at'] == null;
-    final arrived = DateTime.tryParse('${entry?['arriving_at']}');
+    final day = DayEntry.fromMap(entry);
+    final open = day.open;
     final problems = status.problems;
     return ListTile(
       title: Text('${user.firstName ?? ''} ${user.lastName ?? ''}'),
-      subtitle: Text(onSite && arrived != null
-          ? context.l10n.onSiteAtSince('${entry?['projectName']}', DateFormat('HH:mm').format(arrived))
-          : entry?['leaving_at'] != null
+      subtitle: Text(open != null
+          ? [
+              context.l10n.onSiteAtSince(
+                  open.siteName, DateFormat('HH:mm').format(open.start)),
+              if (open.outsideSince != null)
+                context.l10n.outsideSiteSince(
+                    DateFormat('HH:mm').format(open.outsideSince!)),
+            ].join(' · ')
+          : !day.isEmpty
               ? context.l10n.checkedOut
               : context.l10n.notCheckedIn),
       trailing: !status.hasData
@@ -515,11 +513,13 @@ class _Attendance extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final rows = timesheet.entries
-        .where((e) => e.value is Map)
-        .map((e) => Map<String, dynamic>.from(e.value as Map))
-        .toList()
-      ..sort((a, b) => '${a['arriving_at']}'.compareTo('${b['arriving_at']}'));
+    final rows = [
+      for (final e in timesheet.entries)
+        if (e.value is Map)
+          (e.value as Map, DayEntry.fromMap(e.value as Map))
+    ].where((r) => !r.$2.isEmpty).toList()
+      ..sort((a, b) =>
+          a.$2.sessions.first.start.compareTo(b.$2.sessions.first.start));
     if (rows.isEmpty) {
       return Card(
         child: Padding(
@@ -529,28 +529,40 @@ class _Attendance extends StatelessWidget {
         ),
       );
     }
-    String t(dynamic s) {
-      final d = DateTime.tryParse('$s');
-      return d == null ? '—' : DateFormat('HH:mm').format(d);
-    }
+    String t(DateTime? d) => d == null ? '—' : DateFormat('HH:mm').format(d);
 
     return Card(
       child: Column(children: [
-        for (final (i, r) in rows.indexed) ...[
+        for (final (i, (raw, day)) in rows.indexed) ...[
           if (i > 0) const Divider(indent: 16, endIndent: 16),
           ListTile(
             dense: true,
-            title: Text('${r['firstName'] ?? ''} ${r['lastName'] ?? ''}',
+            title: Text('${raw['firstName'] ?? ''} ${raw['lastName'] ?? ''}',
                 style: const TextStyle(fontWeight: FontWeight.w600)),
-            subtitle: Text('${r['projectName'] ?? ''}'),
+            // Sites in the order visited, e.g. "Villa → Mock-up".
+            subtitle: Text(day.sessions
+                .map((s) => s.siteName)
+                .fold<List<String>>([], (l, n) => l.isNotEmpty && l.last == n ? l : [...l, n])
+                .join(' → ')),
             trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-              Text('${t(r['arriving_at'])} → ${t(r['leaving_at'])}'),
+              if (day.needsReview)
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(end: 6),
+                  child: Tooltip(
+                    message: context.l10n.autoCheckedOut,
+                    child: const Icon(Icons.timer_off,
+                        size: 16, color: AppColors.warn),
+                  ),
+                ),
+              // Times read left to right even in Arabic and Urdu.
+              Text(
+                  '${t(day.sessions.first.start)} → '
+                  '${day.open != null ? context.l10n.nowLabel : t(day.sessions.last.end)}',
+                  textDirection: TextDirection.ltr),
               const SizedBox(width: 8),
               Icon(Icons.circle,
                   size: 10,
-                  color: r['isOnSite'] == true && r['leaving_at'] == null
-                      ? AppColors.ok
-                      : AppColors.line),
+                  color: day.open != null ? AppColors.ok : AppColors.line),
             ]),
           ),
         ],
