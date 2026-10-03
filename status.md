@@ -235,7 +235,7 @@ independent and needs no billing, so it goes first.
 3. ✅ **Phase 2 + 3 code** against the emulator: assignment check, presence log,
    multi-site sessions, per-site hours; migration script written but not run.
 4. 🔄 **Phase 7:** redesign the remaining old screens, written with translations from
-   the start. Order: (1) ✅ sites, (2) own profile + helpers, (3) sales (clients,
+   the start. Order: (1) ✅ sites, (2) ✅ own profile + helpers, (3) sales (clients,
    visits), (4) live map, (5) dead-code cleanup.
 5. **Phase 4 client side** (geofence exit events; push wiring ready, not deployed).
 6. **Tech debt:** remove unused packages, iOS build prep.
@@ -251,7 +251,7 @@ independent and needs no billing, so it goes first.
 | 4 Leaving-site alerts + push | 🔄 | `left_site` alerts done (in-app); push not started |
 | 5 Salary details | 🔄 | `payroll` rules deploy (production freeze) |
 | 6 Hours-based pay | ⬜ | Phases 2, 3, 5; client decisions (below) |
-| 7 Remaining UI + delivery | 🔄 sites ✅ | — (web dashboard after 2–4) |
+| 7 Remaining UI + delivery | 🔄 sites, profile ✅ | — (web dashboard after 2–4) |
 | 8 Localization (en, ar, hi, ur) | 🔄 | — |
 
 ### Decisions needed from the client (Phase 6 and related)
@@ -394,7 +394,16 @@ Workers come from different countries; each user picks a language.
       Removed `lib/projects/*` and `lib/mockups/*` (11 files, ~3,700 lines) and 12
       unused database methods. Site parsing tolerates a whole-number radius, a
       missing phone and a deleted document (old code crashed).
-- [ ] Own profile editor, helpers (group 2)
+- [x] **Own profile and helpers (2026-10-03):** `MyProfileScreen` (photo, name,
+      mobile with UAE check, company, nationality, home address via the shared pin
+      picker; role, sites and helpers read-only) and self-service account deletion
+      (password re-check, deletes profile then login — needed for store review).
+      `HelpersCard` on the mason's profile and on the admin user page: assign up to 2,
+      add/edit/delete helpers (delete also unassigns them everywhere). Admin user page
+      is now `UserAdminScreen`. Removed `users_details.dart`, `helpers.dart`,
+      `helpers_list.dart`, `shared/country_picker.dart` (1,661 lines) and 5 unused DB
+      methods. Profile photos are stored as `profile_images/{uid}.jpg` (replaced, not
+      piled up). Strict rules: only managers write `helper`.
 - [ ] Clients, sales visits (group 3)
 - [ ] Live map (group 4): `show_map.dart` throws a null-check error in `initState`
       when opened without its user list; rebuild it.
@@ -465,3 +474,9 @@ Workers come from different countries; each user picks a language.
   `projectStatus` instead of `status` (dashboard showed 0 active projects); plurals
   ("1 people"). 20 unit tests, 31 emulator scenarios pass. Next: group 2 (own profile
   and helpers).
+- **2026-10-03 (cont.)** — Phase 7 group 2 done: own profile editor with account
+  deletion, helpers card for masons and admins. Verified on the emulator in Arabic:
+  admin adds/deletes a helper and assigns two to Ravi; Ravi sees sites and helpers,
+  sets his home address, saves (role and access untouched); deletion tested on the
+  login emulator (wrong password refused; profile and login removed). Next: group 3
+  (clients and sales visits).

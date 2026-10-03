@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:royal_marble/core/l10n_helpers.dart';
 import 'package:royal_marble/core/locale_controller.dart';
-import 'package:royal_marble/account_settings/users_details.dart';
 import 'package:royal_marble/account_settings/users_grid.dart';
 import 'package:royal_marble/clients/clients_form.dart';
 import 'package:royal_marble/clients/clients_grid.dart';
@@ -12,6 +11,7 @@ import 'package:royal_marble/location/map_providers.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/reports/reports_screen.dart';
 import 'package:royal_marble/sales_pipeline/visit_forms.dart/visit_form_streams.dart';
+import 'package:royal_marble/screens/my_profile_screen.dart';
 import 'package:royal_marble/screens/salary_screens.dart';
 import 'package:royal_marble/screens/site_form_screen.dart';
 import 'package:royal_marble/screens/sites_screen.dart';
@@ -52,7 +52,7 @@ class ProfileDrawer extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 8),
               children: [
                 _Item(Icons.person_outline, l.myProfile,
-                    () => open(UserDetails(currentUser: user, myAccount: true))),
+                    () => open(MyProfileScreen(user: user))),
                 if (!admin)
                   _Item(Icons.payments_outlined, l.myPay,
                       () => open(MyPayScreen(user: user))),

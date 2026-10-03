@@ -872,5 +872,54 @@
   "projectsLabel": "Projects",
   "mockupsLabel": "Mock-ups",
   "noSitesFound": "No sites match.",
-  "siteAddress": "Address"
+  "siteAddress": "Address",
+  "callAction": "Call",
+  "helpersCount": "Helpers ({count})",
+  "@helpersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noHelpers": "No helpers assigned.",
+  "noHelpersYet": "No helpers yet. Add one with the button above.",
+  "helpersMax": "A mason can have at most {count} helpers.",
+  "@helpersMax": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "helpersOf": "Helpers · {name}",
+  "@helpersOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "addHelper": "Add helper",
+  "editHelper": "Edit helper",
+  "saveHelpers": "Save helpers",
+  "helpersSaved": "Helpers updated",
+  "helpersSaveFailed": "Could not update the helpers.",
+  "deleteHelperTitle": "Delete {name}?",
+  "@deleteHelperTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteHelperBody": "They are removed from the helper list and from every mason they work with.",
+  "profileSaved": "Profile saved",
+  "profileSaveFailed": "Could not save your profile. Check your connection and try again.",
+  "sectionAccount": "Account",
+  "deleteMyAccount": "Delete my account",
+  "deleteMyAccountTitle": "Delete your account?",
+  "deleteMyAccountBody": "Your profile and login are deleted for good and you can no longer sign in. Attendance and pay records stay with the company. Enter your password to confirm.",
+  "errWrongPassword": "Wrong password.",
+  "deleteAccountFailed": "Could not delete the account. Check your connection and try again."
 }

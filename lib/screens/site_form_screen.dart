@@ -439,9 +439,13 @@ Circle _radiusCircle(LatLng center, double radius) => Circle(
 /// Full-screen map to place a site's pin: the pin stays in the middle while
 /// the map moves underneath. Returns `{addressName, Lat, Lng}`.
 class SitePinPicker extends StatefulWidget {
-  const SitePinPicker({super.key, this.initial, required this.radius});
+  const SitePinPicker(
+      {super.key, this.initial, required this.radius, this.title});
   final LatLng? initial;
+
+  /// Circle drawn around the pin; 0 hides it (e.g. a home address).
   final double radius;
+  final String? title;
 
   @override
   State<SitePinPicker> createState() => _SitePinPickerState();
@@ -540,7 +544,7 @@ class _SitePinPickerState extends State<SitePinPicker> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: Text(l.placePin)),
+      appBar: AppBar(title: Text(widget.title ?? l.placePin)),
       body: Stack(children: [
         GoogleMap(
           initialCameraPosition:
@@ -550,7 +554,7 @@ class _SitePinPickerState extends State<SitePinPicker> {
           myLocationEnabled: true,
           myLocationButtonEnabled: false,
           zoomControlsEnabled: false,
-          circles: {_radiusCircle(_center, widget.radius)},
+          circles: {if (widget.radius > 0) _radiusCircle(_center, widget.radius)},
         ),
         // The pin's tip sits on the map centre.
         const IgnorePointer(

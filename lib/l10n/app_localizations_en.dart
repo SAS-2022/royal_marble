@@ -1415,4 +1415,79 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get siteAddress => 'Address';
+
+  @override
+  String get callAction => 'Call';
+
+  @override
+  String helpersCount(int count) {
+    return 'Helpers ($count)';
+  }
+
+  @override
+  String get noHelpers => 'No helpers assigned.';
+
+  @override
+  String get noHelpersYet => 'No helpers yet. Add one with the button above.';
+
+  @override
+  String helpersMax(int count) {
+    return 'A mason can have at most $count helpers.';
+  }
+
+  @override
+  String helpersOf(String name) {
+    return 'Helpers · $name';
+  }
+
+  @override
+  String get addHelper => 'Add helper';
+
+  @override
+  String get editHelper => 'Edit helper';
+
+  @override
+  String get saveHelpers => 'Save helpers';
+
+  @override
+  String get helpersSaved => 'Helpers updated';
+
+  @override
+  String get helpersSaveFailed => 'Could not update the helpers.';
+
+  @override
+  String deleteHelperTitle(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String get deleteHelperBody =>
+      'They are removed from the helper list and from every mason they work with.';
+
+  @override
+  String get profileSaved => 'Profile saved';
+
+  @override
+  String get profileSaveFailed =>
+      'Could not save your profile. Check your connection and try again.';
+
+  @override
+  String get sectionAccount => 'Account';
+
+  @override
+  String get deleteMyAccount => 'Delete my account';
+
+  @override
+  String get deleteMyAccountTitle => 'Delete your account?';
+
+  @override
+  String get deleteMyAccountBody =>
+      'Your profile and login are deleted for good and you can no longer sign in. Attendance and pay records stay with the company. Enter your password to confirm.';
+
+  @override
+  String get errWrongPassword => 'Wrong password.';
+
+  @override
+  String get deleteAccountFailed =>
+      'Could not delete the account. Check your connection and try again.';
 }

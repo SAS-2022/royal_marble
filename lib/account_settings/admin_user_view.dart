@@ -10,8 +10,48 @@ import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/screens/salary_screens.dart';
 import 'package:royal_marble/screens/team_status_screen.dart';
 import 'package:royal_marble/services/database.dart';
+import 'package:royal_marble/shared/loading.dart';
+import 'package:royal_marble/widgets/helpers_card.dart';
 import 'package:royal_marble/widgets/status_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+/// Opens another user live (role or access changes show at once) for an
+/// admin or supervisor.
+class UserAdminScreen extends StatefulWidget {
+  const UserAdminScreen({super.key, required this.user, required this.viewer});
+  final UserData user;
+  final UserData viewer;
+
+  @override
+  State<UserAdminScreen> createState() => _UserAdminScreenState();
+}
+
+class _UserAdminScreenState extends State<UserAdminScreen> {
+  final _db = DatabaseService();
+  bool _busy = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(context.l10n.userTitle)),
+      body: Stack(children: [
+        StreamBuilder<UserData>(
+          stream: _db.getUserPerId(uid: widget.user.uid),
+          initialData: widget.user,
+          builder: (context, snap) => SingleChildScrollView(
+            child: AdminUserView(
+              user: snap.data ?? widget.user,
+              viewer: widget.viewer,
+              db: _db,
+              onBusy: (busy) => setState(() => _busy = busy),
+            ),
+          ),
+        ),
+        if (_busy) const Center(child: Loading()),
+      ]),
+    );
+  }
+}
 
 /// What an admin/supervisor sees when opening another user: contact details,
 /// role, access, phone health and recent alerts.
@@ -232,6 +272,9 @@ class AdminUserView extends StatelessWidget {
               ),
             ),
           ],
+
+          if (active && role == AppRole.worker)
+            HelpersCard(mason: user, canManage: true),
 
           // Pay (admins only; supervisors don't see salaries)
           if (viewerIsAdmin && active) ...[

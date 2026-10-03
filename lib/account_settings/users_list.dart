@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:royal_marble/core/l10n_helpers.dart';
 import 'package:royal_marble/core/locale_controller.dart';
 import 'package:provider/provider.dart';
-import 'package:royal_marble/account_settings/users_details.dart';
+import 'package:royal_marble/account_settings/admin_user_view.dart';
 import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/core/roles.dart';
 import 'package:royal_marble/models/attendance.dart';
@@ -114,11 +114,8 @@ class _UserListState extends State<UserList> {
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => UserDetails(
-              currentUser: widget.currentUser,
-              selectedUser: users[i],
-              myAccount: false,
-            ),
+            builder: (_) =>
+                UserAdminScreen(user: users[i], viewer: widget.currentUser!),
           ),
         ),
       ),

@@ -1414,4 +1414,80 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get siteAddress => 'پتہ';
+
+  @override
+  String get callAction => 'کال کریں';
+
+  @override
+  String helpersCount(int count) {
+    return 'مددگار ($count)';
+  }
+
+  @override
+  String get noHelpers => 'کوئی مددگار مقرر نہیں۔';
+
+  @override
+  String get noHelpersYet =>
+      'ابھی کوئی مددگار نہیں۔ اوپر والے بٹن سے شامل کریں۔';
+
+  @override
+  String helpersMax(int count) {
+    return 'ایک مستری کے زیادہ سے زیادہ $count مددگار ہو سکتے ہیں۔';
+  }
+
+  @override
+  String helpersOf(String name) {
+    return 'مددگار · $name';
+  }
+
+  @override
+  String get addHelper => 'مددگار شامل کریں';
+
+  @override
+  String get editHelper => 'مددگار میں ترمیم';
+
+  @override
+  String get saveHelpers => 'مددگار محفوظ کریں';
+
+  @override
+  String get helpersSaved => 'مددگار اپ ڈیٹ ہو گئے';
+
+  @override
+  String get helpersSaveFailed => 'مددگار اپ ڈیٹ نہیں ہو سکے۔';
+
+  @override
+  String deleteHelperTitle(String name) {
+    return '$name حذف کریں؟';
+  }
+
+  @override
+  String get deleteHelperBody =>
+      'انہیں مددگاروں کی فہرست اور ہر اس مستری سے ہٹا دیا جائے گا جس کے ساتھ وہ کام کرتے ہیں۔';
+
+  @override
+  String get profileSaved => 'پروفائل محفوظ ہو گیا';
+
+  @override
+  String get profileSaveFailed =>
+      'پروفائل محفوظ نہیں ہو سکا۔ کنکشن چیک کریں اور دوبارہ کوشش کریں۔';
+
+  @override
+  String get sectionAccount => 'اکاؤنٹ';
+
+  @override
+  String get deleteMyAccount => 'میرا اکاؤنٹ حذف کریں';
+
+  @override
+  String get deleteMyAccountTitle => 'اپنا اکاؤنٹ حذف کریں؟';
+
+  @override
+  String get deleteMyAccountBody =>
+      'آپ کا پروفائل اور لاگ اِن ہمیشہ کے لیے حذف ہو جائے گا اور آپ دوبارہ سائن اِن نہیں کر سکیں گے۔ حاضری اور تنخواہ کا ریکارڈ کمپنی کے پاس رہے گا۔ تصدیق کے لیے پاس ورڈ درج کریں۔';
+
+  @override
+  String get errWrongPassword => 'غلط پاس ورڈ۔';
+
+  @override
+  String get deleteAccountFailed =>
+      'اکاؤنٹ حذف نہیں ہو سکا۔ کنکشن چیک کریں اور دوبارہ کوشش کریں۔';
 }

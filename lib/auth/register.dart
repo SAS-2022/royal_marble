@@ -13,15 +13,6 @@ import 'package:royal_marble/location/google_map_navigation.dart';
 import 'package:royal_marble/services/auth.dart';
 
 /// UAE mobile: 05XXXXXXXX, 5XXXXXXXX, +9715XXXXXXXX or 009715XXXXXXXX.
-final _uaeMobile = RegExp(r'^(?:\+971|00971|0)?5\d{8}$');
-
-/// Stores numbers the way older accounts have them: 05XXXXXXXX.
-String _normalizePhone(String raw) {
-  final digits = raw.replaceAll(RegExp(r'[\s-]'), '');
-  final m = RegExp(r'5\d{8}$').firstMatch(digits);
-  return m == null ? digits : '0${m.group(0)}';
-}
-
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -156,7 +147,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         firstName: _first.text.trim(),
         lastName: _last.text.trim(),
         company: _company.text.trim(),
-        phoneNumber: _normalizePhone(_phone.text),
+        phoneNumber: normalizeUaeMobile(_phone.text),
         nationality: _nationality,
         homeAddress: _home,
         isActive: false,
@@ -346,7 +337,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 hintText: '05X XXX XXXX',
                 prefixIcon: Icon(Icons.phone_outlined),
               ),
-              validator: (v) => _uaeMobile
+              validator: (v) => uaeMobile
                       .hasMatch((v ?? '').replaceAll(RegExp(r'[\s-]'), ''))
                   ? null
                   : context.l10n.mobileInvalid,

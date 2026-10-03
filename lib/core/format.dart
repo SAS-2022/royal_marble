@@ -15,3 +15,13 @@ String prettyAddress(Object? raw) {
   }
   return parts.isEmpty ? s : parts.join(', ');
 }
+
+/// A UAE mobile number in any common form (05X…, +9715X…, 009715X…).
+final uaeMobile = RegExp(r'^(?:\+971|00971|0)?5\d{8}$');
+
+/// Stores numbers the way older accounts have them: 05XXXXXXXX.
+String normalizeUaeMobile(String raw) {
+  final digits = raw.replaceAll(RegExp(r'[\s-]'), '');
+  final m = RegExp(r'5\d{8}$').firstMatch(digits);
+  return m == null ? digits : '0${m.group(0)}';
+}

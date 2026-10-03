@@ -68,9 +68,10 @@ service cloud.firestore {
       allow read, write: if isAdmin() || isSales();
     }
 
+    // Masons' helpers: everyone active can see them, managers keep the list.
     match /helper/{id} {
       allow read: if isActive();
-      allow write: if isActive();
+      allow write: if isManager();
     }
 
     // Written only by the checkInOut Cloud Function (and admins correcting it).

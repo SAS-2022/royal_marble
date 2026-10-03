@@ -2567,6 +2567,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Address'**
   String get siteAddress;
+
+  /// No description provided for @callAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get callAction;
+
+  /// No description provided for @helpersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Helpers ({count})'**
+  String helpersCount(int count);
+
+  /// No description provided for @noHelpers.
+  ///
+  /// In en, this message translates to:
+  /// **'No helpers assigned.'**
+  String get noHelpers;
+
+  /// No description provided for @noHelpersYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No helpers yet. Add one with the button above.'**
+  String get noHelpersYet;
+
+  /// No description provided for @helpersMax.
+  ///
+  /// In en, this message translates to:
+  /// **'A mason can have at most {count} helpers.'**
+  String helpersMax(int count);
+
+  /// No description provided for @helpersOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Helpers · {name}'**
+  String helpersOf(String name);
+
+  /// No description provided for @addHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Add helper'**
+  String get addHelper;
+
+  /// No description provided for @editHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit helper'**
+  String get editHelper;
+
+  /// No description provided for @saveHelpers.
+  ///
+  /// In en, this message translates to:
+  /// **'Save helpers'**
+  String get saveHelpers;
+
+  /// No description provided for @helpersSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Helpers updated'**
+  String get helpersSaved;
+
+  /// No description provided for @helpersSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update the helpers.'**
+  String get helpersSaveFailed;
+
+  /// No description provided for @deleteHelperTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name}?'**
+  String deleteHelperTitle(String name);
+
+  /// No description provided for @deleteHelperBody.
+  ///
+  /// In en, this message translates to:
+  /// **'They are removed from the helper list and from every mason they work with.'**
+  String get deleteHelperBody;
+
+  /// No description provided for @profileSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile saved'**
+  String get profileSaved;
+
+  /// No description provided for @profileSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save your profile. Check your connection and try again.'**
+  String get profileSaveFailed;
+
+  /// No description provided for @sectionAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get sectionAccount;
+
+  /// No description provided for @deleteMyAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete my account'**
+  String get deleteMyAccount;
+
+  /// No description provided for @deleteMyAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete your account?'**
+  String get deleteMyAccountTitle;
+
+  /// No description provided for @deleteMyAccountBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your profile and login are deleted for good and you can no longer sign in. Attendance and pay records stay with the company. Enter your password to confirm.'**
+  String get deleteMyAccountBody;
+
+  /// No description provided for @errWrongPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong password.'**
+  String get errWrongPassword;
+
+  /// No description provided for @deleteAccountFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete the account. Check your connection and try again.'**
+  String get deleteAccountFailed;
 }
 
 class _AppLocalizationsDelegate

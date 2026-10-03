@@ -1411,4 +1411,79 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get siteAddress => 'العنوان';
+
+  @override
+  String get callAction => 'اتصال';
+
+  @override
+  String helpersCount(int count) {
+    return 'المساعدون ($count)';
+  }
+
+  @override
+  String get noHelpers => 'لا يوجد مساعدون معيّنون.';
+
+  @override
+  String get noHelpersYet => 'لا يوجد مساعدون بعد. أضف واحداً بالزر أعلاه.';
+
+  @override
+  String helpersMax(int count) {
+    return 'يمكن لعامل البناء أن يكون له $count مساعدين كحد أقصى.';
+  }
+
+  @override
+  String helpersOf(String name) {
+    return 'المساعدون · $name';
+  }
+
+  @override
+  String get addHelper => 'إضافة مساعد';
+
+  @override
+  String get editHelper => 'تعديل المساعد';
+
+  @override
+  String get saveHelpers => 'حفظ المساعدين';
+
+  @override
+  String get helpersSaved => 'تم تحديث المساعدين';
+
+  @override
+  String get helpersSaveFailed => 'تعذّر تحديث المساعدين.';
+
+  @override
+  String deleteHelperTitle(String name) {
+    return 'حذف $name؟';
+  }
+
+  @override
+  String get deleteHelperBody =>
+      'سيُحذف من قائمة المساعدين ومن كل عامل بناء يعمل معه.';
+
+  @override
+  String get profileSaved => 'تم حفظ الملف الشخصي';
+
+  @override
+  String get profileSaveFailed =>
+      'تعذّر حفظ ملفك الشخصي. تحقق من الاتصال وحاول مرة أخرى.';
+
+  @override
+  String get sectionAccount => 'الحساب';
+
+  @override
+  String get deleteMyAccount => 'حذف حسابي';
+
+  @override
+  String get deleteMyAccountTitle => 'حذف حسابك؟';
+
+  @override
+  String get deleteMyAccountBody =>
+      'سيُحذف ملفك الشخصي وحساب الدخول نهائياً ولن تتمكن من تسجيل الدخول مجدداً. تبقى سجلات الحضور والرواتب لدى الشركة. أدخل كلمة المرور للتأكيد.';
+
+  @override
+  String get errWrongPassword => 'كلمة المرور غير صحيحة.';
+
+  @override
+  String get deleteAccountFailed =>
+      'تعذّر حذف الحساب. تحقق من الاتصال وحاول مرة أخرى.';
 }

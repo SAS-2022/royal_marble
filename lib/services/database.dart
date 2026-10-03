@@ -160,27 +160,6 @@ class DatabaseService {
     }
   }
 
-  //update current user
-  Future<String> updateCurrentUser({String? uid, UserData? newUsers}) async {
-    try {
-      return await userCollection.doc(uid).update({
-        'firstName': newUsers!.firstName,
-        'lastName': newUsers.lastName,
-        'imageUrl': newUsers.imageUrl,
-        'company': newUsers.company,
-        'phoneNumber': newUsers.phoneNumber,
-        'nationality': {
-          'contryCode': newUsers.nationality!['countryCode'],
-          'countryName': newUsers.nationality!['countryName']
-        },
-        'homeAddress': newUsers.homeAddress,
-      }).then((value) => 'Completed');
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-      return 'Error: $e';
-    }
-  }
-
   //Update a user with helpers
   Future<String> updateUserWithHelpers(
       {String? uid, List<dynamic>? helpers}) async {
@@ -264,28 +243,6 @@ class DatabaseService {
             firstName: data['firstName'],
             lastName: data['lastName'],
           );
-        }).toList();
-      });
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-      return [];
-    }
-  }
-
-  //Future for getting all masons
-  Future<List<UserData>> getAllMasonsFuture() async {
-    try {
-      return userCollection
-          .where('roles', arrayContains: 'isNormalUser')
-          .get()
-          .then((value) {
-        return value.docs.map((e) {
-          var data = e.data() as Map<String, dynamic>;
-          return UserData(
-              uid: e.id,
-              firstName: data['firstName'],
-              lastName: data['lastName'],
-              assingedHelpers: data['assignedHelpers']);
         }).toList();
       });
     } catch (e, stackTrace) {
@@ -1298,46 +1255,21 @@ class DatabaseService {
     }
   }
 
-  //Read helper data
-  Future<Helpers> readSingleHelper({String? uid}) async {
-    try {
-      return await helperCollection.doc(uid).get().then((value) {
-        var data = value.data() as Map<String, dynamic>;
-        return Helpers(
-            uid: value.id,
-            firstName: data['firstName'],
-            lastName: data['lastName'],
-            mobileNumber: data['mobileNumber']);
+  /// Deletes a helper and takes them off every mason they were assigned to.
+  Future<void> deleteHelperEverywhere(String helperId) async {
+    final masons =
+        await userCollection.where('assignedHelpers', arrayContains: helperId).get();
+    for (final m in masons.docs) {
+      await m.reference.update({
+        'assignedHelpers': FieldValue.arrayRemove([helperId])
       });
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-      return Helpers();
     }
+    await helperCollection.doc(helperId).delete();
   }
 
-  Future<void> deleteHelper({String? uid}) async {
-    try {
-      await helperCollection.doc(uid).delete();
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-    }
-  }
-
-  Future<List<Helpers>> getAssignedHelper() async {
-    try {
-      return helperCollection.get().then((value) => value.docs.map((e) {
-            var data = e.data() as Map<String, dynamic>;
-            return Helpers(
-                uid: e.id,
-                firstName: data['firstName'],
-                lastName: data['lastName'],
-                mobileNumber: data['mobileNumber']);
-          }).toList());
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-      return [];
-    }
-  }
+  /// Saves a user's own editable profile fields (not role or access).
+  Future<void> updateMyProfile(String uid, Map<String, dynamic> fields) =>
+      userCollection.doc(uid).update(fields);
 
   Stream<List<Helpers>> streamAllHelpers() {
     return helperCollection.snapshots().map(_mapAllHelpersData);

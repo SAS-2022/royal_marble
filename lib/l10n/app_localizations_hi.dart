@@ -1410,4 +1410,79 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get siteAddress => 'पता';
+
+  @override
+  String get callAction => 'कॉल करें';
+
+  @override
+  String helpersCount(int count) {
+    return 'सहायक ($count)';
+  }
+
+  @override
+  String get noHelpers => 'कोई सहायक नियुक्त नहीं।';
+
+  @override
+  String get noHelpersYet => 'अभी कोई सहायक नहीं। ऊपर के बटन से जोड़ें।';
+
+  @override
+  String helpersMax(int count) {
+    return 'एक मिस्त्री के अधिकतम $count सहायक हो सकते हैं।';
+  }
+
+  @override
+  String helpersOf(String name) {
+    return 'सहायक · $name';
+  }
+
+  @override
+  String get addHelper => 'सहायक जोड़ें';
+
+  @override
+  String get editHelper => 'सहायक संपादित करें';
+
+  @override
+  String get saveHelpers => 'सहायक सहेजें';
+
+  @override
+  String get helpersSaved => 'सहायक अपडेट हुए';
+
+  @override
+  String get helpersSaveFailed => 'सहायक अपडेट नहीं हो सके।';
+
+  @override
+  String deleteHelperTitle(String name) {
+    return '$name हटाएँ?';
+  }
+
+  @override
+  String get deleteHelperBody =>
+      'उन्हें सहायक सूची से और हर उस मिस्त्री से हटा दिया जाएगा जिसके साथ वे काम करते हैं।';
+
+  @override
+  String get profileSaved => 'प्रोफ़ाइल सहेजी गई';
+
+  @override
+  String get profileSaveFailed =>
+      'प्रोफ़ाइल सहेजी नहीं जा सकी। कनेक्शन जाँचें और फिर कोशिश करें।';
+
+  @override
+  String get sectionAccount => 'खाता';
+
+  @override
+  String get deleteMyAccount => 'मेरा खाता हटाएँ';
+
+  @override
+  String get deleteMyAccountTitle => 'अपना खाता हटाएँ?';
+
+  @override
+  String get deleteMyAccountBody =>
+      'आपकी प्रोफ़ाइल और लॉगिन हमेशा के लिए हट जाएँगे और आप फिर साइन इन नहीं कर पाएँगे। हाज़िरी और वेतन रिकॉर्ड कंपनी के पास रहेंगे। पुष्टि के लिए पासवर्ड डालें।';
+
+  @override
+  String get errWrongPassword => 'गलत पासवर्ड।';
+
+  @override
+  String get deleteAccountFailed =>
+      'खाता हटाया नहीं जा सका। कनेक्शन जाँचें और फिर कोशिश करें।';
 }
