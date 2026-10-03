@@ -13,6 +13,9 @@ import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/reports/reports_screen.dart';
 import 'package:royal_marble/sales_pipeline/visit_forms.dart/visit_form_streams.dart';
 import 'package:royal_marble/screens/salary_screens.dart';
+import 'package:royal_marble/screens/site_form_screen.dart';
+import 'package:royal_marble/screens/sites_screen.dart';
+import 'package:royal_marble/services/checkin_service.dart' show SiteKind;
 import 'package:royal_marble/screens/team_status_screen.dart';
 import 'package:royal_marble/services/auth.dart';
 import 'package:royal_marble/services/tracking_service.dart';
@@ -71,20 +74,18 @@ class ProfileDrawer extends StatelessWidget {
                 ],
                 if (admin || sales || supervisor) ...[
                   _Group(l.sectionSites),
+                  _Item(Icons.location_city_outlined, l.allSites,
+                      () => open(SitesScreen(currentUser: user))),
                   _Item(Icons.add_business_outlined, l.newProject,
-                      () => open(MapProviders(
-                            currentUser: user,
-                            addNewProject: true,
-                            addNewMockup: false,
-                            listOfMarkers: 'Add Project',
-                          ))),
+                      () => open(SiteFormScreen(
+                          kind: SiteKind.project,
+                          createdBy: user.uid,
+                          currentUser: user))),
                   _Item(Icons.view_in_ar_outlined, l.newMockup,
-                      () => open(MapProviders(
-                            currentUser: user,
-                            addNewProject: false,
-                            addNewMockup: true,
-                            listOfMarkers: 'Add Mockup',
-                          ))),
+                      () => open(SiteFormScreen(
+                          kind: SiteKind.mockup,
+                          createdBy: user.uid,
+                          currentUser: user))),
                 ],
                 if (admin || sales) ...[
                   _Group(l.sectionSales),

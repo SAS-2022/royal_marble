@@ -629,72 +629,6 @@ class DatabaseService {
     }
   }
 
-  //Projects Section
-  //create a project with location
-  Future<String> addNewProject({ProjectData? project}) async {
-    try {
-      return await projectCollection.add({
-        'projectName': project!.projectName,
-        'projectDetails': project.projectDetails,
-        'selectedAddress': project.projectAddress,
-        'radius': project.radius,
-        'contractor': project.contactorCompany,
-        'contactPerson': project.contactPerson,
-        'phoneNumber': {
-          'phoneNumber': project.phoneNumber!.phoneNumber,
-          'isoCode': project.phoneNumber!.isoCode,
-          'dialCode': project.phoneNumber!.dialCode,
-        },
-        'emailAddress': project.emailAddress,
-        'salesInCharge': project.userId,
-        'assignedWorkers': project.assignedWorkers,
-        'status': project.projectStatus,
-      }).then((value) => 'Completed');
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-      return 'Error: $e';
-    }
-  }
-
-  //updating clients
-  Future<String> updateProjectData({ProjectData? project}) async {
-    try {
-      return await projectCollection.doc(project!.uid).update({
-        'projectName': project.projectName,
-        'projectDetails': project.projectDetails,
-        'selectedAddress': project.projectAddress,
-        'radius': project.radius,
-        'contractor': project.contactorCompany,
-        'contactPerson': project.contactPerson,
-        'phoneNumber': {
-          'phoneNumber': project.phoneNumber!.phoneNumber,
-          'isoCode': project.phoneNumber!.isoCode,
-          'dialCode': project.phoneNumber!.dialCode,
-        },
-        'emailAddress': project.emailAddress,
-        'salesInCharge': project.userId,
-        'assignedWorkers': project.assignedWorkers,
-        'status': project.projectStatus,
-      }).then((value) => 'Completed');
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-      return 'Error: $e';
-    }
-  }
-
-  //update project status
-  Future<String> updateProjectStatus({ProjectData? project}) async {
-    try {
-      return await projectCollection.doc(project!.uid).update({
-        'status': project.projectStatus,
-        'assignedWorkers': project.assignedWorkers,
-      }).then((value) => 'Completed');
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-      return 'Error: $e';
-    }
-  }
-
   /// Adds or removes one site in a user's `assignedProject` /
   /// `assignedMockup`. Always stores a list (older versions kept a single map
   /// for masons, which moved them off their other site) and matches by site
@@ -749,25 +683,6 @@ class DatabaseService {
     }
   }
 
-  /// Removes one user from a project's team.
-  Future<String> removeUserFromProject(
-      {ProjectData? selectedProject,
-      String? userId,
-      UserData? removedUser}) async {
-    try {
-      await projectCollection.doc(selectedProject!.uid).update({
-        'assignedWorkers': FieldValue.arrayRemove([userId])
-      });
-      await _setAssignment(
-          userId!, 'assignedProject', _projectSite(selectedProject),
-          assign: false);
-      return 'Deleted User';
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-      return 'Error: $e';
-    }
-  }
-
   //Get projects through streams and Futures
   Stream<List<ProjectData>> getAllProjects() {
     return projectCollection.snapshots().map(_listProjectDataFromSnapshot);
@@ -780,142 +695,13 @@ class DatabaseService {
         .map(_projectDataFromSnapshot);
   }
 
-  Future<ProjectData> getPorjectByIdFuture({String? projectId}) async {
-    try {
-      var result = await projectCollection.doc(projectId).get().then((data) {
-        var result = ProjectData(
-            uid: data.id,
-            projectName: data['projectName'],
-            projectDetails: data['projectDetails'],
-            projectAddress: data['selectedAddress'],
-            radius: data['radius'],
-            contactorCompany: data['contractor'],
-            contactPerson: data['contactPerson'],
-            emailAddress: data['emailAddress'],
-            phoneNumber: PhoneNumber(
-                phoneNumber: data['phoneNumber']['phoneNumber'],
-                isoCode: data['phoneNumber']['isoCode'],
-                dialCode: data['phoneNumber']['dialCode']),
-            userId: data['salesInCharge'],
-            projectStatus: data['status'],
-            assignedWorkers: data['assignedWorkers']);
-        return result;
-      });
+  List<ProjectData> _listProjectDataFromSnapshot(QuerySnapshot snapshot) => [
+        for (final d in snapshot.docs)
+          ProjectData.fromMap(d.id, d.data() as Map<String, dynamic>?)
+      ];
 
-      return result;
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-      return ProjectData(error: e.toString());
-    }
-  }
-
-  List<ProjectData> _listProjectDataFromSnapshot(QuerySnapshot snapshot) {
-    return snapshot.docs.map((snapshot) {
-      var data = snapshot.data() as Map<String, dynamic>;
-      return ProjectData(
-          uid: snapshot.id,
-          projectName: data['projectName'],
-          projectDetails: data['projectDetails'],
-          projectAddress: data['selectedAddress'],
-          radius: data['radius'],
-          contactorCompany: data['contractor'],
-          contactPerson: data['contactPerson'],
-          emailAddress: data['emailAddress'],
-          phoneNumber: PhoneNumber(
-              phoneNumber: data['phoneNumber']['phoneNumber'],
-              isoCode: data['phoneNumber']['isoCode'],
-              dialCode: data['phoneNumber']['dialCode']),
-          userId: data['salesInCharge'],
-          projectStatus: data['status'],
-          assignedWorkers: data['assignedWorkers']);
-    }).toList();
-  }
-
-  ProjectData _projectDataFromSnapshot(DocumentSnapshot snapshot) {
-    var data = snapshot.data() as Map<String, dynamic>;
-    return ProjectData(
-      uid: snapshot.id,
-      projectName: data['projectName'],
-      projectDetails: data['projectDetails'],
-      projectAddress: data['selectedAddress'],
-      radius: data['radius'],
-      contactorCompany: data['contractor'],
-      contactPerson: data['contactPerson'],
-      emailAddress: data['emailAddress'],
-      phoneNumber: PhoneNumber(
-          phoneNumber: data['phoneNumber']['phoneNumber'],
-          isoCode: data['phoneNumber']['isoCode'],
-          dialCode: data['phoneNumber']['dialCode']),
-      userId: data['salesInCharge'],
-      projectStatus: data['status'],
-      assignedWorkers: data['assignedWorkers'],
-    );
-  }
-
-  Future<String> deleteProject({String? projectId}) async {
-    try {
-      return await projectCollection
-          .doc(projectId)
-          .delete()
-          .then((value) => 'Deleted');
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-      return 'Error Deleting: $e';
-    }
-  }
-
-  //Mock-up Section
-  //Add new mockup
-  Future<String> addNewMockup({MockupData? mockup}) async {
-    try {
-      return await mockupCollection.add({
-        'name': mockup!.mockupName,
-        'details': mockup.mockupDetails,
-        'address': mockup.mockupAddress,
-        'radius': mockup.radius,
-        'contractor': mockup.contactorCompany,
-        'contactPerson': mockup.contactPerson,
-        'phoneNumber': {
-          'phoneNumber': mockup.phoneNumber!.phoneNumber,
-          'isoCode': mockup.phoneNumber!.isoCode,
-          'dialCode': mockup.phoneNumber!.dialCode,
-        },
-        'emailAddress': mockup.emailAddress,
-        'salesInCharge': mockup.userId,
-        'assignedWorkers': mockup.assignedWorkers,
-        'status': mockup.mockupStatus,
-      }).then((value) => 'Completed');
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-      return 'Error: $e';
-    }
-  }
-
-  //update mockup
-  Future<String> updateMockupData({MockupData? mockup}) async {
-    try {
-      return await projectCollection.doc(mockup!.uid).update({
-        'name': mockup.mockupName,
-        'details': mockup.mockupDetails,
-        'address': mockup.mockupAddress,
-        'radius': mockup.radius,
-        'contractor': mockup.contactorCompany,
-        'contactPerson': mockup.contactPerson,
-        'phoneNumber': {
-          'phoneNumber': mockup.phoneNumber!.phoneNumber,
-          'isoCode': mockup.phoneNumber!.isoCode,
-          'dialCode': mockup.phoneNumber!.dialCode,
-        },
-        'emailAddress': mockup.emailAddress,
-        'salesInCharge': mockup.userId,
-        'assignedWorkers': mockup.assignedWorkers,
-        'status': mockup.mockupStatus,
-      }).then((value) => 'Completed');
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-      return 'Error: $e';
-    }
-  }
+  ProjectData _projectDataFromSnapshot(DocumentSnapshot snapshot) =>
+      ProjectData.fromMap(snapshot.id, snapshot.data() as Map<String, dynamic>?);
 
   /// Sets a mock-up's team to [selectedUserIds] and updates each added or
   /// removed user's assignments.
@@ -942,36 +728,86 @@ class DatabaseService {
     }
   }
 
-  //Update the mockup status
-  Future<String> updateMockupStatus({MockupData? mockup}) async {
-    try {
-      return await mockupCollection.doc(mockup!.uid).update({
-        'status': mockup.mockupStatus,
-        'assignedWorkers': mockup.assignedWorkers,
-      }).then((value) => 'Completed');
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-      return 'Error: $e';
+  /// Firestore field names of a site document, which differ between
+  /// projects and mock-ups.
+  static ({String col, String name, String details, String address}) siteFields(
+          bool mockup) =>
+      mockup
+          ? (col: 'mockup', name: 'name', details: 'details', address: 'address')
+          : (col: 'projects', name: 'projectName', details: 'projectDetails',
+              address: 'selectedAddress');
+
+  /// Creates (no [id]) or updates a project or mock-up. When the name, pin or
+  /// radius change, every assigned worker's copy of the site is refreshed too,
+  /// because tracking and check-in read those copies. Returns the site id.
+  Future<String> saveSite({
+    required bool mockup,
+    String? id,
+    required String name,
+    required String details,
+    required Map<String, dynamic> address,
+    required double radius,
+    required String status,
+    String? contractor,
+    String? contactPerson,
+    Map<String, dynamic>? phone,
+    String? email,
+    String? createdBy,
+  }) async {
+    final f = siteFields(mockup);
+    final col = FirebaseFirestore.instance.collection(f.col);
+    final data = {
+      f.name: name,
+      f.details: details,
+      f.address: address,
+      'radius': radius,
+      'status': status,
+      'contractor': contractor,
+      'contactPerson': contactPerson,
+      'phoneNumber': phone,
+      'emailAddress': email,
+    };
+    if (id == null) {
+      final ref = await col.add({
+        ...data,
+        'assignedWorkers': <String>[],
+        'salesInCharge': createdBy,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+      return ref.id;
     }
+    await col.doc(id).update(data);
+    final workers = ((await col.doc(id).get()).data()?['assignedWorkers'] as List?) ?? [];
+    final site = {
+      'id': id,
+      'name': name,
+      'projectAddress': address,
+      'radius': radius,
+    };
+    for (final uid in workers) {
+      await _setAssignment('$uid', mockup ? 'assignedMockup' : 'assignedProject',
+          site, assign: true);
+    }
+    return id;
   }
 
-  /// Removes one user from a mock-up's team.
-  Future<String> removeUserFromMockup(
-      {MockupData? selectedMockup,
-      String? userId,
-      UserData? removedUser}) async {
-    try {
-      await mockupCollection.doc(selectedMockup!.uid).update({
-        'assignedWorkers': FieldValue.arrayRemove([userId])
-      });
-      await _setAssignment(
-          userId!, 'assignedMockup', _mockupSite(selectedMockup),
-          assign: false);
-      return 'Deleted User';
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-      return 'Error: $e';
+  Future<void> setSiteStatus(
+          {required bool mockup, required String id, required String status}) =>
+      FirebaseFirestore.instance
+          .collection(siteFields(mockup).col)
+          .doc(id)
+          .update({'status': status});
+
+  /// Deletes a site after removing it from every assigned worker. Past
+  /// timesheets keep the site's name, so reports still read correctly.
+  Future<void> deleteSite({required bool mockup, required String id}) async {
+    final ref = FirebaseFirestore.instance.collection(siteFields(mockup).col).doc(id);
+    final workers = ((await ref.get()).data()?['assignedWorkers'] as List?) ?? [];
+    for (final uid in workers) {
+      await _setAssignment('$uid', mockup ? 'assignedMockup' : 'assignedProject',
+          {'id': id}, assign: false);
     }
+    await ref.delete();
   }
 
   //read mockup
@@ -987,91 +823,13 @@ class DatabaseService {
         .map(_mockupDataFromSnapshot);
   }
 
-  Future<MockupData> getMockupByIdFuture({String? mockupId}) async {
-    try {
-      var result = await mockupCollection.doc(mockupId).get().then((data) {
-        var result = MockupData(
-            uid: data.id,
-            mockupName: data['name'],
-            mockupDetails: data['details'],
-            mockupAddress: data['address'],
-            radius: data['radius'],
-            contactorCompany: data['contractor'],
-            contactPerson: data['contactPerson'],
-            emailAddress: data['emailAddress'],
-            phoneNumber: PhoneNumber(
-                phoneNumber: data['phoneNumber']['phoneNumber'],
-                isoCode: data['phoneNumber']['isoCode'],
-                dialCode: data['phoneNumber']['dialCode']),
-            userId: data['salesInCharge'],
-            mockupStatus: data['status'],
-            assignedWorkers: data['assignedWorkers']);
-        return result;
-      });
+  List<MockupData> _listMockupDataFromSnapshot(QuerySnapshot snapshot) => [
+        for (final d in snapshot.docs)
+          MockupData.fromMap(d.id, d.data() as Map<String, dynamic>?)
+      ];
 
-      return result;
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-      print('An error obtaining project: $e');
-      return MockupData(error: e.toString());
-    }
-  }
-
-  List<MockupData> _listMockupDataFromSnapshot(QuerySnapshot snapshot) {
-    return snapshot.docs.map((snapshot) {
-      var data = snapshot.data() as Map<String, dynamic>;
-      return MockupData(
-          uid: snapshot.id,
-          mockupName: data['name'],
-          mockupDetails: data['details'],
-          mockupAddress: data['address'],
-          radius: data['radius'],
-          contactorCompany: data['contractor'],
-          contactPerson: data['contactPerson'],
-          emailAddress: data['emailAddress'],
-          phoneNumber: PhoneNumber(
-              phoneNumber: data['phoneNumber']['phoneNumber'],
-              isoCode: data['phoneNumber']['isoCode'],
-              dialCode: data['phoneNumber']['dialCode']),
-          userId: data['salesInCharge'],
-          mockupStatus: data['status'],
-          assignedWorkers: data['assignedWorkers']);
-    }).toList();
-  }
-
-  MockupData _mockupDataFromSnapshot(DocumentSnapshot snapshot) {
-    var data = snapshot.data() as Map<String, dynamic>;
-    return MockupData(
-      uid: snapshot.id,
-      mockupName: data['name'],
-      mockupDetails: data['details'],
-      mockupAddress: data['address'],
-      radius: data['radius'],
-      contactorCompany: data['contractor'],
-      contactPerson: data['contactPerson'],
-      emailAddress: data['emailAddress'],
-      phoneNumber: PhoneNumber(
-          phoneNumber: data['phoneNumber']['phoneNumber'],
-          isoCode: data['phoneNumber']['isoCode'],
-          dialCode: data['phoneNumber']['dialCode']),
-      userId: data['salesInCharge'],
-      mockupStatus: data['status'],
-      assignedWorkers: data['assignedWorkers'],
-    );
-  }
-
-  //Delete mockup
-  Future<String> deleteMockup({String? mockupId}) async {
-    try {
-      return await mockupCollection
-          .doc(mockupId)
-          .delete()
-          .then((value) => 'Deleted');
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-      return 'Error Deleting: $e';
-    }
-  }
+  MockupData _mockupDataFromSnapshot(DocumentSnapshot snapshot) =>
+      MockupData.fromMap(snapshot.id, snapshot.data() as Map<String, dynamic>?);
 
   //generating time sheet report
   //Adding a new entry to the collection

@@ -1176,23 +1176,11 @@ abstract class AppLocalizations {
   /// **'Nobody has checked in yet today.'**
   String get nobodyCheckedInToday;
 
-  /// No description provided for @detailsAssignWorkers.
-  ///
-  /// In en, this message translates to:
-  /// **'Details & assign workers'**
-  String get detailsAssignWorkers;
-
   /// No description provided for @details.
   ///
   /// In en, this message translates to:
   /// **'Details'**
   String get details;
-
-  /// No description provided for @workersCurrentState.
-  ///
-  /// In en, this message translates to:
-  /// **'Workers\' current state'**
-  String get workersCurrentState;
 
   /// No description provided for @changeStatus.
   ///
@@ -1767,7 +1755,7 @@ abstract class AppLocalizations {
   /// No description provided for @peopleAssigned.
   ///
   /// In en, this message translates to:
-  /// **'{count} people assigned.'**
+  /// **'{count, plural, =1{1 person assigned.} other{{count} people assigned.}}'**
   String peopleAssigned(int count);
 
   /// No description provided for @onSite.
@@ -2109,7 +2097,7 @@ abstract class AppLocalizations {
   /// No description provided for @daysCount.
   ///
   /// In en, this message translates to:
-  /// **'{count} days'**
+  /// **'{count, plural, =1{1 day} other{{count} days}}'**
   String daysCount(int count);
 
   /// No description provided for @salesSummary.
@@ -2121,7 +2109,7 @@ abstract class AppLocalizations {
   /// No description provided for @peopleCount.
   ///
   /// In en, this message translates to:
-  /// **'{count} people'**
+  /// **'{count, plural, =1{1 person} other{{count} people}}'**
   String peopleCount(int count);
 
   /// No description provided for @nowLabel.
@@ -2345,6 +2333,240 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back'**
   String get returnedAt;
+
+  /// No description provided for @siteStatusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get siteStatusActive;
+
+  /// No description provided for @siteStatusPotential.
+  ///
+  /// In en, this message translates to:
+  /// **'Potential'**
+  String get siteStatusPotential;
+
+  /// No description provided for @siteStatusClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get siteStatusClosed;
+
+  /// No description provided for @siteStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get siteStatus;
+
+  /// No description provided for @siteName.
+  ///
+  /// In en, this message translates to:
+  /// **'Site name'**
+  String get siteName;
+
+  /// No description provided for @siteDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Description (optional)'**
+  String get siteDetails;
+
+  /// No description provided for @siteLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get siteLocation;
+
+  /// No description provided for @noPinYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No location set yet'**
+  String get noPinYet;
+
+  /// No description provided for @pinRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Place the site on the map.'**
+  String get pinRequired;
+
+  /// No description provided for @setPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Set on map'**
+  String get setPin;
+
+  /// No description provided for @movePin.
+  ///
+  /// In en, this message translates to:
+  /// **'Move'**
+  String get movePin;
+
+  /// No description provided for @checkInRadiusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-in radius'**
+  String get checkInRadiusLabel;
+
+  /// No description provided for @metersShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{meters} m'**
+  String metersShort(int meters);
+
+  /// No description provided for @radiusHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Workers can check in within this distance of the pin. Use at least 150 m so leaving the site is detected reliably.'**
+  String get radiusHint;
+
+  /// No description provided for @contractorCompany.
+  ///
+  /// In en, this message translates to:
+  /// **'Contractor company'**
+  String get contractorCompany;
+
+  /// No description provided for @contactPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact person'**
+  String get contactPerson;
+
+  /// No description provided for @contactPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get contactPhone;
+
+  /// No description provided for @enterValidPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid phone number'**
+  String get enterValidPhone;
+
+  /// No description provided for @createSite.
+  ///
+  /// In en, this message translates to:
+  /// **'Create site'**
+  String get createSite;
+
+  /// No description provided for @editProject.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit project'**
+  String get editProject;
+
+  /// No description provided for @editMockup.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit mock-up'**
+  String get editMockup;
+
+  /// No description provided for @siteSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Site saved'**
+  String get siteSaved;
+
+  /// No description provided for @siteSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the site. Check your connection and try again.'**
+  String get siteSaveFailed;
+
+  /// No description provided for @deleteSite.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete site'**
+  String get deleteSite;
+
+  /// No description provided for @deleteSiteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name}?'**
+  String deleteSiteTitle(String name);
+
+  /// No description provided for @deleteSiteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The site is removed for good and {count} assigned people lose it from their list. Past attendance is kept.'**
+  String deleteSiteBody(int count);
+
+  /// No description provided for @placePin.
+  ///
+  /// In en, this message translates to:
+  /// **'Place the site'**
+  String get placePin;
+
+  /// No description provided for @searchAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Search an address or area'**
+  String get searchAddress;
+
+  /// No description provided for @addressNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Address not found. Try another search or move the map.'**
+  String get addressNotFound;
+
+  /// No description provided for @myLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'My location'**
+  String get myLocation;
+
+  /// No description provided for @usePinHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this location'**
+  String get usePinHere;
+
+  /// No description provided for @siteNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This site no longer exists.'**
+  String get siteNotFound;
+
+  /// No description provided for @newSite.
+  ///
+  /// In en, this message translates to:
+  /// **'New site'**
+  String get newSite;
+
+  /// No description provided for @searchSites.
+  ///
+  /// In en, this message translates to:
+  /// **'Search name, address or contractor'**
+  String get searchSites;
+
+  /// No description provided for @everything.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get everything;
+
+  /// No description provided for @projectsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Projects'**
+  String get projectsLabel;
+
+  /// No description provided for @mockupsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Mock-ups'**
+  String get mockupsLabel;
+
+  /// No description provided for @noSitesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No sites match.'**
+  String get noSitesFound;
+
+  /// No description provided for @siteAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get siteAddress;
 }
 
 class _AppLocalizationsDelegate

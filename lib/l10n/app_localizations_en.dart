@@ -619,13 +619,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nobodyCheckedInToday => 'Nobody has checked in yet today.';
 
   @override
-  String get detailsAssignWorkers => 'Details & assign workers';
-
-  @override
   String get details => 'Details';
-
-  @override
-  String get workersCurrentState => 'Workers\' current state';
 
   @override
   String get changeStatus => 'Change status';
@@ -947,7 +941,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String peopleAssigned(int count) {
-    return '$count people assigned.';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count people assigned.',
+      one: '1 person assigned.',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1131,7 +1131,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String daysCount(int count) {
-    return '$count days';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1141,7 +1147,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String peopleCount(int count) {
-    return '$count people';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count people',
+      one: '1 person',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1277,4 +1289,130 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get returnedAt => 'Back';
+
+  @override
+  String get siteStatusActive => 'Active';
+
+  @override
+  String get siteStatusPotential => 'Potential';
+
+  @override
+  String get siteStatusClosed => 'Closed';
+
+  @override
+  String get siteStatus => 'Status';
+
+  @override
+  String get siteName => 'Site name';
+
+  @override
+  String get siteDetails => 'Description (optional)';
+
+  @override
+  String get siteLocation => 'Location';
+
+  @override
+  String get noPinYet => 'No location set yet';
+
+  @override
+  String get pinRequired => 'Place the site on the map.';
+
+  @override
+  String get setPin => 'Set on map';
+
+  @override
+  String get movePin => 'Move';
+
+  @override
+  String get checkInRadiusLabel => 'Check-in radius';
+
+  @override
+  String metersShort(int meters) {
+    return '$meters m';
+  }
+
+  @override
+  String get radiusHint =>
+      'Workers can check in within this distance of the pin. Use at least 150 m so leaving the site is detected reliably.';
+
+  @override
+  String get contractorCompany => 'Contractor company';
+
+  @override
+  String get contactPerson => 'Contact person';
+
+  @override
+  String get contactPhone => 'Phone';
+
+  @override
+  String get enterValidPhone => 'Enter a valid phone number';
+
+  @override
+  String get createSite => 'Create site';
+
+  @override
+  String get editProject => 'Edit project';
+
+  @override
+  String get editMockup => 'Edit mock-up';
+
+  @override
+  String get siteSaved => 'Site saved';
+
+  @override
+  String get siteSaveFailed =>
+      'Could not save the site. Check your connection and try again.';
+
+  @override
+  String get deleteSite => 'Delete site';
+
+  @override
+  String deleteSiteTitle(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String deleteSiteBody(int count) {
+    return 'The site is removed for good and $count assigned people lose it from their list. Past attendance is kept.';
+  }
+
+  @override
+  String get placePin => 'Place the site';
+
+  @override
+  String get searchAddress => 'Search an address or area';
+
+  @override
+  String get addressNotFound =>
+      'Address not found. Try another search or move the map.';
+
+  @override
+  String get myLocation => 'My location';
+
+  @override
+  String get usePinHere => 'Use this location';
+
+  @override
+  String get siteNotFound => 'This site no longer exists.';
+
+  @override
+  String get newSite => 'New site';
+
+  @override
+  String get searchSites => 'Search name, address or contractor';
+
+  @override
+  String get everything => 'All';
+
+  @override
+  String get projectsLabel => 'Projects';
+
+  @override
+  String get mockupsLabel => 'Mock-ups';
+
+  @override
+  String get noSitesFound => 'No sites match.';
+
+  @override
+  String get siteAddress => 'Address';
 }

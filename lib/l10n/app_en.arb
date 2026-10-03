@@ -373,9 +373,7 @@
     }
   },
   "nobodyCheckedInToday": "Nobody has checked in yet today.",
-  "detailsAssignWorkers": "Details & assign workers",
   "details": "Details",
-  "workersCurrentState": "Workers' current state",
   "changeStatus": "Change status",
   "myVisits": "My visits",
   "site": "Site",
@@ -576,7 +574,7 @@
   },
   "manage": "Manage",
   "nobodyAssigned": "Nobody is assigned yet.",
-  "peopleAssigned": "{count} people assigned.",
+  "peopleAssigned": "{count, plural, =1{1 person assigned.} other{{count} people assigned.}}",
   "@peopleAssigned": {
     "placeholders": {
       "count": {
@@ -675,7 +673,7 @@
   "noVisits": "No visits in this period.",
   "client": "Client",
   "noOut": "No out",
-  "daysCount": "{count} days",
+  "daysCount": "{count, plural, =1{1 day} other{{count} days}}",
   "@daysCount": {
     "placeholders": {
       "count": {
@@ -697,7 +695,7 @@
       }
     }
   },
-  "peopleCount": "{count} people",
+  "peopleCount": "{count, plural, =1{1 person} other{{count} people}}",
   "@peopleCount": {
     "placeholders": {
       "count": {
@@ -814,5 +812,65 @@
   "setCheckOut": "Set check-out",
   "leaveOpen": "Leave open (still on site)",
   "leftAt": "Left",
-  "returnedAt": "Back"
+  "returnedAt": "Back",
+  "siteStatusActive": "Active",
+  "siteStatusPotential": "Potential",
+  "siteStatusClosed": "Closed",
+  "siteStatus": "Status",
+  "siteName": "Site name",
+  "siteDetails": "Description (optional)",
+  "siteLocation": "Location",
+  "noPinYet": "No location set yet",
+  "pinRequired": "Place the site on the map.",
+  "setPin": "Set on map",
+  "movePin": "Move",
+  "checkInRadiusLabel": "Check-in radius",
+  "metersShort": "{meters} m",
+  "@metersShort": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "radiusHint": "Workers can check in within this distance of the pin. Use at least 150 m so leaving the site is detected reliably.",
+  "contractorCompany": "Contractor company",
+  "contactPerson": "Contact person",
+  "contactPhone": "Phone",
+  "enterValidPhone": "Enter a valid phone number",
+  "createSite": "Create site",
+  "editProject": "Edit project",
+  "editMockup": "Edit mock-up",
+  "siteSaved": "Site saved",
+  "siteSaveFailed": "Could not save the site. Check your connection and try again.",
+  "deleteSite": "Delete site",
+  "deleteSiteTitle": "Delete {name}?",
+  "@deleteSiteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteSiteBody": "The site is removed for good and {count} assigned people lose it from their list. Past attendance is kept.",
+  "@deleteSiteBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "placePin": "Place the site",
+  "searchAddress": "Search an address or area",
+  "addressNotFound": "Address not found. Try another search or move the map.",
+  "myLocation": "My location",
+  "usePinHere": "Use this location",
+  "siteNotFound": "This site no longer exists.",
+  "newSite": "New site",
+  "searchSites": "Search name, address or contractor",
+  "everything": "All",
+  "projectsLabel": "Projects",
+  "mockupsLabel": "Mock-ups",
+  "noSitesFound": "No sites match.",
+  "siteAddress": "Address"
 }

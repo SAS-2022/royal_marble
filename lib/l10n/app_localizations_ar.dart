@@ -612,13 +612,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get nobodyCheckedInToday => 'لم يسجّل أحد الحضور اليوم بعد.';
 
   @override
-  String get detailsAssignWorkers => 'التفاصيل وتعيين العمال';
-
-  @override
   String get details => 'التفاصيل';
-
-  @override
-  String get workersCurrentState => 'الحالة الحالية للعمال';
 
   @override
   String get changeStatus => 'تغيير الحالة';
@@ -939,7 +933,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String peopleAssigned(int count) {
-    return '$count أشخاص معيّنون.';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count شخصاً معيّناً.',
+      few: '$count أشخاص معيّنون.',
+      two: 'شخصان معيّنان.',
+      one: 'شخص واحد معيّن.',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1122,7 +1124,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String daysCount(int count) {
-    return '$count يوم';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count يوماً',
+      few: '$count أيام',
+      two: 'يومان',
+      one: 'يوم واحد',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1132,7 +1142,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String peopleCount(int count) {
-    return '$count أشخاص';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count شخصاً',
+      few: '$count أشخاص',
+      two: 'شخصان',
+      one: 'شخص واحد',
+      zero: 'لا أحد',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1266,4 +1285,130 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get returnedAt => 'عاد';
+
+  @override
+  String get siteStatusActive => 'نشط';
+
+  @override
+  String get siteStatusPotential => 'محتمل';
+
+  @override
+  String get siteStatusClosed => 'مغلق';
+
+  @override
+  String get siteStatus => 'الحالة';
+
+  @override
+  String get siteName => 'اسم الموقع';
+
+  @override
+  String get siteDetails => 'الوصف (اختياري)';
+
+  @override
+  String get siteLocation => 'الموقع على الخريطة';
+
+  @override
+  String get noPinYet => 'لم يُحدَّد الموقع بعد';
+
+  @override
+  String get pinRequired => 'حدّد مكان الموقع على الخريطة.';
+
+  @override
+  String get setPin => 'تحديد على الخريطة';
+
+  @override
+  String get movePin => 'تغيير';
+
+  @override
+  String get checkInRadiusLabel => 'نطاق تسجيل الحضور';
+
+  @override
+  String metersShort(int meters) {
+    return '$meters م';
+  }
+
+  @override
+  String get radiusHint =>
+      'يمكن للعمال تسجيل الحضور ضمن هذه المسافة من الدبوس. استخدم 150 م على الأقل ليُكتشف الخروج من الموقع بشكل موثوق.';
+
+  @override
+  String get contractorCompany => 'شركة المقاول';
+
+  @override
+  String get contactPerson => 'الشخص المسؤول';
+
+  @override
+  String get contactPhone => 'الهاتف';
+
+  @override
+  String get enterValidPhone => 'أدخل رقم هاتف صحيح';
+
+  @override
+  String get createSite => 'إنشاء الموقع';
+
+  @override
+  String get editProject => 'تعديل المشروع';
+
+  @override
+  String get editMockup => 'تعديل العيّنة';
+
+  @override
+  String get siteSaved => 'تم حفظ الموقع';
+
+  @override
+  String get siteSaveFailed =>
+      'تعذّر حفظ الموقع. تحقق من الاتصال وحاول مرة أخرى.';
+
+  @override
+  String get deleteSite => 'حذف الموقع';
+
+  @override
+  String deleteSiteTitle(String name) {
+    return 'حذف $name؟';
+  }
+
+  @override
+  String deleteSiteBody(int count) {
+    return 'سيُحذف الموقع نهائياً ويُزال من قائمة $count من الأشخاص المعيّنين. يبقى سجل الحضور السابق محفوظاً.';
+  }
+
+  @override
+  String get placePin => 'حدّد مكان الموقع';
+
+  @override
+  String get searchAddress => 'ابحث عن عنوان أو منطقة';
+
+  @override
+  String get addressNotFound =>
+      'لم يُعثر على العنوان. جرّب بحثاً آخر أو حرّك الخريطة.';
+
+  @override
+  String get myLocation => 'موقعي';
+
+  @override
+  String get usePinHere => 'استخدام هذا الموقع';
+
+  @override
+  String get siteNotFound => 'لم يعد هذا الموقع موجوداً.';
+
+  @override
+  String get newSite => 'موقع جديد';
+
+  @override
+  String get searchSites => 'ابحث بالاسم أو العنوان أو المقاول';
+
+  @override
+  String get everything => 'الكل';
+
+  @override
+  String get projectsLabel => 'المشاريع';
+
+  @override
+  String get mockupsLabel => 'العيّنات';
+
+  @override
+  String get noSitesFound => 'لا توجد مواقع مطابقة.';
+
+  @override
+  String get siteAddress => 'العنوان';
 }

@@ -9,17 +9,14 @@ import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/core/format.dart';
 import 'package:royal_marble/core/locale_controller.dart';
 import 'package:royal_marble/core/roles.dart';
-import 'package:royal_marble/mockups/mockup_grid.dart';
-import 'package:royal_marble/mockups/mockup_status.dart';
 import 'package:royal_marble/models/attendance.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/models/device_status.dart';
 import 'package:royal_marble/models/user_model.dart';
-import 'package:royal_marble/projects/project_grid.dart';
-import 'package:royal_marble/projects/project_status.dart';
-import 'package:royal_marble/projects/worker_current_state.dart';
 import 'package:royal_marble/sales_pipeline/visit_forms.dart/visit_form_streams.dart';
 import 'package:royal_marble/screens/profile_drawer.dart';
+import 'package:royal_marble/screens/site_details_screen.dart';
+import 'package:royal_marble/screens/site_form_screen.dart';
 import 'package:royal_marble/screens/team_status_screen.dart';
 import 'package:royal_marble/services/checkin_service.dart';
 import 'package:royal_marble/services/tracking_service.dart';
@@ -174,11 +171,8 @@ Widget _cardFor(BuildContext context, UserData user, Map<String, dynamic> a,
       onOpen: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => kind == SiteKind.project
-              ? ProjectGrid(
-                  currentUser: user, selectedProject: ProjectData(uid: a['id']))
-              : MockupGrid(
-                  currentUser: user, selectedMockup: MockupData(uid: a['id'])),
+          builder: (_) =>
+              SiteDetailsLoader(kind: kind, id: '${a['id']}', currentUser: user),
         ),
       ),
     ),
@@ -571,6 +565,7 @@ class _Attendance extends StatelessWidget {
   }
 }
 
+/// A site on the admin or sales home; opens its details screen.
 class _ProjectTile extends StatelessWidget {
   const _ProjectTile.project(ProjectData this.project, this.user) : mockup = null;
   const _ProjectTile.mockup(MockupData this.mockup, this.user) : project = null;
@@ -580,54 +575,11 @@ class _ProjectTile extends StatelessWidget {
   final UserData user;
 
   String get _name => project?.projectName ?? mockup?.mockupName ?? '';
+  String? get _status => project?.projectStatus ?? mockup?.mockupStatus;
   String get _address => prettyAddress(
       (project?.projectAddress ?? mockup?.mockupAddress)?['addressName']);
   int get _workers =>
       (project?.assignedWorkers ?? mockup?.assignedWorkers ?? const []).length;
-
-  void _options(BuildContext context) {
-    void go(Widget page) {
-      Navigator.pop(context);
-      Navigator.push(context, MaterialPageRoute(builder: (_) => page));
-    }
-
-    final isAdmin = primaryRole(user.roles) == AppRole.admin;
-    showModalBottomSheet(
-      context: context,
-      showDragHandle: true,
-      builder: (_) => SafeArea(
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-            child: Text(_name,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-          ),
-          ListTile(
-            leading: const Icon(Icons.group_add),
-            title: Text(isAdmin ? context.l10n.detailsAssignWorkers : context.l10n.details),
-            onTap: () => go(project != null
-                ? ProjectGrid(currentUser: user, selectedProject: project)
-                : MockupGrid(currentUser: user, selectedMockup: mockup)),
-          ),
-          if (isAdmin) ...[
-            ListTile(
-              leading: const Icon(Icons.groups),
-              title: Text(context.l10n.workersCurrentState),
-              onTap: () => go(WorkerCurrentStream(
-                  selectedProject: project, selectedMockup: mockup)),
-            ),
-            ListTile(
-              leading: const Icon(Icons.flag),
-              title: Text(context.l10n.changeStatus),
-              onTap: () => go(project != null
-                  ? ProjectStatus(selectedProject: project)
-                  : MockupStatus(selectedMockup: mockup)),
-            ),
-          ],
-        ]),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -635,7 +587,16 @@ class _ProjectTile extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 10),
       child: Card(
         child: ListTile(
-          onTap: () => _options(context),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => SiteDetailsLoader(
+                kind: project != null ? SiteKind.project : SiteKind.mockup,
+                id: (project?.uid ?? mockup?.uid)!,
+                currentUser: user,
+              ),
+            ),
+          ),
           leading: CircleAvatar(
             backgroundColor: AppColors.gold.withValues(alpha: 0.18),
             child: Icon(project != null ? Icons.apartment : Icons.view_in_ar,
@@ -643,7 +604,15 @@ class _ProjectTile extends StatelessWidget {
           ),
           title: Text(_name, style: const TextStyle(fontWeight: FontWeight.w700)),
           subtitle: Text(_address, maxLines: 1, overflow: TextOverflow.ellipsis),
-          trailing: StatusPill('$_workers', icon: Icons.person),
+          trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+            if (_status == 'potential')
+              Padding(
+                padding: const EdgeInsetsDirectional.only(end: 6),
+                child: StatusPill(siteStatusLabel(context, _status),
+                    tone: siteStatusTone(_status)),
+              ),
+            StatusPill('$_workers', icon: Icons.person),
+          ]),
         ),
       ),
     );

@@ -620,13 +620,7 @@ class AppLocalizationsUr extends AppLocalizations {
   String get nobodyCheckedInToday => 'آج ابھی تک کسی نے چیک اِن نہیں کیا۔';
 
   @override
-  String get detailsAssignWorkers => 'تفصیلات اور کارکن مقرر کریں';
-
-  @override
   String get details => 'تفصیلات';
-
-  @override
-  String get workersCurrentState => 'کارکنوں کی موجودہ صورتحال';
 
   @override
   String get changeStatus => 'صورتحال تبدیل کریں';
@@ -947,7 +941,13 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String peopleAssigned(int count) {
-    return '$count افراد مقرر۔';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count افراد مقرر۔',
+      one: '1 فرد مقرر۔',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1130,7 +1130,12 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String daysCount(int count) {
-    return '$count دن';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count دن',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1140,7 +1145,13 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String peopleCount(int count) {
-    return '$count افراد';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count افراد',
+      one: '1 فرد',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1277,4 +1288,130 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get returnedAt => 'واپس آیا';
+
+  @override
+  String get siteStatusActive => 'فعال';
+
+  @override
+  String get siteStatusPotential => 'ممکنہ';
+
+  @override
+  String get siteStatusClosed => 'بند';
+
+  @override
+  String get siteStatus => 'حیثیت';
+
+  @override
+  String get siteName => 'سائٹ کا نام';
+
+  @override
+  String get siteDetails => 'تفصیل (اختیاری)';
+
+  @override
+  String get siteLocation => 'مقام';
+
+  @override
+  String get noPinYet => 'ابھی مقام طے نہیں ہوا';
+
+  @override
+  String get pinRequired => 'نقشے پر سائٹ کی جگہ طے کریں۔';
+
+  @override
+  String get setPin => 'نقشے پر طے کریں';
+
+  @override
+  String get movePin => 'بدلیں';
+
+  @override
+  String get checkInRadiusLabel => 'چیک اِن کا دائرہ';
+
+  @override
+  String metersShort(int meters) {
+    return '$meters میٹر';
+  }
+
+  @override
+  String get radiusHint =>
+      'کارکن پن سے اتنے فاصلے کے اندر چیک اِن کر سکتے ہیں۔ سائٹ چھوڑنے کا درست پتا چلے، اس کے لیے کم از کم 150 میٹر رکھیں۔';
+
+  @override
+  String get contractorCompany => 'ٹھیکیدار کمپنی';
+
+  @override
+  String get contactPerson => 'رابطہ شخص';
+
+  @override
+  String get contactPhone => 'فون';
+
+  @override
+  String get enterValidPhone => 'درست فون نمبر درج کریں';
+
+  @override
+  String get createSite => 'سائٹ بنائیں';
+
+  @override
+  String get editProject => 'پروجیکٹ میں ترمیم';
+
+  @override
+  String get editMockup => 'ماک اپ میں ترمیم';
+
+  @override
+  String get siteSaved => 'سائٹ محفوظ ہو گئی';
+
+  @override
+  String get siteSaveFailed =>
+      'سائٹ محفوظ نہیں ہو سکی۔ کنکشن چیک کریں اور دوبارہ کوشش کریں۔';
+
+  @override
+  String get deleteSite => 'سائٹ حذف کریں';
+
+  @override
+  String deleteSiteTitle(String name) {
+    return '$name حذف کریں؟';
+  }
+
+  @override
+  String deleteSiteBody(int count) {
+    return 'سائٹ ہمیشہ کے لیے حذف ہو جائے گی اور $count افراد کی فہرست سے نکل جائے گی۔ پرانی حاضری محفوظ رہے گی۔';
+  }
+
+  @override
+  String get placePin => 'سائٹ کی جگہ طے کریں';
+
+  @override
+  String get searchAddress => 'پتہ یا علاقہ تلاش کریں';
+
+  @override
+  String get addressNotFound =>
+      'پتہ نہیں ملا۔ کچھ اور تلاش کریں یا نقشہ ہلائیں۔';
+
+  @override
+  String get myLocation => 'میرا مقام';
+
+  @override
+  String get usePinHere => 'یہ مقام استعمال کریں';
+
+  @override
+  String get siteNotFound => 'یہ سائٹ اب موجود نہیں۔';
+
+  @override
+  String get newSite => 'نئی سائٹ';
+
+  @override
+  String get searchSites => 'نام، پتہ یا ٹھیکیدار تلاش کریں';
+
+  @override
+  String get everything => 'تمام';
+
+  @override
+  String get projectsLabel => 'پروجیکٹس';
+
+  @override
+  String get mockupsLabel => 'ماک اپس';
+
+  @override
+  String get noSitesFound => 'کوئی مماثل سائٹ نہیں۔';
+
+  @override
+  String get siteAddress => 'پتہ';
 }

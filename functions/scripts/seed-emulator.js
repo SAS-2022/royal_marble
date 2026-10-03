@@ -78,7 +78,7 @@ async function main() {
     projectName: name, projectDetails: "Emulator test site", selectedAddress: address,
     radius: 150, contractor: "Test Contractor", contactPerson: "Site Contact",
     phoneNumber: { phoneNumber: "+971500000000", isoCode: "AE", dialCode: "+971" },
-    emailAddress: "site@test.local", projectStatus: "active", assignedWorkers: workers,
+    emailAddress: "site@test.local", status: "active", assignedWorkers: workers,
   });
   await db.collection("projects").doc("p_marina").set(project("Test Villa", MARINA, [supervisor, mason1]));
   await db.collection("projects").doc("p_tower").set(project("Marina Tower", TOWER, [mason1]));

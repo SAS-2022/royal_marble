@@ -617,13 +617,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get nobodyCheckedInToday => 'आज अभी तक किसी ने चेक इन नहीं किया।';
 
   @override
-  String get detailsAssignWorkers => 'विवरण और कामगार नियुक्त करें';
-
-  @override
   String get details => 'विवरण';
-
-  @override
-  String get workersCurrentState => 'कामगारों की मौजूदा स्थिति';
 
   @override
   String get changeStatus => 'स्थिति बदलें';
@@ -944,7 +938,13 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String peopleAssigned(int count) {
-    return '$count लोग नियुक्त।';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count लोग नियुक्त।',
+      one: '1 व्यक्ति नियुक्त।',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1127,7 +1127,12 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String daysCount(int count) {
-    return '$count दिन';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count दिन',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1137,7 +1142,13 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String peopleCount(int count) {
-    return '$count लोग';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count लोग',
+      one: '1 व्यक्ति',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1274,4 +1285,129 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get returnedAt => 'वापस आया';
+
+  @override
+  String get siteStatusActive => 'चालू';
+
+  @override
+  String get siteStatusPotential => 'संभावित';
+
+  @override
+  String get siteStatusClosed => 'बंद';
+
+  @override
+  String get siteStatus => 'स्थिति';
+
+  @override
+  String get siteName => 'साइट का नाम';
+
+  @override
+  String get siteDetails => 'विवरण (वैकल्पिक)';
+
+  @override
+  String get siteLocation => 'लोकेशन';
+
+  @override
+  String get noPinYet => 'अभी लोकेशन तय नहीं है';
+
+  @override
+  String get pinRequired => 'नक्शे पर साइट की जगह तय करें।';
+
+  @override
+  String get setPin => 'नक्शे पर तय करें';
+
+  @override
+  String get movePin => 'बदलें';
+
+  @override
+  String get checkInRadiusLabel => 'चेक-इन दायरा';
+
+  @override
+  String metersShort(int meters) {
+    return '$meters मी';
+  }
+
+  @override
+  String get radiusHint =>
+      'कर्मचारी पिन से इतनी दूरी के भीतर चेक-इन कर सकते हैं। साइट छोड़ने का सही पता चले, इसके लिए कम से कम 150 मी रखें।';
+
+  @override
+  String get contractorCompany => 'ठेकेदार कंपनी';
+
+  @override
+  String get contactPerson => 'संपर्क व्यक्ति';
+
+  @override
+  String get contactPhone => 'फ़ोन';
+
+  @override
+  String get enterValidPhone => 'सही फ़ोन नंबर डालें';
+
+  @override
+  String get createSite => 'साइट बनाएँ';
+
+  @override
+  String get editProject => 'प्रोजेक्ट संपादित करें';
+
+  @override
+  String get editMockup => 'मॉक-अप संपादित करें';
+
+  @override
+  String get siteSaved => 'साइट सहेजी गई';
+
+  @override
+  String get siteSaveFailed =>
+      'साइट सहेजी नहीं जा सकी। कनेक्शन जाँचें और फिर कोशिश करें।';
+
+  @override
+  String get deleteSite => 'साइट हटाएँ';
+
+  @override
+  String deleteSiteTitle(String name) {
+    return '$name हटाएँ?';
+  }
+
+  @override
+  String deleteSiteBody(int count) {
+    return 'साइट हमेशा के लिए हट जाएगी और $count लोगों की सूची से निकल जाएगी। पुरानी हाज़िरी बनी रहेगी।';
+  }
+
+  @override
+  String get placePin => 'साइट की जगह तय करें';
+
+  @override
+  String get searchAddress => 'पता या इलाका खोजें';
+
+  @override
+  String get addressNotFound => 'पता नहीं मिला। कुछ और खोजें या नक्शा खिसकाएँ।';
+
+  @override
+  String get myLocation => 'मेरी लोकेशन';
+
+  @override
+  String get usePinHere => 'यह लोकेशन चुनें';
+
+  @override
+  String get siteNotFound => 'यह साइट अब मौजूद नहीं है।';
+
+  @override
+  String get newSite => 'नई साइट';
+
+  @override
+  String get searchSites => 'नाम, पता या ठेकेदार खोजें';
+
+  @override
+  String get everything => 'सभी';
+
+  @override
+  String get projectsLabel => 'प्रोजेक्ट';
+
+  @override
+  String get mockupsLabel => 'मॉक-अप';
+
+  @override
+  String get noSitesFound => 'कोई मेल खाती साइट नहीं।';
+
+  @override
+  String get siteAddress => 'पता';
 }

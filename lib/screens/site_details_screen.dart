@@ -1,18 +1,20 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import 'package:royal_marble/core/l10n_helpers.dart';
 import 'package:royal_marble/core/locale_controller.dart';
 import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/core/format.dart';
 import 'package:royal_marble/core/roles.dart';
 import 'package:royal_marble/location/google_map_navigation.dart';
-import 'package:royal_marble/mockups/mockup_form.dart';
 import 'package:royal_marble/models/attendance.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/models/device_status.dart';
 import 'package:royal_marble/models/user_model.dart';
-import 'package:royal_marble/projects/project_form.dart';
 import 'package:royal_marble/services/checkin_service.dart';
 import 'package:royal_marble/services/database.dart';
+import 'package:royal_marble/screens/site_form_screen.dart';
+import 'package:royal_marble/shared/loading.dart';
 import 'package:royal_marble/widgets/checkin_card.dart';
 import 'package:royal_marble/widgets/status_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -33,6 +35,7 @@ class SiteRef {
   final MockupData? mockup;
 
   String get id => project?.uid ?? mockup!.uid!;
+  String? get error => project?.error ?? mockup?.error;
   String get name => project?.projectName ?? mockup?.mockupName ?? '';
   String get details => project?.projectDetails ?? mockup?.mockupDetails ?? '';
   String? get status => project?.projectStatus ?? mockup?.mockupStatus;
@@ -51,9 +54,56 @@ class SiteRef {
       ];
 }
 
+/// Opens a site by id and keeps it live: edits, status changes and team
+/// changes show up without leaving the screen. Managers also get the roster
+/// for the team list; workers never load other users.
+class SiteDetailsLoader extends StatelessWidget {
+  const SiteDetailsLoader(
+      {super.key, required this.kind, required this.id, required this.currentUser});
+  final SiteKind kind;
+  final String id;
+  final UserData currentUser;
+
+  @override
+  Widget build(BuildContext context) {
+    final db = DatabaseService();
+    final role = primaryRole(currentUser.roles);
+    final manages = role == AppRole.admin || role == AppRole.supervisor;
+    final Stream<SiteRef> site = kind == SiteKind.project
+        ? db.getProjectById(projectId: id).map(SiteRef.project)
+        : db.getMockupById(mockupId: id).map(SiteRef.mockup);
+    return StreamBuilder<SiteRef>(
+      stream: site,
+      builder: (context, siteSnap) => StreamBuilder<List<UserData>>(
+        stream: manages ? db.getAllWorkers() : Stream.value(const <UserData>[]),
+        builder: (context, usersSnap) {
+          final s = siteSnap.data;
+          if (siteSnap.hasError || s?.error != null) {
+            return Scaffold(
+              appBar: AppBar(),
+              body: Center(child: Text(context.l10n.siteNotFound)),
+            );
+          }
+          if (s == null || (manages && !usersSnap.hasData)) {
+            return const Scaffold(body: Loading());
+          }
+          return SiteDetailsScreen(
+              site: s, currentUser: currentUser, allWorkers: usersSnap.data!);
+        },
+      ),
+    );
+  }
+}
+
 /// Read-only overview of a project or mock-up with its team. Admins and
 /// supervisors can manage the team; workers get their check-in card.
 class SiteDetailsScreen extends StatelessWidget {
+  const SiteDetailsScreen(
+      {super.key,
+      required this.site,
+      required this.currentUser,
+      required this.allWorkers});
+
   SiteDetailsScreen.project({
     super.key,
     required ProjectData project,
@@ -72,31 +122,38 @@ class SiteDetailsScreen extends StatelessWidget {
   final UserData currentUser;
   final List<UserData> allWorkers;
 
-  Tone get _statusTone => switch (site.status) {
-        'active' => Tone.ok,
-        'potential' => Tone.warn,
-        'closed' => Tone.bad,
-        _ => Tone.neutral,
-      };
-
   void _edit(BuildContext context) => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => site.kind == SiteKind.project
-              ? ProjectForm(
-                  selectedProject: site.project,
-                  isNewProject: false,
-                  allWorkers: allWorkers,
-                  currentUser: currentUser,
-                )
-              : MockupForm(
-                  selectedMockUp: site.mockup,
-                  isNewMockup: false,
-                  allWorkers: allWorkers,
-                  currentUser: currentUser,
-                ),
-        ),
+            builder: (_) => SiteFormScreen(kind: site.kind, site: site)),
       );
+
+  Future<void> _changeStatus(BuildContext context) async {
+    final picked = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+            child: Text(context.l10n.changeStatus,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+          ),
+          for (final st in siteStatuses)
+            ListTile(
+              leading: Icon(
+                  st == site.status ? Icons.radio_button_checked : Icons.radio_button_off,
+                  color: siteStatusTone(st).fg),
+              title: Text(siteStatusLabel(context, st)),
+              onTap: () => Navigator.pop(context, st),
+            ),
+        ]),
+      ),
+    );
+    if (picked == null || picked == site.status) return;
+    await DatabaseService().setSiteStatus(
+        mockup: site.kind == SiteKind.mockup, id: site.id, status: picked);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +185,13 @@ class SiteDetailsScreen extends StatelessWidget {
                       fontSize: 24, fontWeight: FontWeight.w800)),
             ),
             if (site.status != null)
-              StatusPill(site.status!.toUpperCase(), tone: _statusTone),
+              InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: role == AppRole.admin ? () => _changeStatus(context) : null,
+                child: StatusPill(siteStatusLabel(context, site.status),
+                    tone: siteStatusTone(site.status),
+                    icon: role == AppRole.admin ? Icons.expand_more : null),
+              ),
           ]),
           if (site.details.isNotEmpty) ...[
             const SizedBox(height: 4),
@@ -244,13 +307,23 @@ class SiteDetailsScreen extends StatelessWidget {
               ),
             )
           else
-            Card(
-              child: Column(children: [
-                for (final (i, u) in team.indexed) ...[
-                  if (i > 0) const Divider(indent: 16, endIndent: 16),
-                  _TeamMemberTile(user: u),
-                ],
-              ]),
+            StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+              stream: FirebaseFirestore.instance
+                  .collection('time_sheet')
+                  .doc(timesheetDayId())
+                  .snapshots(),
+              builder: (context, snap) => Card(
+                child: Column(children: [
+                  for (final (i, u) in team.indexed) ...[
+                    if (i > 0) const Divider(indent: 16, endIndent: 16),
+                    _TeamMemberTile(
+                      user: u,
+                      siteId: site.id,
+                      today: DayEntry.fromMap(snap.data?.data()?[u.uid] as Map?),
+                    ),
+                  ],
+                ]),
+              ),
             ),
         ],
       ),
@@ -258,17 +331,34 @@ class SiteDetailsScreen extends StatelessWidget {
   }
 }
 
+/// One team member: today's attendance (here, elsewhere, done, not yet) and
+/// the phone's health.
 class _TeamMemberTile extends StatelessWidget {
-  const _TeamMemberTile({required this.user});
+  const _TeamMemberTile(
+      {required this.user, required this.siteId, required this.today});
   final UserData user;
+  final String siteId;
+  final DayEntry today;
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final s = DeviceStatus.fromMap(user.deviceStatus);
-    final onSite = user.distanceToProject is num &&
-        (user.distanceToProject as num) <= 0 &&
-        s.lastSeen != null &&
-        DateTime.now().difference(s.lastSeen!).inMinutes < 30;
+    final open = today.open;
+    final hm = DateFormat('HH:mm');
+    final here = today.atSite(siteId).toList();
+    final hereToday = here.fold(Duration.zero, (t, x) => t + x.worked());
+    final (String state, Tone tone) = switch (null) {
+      _ when open != null && open.siteId == siteId => (
+          open.outsideSince != null
+              ? l.outsideSiteSince(hm.format(open.outsideSince!))
+              : l.onSiteSince(hm.format(open.start), localizedDuration(l, open.worked())),
+          open.outsideSince != null ? Tone.warn : Tone.ok
+        ),
+      _ when open != null => (l.checkedInAtSite(open.siteName), Tone.neutral),
+      _ when here.isNotEmpty => (l.doneToday(localizedDuration(l, hereToday)), Tone.neutral),
+      _ => (l.notCheckedIn, Tone.neutral),
+    };
     return ListTile(
       leading: CircleAvatar(
         backgroundColor: AppColors.gold.withValues(alpha: 0.2),
@@ -279,14 +369,18 @@ class _TeamMemberTile extends StatelessWidget {
         ),
       ),
       title: Text('${user.firstName ?? ''} ${user.lastName ?? ''}'),
-      subtitle: Text(primaryRole(user.roles).localized(context.l10n)),
+      subtitle: Padding(
+        padding: const EdgeInsets.only(top: 4),
+        child: Wrap(spacing: 6, runSpacing: 4, children: [
+          Text(primaryRole(user.roles).localized(l)),
+          StatusPill(state, tone: tone),
+        ]),
+      ),
       trailing: !s.hasData
           ? null
           : s.problems.isNotEmpty
-              ? StatusPill(s.problems.first.text(context.l10n), tone: Tone.bad)
-              : onSite
-                  ? StatusPill(context.l10n.onSite, tone: Tone.ok)
-                  : StatusPill(context.l10n.away),
+              ? StatusPill(s.problems.first.text(l), tone: Tone.bad)
+              : const Icon(Icons.check_circle, color: AppColors.ok),
     );
   }
 }

@@ -14,9 +14,7 @@ import 'package:royal_marble/core/error_reporter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:royal_marble/location/direction_repo.dart';
-import 'package:royal_marble/mockups/mockup_form.dart';
 import 'package:royal_marble/models/business_model.dart';
-import 'package:royal_marble/projects/project_form.dart';
 import 'package:royal_marble/shared/constants.dart';
 import 'package:royal_marble/shared/snack_bar.dart';
 
@@ -278,8 +276,8 @@ class _ShowMapState extends State<ShowMap> {
                                 _snackBarWidget.showSnack();
                                 return;
                               }
-                              await db.deleteProject(
-                                  projectId: projectData.uid);
+                              await db.deleteSite(
+                                  mockup: false, id: projectData.uid!);
                               Navigator.pop(context);
                             }
 
@@ -292,7 +290,7 @@ class _ShowMapState extends State<ShowMap> {
                                 _snackBarWidget.showSnack();
                                 return;
                               }
-                              await db.deleteMockup(mockupId: mockupData.uid);
+                              await db.deleteSite(mockup: true, id: mockupData.uid!);
                               Navigator.pop(context);
                             }
                           },
@@ -585,53 +583,6 @@ class _ShowMapState extends State<ShowMap> {
                         setState(() {
                           _mapController = controller;
                         });
-                      },
-                      onLongPress: (coordinates) async {
-                        //passing circle
-                        if (coordinates != null) {
-                          var betterName = '';
-                          await _getLocationName(coordinates);
-                          locationName!.replaceAll(' ', '');
-                          var theName = locationName!.split('\n');
-
-                          for (var i = 0; i < 7; i++) {
-                            betterName += theName[i].trimLeft();
-                          }
-
-                          var projectLocation = {
-                            'Lat': coordinates.latitude,
-                            'Lng': coordinates.longitude,
-                            'addressName': betterName
-                          };
-                          if (widget.addMockup!) {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) {
-                                  return MockupForm(
-                                    projectLocation: projectLocation,
-                                    isNewMockup: widget.addMockup!,
-                                    currentUser: widget.currentUser!,
-                                  );
-                                },
-                              ),
-                            );
-                          }
-                          if (widget.addProject!) {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) {
-                                  return ProjectForm(
-                                    projectLocation: projectLocation,
-                                    isNewProject: widget.addProject!,
-                                    currentUser: widget.currentUser!,
-                                  );
-                                },
-                              ),
-                            );
-                          }
-                        }
                       },
                       onTap: (coordinates) {
                         _selectedLocation = coordinates;

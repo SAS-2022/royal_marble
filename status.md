@@ -234,8 +234,9 @@ independent and needs no billing, so it goes first.
    seed script and 12 automated check-in scenarios — see "How to resume".
 3. ✅ **Phase 2 + 3 code** against the emulator: assignment check, presence log,
    multi-site sessions, per-site hours; migration script written but not run.
-4. **Phase 7:** redesign the remaining old screens, written with translations from
-   the start.
+4. 🔄 **Phase 7:** redesign the remaining old screens, written with translations from
+   the start. Order: (1) ✅ sites, (2) own profile + helpers, (3) sales (clients,
+   visits), (4) live map, (5) dead-code cleanup.
 5. **Phase 4 client side** (geofence exit events; push wiring ready, not deployed).
 6. **Tech debt:** remove unused packages, iOS build prep.
 7. **Admin web dashboard** (Flutter web), developed locally.
@@ -250,7 +251,7 @@ independent and needs no billing, so it goes first.
 | 4 Leaving-site alerts + push | 🔄 | `left_site` alerts done (in-app); push not started |
 | 5 Salary details | 🔄 | `payroll` rules deploy (production freeze) |
 | 6 Hours-based pay | ⬜ | Phases 2, 3, 5; client decisions (below) |
-| 7 Remaining UI + delivery | ⬜ | — (web dashboard after 2–4) |
+| 7 Remaining UI + delivery | 🔄 sites ✅ | — (web dashboard after 2–4) |
 | 8 Localization (en, ar, hi, ur) | 🔄 | — |
 
 ### Decisions needed from the client (Phase 6 and related)
@@ -381,12 +382,30 @@ Workers come from different countries; each user picks a language.
       client for an Arabic, Hindi and Urdu reader)
 
 ### Phase 7 — Remaining UI and delivery
-- Redesign the remaining old screens: own profile, project/mock-up create/edit and
-  map picker, live map, clients, sales visits, helpers, workers' current state.
+- [x] **Sites (2026-10-03):** one form for projects and mock-ups
+      (`lib/screens/site_form_screen.dart`): name, description, status, map pin picker
+      (pin stays centred, address search, my location, radius circle), editable
+      address, radius chips, contractor contact. Saving refreshes every assigned
+      worker's copy of the site (tracking reads it). Delete removes the site from its
+      workers first. "All sites" list (`sites_screen.dart`) with kind/status filters and
+      search — closed sites were unreachable before. Site details open live by id
+      (`SiteDetailsLoader`) from the dashboard, worker cards and the list; admins
+      change status from the status pill; team rows show today's attendance.
+      Removed `lib/projects/*` and `lib/mockups/*` (11 files, ~3,700 lines) and 12
+      unused database methods. Site parsing tolerates a whole-number radius, a
+      missing phone and a deleted document (old code crashed).
+- [ ] Own profile editor, helpers (group 2)
+- [ ] Clients, sales visits (group 3)
+- [ ] Live map (group 4): `show_map.dart` throws a null-check error in `initState`
+      when opened without its user list; rebuild it.
+- [ ] Dead code (group 5): old report details, date picker, export_excel,
+      generating_pdf, pdf_builder, unused grids.
 - iOS build (TestFlight), Android release build, Play listing.
 - Admin web dashboard (Flutter web): live map, team status, attendance and payroll
   reports, users and sites.
 - Switch to `firestore.strict.rules` after every phone runs the new version.
+- Note: stored addresses come from Android's geocoder in the phone's language (an
+  Arabic phone gives Arabic area names); admins can edit the address text.
 
 ---
 
@@ -438,3 +457,11 @@ Workers come from different countries; each user picks a language.
   approve an auto check-out. Fixed RTL time ranges ("16:30 → 07:00"). Migration script
   written, tried on the emulator only. Next: agenda item 4 (Phase 7 screens) or Phase 4
   push wiring.
+- **2026-10-03 (cont.)** — Phase 7 group 1 (sites) done: new site form with map pin
+  picker, All sites list, live site details with status change and today's team
+  attendance; old project/mock-up screens removed. Verified on the emulator (English
+  and Arabic): edit and move a pin, radius change propagates to workers, status change,
+  create a site, assign a mason who keeps their other sites. Fixed: seed wrote
+  `projectStatus` instead of `status` (dashboard showed 0 active projects); plurals
+  ("1 people"). 20 unit tests, 31 emulator scenarios pass. Next: group 2 (own profile
+  and helpers).

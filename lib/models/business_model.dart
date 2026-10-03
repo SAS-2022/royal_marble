@@ -23,6 +23,18 @@ class ClientData {
   });
 }
 
+PhoneNumber? _phone(dynamic v) => v is Map
+    ? PhoneNumber(
+        phoneNumber: v['phoneNumber'] as String?,
+        isoCode: v['isoCode'] as String?,
+        dialCode: v['dialCode'] as String?)
+    : null;
+
+double? _double(dynamic v) => v is num ? v.toDouble() : double.tryParse('$v');
+
+Map<String, dynamic>? _map(dynamic v) =>
+    v is Map ? Map<String, dynamic>.from(v) : null;
+
 class ProjectData {
   String? uid;
   String? projectName;
@@ -53,6 +65,26 @@ class ProjectData {
       this.assignedWorkers,
       this.projectStatus,
       this.error});
+
+  /// From a `projects/{id}` document. Tolerates fields older versions left
+  /// out or stored as another type (a whole-number radius, no phone).
+  factory ProjectData.fromMap(String id, Map<String, dynamic>? d) {
+    if (d == null) return ProjectData(uid: id, error: 'not-found');
+    return ProjectData(
+      uid: id,
+      projectName: d['projectName'] as String?,
+      projectDetails: d['projectDetails'] as String?,
+      projectAddress: _map(d['selectedAddress']),
+      radius: _double(d['radius']),
+      contactorCompany: d['contractor'] as String?,
+      contactPerson: d['contactPerson'] as String?,
+      emailAddress: d['emailAddress'] as String?,
+      phoneNumber: _phone(d['phoneNumber']),
+      userId: d['salesInCharge'] as String?,
+      projectStatus: d['status'] as String?,
+      assignedWorkers: d['assignedWorkers'] as List?,
+    );
+  }
 
   @override
   String toString() {
@@ -90,6 +122,25 @@ class MockupData {
       this.assignedWorkers,
       this.mockupStatus,
       this.error});
+
+  /// From a `mockup/{id}` document; see [ProjectData.fromMap].
+  factory MockupData.fromMap(String id, Map<String, dynamic>? d) {
+    if (d == null) return MockupData(uid: id, error: 'not-found');
+    return MockupData(
+      uid: id,
+      mockupName: d['name'] as String?,
+      mockupDetails: d['details'] as String?,
+      mockupAddress: _map(d['address']),
+      radius: _double(d['radius']),
+      contactorCompany: d['contractor'] as String?,
+      contactPerson: d['contactPerson'] as String?,
+      emailAddress: d['emailAddress'] as String?,
+      phoneNumber: _phone(d['phoneNumber']),
+      userId: d['salesInCharge'] as String?,
+      mockupStatus: d['status'] as String?,
+      assignedWorkers: d['assignedWorkers'] as List?,
+    );
+  }
 
   @override
   String toString() {
