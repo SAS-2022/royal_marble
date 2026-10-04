@@ -20,9 +20,7 @@ section 4; the app was last left in Arabic.
 
 **Work queue (no deploys needed), in order:**
 1. ✅ **Phase 7 group 3 — sales screens** (done 2026-10-04, see Phase 7).
-2. **Phase 7 group 4 — live map:** rebuild `lib/location/show_map.dart` (crashes
-   with a null-check in `initState`): workers' last positions, site circles, tap a
-   worker for status. Then remove `map_providers.dart` and unused location helpers.
+2. ✅ **Phase 7 group 4 — live map** (done 2026-10-04, see Phase 7).
 3. **Phase 7 group 5 — dead code:** `shared/export_excel.dart`,
    `shared/generating_pdf.dart`, `shared/pdf_builder.dart`, unused grids; unused
    packages (`location`, `flutter_speed_dial`, `latlong2`, `flutter_map`,
@@ -213,7 +211,8 @@ The new app's check-in depends on `checkInOut`. Old app versions still write
 ### Known tech debt
 - ~249 analyzer infos/warnings (mostly old style lints in untouched screens).
 - Unused packages to remove: `location`, `flutter_speed_dial`, `latlong2`,
-  `flutter_map`, `timer_builder`, `animated_text_kit` (0 imports each).
+  `flutter_map`, `timer_builder`, `animated_text_kit` (0 imports each); since the
+  old map went, also check `dio`, `flutter_polyline_points`, `flutter_spinkit`.
 - Build warns that several plugins still apply the Kotlin Gradle Plugin (Firebase
   plugins, `location`); a future Flutter release will require plugin updates.
 - iOS not built yet: the Maps key is hard-coded in `ios/Runner/AppDelegate.swift`;
@@ -273,8 +272,8 @@ independent and needs no billing, so it goes first.
 3. ✅ **Phase 2 + 3 code** against the emulator: assignment check, presence log,
    multi-site sessions, per-site hours; migration script written but not run.
 4. 🔄 **Phase 7:** redesign the remaining old screens, written with translations from
-   the start. Order: (1) ✅ sites, (2) ✅ own profile + helpers, (3) sales (clients,
-   visits), (4) live map, (5) dead-code cleanup.
+   the start. Order: (1) ✅ sites, (2) ✅ own profile + helpers, (3) ✅ sales (clients,
+   visits), (4) ✅ live map, (5) dead-code cleanup.
 5. **Phase 4 client side** (geofence exit events; push wiring ready, not deployed).
 6. **Tech debt:** remove unused packages, iOS build prep.
 7. **Admin web dashboard** (Flutter web), developed locally.
@@ -289,7 +288,7 @@ independent and needs no billing, so it goes first.
 | 4 Leaving-site alerts + push | 🔄 | `left_site` alerts done (in-app); push not started |
 | 5 Salary details | 🔄 | `payroll` rules deploy (production freeze) |
 | 6 Hours-based pay | ⬜ | Phases 2, 3, 5; client decisions (below) |
-| 7 Remaining UI + delivery | 🔄 sites, profile, sales ✅ | — (web dashboard after 2–4) |
+| 7 Remaining UI + delivery | 🔄 sites, profile, sales, map ✅ | — (web dashboard after 2–4) |
 | 8 Localization (en, ar, hi, ur) | 🔄 | — |
 
 ### Decisions needed from the client (Phase 6 and related)
@@ -408,8 +407,8 @@ Workers come from different countries; each user picks a language.
 - [x] Admin and supervisor screens: team status, users list, user admin page, site
       details and team sheet, salary editor, reports (154 more strings, 2026-10-02).
       PDF/Excel exports stay English (records for the office) unless requested.
-- [ ] Old screens (live map, workers' state) — translate as each is redesigned in
-      Phase 7 (profile, sites, helpers, clients and visits done)
+- [x] Old screens translated as each was redesigned in Phase 7 (profile, sites,
+      helpers, clients and visits, live map)
 - [x] Server check-in errors now carry `details.reason` codes; the app translates
       them (function code only; deploy later). Same change added the
       **assignment check** for feature (a).
@@ -456,8 +455,19 @@ Workers come from different countries; each user picks a language.
       Purposes are stored in English and shown translated. Removed `lib/clients/*`,
       `lib/sales_pipeline/*`, `shared/date_picker.dart`, `reports/report_details.dart`
       and 11 old DB methods; client parsing no longer crashes on a missing phone.
-- [ ] Live map (group 4): `show_map.dart` throws a null-check error in `initState`
-      when opened without its user list; rebuild it.
+- [x] **Live map (2026-10-04):** `LiveMapScreen` replaces `show_map.dart` (crashed on
+      open: null home address). Workers' last positions as pins coloured by state
+      (red phone problem, orange outside the site while checked in, green on site,
+      blue not checked in), faded when the location is over 2 h old; site circles
+      and pins (tap opens the site). Filter chips with counts, "show everyone",
+      a people list sorted by urgency. Worker sheet: today's status, location age,
+      distance from the nearest site, phone problems, call, directions, open the
+      current site. Long-press the map to start a project or mock-up there.
+      Supervisors see only their sites and the people on them. Site directions now
+      open Google Maps; registration's home address uses the shared pin picker.
+      Removed `lib/location/*` (5 files, ~1,500 lines), `models/directions.dart`
+      and 5 DB methods. Also fixed: contractor phone shown as "971…+" in RTL, and
+      a stray "- " at the start of looked-up addresses.
 - [ ] Dead code (group 5): export_excel,
       generating_pdf, pdf_builder, unused grids.
 - iOS build (TestFlight), Android release build, Play listing.
@@ -541,3 +551,10 @@ Workers come from different countries; each user picks a language.
   details) and as admin (Sara's visits, manager comment saved with the same field
   names, Sales activity report counts the new visit). The user is upgrading Firebase
   to Blaze; production freeze still applies to every deploy. Next: group 4 (live map).
+- **2026-10-04 (cont.)** — The user said nobody is using the live app now, so
+  deploys can't lose data (each still gets a go-ahead); Blaze upgrade not finished
+  yet. Phase 7 group 4 (live map) done: new `LiveMapScreen`, old `lib/location/*`
+  removed, 10 strings in 4 languages, 33 unit tests pass. Verified on the emulator
+  as admin with demo workers written to the local emulator (on site, outside,
+  phone problem, stale): framing, filters, worker sheet, open site from the sheet,
+  people list, long-press → new project form. Next: group 5 (dead code, packages).
