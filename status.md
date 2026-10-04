@@ -8,15 +8,24 @@ _Last updated: 2026-10-04_
 
 ---
 
-## 0. Next session — start here (written 2026-10-03)
+## 0. Next session — start here (written 2026-10-04)
 
-**Where things stand:** all work is pushed to `revive-2026` on GitHub (latest
-`455db2d` + this note). Nothing deployed; production freeze still on. Phases 2+3 code
-done, Phase 7 groups 1 (sites) and 2 (profile + helpers) done.
+**Where things stand:** all work is committed on `revive-2026` (latest `954708a` +
+this note) but **not pushed** to GitHub yet. Nothing deployed. Phase 7 is done
+(sites, profile + helpers, sales, live map with zoom and a pin colour key, dead-code
+cleanup).
+
+**Deploys:** the user said on 2026-10-04 that nobody is using the live app now, so
+deploys can't lose data. Each deploy still needs the user's go-ahead (show the exact
+command, dry run first). The user is upgrading Firebase from Spark to **Blaze**; when
+they confirm it's done, start with the pending deploys in section 3 (payroll rules,
+then functions + indexes). Ask whether the "after every phone runs the new app"
+gates (assignment migration, strict rules) still apply.
 
 **To start:** `cd functions && npm run emulators` (terminal 1), `npm run seed`, then
 run the app with `--dart-define=USE_EMULATOR=true` (see section 4). Test accounts in
-section 4; the app was last left in Arabic.
+section 4 (now includes `sales@test.local`). The emulator was rebuilt on 2026-10-04
+(8 GB storage, fresh install, app language follows the phone: English).
 
 **Work queue (no deploys needed), in order:**
 1. ✅ **Phase 7 group 3 — sales screens** (done 2026-10-04, see Phase 7).
@@ -33,7 +42,7 @@ section 4; the app was last left in Arabic.
   `left_site` / `returned_to_site` and the 60-min auto check-out.
 - Tap through "Delete my account" in the app once (verified only via script).
 
-**Waiting on the client (unchanged):** payment, Firebase billing (functions deploy),
+**Waiting on the client:** payment, Blaze upgrade (user doing it; functions deploy),
 decisions in section 6 (esp. #2 auto check-out rules and whether short absences
 are paid), native-speaker review of Arabic/Hindi/Urdu, production test mason
 account, then the pending deploys table in section 3.
@@ -109,12 +118,13 @@ supervisors see attendance, alerts and reports.
 
 ## 3. Blocked / waiting on the client
 
-> **Production freeze (2026-10-01):** the app is live and in use. No deploys of any
-> kind (rules, functions, indexes) until the user has finalized with the client and
-> explicitly approves each one. Code work continues on `revive-2026` only.
+> **Deploy policy (updated 2026-10-04):** the user says nobody is using the live app
+> now, so deploys can't lose data. The 2026-10-01 freeze is lifted, but every deploy
+> still needs the user's explicit go-ahead. Functions need the Blaze plan (upgrade in
+> progress).
 
 
-- [ ] **Firebase billing:** card expired → Cloud Functions can't deploy. Until
+- [ ] **Firebase billing:** user is upgrading to Blaze (2026-10-04); until then Cloud Functions can't deploy. Until
       `checkInOut` is deployed, check-in in the new app fails.
       Deploy: `firebase deploy --only functions,firestore:indexes ...`
 - [ ] **Payment** under the contract (work paused until received)
@@ -463,7 +473,10 @@ Workers come from different countries; each user picks a language.
       open Google Maps; registration's home address uses the shared pin picker.
       Removed `lib/location/*` (5 files, ~1,500 lines), `models/directions.dart`
       and 5 DB methods. Also fixed: contractor phone shown as "971…+" in RTL, and
-      a stray "- " at the start of looked-up addresses.
+      a stray "- " at the start of looked-up addresses. After the user's review:
+      zoom in/out buttons and a "What the pins mean" colour key (toggled from the
+      app bar, remembered per phone); pins, chips, list and sheet share one colour
+      per state.
 - [x] **Dead code (2026-10-04):** removed `core/env.dart` (only the old directions
       code used it; the Android Maps key comes from `local.properties`),
       `shared/constants.dart`, `export_excel.dart`, `generating_pdf.dart`,
@@ -568,3 +581,9 @@ Workers come from different countries; each user picks a language.
   emulator ran out of storage so the new build is not yet installed there (Royal
   Marble uninstalled from the emulator; the other projects' apps were left alone).
   Next: Phase 4 push notifications (item 4), built and tested on the emulators.
+- **2026-10-04 (end of session)** — Live map review by the user: added zoom buttons
+  and a pin colour key. While making room for the app, raising the emulator's
+  storage (4 → 8 GB) wiped the emulator's other test apps; the user said they can
+  re-run them (lesson saved: ask before changing shared tooling). Everything
+  committed on `revive-2026`, not pushed. Paused by the user. Next: push
+  notifications (queue item 4), or the deploys once Blaze is active.
