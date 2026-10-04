@@ -1703,4 +1703,42 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get purposeOther => 'أخرى';
+
+  @override
+  String get phoneProblems => 'مشاكل الهاتف';
+
+  @override
+  String get outsideSite => 'خارج الموقع';
+
+  @override
+  String get noLocationYet => 'لا يوجد موقع بعد';
+
+  @override
+  String locationUpdated(String time) {
+    return 'آخر تحديث للموقع $time';
+  }
+
+  @override
+  String distanceFromSite(String distance, String site) {
+    return 'على بعد $distance من $site';
+  }
+
+  @override
+  String kilometersShort(String km) {
+    return '$km كم';
+  }
+
+  @override
+  String get showEveryone => 'عرض الجميع';
+
+  @override
+  String peopleOnMap(int located, int total) {
+    return '$located من $total على الخريطة';
+  }
+
+  @override
+  String get newProjectHere => 'مشروع جديد هنا';
+
+  @override
+  String get newMockupHere => 'عيّنة جديدة هنا';
 }

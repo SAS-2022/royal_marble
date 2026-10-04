@@ -6,7 +6,7 @@ import 'package:royal_marble/core/locale_controller.dart';
 import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/core/format.dart';
 import 'package:royal_marble/core/roles.dart';
-import 'package:royal_marble/location/google_map_navigation.dart';
+import 'package:royal_marble/core/maps.dart';
 import 'package:royal_marble/models/attendance.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/models/device_status.dart';
@@ -213,13 +213,7 @@ class SiteDetailsScreen extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                   child: OutlinedButton.icon(
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => GoogleMapNavigation(
-                            lat: lat, lng: lng, navigate: true),
-                      ),
-                    ),
+                    onPressed: () => openDirections(lat, lng),
                     icon: const Icon(Icons.directions),
                     label: Text(context.l10n.directions),
                   ),
@@ -260,7 +254,7 @@ class SiteDetailsScreen extends StatelessWidget {
                 if (site.phone?.isNotEmpty == true)
                   ListTile(
                     leading: const Icon(Icons.phone_outlined),
-                    title: Text(site.phone!),
+                    title: Text(site.phone!, textDirection: TextDirection.ltr),
                     trailing: const Icon(Icons.call, color: AppColors.ok),
                     onTap: () =>
                         launchUrl(Uri(scheme: 'tel', path: site.phone)),

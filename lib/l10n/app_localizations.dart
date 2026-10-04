@@ -3059,6 +3059,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Other'**
   String get purposeOther;
+
+  /// No description provided for @phoneProblems.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone problems'**
+  String get phoneProblems;
+
+  /// No description provided for @outsideSite.
+  ///
+  /// In en, this message translates to:
+  /// **'Outside the site'**
+  String get outsideSite;
+
+  /// No description provided for @noLocationYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No location yet'**
+  String get noLocationYet;
+
+  /// No description provided for @locationUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Location updated {time}'**
+  String locationUpdated(String time);
+
+  /// No description provided for @distanceFromSite.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} from {site}'**
+  String distanceFromSite(String distance, String site);
+
+  /// No description provided for @kilometersShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km'**
+  String kilometersShort(String km);
+
+  /// No description provided for @showEveryone.
+  ///
+  /// In en, this message translates to:
+  /// **'Show everyone'**
+  String get showEveryone;
+
+  /// No description provided for @peopleOnMap.
+  ///
+  /// In en, this message translates to:
+  /// **'{located} of {total} on the map'**
+  String peopleOnMap(int located, int total);
+
+  /// No description provided for @newProjectHere.
+  ///
+  /// In en, this message translates to:
+  /// **'New project here'**
+  String get newProjectHere;
+
+  /// No description provided for @newMockupHere.
+  ///
+  /// In en, this message translates to:
+  /// **'New mock-up here'**
+  String get newMockupHere;
 }
 
 class _AppLocalizationsDelegate

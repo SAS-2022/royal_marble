@@ -1704,4 +1704,42 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get purposeOther => 'دیگر';
+
+  @override
+  String get phoneProblems => 'فون کے مسائل';
+
+  @override
+  String get outsideSite => 'سائٹ سے باہر';
+
+  @override
+  String get noLocationYet => 'ابھی کوئی مقام نہیں';
+
+  @override
+  String locationUpdated(String time) {
+    return 'مقام اپ ڈیٹ: $time';
+  }
+
+  @override
+  String distanceFromSite(String distance, String site) {
+    return '$site سے $distance دور';
+  }
+
+  @override
+  String kilometersShort(String km) {
+    return '$km کلومیٹر';
+  }
+
+  @override
+  String get showEveryone => 'سب کو دکھائیں';
+
+  @override
+  String peopleOnMap(int located, int total) {
+    return 'نقشے پر $total میں سے $located';
+  }
+
+  @override
+  String get newProjectHere => 'یہاں نیا پروجیکٹ';
+
+  @override
+  String get newMockupHere => 'یہاں نیا ماک اپ';
 }

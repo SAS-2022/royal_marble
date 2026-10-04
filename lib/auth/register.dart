@@ -9,7 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/core/locale_controller.dart';
 import 'package:royal_marble/core/format.dart';
-import 'package:royal_marble/location/google_map_navigation.dart';
+import 'package:royal_marble/screens/site_form_screen.dart' show SitePinPicker;
 import 'package:royal_marble/services/auth.dart';
 
 /// UAE mobile: 05XXXXXXXX, 5XXXXXXXX, +9715XXXXXXXX or 009715XXXXXXXX.
@@ -89,22 +89,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _pickHome() async {
-    await Navigator.push(
+    final lat = (_home?['Lat'] as num?)?.toDouble();
+    final lng = (_home?['Lng'] as num?)?.toDouble();
+    final result = await Navigator.push<Map<String, dynamic>>(
       context,
       MaterialPageRoute(
-        builder: (_) => GoogleMapNavigation(
-          navigate: false,
-          getLocation: ({String? locationName, LatLng? locationAddress}) async {
-            if (locationName == null || locationAddress == null) return;
-            setState(() => _home = {
-                  'addressName': locationName,
-                  'Lat': locationAddress.latitude,
-                  'Lng': locationAddress.longitude,
-                });
-          },
+        fullscreenDialog: true,
+        builder: (_) => SitePinPicker(
+          initial: lat == null || lng == null ? null : LatLng(lat, lng),
+          radius: 0,
+          title: context.l10n.homeAddress,
         ),
       ),
     );
+    if (result != null) setState(() => _home = result);
   }
 
   bool _validateStep() {

@@ -5,11 +5,11 @@ import 'package:royal_marble/account_settings/users_grid.dart';
 import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/core/error_reporter.dart';
 import 'package:royal_marble/core/roles.dart';
-import 'package:royal_marble/location/map_providers.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/reports/reports_screen.dart';
 import 'package:royal_marble/screens/client_form_screen.dart';
 import 'package:royal_marble/screens/clients_screen.dart';
+import 'package:royal_marble/screens/live_map_screen.dart';
 import 'package:royal_marble/screens/my_profile_screen.dart';
 import 'package:royal_marble/screens/salary_screens.dart';
 import 'package:royal_marble/screens/site_form_screen.dart';
@@ -63,13 +63,7 @@ class ProfileDrawer extends StatelessWidget {
                       l.teamStatusAlerts,
                       () => open(TeamStatusScreen(users: allUsers ?? const []))),
                   _Item(Icons.map_outlined, l.liveMap,
-                      () => open(MapProviders(
-                            allUsers: allUsers,
-                            currentUser: user,
-                            listOfMarkers: 'users',
-                            addNewProject: false,
-                            addNewMockup: false,
-                          ))),
+                      () => open(LiveMapScreen(currentUser: user))),
                   _Item(Icons.people_outline, l.users,
                       () => open(UserGrid(currentUser: user))),
                 ],

@@ -1033,5 +1033,49 @@
   "purposeNewClient": "New client",
   "purposeReestablish": "Re-establishing business",
   "purposeCatchUp": "Catch-up visit",
-  "purposeOther": "Other"
+  "purposeOther": "Other",
+  "phoneProblems": "Phone problems",
+  "outsideSite": "Outside the site",
+  "noLocationYet": "No location yet",
+  "locationUpdated": "Location updated {time}",
+  "@locationUpdated": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "distanceFromSite": "{distance} from {site}",
+  "@distanceFromSite": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      },
+      "site": {
+        "type": "String"
+      }
+    }
+  },
+  "kilometersShort": "{km} km",
+  "@kilometersShort": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "showEveryone": "Show everyone",
+  "peopleOnMap": "{located} of {total} on the map",
+  "@peopleOnMap": {
+    "placeholders": {
+      "located": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "newProjectHere": "New project here",
+  "newMockupHere": "New mock-up here"
 }

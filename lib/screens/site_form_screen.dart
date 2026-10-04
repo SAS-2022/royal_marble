@@ -41,13 +41,14 @@ Tone siteStatusTone(String? status) => switch (status) {
 /// "Al Braih St, Dubai Marina, Dubai". Google often puts a plus code
 /// ("34HR+M9V") or the whole formatted address in `street`/`name`, so those
 /// are only used when nothing better is available.
-String _addressFrom(Placemark p) {
+String addressFromPlacemark(Placemark p) {
   final plusCode = RegExp(r'^[23456789CFGHJMPQRVWX]{4,8}\+[23456789CFGHJMPQRVWX]{2,3}\b\s*');
   String clean(String? v) {
     var t = (v ?? '').trim().replaceFirst(plusCode, '');
     // A full "street - area - city - country" line: keep its first part.
     if (t.contains(' - ')) t = t.split(' - ').first.trim();
-    return t;
+    // A field that is just the separator ("- Hor Al Anz") keeps only the name.
+    return t.replaceAll(RegExp(r'^[\s\-–]+|[\s\-–]+$'), '');
   }
 
   final parts = <String>[];
@@ -510,7 +511,7 @@ class _SitePinPickerState extends State<SitePinPicker> {
     try {
       final marks = await _geocoder.placemarkFromCoordinates(
           _center.latitude, _center.longitude);
-      if (marks.isNotEmpty) name = _addressFrom(marks.first);
+      if (marks.isNotEmpty) name = addressFromPlacemark(marks.first);
     } catch (e) {
       // Offline or no geocoder: keep the coordinates as the address.
     }

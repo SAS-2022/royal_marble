@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../core/app_theme.dart';
 import '../core/format.dart';
+import '../core/maps.dart';
 import '../core/locale_controller.dart';
 import '../core/roles.dart';
 import '../models/business_model.dart';
@@ -14,11 +15,6 @@ import '../widgets/status_widgets.dart';
 import 'client_form_screen.dart';
 import 'visit_form_screen.dart';
 import 'visits_screen.dart' show VisitTile;
-
-/// Opens turn-by-turn directions in Google Maps (app or browser).
-Future<void> openDirections(num lat, num lng) => launchUrl(
-    Uri.parse('https://www.google.com/maps/dir/?api=1&destination=$lat,$lng'),
-    mode: LaunchMode.externalApplication);
 
 /// A salesperson's clients (admins see everyone's, with the owner's name),
 /// with search and a button to add one.

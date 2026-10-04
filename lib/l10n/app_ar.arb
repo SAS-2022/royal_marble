@@ -492,5 +492,15 @@
   "purposeNewClient": "عميل جديد",
   "purposeReestablish": "استعادة التعامل",
   "purposeCatchUp": "زيارة تواصل",
-  "purposeOther": "أخرى"
+  "purposeOther": "أخرى",
+  "phoneProblems": "مشاكل الهاتف",
+  "outsideSite": "خارج الموقع",
+  "noLocationYet": "لا يوجد موقع بعد",
+  "locationUpdated": "آخر تحديث للموقع {time}",
+  "distanceFromSite": "على بعد {distance} من {site}",
+  "kilometersShort": "{km} كم",
+  "showEveryone": "عرض الجميع",
+  "peopleOnMap": "{located} من {total} على الخريطة",
+  "newProjectHere": "مشروع جديد هنا",
+  "newMockupHere": "عيّنة جديدة هنا"
 }

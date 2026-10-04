@@ -492,5 +492,15 @@
   "purposeNewClient": "نیا کلائنٹ",
   "purposeReestablish": "کاروبار دوبارہ شروع کرنا",
   "purposeCatchUp": "ملاقات",
-  "purposeOther": "دیگر"
+  "purposeOther": "دیگر",
+  "phoneProblems": "فون کے مسائل",
+  "outsideSite": "سائٹ سے باہر",
+  "noLocationYet": "ابھی کوئی مقام نہیں",
+  "locationUpdated": "مقام اپ ڈیٹ: {time}",
+  "distanceFromSite": "{site} سے {distance} دور",
+  "kilometersShort": "{km} کلومیٹر",
+  "showEveryone": "سب کو دکھائیں",
+  "peopleOnMap": "نقشے پر {total} میں سے {located}",
+  "newProjectHere": "یہاں نیا پروجیکٹ",
+  "newMockupHere": "یہاں نیا ماک اپ"
 }

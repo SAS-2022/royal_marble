@@ -2,7 +2,6 @@ import 'package:permission_handler/permission_handler.dart' as ph;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:royal_marble/models/business_model.dart';
-import 'package:royal_marble/models/directions.dart';
 import 'package:royal_marble/core/error_reporter.dart';
 import '../models/attendance.dart' show siteAssignments;
 import '../models/sales_visit.dart';
@@ -220,15 +219,6 @@ class DatabaseService {
         .map(_allUserDataFromSnapshot);
   }
 
-  Stream<List<CustomMarker>> getAllUsersLocation({String? userId}) {
-    return userCollection
-        .doc(userId)
-        .collection('location')
-        .limit(1)
-        .snapshots()
-        .map(_allUserLocationDataFromSnapshot);
-  }
-
   //Get users depending on their role
   Future<List<UserData>> getUsersPerRole({String? userRole}) async {
     try {
@@ -249,40 +239,6 @@ class DatabaseService {
       await ErrorReporter.record(e, stackTrace: stackTrace);
       return [];
     }
-  }
-
-  Future<Map<String, dynamic>> getUserLocationFuture({String? usersId}) async {
-    return await userCollection
-        .doc(usersId)
-        .collection('location')
-        .doc('current')
-        .get()
-        .then((value) {
-      if (value.data() != null) {
-        return {
-          'uuid': value.data()!['location']['uuid'],
-          'lat': value.data()!['location']['coords']['latitude'],
-          'lng': value.data()!['location']['coords']['longitude'],
-          'speed': value.data()!['location']['coords']['speed'] ?? '',
-          'activity': value.data()!['location']['activity']['type'] ?? '',
-          'charging': value.data()!['location']['battery']['is_charging'] ?? '',
-          'battery': value.data()!['location']['battery']['level'] ?? '',
-          'isMoving': value.data()!['location']['is_moving'] ?? '',
-          'enabled': value.data()!['location']['provider'] != null
-              ? value.data()!['location']['provider']['enabled']
-              : '',
-          'network': value.data()!['location']['provider'] != null
-              ? value.data()!['location']['provider']['network']
-              : '',
-          'gps': value.data()!['location']['provider'] != null
-              ? value.data()!['location']['provider']['gps']
-              : '',
-          'time': value.data()!['location']['timestamp'] ?? ''
-        };
-      } else {
-        return {};
-      }
-    });
   }
 
   Stream<List<UserData>> getAllWorkers() {
@@ -356,18 +312,6 @@ class DatabaseService {
       assingedHelpers: data['assignedHelpers'] ?? [],
       location: data['location'],
     );
-  }
-
-  List<CustomMarker> _allUserLocationDataFromSnapshot(QuerySnapshot snapshot) {
-    return snapshot.docs.map((snapshot) {
-      var data = snapshot.data() as Map<String, dynamic>;
-      var result = CustomMarker(
-          id: data['location']['uuid'],
-          coord: LatLng(data['location']['coords']['latitude'],
-              data['location']['coords']['longitude']));
-
-      return result;
-    }).toList();
   }
 
   List<UserData> _allUserDataFromSnapshot(QuerySnapshot snapshot) {
@@ -477,38 +421,6 @@ class DatabaseService {
       .doc(id)
       .snapshots()
       .map((d) => ClientData.fromMap(d.id, d.data() as Map<String, dynamic>?));
-
-  //Future to read current Clients
-  Future<List<ClientData>> getClientFuture() async {
-    try {
-      return await clientCollection.get().then((value) {
-        return value.docs.map((e) {
-          var data = e.data() as Map<String, dynamic>;
-          return ClientData.fromMap(e.id, data);
-        }).toList();
-      });
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-      return [];
-    }
-  }
-
-  Future<List<ClientData>> getSalesUserClientFuture({String? userId}) async {
-    try {
-      return await clientCollection
-          .where('salesInCharge', isEqualTo: userId)
-          .get()
-          .then((value) {
-        return value.docs.map((e) {
-          var data = e.data() as Map<String, dynamic>;
-          return ClientData.fromMap(e.id, data);
-        }).toList();
-      });
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-      return [];
-    }
-  }
 
   /// Adds or removes one site in a user's `assignedProject` /
   /// `assignedMockup`. Always stores a list (older versions kept a single map

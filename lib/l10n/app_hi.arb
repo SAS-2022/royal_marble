@@ -492,5 +492,15 @@
   "purposeNewClient": "नया क्लाइंट",
   "purposeReestablish": "कारोबार फिर शुरू करना",
   "purposeCatchUp": "मुलाक़ात",
-  "purposeOther": "अन्य"
+  "purposeOther": "अन्य",
+  "phoneProblems": "फ़ोन की दिक्कतें",
+  "outsideSite": "साइट से बाहर",
+  "noLocationYet": "अभी कोई लोकेशन नहीं",
+  "locationUpdated": "लोकेशन अपडेट: {time}",
+  "distanceFromSite": "{site} से {distance} दूर",
+  "kilometersShort": "{km} किमी",
+  "showEveryone": "सबको दिखाएँ",
+  "peopleOnMap": "नक्शे पर {total} में से {located}",
+  "newProjectHere": "यहाँ नया प्रोजेक्ट",
+  "newMockupHere": "यहाँ नया मॉक-अप"
 }

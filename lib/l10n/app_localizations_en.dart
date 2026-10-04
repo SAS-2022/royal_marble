@@ -1704,4 +1704,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get purposeOther => 'Other';
+
+  @override
+  String get phoneProblems => 'Phone problems';
+
+  @override
+  String get outsideSite => 'Outside the site';
+
+  @override
+  String get noLocationYet => 'No location yet';
+
+  @override
+  String locationUpdated(String time) {
+    return 'Location updated $time';
+  }
+
+  @override
+  String distanceFromSite(String distance, String site) {
+    return '$distance from $site';
+  }
+
+  @override
+  String kilometersShort(String km) {
+    return '$km km';
+  }
+
+  @override
+  String get showEveryone => 'Show everyone';
+
+  @override
+  String peopleOnMap(int located, int total) {
+    return '$located of $total on the map';
+  }
+
+  @override
+  String get newProjectHere => 'New project here';
+
+  @override
+  String get newMockupHere => 'New mock-up here';
 }

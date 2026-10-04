@@ -1699,4 +1699,42 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get purposeOther => 'अन्य';
+
+  @override
+  String get phoneProblems => 'फ़ोन की दिक्कतें';
+
+  @override
+  String get outsideSite => 'साइट से बाहर';
+
+  @override
+  String get noLocationYet => 'अभी कोई लोकेशन नहीं';
+
+  @override
+  String locationUpdated(String time) {
+    return 'लोकेशन अपडेट: $time';
+  }
+
+  @override
+  String distanceFromSite(String distance, String site) {
+    return '$site से $distance दूर';
+  }
+
+  @override
+  String kilometersShort(String km) {
+    return '$km किमी';
+  }
+
+  @override
+  String get showEveryone => 'सबको दिखाएँ';
+
+  @override
+  String peopleOnMap(int located, int total) {
+    return 'नक्शे पर $total में से $located';
+  }
+
+  @override
+  String get newProjectHere => 'यहाँ नया प्रोजेक्ट';
+
+  @override
+  String get newMockupHere => 'यहाँ नया मॉक-अप';
 }
