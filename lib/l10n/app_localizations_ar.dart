@@ -1486,4 +1486,221 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get deleteAccountFailed =>
       'تعذّر حذف الحساب. تحقق من الاتصال وحاول مرة أخرى.';
+
+  @override
+  String get clientName => 'اسم العميل';
+
+  @override
+  String get editClient => 'تعديل العميل';
+
+  @override
+  String get deleteClient => 'حذف العميل';
+
+  @override
+  String deleteClientTitle(String name) {
+    return 'حذف $name؟';
+  }
+
+  @override
+  String get deleteClientBody =>
+      'سيُحذف العميل من القائمة. تحتفظ الزيارات السابقة باسم العميل.';
+
+  @override
+  String get clientSaved => 'تم حفظ العميل';
+
+  @override
+  String get clientSaveFailed =>
+      'تعذّر حفظ العميل. تحقق من الاتصال وحاول مرة أخرى.';
+
+  @override
+  String get clientLocation => 'الموقع';
+
+  @override
+  String get clientLocationHint =>
+      'اختياري. الدبوس على الخريطة يتيح فتح الاتجاهات لاحقاً.';
+
+  @override
+  String get placeClient => 'حدد موقع العميل';
+
+  @override
+  String get clientNotFound => 'تم حذف هذا العميل.';
+
+  @override
+  String get searchClients => 'ابحث بالاسم أو جهة الاتصال أو الهاتف أو المنطقة';
+
+  @override
+  String clientsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count عميلاً',
+      few: '$count عملاء',
+      two: 'عميلان',
+      one: 'عميل واحد',
+      zero: 'لا عملاء',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noClientsYet => 'لا يوجد عملاء بعد. أضف أول عميل بالزر أدناه.';
+
+  @override
+  String get noClientsFound => 'لم يُعثر على عملاء';
+
+  @override
+  String get pinOnly => 'محدد على الخريطة';
+
+  @override
+  String visitsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count زيارة',
+      few: '$count زيارات',
+      two: 'زيارتان',
+      one: 'زيارة واحدة',
+      zero: 'الزيارات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noVisitsYet => 'لا توجد زيارات مسجلة بعد.';
+
+  @override
+  String get noVisitsToday => 'لا توجد زيارات مسجلة اليوم.';
+
+  @override
+  String get noVisitsInPeriod => 'لا توجد زيارات في هذه الفترة.';
+
+  @override
+  String todaysVisits(int count) {
+    return 'زيارات اليوم ($count)';
+  }
+
+  @override
+  String visitsSummary(int total, int clients, int projects) {
+    return '$total زيارة · $clients عملاء · $projects مشاريع';
+  }
+
+  @override
+  String get salesperson => 'مندوب المبيعات';
+
+  @override
+  String get meLabel => 'أنا';
+
+  @override
+  String get last7Days => 'آخر 7 أيام';
+
+  @override
+  String get clientWord => 'عميل';
+
+  @override
+  String get projectWord => 'مشروع';
+
+  @override
+  String get chooseClient => 'اختر عميلاً';
+
+  @override
+  String get chooseProject => 'اختر مشروعاً';
+
+  @override
+  String get visitStepWho => 'من زرت؟';
+
+  @override
+  String get visitStepWhat => 'ماذا حدث';
+
+  @override
+  String get metWith => 'التقيت بـ';
+
+  @override
+  String get visitPurpose => 'الغرض';
+
+  @override
+  String get choosePurpose => 'اختر الغرض';
+
+  @override
+  String get visitNotes => 'الملاحظات';
+
+  @override
+  String get visitNotesHint => 'ما الذي نوقش أو اتُّفق عليه أو وُعد به؟';
+
+  @override
+  String notesTooShort(int min, int count) {
+    return 'اكتب $min حرفاً على الأقل ($count حتى الآن)';
+  }
+
+  @override
+  String get visitTime => 'وقت الزيارة';
+
+  @override
+  String get rightNow => 'الآن';
+
+  @override
+  String get change => 'تغيير';
+
+  @override
+  String get saveVisit => 'حفظ الزيارة';
+
+  @override
+  String get visitSaved => 'تم حفظ الزيارة';
+
+  @override
+  String get visitSaveFailed =>
+      'تعذّر حفظ الزيارة. تحقق من الاتصال وحاول مرة أخرى.';
+
+  @override
+  String get visitDetails => 'الزيارة';
+
+  @override
+  String get managerComment => 'تعليق المدير';
+
+  @override
+  String get managerCommentHint => 'ملاحظات أو خطوات تالية لمندوب المبيعات';
+
+  @override
+  String get noManagerComment => 'لا يوجد تعليق من المدير بعد.';
+
+  @override
+  String get saveComment => 'حفظ التعليق';
+
+  @override
+  String get purposeCollectPayment => 'تحصيل دفعة';
+
+  @override
+  String get purposeRequestPayment => 'طلب دفعة';
+
+  @override
+  String get purposeNewOrder => 'طلب جديد';
+
+  @override
+  String get purposeOrderFollowUp => 'متابعة طلب';
+
+  @override
+  String get purposeQuotationFollowUp => 'متابعة عرض سعر';
+
+  @override
+  String get purposeSamples => 'تسليم عينات';
+
+  @override
+  String get purposeComplaint => 'معالجة شكوى';
+
+  @override
+  String get purposeNewProduct => 'عرض منتج جديد';
+
+  @override
+  String get purposeProjectDiscussion => 'مناقشة مشروع';
+
+  @override
+  String get purposeNewClient => 'عميل جديد';
+
+  @override
+  String get purposeReestablish => 'استعادة التعامل';
+
+  @override
+  String get purposeCatchUp => 'زيارة تواصل';
+
+  @override
+  String get purposeOther => 'أخرى';
 }

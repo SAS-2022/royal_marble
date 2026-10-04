@@ -21,6 +21,31 @@ class ClientData {
     this.userId,
     this.error,
   });
+
+  /// From a `clients/{id}` document. Tolerates a missing phone or address
+  /// (the 2023 list crashed on clients saved without a phone).
+  factory ClientData.fromMap(String id, Map<String, dynamic>? d) {
+    if (d == null) return ClientData(uid: id, error: 'not-found');
+    return ClientData(
+      uid: id,
+      clientName: d['clientName'] as String?,
+      clientAddress: _map(d['clientAddress']),
+      contactPerson: d['contactPerson'] as String?,
+      phoneNumber: _phone(d['phoneNumber']),
+      emailAddress: d['emailAddress'] as String?,
+      clientVisits: d['clientVisits'] as List?,
+      userId: d['userId'] as String?,
+    );
+  }
+
+  String get name => clientName ?? '';
+  String? get phone => phoneNumber?.phoneNumber?.isNotEmpty == true
+      ? phoneNumber!.phoneNumber
+      : null;
+
+  /// Only a real pin counts; older clients may have empty `Lat`/`Lng`.
+  bool get hasPin =>
+      clientAddress?['Lat'] is num && clientAddress?['Lng'] is num;
 }
 
 PhoneNumber? _phone(dynamic v) => v is Map

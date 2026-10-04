@@ -2,21 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:royal_marble/core/l10n_helpers.dart';
 import 'package:royal_marble/core/locale_controller.dart';
 import 'package:royal_marble/account_settings/users_grid.dart';
-import 'package:royal_marble/clients/clients_form.dart';
-import 'package:royal_marble/clients/clients_grid.dart';
 import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/core/error_reporter.dart';
 import 'package:royal_marble/core/roles.dart';
 import 'package:royal_marble/location/map_providers.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/reports/reports_screen.dart';
-import 'package:royal_marble/sales_pipeline/visit_forms.dart/visit_form_streams.dart';
+import 'package:royal_marble/screens/client_form_screen.dart';
+import 'package:royal_marble/screens/clients_screen.dart';
 import 'package:royal_marble/screens/my_profile_screen.dart';
 import 'package:royal_marble/screens/salary_screens.dart';
 import 'package:royal_marble/screens/site_form_screen.dart';
 import 'package:royal_marble/screens/sites_screen.dart';
 import 'package:royal_marble/services/checkin_service.dart' show SiteKind;
 import 'package:royal_marble/screens/team_status_screen.dart';
+import 'package:royal_marble/screens/visit_form_screen.dart';
+import 'package:royal_marble/screens/visits_screen.dart';
 import 'package:royal_marble/services/auth.dart';
 import 'package:royal_marble/services/tracking_service.dart';
 import 'package:royal_marble/widgets/language_picker.dart';
@@ -90,16 +91,13 @@ class ProfileDrawer extends StatelessWidget {
                 if (admin || sales) ...[
                   _Group(l.sectionSales),
                   _Item(Icons.storefront_outlined, l.clients,
-                      () => open(ClientGrid(currentUser: user))),
+                      () => open(ClientsScreen(currentUser: user))),
                   _Item(Icons.person_add_alt, l.addClient,
-                      () => open(
-                          ClientForm(isNewClient: true, currentUser: user))),
+                      () => open(ClientFormScreen(ownerId: user.uid!))),
                   _Item(Icons.edit_calendar_outlined, l.newVisit,
-                      () => open(VisitFormStreams(
-                          currentUser: user, viewingVisit: false))),
+                      () => open(VisitFormScreen(currentUser: user))),
                   _Item(Icons.event_note_outlined, l.visits,
-                      () => open(VisitFormStreams(
-                          currentUser: user, viewingVisit: true))),
+                      () => open(VisitsScreen(currentUser: user))),
                 ],
                 if (admin || supervisor) ...[
                   _Group(l.sectionReports),

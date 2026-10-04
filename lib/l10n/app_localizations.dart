@@ -2693,6 +2693,372 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not delete the account. Check your connection and try again.'**
   String get deleteAccountFailed;
+
+  /// No description provided for @clientName.
+  ///
+  /// In en, this message translates to:
+  /// **'Client name'**
+  String get clientName;
+
+  /// No description provided for @editClient.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit client'**
+  String get editClient;
+
+  /// No description provided for @deleteClient.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete client'**
+  String get deleteClient;
+
+  /// No description provided for @deleteClientTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name}?'**
+  String deleteClientTitle(String name);
+
+  /// No description provided for @deleteClientBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The client is removed from the list. Past visits keep the client\'s name.'**
+  String get deleteClientBody;
+
+  /// No description provided for @clientSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Client saved'**
+  String get clientSaved;
+
+  /// No description provided for @clientSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the client. Check your connection and try again.'**
+  String get clientSaveFailed;
+
+  /// No description provided for @clientLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get clientLocation;
+
+  /// No description provided for @clientLocationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional. A pin on the map lets you open directions later.'**
+  String get clientLocationHint;
+
+  /// No description provided for @placeClient.
+  ///
+  /// In en, this message translates to:
+  /// **'Place the client'**
+  String get placeClient;
+
+  /// No description provided for @clientNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This client was deleted.'**
+  String get clientNotFound;
+
+  /// No description provided for @searchClients.
+  ///
+  /// In en, this message translates to:
+  /// **'Search name, contact, phone or area'**
+  String get searchClients;
+
+  /// No description provided for @clientsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No clients} =1{1 client} other{{count} clients}}'**
+  String clientsCount(int count);
+
+  /// No description provided for @noClientsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No clients yet. Add your first one with the button below.'**
+  String get noClientsYet;
+
+  /// No description provided for @noClientsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No clients found'**
+  String get noClientsFound;
+
+  /// No description provided for @pinOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned on the map'**
+  String get pinOnly;
+
+  /// No description provided for @visitsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Visits} =1{1 visit} other{{count} visits}}'**
+  String visitsCount(int count);
+
+  /// No description provided for @noVisitsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No visits recorded yet.'**
+  String get noVisitsYet;
+
+  /// No description provided for @noVisitsToday.
+  ///
+  /// In en, this message translates to:
+  /// **'No visits recorded today.'**
+  String get noVisitsToday;
+
+  /// No description provided for @noVisitsInPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'No visits in this period.'**
+  String get noVisitsInPeriod;
+
+  /// No description provided for @todaysVisits.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s visits ({count})'**
+  String todaysVisits(int count);
+
+  /// No description provided for @visitsSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{total} visits · {clients} clients · {projects} projects'**
+  String visitsSummary(int total, int clients, int projects);
+
+  /// No description provided for @salesperson.
+  ///
+  /// In en, this message translates to:
+  /// **'Salesperson'**
+  String get salesperson;
+
+  /// No description provided for @meLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Me'**
+  String get meLabel;
+
+  /// No description provided for @last7Days.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 days'**
+  String get last7Days;
+
+  /// No description provided for @clientWord.
+  ///
+  /// In en, this message translates to:
+  /// **'Client'**
+  String get clientWord;
+
+  /// No description provided for @projectWord.
+  ///
+  /// In en, this message translates to:
+  /// **'Project'**
+  String get projectWord;
+
+  /// No description provided for @chooseClient.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a client'**
+  String get chooseClient;
+
+  /// No description provided for @chooseProject.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a project'**
+  String get chooseProject;
+
+  /// No description provided for @visitStepWho.
+  ///
+  /// In en, this message translates to:
+  /// **'Who did you visit?'**
+  String get visitStepWho;
+
+  /// No description provided for @visitStepWhat.
+  ///
+  /// In en, this message translates to:
+  /// **'What happened'**
+  String get visitStepWhat;
+
+  /// No description provided for @metWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Met with'**
+  String get metWith;
+
+  /// No description provided for @visitPurpose.
+  ///
+  /// In en, this message translates to:
+  /// **'Purpose'**
+  String get visitPurpose;
+
+  /// No description provided for @choosePurpose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a purpose'**
+  String get choosePurpose;
+
+  /// No description provided for @visitNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get visitNotes;
+
+  /// No description provided for @visitNotesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What was discussed, agreed or promised?'**
+  String get visitNotesHint;
+
+  /// No description provided for @notesTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Write at least {min} characters ({count} so far)'**
+  String notesTooShort(int min, int count);
+
+  /// No description provided for @visitTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit time'**
+  String get visitTime;
+
+  /// No description provided for @rightNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get rightNow;
+
+  /// No description provided for @change.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get change;
+
+  /// No description provided for @saveVisit.
+  ///
+  /// In en, this message translates to:
+  /// **'Save visit'**
+  String get saveVisit;
+
+  /// No description provided for @visitSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit saved'**
+  String get visitSaved;
+
+  /// No description provided for @visitSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the visit. Check your connection and try again.'**
+  String get visitSaveFailed;
+
+  /// No description provided for @visitDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit'**
+  String get visitDetails;
+
+  /// No description provided for @managerComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Manager\'s comment'**
+  String get managerComment;
+
+  /// No description provided for @managerCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback or next steps for the salesperson'**
+  String get managerCommentHint;
+
+  /// No description provided for @noManagerComment.
+  ///
+  /// In en, this message translates to:
+  /// **'No comment from your manager yet.'**
+  String get noManagerComment;
+
+  /// No description provided for @saveComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Save comment'**
+  String get saveComment;
+
+  /// No description provided for @purposeCollectPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Collecting payment'**
+  String get purposeCollectPayment;
+
+  /// No description provided for @purposeRequestPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Requesting payment'**
+  String get purposeRequestPayment;
+
+  /// No description provided for @purposeNewOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'New order'**
+  String get purposeNewOrder;
+
+  /// No description provided for @purposeOrderFollowUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Order follow-up'**
+  String get purposeOrderFollowUp;
+
+  /// No description provided for @purposeQuotationFollowUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Quotation follow-up'**
+  String get purposeQuotationFollowUp;
+
+  /// No description provided for @purposeSamples.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample submission'**
+  String get purposeSamples;
+
+  /// No description provided for @purposeComplaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Handling a complaint'**
+  String get purposeComplaint;
+
+  /// No description provided for @purposeNewProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Presenting a new product'**
+  String get purposeNewProduct;
+
+  /// No description provided for @purposeProjectDiscussion.
+  ///
+  /// In en, this message translates to:
+  /// **'Project discussion'**
+  String get purposeProjectDiscussion;
+
+  /// No description provided for @purposeNewClient.
+  ///
+  /// In en, this message translates to:
+  /// **'New client'**
+  String get purposeNewClient;
+
+  /// No description provided for @purposeReestablish.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-establishing business'**
+  String get purposeReestablish;
+
+  /// No description provided for @purposeCatchUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Catch-up visit'**
+  String get purposeCatchUp;
+
+  /// No description provided for @purposeOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get purposeOther;
 }
 
 class _AppLocalizationsDelegate

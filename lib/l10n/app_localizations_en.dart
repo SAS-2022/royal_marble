@@ -1490,4 +1490,218 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deleteAccountFailed =>
       'Could not delete the account. Check your connection and try again.';
+
+  @override
+  String get clientName => 'Client name';
+
+  @override
+  String get editClient => 'Edit client';
+
+  @override
+  String get deleteClient => 'Delete client';
+
+  @override
+  String deleteClientTitle(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String get deleteClientBody =>
+      'The client is removed from the list. Past visits keep the client\'s name.';
+
+  @override
+  String get clientSaved => 'Client saved';
+
+  @override
+  String get clientSaveFailed =>
+      'Could not save the client. Check your connection and try again.';
+
+  @override
+  String get clientLocation => 'Location';
+
+  @override
+  String get clientLocationHint =>
+      'Optional. A pin on the map lets you open directions later.';
+
+  @override
+  String get placeClient => 'Place the client';
+
+  @override
+  String get clientNotFound => 'This client was deleted.';
+
+  @override
+  String get searchClients => 'Search name, contact, phone or area';
+
+  @override
+  String clientsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count clients',
+      one: '1 client',
+      zero: 'No clients',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noClientsYet =>
+      'No clients yet. Add your first one with the button below.';
+
+  @override
+  String get noClientsFound => 'No clients found';
+
+  @override
+  String get pinOnly => 'Pinned on the map';
+
+  @override
+  String visitsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count visits',
+      one: '1 visit',
+      zero: 'Visits',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noVisitsYet => 'No visits recorded yet.';
+
+  @override
+  String get noVisitsToday => 'No visits recorded today.';
+
+  @override
+  String get noVisitsInPeriod => 'No visits in this period.';
+
+  @override
+  String todaysVisits(int count) {
+    return 'Today\'s visits ($count)';
+  }
+
+  @override
+  String visitsSummary(int total, int clients, int projects) {
+    return '$total visits · $clients clients · $projects projects';
+  }
+
+  @override
+  String get salesperson => 'Salesperson';
+
+  @override
+  String get meLabel => 'Me';
+
+  @override
+  String get last7Days => 'Last 7 days';
+
+  @override
+  String get clientWord => 'Client';
+
+  @override
+  String get projectWord => 'Project';
+
+  @override
+  String get chooseClient => 'Choose a client';
+
+  @override
+  String get chooseProject => 'Choose a project';
+
+  @override
+  String get visitStepWho => 'Who did you visit?';
+
+  @override
+  String get visitStepWhat => 'What happened';
+
+  @override
+  String get metWith => 'Met with';
+
+  @override
+  String get visitPurpose => 'Purpose';
+
+  @override
+  String get choosePurpose => 'Choose a purpose';
+
+  @override
+  String get visitNotes => 'Notes';
+
+  @override
+  String get visitNotesHint => 'What was discussed, agreed or promised?';
+
+  @override
+  String notesTooShort(int min, int count) {
+    return 'Write at least $min characters ($count so far)';
+  }
+
+  @override
+  String get visitTime => 'Visit time';
+
+  @override
+  String get rightNow => 'Now';
+
+  @override
+  String get change => 'Change';
+
+  @override
+  String get saveVisit => 'Save visit';
+
+  @override
+  String get visitSaved => 'Visit saved';
+
+  @override
+  String get visitSaveFailed =>
+      'Could not save the visit. Check your connection and try again.';
+
+  @override
+  String get visitDetails => 'Visit';
+
+  @override
+  String get managerComment => 'Manager\'s comment';
+
+  @override
+  String get managerCommentHint => 'Feedback or next steps for the salesperson';
+
+  @override
+  String get noManagerComment => 'No comment from your manager yet.';
+
+  @override
+  String get saveComment => 'Save comment';
+
+  @override
+  String get purposeCollectPayment => 'Collecting payment';
+
+  @override
+  String get purposeRequestPayment => 'Requesting payment';
+
+  @override
+  String get purposeNewOrder => 'New order';
+
+  @override
+  String get purposeOrderFollowUp => 'Order follow-up';
+
+  @override
+  String get purposeQuotationFollowUp => 'Quotation follow-up';
+
+  @override
+  String get purposeSamples => 'Sample submission';
+
+  @override
+  String get purposeComplaint => 'Handling a complaint';
+
+  @override
+  String get purposeNewProduct => 'Presenting a new product';
+
+  @override
+  String get purposeProjectDiscussion => 'Project discussion';
+
+  @override
+  String get purposeNewClient => 'New client';
+
+  @override
+  String get purposeReestablish => 'Re-establishing business';
+
+  @override
+  String get purposeCatchUp => 'Catch-up visit';
+
+  @override
+  String get purposeOther => 'Other';
 }

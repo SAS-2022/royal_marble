@@ -1,11 +1,11 @@
 import 'package:permission_handler/permission_handler.dart' as ph;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/models/directions.dart';
 import 'package:royal_marble/core/error_reporter.dart';
 import '../models/attendance.dart' show siteAssignments;
+import '../models/sales_visit.dart';
 import '../models/user_model.dart';
 
 class DatabaseService {
@@ -429,110 +429,54 @@ class DatabaseService {
     }
   }
 
-  //The below section will allow us to handle clients changes
-  //adding clients
-  Future<String> addNewClients({ClientData? client}) async {
-    try {
-      return await clientCollection.add({
-        'clientName': client!.clientName,
-        'clientAddress': client.clientAddress,
-        'contactPerson': client.contactPerson,
-        'phoneNumber': {
-          'phoneNumber': client.phoneNumber!.phoneNumber,
-          'dialCode': client.phoneNumber!.dialCode,
-          'isoCode': client.phoneNumber!.isoCode,
-        },
-        'emailAddress': client.emailAddress,
-        'userId': client.userId,
-      }).then((value) => 'Completed');
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-      return 'Error: $e';
+  // ───────────── sales clients ─────────────
+
+  /// Creates or updates a client; returns its id. Throws on failure.
+  Future<String> saveClient({
+    String? id,
+    required String name,
+    required String contactPerson,
+    required Map<String, dynamic> phone,
+    String? email,
+    Map<String, dynamic>? address,
+    required String ownerId,
+  }) async {
+    final data = {
+      'clientName': name,
+      'contactPerson': contactPerson,
+      'phoneNumber': phone,
+      'emailAddress': email,
+      'clientAddress': address,
+    };
+    if (id == null) {
+      final ref = await clientCollection.add({
+        ...data,
+        'userId': ownerId,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+      return ref.id;
     }
+    await clientCollection.doc(id).update(data);
+    return id;
   }
 
-  //updating clients
-  Future<String> updateClientData({ClientData? client}) async {
-    try {
-      return await clientCollection.doc(client!.uid).update({
-        'clientName': client.clientName,
-        'clientAddress': client.clientAddress,
-        'contactPerson': client.contactPerson,
-        'phoneNumber': {
-          'phoneNumber': client.phoneNumber!.phoneNumber,
-          'dialCode': client.phoneNumber!.dialCode,
-          'isoCode': client.phoneNumber!.isoCode,
-        },
-        'emailAddress': client.emailAddress,
-        'userId': client.userId,
-      }).then((value) => 'Completed');
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-      return 'Error: $e';
-    }
+  /// Visits keep the client's name, so they stay readable afterwards.
+  Future<void> deleteClient(String id) => clientCollection.doc(id).delete();
+
+  /// Clients of one salesperson, or everyone's when [ownerId] is null.
+  Stream<List<ClientData>> streamClients({String? ownerId}) {
+    final Query q = ownerId == null
+        ? clientCollection
+        : clientCollection.where('userId', isEqualTo: ownerId);
+    return q.snapshots().map((s) => s.docs
+        .map((d) => ClientData.fromMap(d.id, d.data() as Map<String, dynamic>?))
+        .toList());
   }
 
-  //deleting clients
-  Future<void> deleteClient({String? clientId}) async {
-    try {
-      await clientCollection.doc(clientId).delete();
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-    }
-  }
-
-  //reading through streams and futures
-  Stream<List<ClientData>> getClientsPerUser({String? userId}) {
-    var result = clientCollection
-        .where('userId', isEqualTo: userId)
-        .snapshots()
-        .map(_listClientDataFromSnapshot);
-    return result;
-  }
-
-  Stream<ClientData> getClientPerId({String? uid}) {
-    return clientCollection
-        .doc(uid)
-        .snapshots()
-        .map(_singleClientDataFromSnapshot);
-  }
-
-  Stream<List<ClientData>> getAllClients() {
-    return clientCollection.snapshots().map(_listClientDataFromSnapshot);
-  }
-
-  ClientData _singleClientDataFromSnapshot(DocumentSnapshot snapshot) {
-    var data = snapshot.data() as Map<String, dynamic>;
-    return ClientData(
-        uid: snapshot.id,
-        clientName: data['clientName'],
-        contactPerson: data['contactPerson'],
-        clientAddress: data['clientAddress'],
-        emailAddress: data['emailAddress'],
-        phoneNumber: PhoneNumber(
-            phoneNumber: data['phoneNumber']['phoneNumber'],
-            isoCode: data['phoneNumber']['isoCode'],
-            dialCode: data['phoneNumber']['dialCode']),
-        clientVisits: data['clientVisits']);
-  }
-
-  List<ClientData> _listClientDataFromSnapshot(QuerySnapshot snapshot) {
-    return snapshot.docs.map((snapshot) {
-      var data = snapshot.data() as Map<String, dynamic>;
-
-      return ClientData(
-          uid: snapshot.id,
-          clientName: data['clientName'],
-          contactPerson: data['contactPerson'],
-          clientAddress: data['clientAddress'],
-          emailAddress: data['emailAddress'],
-          phoneNumber: PhoneNumber(
-              phoneNumber: data['phoneNumber']['phoneNumber'],
-              isoCode: data['phoneNumber']['isoCode'],
-              dialCode: data['phoneNumber']['dialCode']),
-          clientVisits: data['clientVisits']);
-    }).toList();
-  }
+  Stream<ClientData> streamClient(String id) => clientCollection
+      .doc(id)
+      .snapshots()
+      .map((d) => ClientData.fromMap(d.id, d.data() as Map<String, dynamic>?));
 
   //Future to read current Clients
   Future<List<ClientData>> getClientFuture() async {
@@ -540,17 +484,7 @@ class DatabaseService {
       return await clientCollection.get().then((value) {
         return value.docs.map((e) {
           var data = e.data() as Map<String, dynamic>;
-          return ClientData(
-              uid: e.id,
-              clientName: data['clientName'],
-              contactPerson: data['contactPerson'],
-              clientAddress: data['clientAddress'],
-              emailAddress: data['emailAddress'],
-              phoneNumber: PhoneNumber(
-                  phoneNumber: data['phoneNumber']['phoneNumber'],
-                  isoCode: data['phoneNumber']['isoCode'],
-                  dialCode: data['phoneNumber']['dialCode']),
-              clientVisits: data['clientVisits']);
+          return ClientData.fromMap(e.id, data);
         }).toList();
       });
     } catch (e, stackTrace) {
@@ -567,17 +501,7 @@ class DatabaseService {
           .then((value) {
         return value.docs.map((e) {
           var data = e.data() as Map<String, dynamic>;
-          return ClientData(
-              uid: e.id,
-              clientName: data['clientName'],
-              contactPerson: data['contactPerson'],
-              clientAddress: data['clientAddress'],
-              emailAddress: data['emailAddress'],
-              phoneNumber: PhoneNumber(
-                  phoneNumber: data['phoneNumber']['phoneNumber'],
-                  isoCode: data['phoneNumber']['isoCode'],
-                  dialCode: data['phoneNumber']['dialCode']),
-              clientVisits: data['clientVisits']);
+          return ClientData.fromMap(e.id, data);
         }).toList();
       });
     } catch (e, stackTrace) {
@@ -950,174 +874,39 @@ class DatabaseService {
     return data;
   }
 
-  //sales user pipeline
-  //add a sales visit
-  Future<String> addNewSalesVisit(
-      {String? userId,
-      ClientData? selectedClient,
-      ProjectData? selectedProject,
-      String? contact,
-      String? visitPurpose,
-      String? visitDetails,
-      DateTime? visitTime,
-      String? visitType}) async {
-    try {
-      var visitCollection;
-      if (visitType == 'Client') {
-        visitCollection = 'clientVisits';
-      } else {
-        visitCollection = 'projectVisits';
-      }
+  // ───────────── sales visits ─────────────
 
-      return await userCollection.doc(userId).collection(visitCollection).add({
-        'uid':
-            selectedClient != null ? selectedClient.uid : selectedProject!.uid,
-        'name': selectedClient != null
-            ? selectedClient.clientName
-            : selectedProject!.projectName,
-        'contact': contact,
-        'visitPurpose': visitPurpose,
-        'visitDetails': visitDetails,
-        'visitTime': visitTime,
-        'userId': userId,
-      }).then((value) => 'Document added Successfully');
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-      print('the error: $e');
-      return e.toString();
+  CollectionReference<Map<String, dynamic>> _visits(String userId, VisitKind kind) =>
+      userCollection.doc(userId).collection(kind.collection);
+
+  Future<void> addSalesVisit(SalesVisit v) => _visits(v.userId, v.kind)
+      .add({...v.toMap(), 'createdAt': FieldValue.serverTimestamp()});
+
+  /// The salesperson edits their own notes; an admin adds a manager comment.
+  Future<void> updateSalesVisit(SalesVisit v, Map<String, dynamic> fields) =>
+      _visits(v.userId, v.kind).doc(v.id).update(fields);
+
+  /// A salesperson's visits of one kind, newest first: those between [from]
+  /// and [to], or every visit to [targetId] (sorted here, so the query needs
+  /// no composite index).
+  Stream<List<SalesVisit>> streamVisits(String userId, VisitKind kind,
+      {DateTime? from, DateTime? to, String? targetId}) {
+    Query<Map<String, dynamic>> q = _visits(userId, kind);
+    if (targetId != null) {
+      q = q.where('uid', isEqualTo: targetId);
+    } else {
+      if (from != null) q = q.where('visitTime', isGreaterThanOrEqualTo: from);
+      if (to != null) q = q.where('visitTime', isLessThan: to);
+      q = q.orderBy('visitTime', descending: true);
     }
-  }
-
-  //update a sales visit
-  Future<String> updateNewSalesVisit(
-      {String? visitId,
-      String? userId,
-      ClientData? selectedClient,
-      ProjectData? selectedProject,
-      String? contact,
-      String? visitPurpose,
-      String? visitDetails,
-      String? managerComments,
-      String? visitType}) async {
-    try {
-      var visitCollection;
-      if (visitType == 'Clients') {
-        visitCollection = 'clientVisits';
-      } else {
-        visitCollection = 'projectVisits';
+    return q.snapshots().map((s) {
+      final list = s.docs
+          .map((d) => SalesVisit.fromMap(kind, d.id, userId, d.data()))
+          .toList();
+      if (targetId != null) {
+        list.sort((a, b) => (b.time ?? DateTime(0)).compareTo(a.time ?? DateTime(0)));
       }
-
-      return await userCollection
-          .doc(userId)
-          .collection(visitCollection)
-          .doc(visitId)
-          .update({
-        'uid':
-            selectedClient != null ? selectedClient.uid : selectedProject!.uid,
-        'name': selectedClient != null
-            ? selectedClient.clientName
-            : selectedProject!.projectName,
-        'contact': contact,
-        'visitPurpose': visitPurpose,
-        'visitDetails': visitDetails,
-        'managerComments': managerComments,
-      }).then((value) => 'Document updated Successfully');
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-      return e.toString();
-    }
-  }
-
-  //update manager note or visit details
-  Future<String> updateCurrentSalesVisit(
-      {String? visitId,
-      String? userId,
-      String? managerComments,
-      String? visitType,
-      String? visitDetails}) async {
-    try {
-      var subCollection;
-      if (visitType == 'Client') {
-        subCollection = 'clientVisits';
-      } else {
-        subCollection = 'projectVisits';
-      }
-
-      return await userCollection
-          .doc(userId)
-          .collection(subCollection)
-          .doc(visitId)
-          .update({
-        'visitDetails': visitDetails,
-        'managerComments': managerComments,
-      }).then((value) => 'Document updated Successfully');
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-
-      return e.toString();
-    }
-  }
-
-  //stream sales visits for clients
-  Stream<List<ClientVisitDetails?>> getSalesVisitDetailsStream(
-      {String? userId, DateTime? fromDate, DateTime? toDate}) {
-    return userCollection
-        .doc(userId)
-        .collection('clientVisits')
-        .orderBy('visitTime', descending: false)
-        .snapshots()
-        .map((event) {
-      return event.docs.map((value) {
-        var data = value.data();
-
-        if (fromDate!.isBefore(data['visitTime'].toDate()) &&
-            toDate!.isAfter(data['visitTime'].toDate())) {
-          return ClientVisitDetails(
-              uid: value.id,
-              clientId: data['uid'],
-              clientName: data['name'],
-              contactPerson: data['contact'],
-              visitDetails: data['visitDetails'],
-              visitPurpose: data['visitPurpose'],
-              managerComments: data['managerComments'],
-              userId: data['userId'],
-              visitTime: data['visitTime']);
-        } else {
-          return null;
-        }
-      }).toList();
-    });
-  }
-
-  //stream sales visit for projects
-  Stream<List<ProjectVisitDetails?>> getSalesVisitDetailsStreamProjects(
-      {String? userId, DateTime? fromDate, DateTime? toDate}) {
-    return userCollection
-        .doc(userId)
-        .collection('projectVisits')
-        .orderBy('visitTime', descending: false)
-        .snapshots()
-        .map((event) {
-      return event.docs.map((value) {
-        var data = value.data();
-
-        if (fromDate!.isBefore(data['visitTime'].toDate()) &&
-            toDate!.isAfter(data['visitTime'].toDate())) {
-          var result = ProjectVisitDetails(
-              uid: value.id,
-              projectId: data['uid'],
-              projectName: data['name'],
-              contactPerson: data['contact'],
-              visitDetails: data['visitDetails'],
-              visitPurpose: data['visitPurpose'],
-              userId: data['userId'],
-              managerComments: data['managerComments'],
-              visitTime: data['visitTime']);
-          return result;
-        } else {
-          return null;
-        }
-      }).toList();
+      return list;
     });
   }
 
@@ -1179,48 +968,6 @@ class DatabaseService {
 
       return [ProjectVisitDetails(error: e.toString())];
     }
-  }
-
-  //read a sales visit
-  Future<List<ClientVisitDetails>> getSalesVisitDetails(
-      {String? userId}) async {
-    try {
-      return await userCollection
-          .doc(userId)
-          .collection('clientVisit')
-          .get()
-          .then((value) {
-        return value.docs.map((e) {
-          return ClientVisitDetails(
-            uid: e.id,
-            clientId: e.data()['clientId'],
-            clientName: e.data()['clientName'],
-            contactPerson: e.data()['contactPerson'],
-            visitPurpose: e.data()['visitPurpose'],
-            visitDetails: e.data()['visitDetails'],
-            visitTime: e.data()['visitTime'],
-          );
-        }).toList();
-      });
-    } catch (e, stackTrace) {
-      await ErrorReporter.record(e, stackTrace: stackTrace);
-      return [ClientVisitDetails(error: e.toString())];
-    }
-  }
-
-  List<ClientVisitDetails> _listVisitDetailsMap(QuerySnapshot snapshot) {
-    return snapshot.docs.map((value) {
-      var data = value.data() as Map<String, dynamic>;
-      var result = ClientVisitDetails(
-          uid: value.id,
-          clientId: data['clientId'],
-          clientName: data['clientName'],
-          visitDetails: data['visitDetails'],
-          visitPurpose: data['visitPurpose'],
-          visitTime: data['visitTime']);
-
-      return result;
-    }).toList();
   }
 
   //Helper collection allows to add, read, update and delete helpers

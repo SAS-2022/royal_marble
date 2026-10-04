@@ -921,5 +921,117 @@
   "deleteMyAccountTitle": "Delete your account?",
   "deleteMyAccountBody": "Your profile and login are deleted for good and you can no longer sign in. Attendance and pay records stay with the company. Enter your password to confirm.",
   "errWrongPassword": "Wrong password.",
-  "deleteAccountFailed": "Could not delete the account. Check your connection and try again."
+  "deleteAccountFailed": "Could not delete the account. Check your connection and try again.",
+  "clientName": "Client name",
+  "editClient": "Edit client",
+  "deleteClient": "Delete client",
+  "deleteClientTitle": "Delete {name}?",
+  "@deleteClientTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteClientBody": "The client is removed from the list. Past visits keep the client's name.",
+  "clientSaved": "Client saved",
+  "clientSaveFailed": "Could not save the client. Check your connection and try again.",
+  "clientLocation": "Location",
+  "clientLocationHint": "Optional. A pin on the map lets you open directions later.",
+  "placeClient": "Place the client",
+  "clientNotFound": "This client was deleted.",
+  "searchClients": "Search name, contact, phone or area",
+  "clientsCount": "{count, plural, =0{No clients} =1{1 client} other{{count} clients}}",
+  "@clientsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noClientsYet": "No clients yet. Add your first one with the button below.",
+  "noClientsFound": "No clients found",
+  "pinOnly": "Pinned on the map",
+  "visitsCount": "{count, plural, =0{Visits} =1{1 visit} other{{count} visits}}",
+  "@visitsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noVisitsYet": "No visits recorded yet.",
+  "noVisitsToday": "No visits recorded today.",
+  "noVisitsInPeriod": "No visits in this period.",
+  "todaysVisits": "Today's visits ({count})",
+  "@todaysVisits": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "visitsSummary": "{total} visits · {clients} clients · {projects} projects",
+  "@visitsSummary": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "clients": {
+        "type": "int"
+      },
+      "projects": {
+        "type": "int"
+      }
+    }
+  },
+  "salesperson": "Salesperson",
+  "meLabel": "Me",
+  "last7Days": "Last 7 days",
+  "clientWord": "Client",
+  "projectWord": "Project",
+  "chooseClient": "Choose a client",
+  "chooseProject": "Choose a project",
+  "visitStepWho": "Who did you visit?",
+  "visitStepWhat": "What happened",
+  "metWith": "Met with",
+  "visitPurpose": "Purpose",
+  "choosePurpose": "Choose a purpose",
+  "visitNotes": "Notes",
+  "visitNotesHint": "What was discussed, agreed or promised?",
+  "notesTooShort": "Write at least {min} characters ({count} so far)",
+  "@notesTooShort": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "visitTime": "Visit time",
+  "rightNow": "Now",
+  "change": "Change",
+  "saveVisit": "Save visit",
+  "visitSaved": "Visit saved",
+  "visitSaveFailed": "Could not save the visit. Check your connection and try again.",
+  "visitDetails": "Visit",
+  "managerComment": "Manager's comment",
+  "managerCommentHint": "Feedback or next steps for the salesperson",
+  "noManagerComment": "No comment from your manager yet.",
+  "saveComment": "Save comment",
+  "purposeCollectPayment": "Collecting payment",
+  "purposeRequestPayment": "Requesting payment",
+  "purposeNewOrder": "New order",
+  "purposeOrderFollowUp": "Order follow-up",
+  "purposeQuotationFollowUp": "Quotation follow-up",
+  "purposeSamples": "Sample submission",
+  "purposeComplaint": "Handling a complaint",
+  "purposeNewProduct": "Presenting a new product",
+  "purposeProjectDiscussion": "Project discussion",
+  "purposeNewClient": "New client",
+  "purposeReestablish": "Re-establishing business",
+  "purposeCatchUp": "Catch-up visit",
+  "purposeOther": "Other"
 }

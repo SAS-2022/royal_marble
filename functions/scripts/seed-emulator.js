@@ -96,6 +96,47 @@ async function main() {
     emailAddress: "site@test.local", status: "active", assignedWorkers: [mason1],
   });
 
+  // Sales: a salesperson with two clients (one saved the 2023 way, without a
+  // phone) and visits today and earlier this week.
+  const sales = await user("sales@test.local",
+    { firstName: "Sara", lastName: "Sales", roles: ["isSales"] });
+  for (const col of ["clientVisits", "projectVisits"]) {
+    const docs = await db.collection("users").doc(sales).collection(col).listDocuments();
+    await Promise.all(docs.map((d) => d.delete()));
+  }
+  await db.collection("clients").doc("c_noor").set({
+    clientName: "Al Noor Interiors", contactPerson: "Omar Haddad",
+    phoneNumber: { phoneNumber: "+971501234567", isoCode: "AE", dialCode: "+971" },
+    emailAddress: "omar@alnoor.test", userId: sales,
+    clientAddress: { addressName: "Al Quoz Industrial 3, Dubai", Lat: 25.1360, Lng: 55.2280 },
+  });
+  await db.collection("clients").doc("c_gulf").set({
+    clientName: "Gulf Stone Trading", contactPerson: "Priya Nair", userId: sales,
+  });
+  const ago = (days, h, m) => {
+    const d = new Date();
+    d.setDate(d.getDate() - days);
+    d.setHours(h, m, 0, 0);
+    return Timestamp.fromDate(d);
+  };
+  const visits = db.collection("users").doc(sales);
+  await visits.collection("clientVisits").add({
+    uid: "c_noor", name: "Al Noor Interiors", contact: "Omar Haddad",
+    visitPurpose: "Quotation follow up", userId: sales, visitTime: ago(0, 10, 15),
+    visitDetails: "Went through the Carrara quotation; they want a revised price for 120 m2.",
+  });
+  await visits.collection("clientVisits").add({
+    uid: "c_gulf", name: "Gulf Stone Trading", contact: "Priya Nair",
+    visitPurpose: "Collecting payment", userId: sales, visitTime: ago(2, 15, 40),
+    visitDetails: "Collected the cheque for invoice 2291; next order expected in November.",
+    managerComments: "Good. Follow up on the November order in two weeks.",
+  });
+  await visits.collection("projectVisits").add({
+    uid: "p_tower", name: "Marina Tower", contact: "Site Contact",
+    visitPurpose: "Project discussion", userId: sales, visitTime: ago(1, 9, 0),
+    visitDetails: "Met the contractor about the lobby flooring and the mock-up date.",
+  });
+
   await db.collection("payroll").doc(mason1).set({
     currency: "AED", payType: "monthly", basic: 1800, housing: 500, transport: 200, food: 300,
     other: [{ name: "Overtime meals", amount: 100 }],
@@ -105,7 +146,8 @@ async function main() {
 
   console.log(`Seeded. Password for every account: ${PASSWORD}`);
   console.log("  admin@test.local, supervisor@test.local, mason1@test.local (Test Villa + Marina Tower),");
-  console.log("  mason2@test.local (assigned to Far Site), pending@test.local (inactive)");
+  console.log("  mason2@test.local (assigned to Far Site), pending@test.local (inactive),");
+  console.log("  sales@test.local (2 clients, 3 visits this week)");
 }
 
 main().catch((e) => {

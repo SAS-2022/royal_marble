@@ -1485,4 +1485,218 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get deleteAccountFailed =>
       'खाता हटाया नहीं जा सका। कनेक्शन जाँचें और फिर कोशिश करें।';
+
+  @override
+  String get clientName => 'क्लाइंट का नाम';
+
+  @override
+  String get editClient => 'क्लाइंट बदलें';
+
+  @override
+  String get deleteClient => 'क्लाइंट हटाएँ';
+
+  @override
+  String deleteClientTitle(String name) {
+    return '$name को हटाएँ?';
+  }
+
+  @override
+  String get deleteClientBody =>
+      'क्लाइंट सूची से हट जाएगा। पिछली विज़िट में क्लाइंट का नाम बना रहेगा।';
+
+  @override
+  String get clientSaved => 'क्लाइंट सेव हो गया';
+
+  @override
+  String get clientSaveFailed =>
+      'क्लाइंट सेव नहीं हो सका। कनेक्शन जाँचें और फिर कोशिश करें।';
+
+  @override
+  String get clientLocation => 'जगह';
+
+  @override
+  String get clientLocationHint =>
+      'वैकल्पिक। नक्शे पर पिन से बाद में रास्ता खोल सकते हैं।';
+
+  @override
+  String get placeClient => 'क्लाइंट की जगह चुनें';
+
+  @override
+  String get clientNotFound => 'यह क्लाइंट हटा दिया गया है।';
+
+  @override
+  String get searchClients => 'नाम, संपर्क, फ़ोन या इलाका खोजें';
+
+  @override
+  String clientsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count क्लाइंट',
+      one: '1 क्लाइंट',
+      zero: 'कोई क्लाइंट नहीं',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noClientsYet =>
+      'अभी कोई क्लाइंट नहीं। नीचे के बटन से पहला जोड़ें।';
+
+  @override
+  String get noClientsFound => 'कोई क्लाइंट नहीं मिला';
+
+  @override
+  String get pinOnly => 'नक्शे पर पिन किया गया';
+
+  @override
+  String visitsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count विज़िट',
+      one: '1 विज़िट',
+      zero: 'विज़िट',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noVisitsYet => 'अभी कोई विज़िट दर्ज नहीं।';
+
+  @override
+  String get noVisitsToday => 'आज कोई विज़िट दर्ज नहीं।';
+
+  @override
+  String get noVisitsInPeriod => 'इस अवधि में कोई विज़िट नहीं।';
+
+  @override
+  String todaysVisits(int count) {
+    return 'आज की विज़िट ($count)';
+  }
+
+  @override
+  String visitsSummary(int total, int clients, int projects) {
+    return '$total विज़िट · $clients क्लाइंट · $projects प्रोजेक्ट';
+  }
+
+  @override
+  String get salesperson => 'सेल्सपर्सन';
+
+  @override
+  String get meLabel => 'मैं';
+
+  @override
+  String get last7Days => 'पिछले 7 दिन';
+
+  @override
+  String get clientWord => 'क्लाइंट';
+
+  @override
+  String get projectWord => 'प्रोजेक्ट';
+
+  @override
+  String get chooseClient => 'क्लाइंट चुनें';
+
+  @override
+  String get chooseProject => 'प्रोजेक्ट चुनें';
+
+  @override
+  String get visitStepWho => 'आप किससे मिले?';
+
+  @override
+  String get visitStepWhat => 'क्या हुआ';
+
+  @override
+  String get metWith => 'किससे मिले';
+
+  @override
+  String get visitPurpose => 'उद्देश्य';
+
+  @override
+  String get choosePurpose => 'उद्देश्य चुनें';
+
+  @override
+  String get visitNotes => 'नोट्स';
+
+  @override
+  String get visitNotesHint => 'क्या बात हुई, क्या तय हुआ या क्या वादा हुआ?';
+
+  @override
+  String notesTooShort(int min, int count) {
+    return 'कम से कम $min अक्षर लिखें (अभी $count)';
+  }
+
+  @override
+  String get visitTime => 'विज़िट का समय';
+
+  @override
+  String get rightNow => 'अभी';
+
+  @override
+  String get change => 'बदलें';
+
+  @override
+  String get saveVisit => 'विज़िट सेव करें';
+
+  @override
+  String get visitSaved => 'विज़िट सेव हो गई';
+
+  @override
+  String get visitSaveFailed =>
+      'विज़िट सेव नहीं हो सकी। कनेक्शन जाँचें और फिर कोशिश करें।';
+
+  @override
+  String get visitDetails => 'विज़िट';
+
+  @override
+  String get managerComment => 'मैनेजर की टिप्पणी';
+
+  @override
+  String get managerCommentHint => 'सेल्सपर्सन के लिए फ़ीडबैक या अगले कदम';
+
+  @override
+  String get noManagerComment => 'अभी मैनेजर की कोई टिप्पणी नहीं।';
+
+  @override
+  String get saveComment => 'टिप्पणी सेव करें';
+
+  @override
+  String get purposeCollectPayment => 'भुगतान लेना';
+
+  @override
+  String get purposeRequestPayment => 'भुगतान माँगना';
+
+  @override
+  String get purposeNewOrder => 'नया ऑर्डर';
+
+  @override
+  String get purposeOrderFollowUp => 'ऑर्डर फ़ॉलो-अप';
+
+  @override
+  String get purposeQuotationFollowUp => 'कोटेशन फ़ॉलो-अप';
+
+  @override
+  String get purposeSamples => 'सैंपल देना';
+
+  @override
+  String get purposeComplaint => 'शिकायत निपटाना';
+
+  @override
+  String get purposeNewProduct => 'नया प्रोडक्ट दिखाना';
+
+  @override
+  String get purposeProjectDiscussion => 'प्रोजेक्ट पर चर्चा';
+
+  @override
+  String get purposeNewClient => 'नया क्लाइंट';
+
+  @override
+  String get purposeReestablish => 'कारोबार फिर शुरू करना';
+
+  @override
+  String get purposeCatchUp => 'मुलाक़ात';
+
+  @override
+  String get purposeOther => 'अन्य';
 }

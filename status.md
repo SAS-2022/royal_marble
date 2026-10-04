@@ -4,7 +4,7 @@ Living tracker for this project, kept up to date across chat sessions.
 **Read this first when resuming work. Update it after every step: tick tasks, change
 phase status, and add a line to the session log.**
 
-_Last updated: 2026-10-03_
+_Last updated: 2026-10-04_
 
 ---
 
@@ -19,15 +19,11 @@ run the app with `--dart-define=USE_EMULATOR=true` (see section 4). Test account
 section 4; the app was last left in Arabic.
 
 **Work queue (no deploys needed), in order:**
-1. **Phase 7 group 3 — sales screens:** clients list + form (`lib/clients/*`), new
-   visit 2-step form, visits list + details (`lib/sales_pipeline/*`). Rebuild in the
-   new style with translations; reuse the site pin picker for client addresses;
-   remove the old files. Check the Sales activity report still reads visits.
+1. ✅ **Phase 7 group 3 — sales screens** (done 2026-10-04, see Phase 7).
 2. **Phase 7 group 4 — live map:** rebuild `lib/location/show_map.dart` (crashes
    with a null-check in `initState`): workers' last positions, site circles, tap a
    worker for status. Then remove `map_providers.dart` and unused location helpers.
-3. **Phase 7 group 5 — dead code:** `reports/report_details.dart`,
-   `shared/date_picker.dart`, `shared/export_excel.dart`,
+3. **Phase 7 group 5 — dead code:** `shared/export_excel.dart`,
    `shared/generating_pdf.dart`, `shared/pdf_builder.dart`, unused grids; unused
    packages (`location`, `flutter_speed_dial`, `latlong2`, `flutter_map`,
    `timer_builder`, `animated_text_kit`).
@@ -181,7 +177,8 @@ The new app's check-in depends on `checkInOut`. Old app versions still write
 - Seed test data: `cd functions && npm run seed` (refuses to run unless pointed at
   the emulators; also clears test timesheets). Accounts, password `test1234`:
   `admin@test.local`, `supervisor@test.local`, `mason1@test.local` (Test Villa + Marina
-  Mock-up), `mason2@test.local` (Far Site), `pending@test.local` (inactive).
+  Mock-up), `mason2@test.local` (Far Site), `pending@test.local` (inactive),
+  `sales@test.local` (Sara: 2 clients, 3 visits this week, one with a manager comment).
 - Server attendance tests: `cd functions && npm run test:checkin` (re-seeds first) — 31
   scenarios: check-in rules (range, assignment, fake/weak GPS, double check-in, inactive),
   site switching and session shape, presence enter/exit, alerts, auto check-out (away
@@ -292,7 +289,7 @@ independent and needs no billing, so it goes first.
 | 4 Leaving-site alerts + push | 🔄 | `left_site` alerts done (in-app); push not started |
 | 5 Salary details | 🔄 | `payroll` rules deploy (production freeze) |
 | 6 Hours-based pay | ⬜ | Phases 2, 3, 5; client decisions (below) |
-| 7 Remaining UI + delivery | 🔄 sites, profile ✅ | — (web dashboard after 2–4) |
+| 7 Remaining UI + delivery | 🔄 sites, profile, sales ✅ | — (web dashboard after 2–4) |
 | 8 Localization (en, ar, hi, ur) | 🔄 | — |
 
 ### Decisions needed from the client (Phase 6 and related)
@@ -411,8 +408,8 @@ Workers come from different countries; each user picks a language.
 - [x] Admin and supervisor screens: team status, users list, user admin page, site
       details and team sheet, salary editor, reports (154 more strings, 2026-10-02).
       PDF/Excel exports stay English (records for the office) unless requested.
-- [ ] Old screens (profile editor, project/mock-up forms and map, clients, visits,
-      helpers, workers' state) — translate as each is redesigned in Phase 7
+- [ ] Old screens (live map, workers' state) — translate as each is redesigned in
+      Phase 7 (profile, sites, helpers, clients and visits done)
 - [x] Server check-in errors now carry `details.reason` codes; the app translates
       them (function code only; deploy later). Same change added the
       **assignment check** for feature (a).
@@ -445,10 +442,23 @@ Workers come from different countries; each user picks a language.
       `helpers_list.dart`, `shared/country_picker.dart` (1,661 lines) and 5 unused DB
       methods. Profile photos are stored as `profile_images/{uid}.jpg` (replaced, not
       piled up). Strict rules: only managers write `helper`.
-- [ ] Clients, sales visits (group 3)
+- [x] **Sales (2026-10-04):** `ClientsScreen` (search, admins see everyone's with the
+      owner's name), `ClientDetailsScreen` (live; call, email, directions, the owner's
+      visits to the client, "New visit" pre-filled), `ClientFormScreen` (address via the
+      shared pin picker, optional). `VisitFormScreen`: one page, two steps (client or
+      project, with "Add client" inside the picker; contact pre-filled; purpose chips;
+      notes ≥ 20 chars; time can be set back up to 7 days). `VisitsScreen`: last 7
+      days / this month / last month / custom, client/project filter, grouped by day;
+      admins pick the salesperson. `VisitDetailsScreen`: owner edits contact, purpose,
+      notes; admin writes the manager comment. Sales home shows today's visits.
+      Storage unchanged (`clients`, `users/{uid}/clientVisits|projectVisits`, same
+      fields), so the Sales activity report and the 2023 app still read them.
+      Purposes are stored in English and shown translated. Removed `lib/clients/*`,
+      `lib/sales_pipeline/*`, `shared/date_picker.dart`, `reports/report_details.dart`
+      and 11 old DB methods; client parsing no longer crashes on a missing phone.
 - [ ] Live map (group 4): `show_map.dart` throws a null-check error in `initState`
       when opened without its user list; rebuild it.
-- [ ] Dead code (group 5): old report details, date picker, export_excel,
+- [ ] Dead code (group 5): export_excel,
       generating_pdf, pdf_builder, unused grids.
 - iOS build (TestFlight), Android release build, Play listing.
 - Admin web dashboard (Flutter web): live map, team status, attendance and payroll
@@ -523,3 +533,11 @@ Workers come from different countries; each user picks a language.
   (clients and sales visits).
 - **2026-10-03 (end of session)** — Paused by the user. Everything committed and
   pushed to GitHub (`revive-2026`). Plan for next time in section 0.
+- **2026-10-04** — Phase 7 group 3 (sales) done: clients list, details and form; new
+  visit form; visits list with periods and salesperson picker; visit details with
+  manager comments; today's visits on the sales home. 61 strings in 4 languages;
+  26 unit tests pass. Verified on the emulator in Arabic as `sales@test.local`
+  (client without a phone loads, add visit from a client, notes validation, list,
+  details) and as admin (Sara's visits, manager comment saved with the same field
+  names, Sales activity report counts the new visit). The user is upgrading Firebase
+  to Blaze; production freeze still applies to every deploy. Next: group 4 (live map).

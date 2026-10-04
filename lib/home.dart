@@ -12,12 +12,15 @@ import 'package:royal_marble/core/roles.dart';
 import 'package:royal_marble/models/attendance.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/models/device_status.dart';
+import 'package:royal_marble/models/sales_visit.dart';
 import 'package:royal_marble/models/user_model.dart';
-import 'package:royal_marble/sales_pipeline/visit_forms.dart/visit_form_streams.dart';
+import 'package:royal_marble/screens/clients_screen.dart';
 import 'package:royal_marble/screens/profile_drawer.dart';
 import 'package:royal_marble/screens/site_details_screen.dart';
 import 'package:royal_marble/screens/site_form_screen.dart';
 import 'package:royal_marble/screens/team_status_screen.dart';
+import 'package:royal_marble/screens/visit_form_screen.dart';
+import 'package:royal_marble/screens/visits_screen.dart';
 import 'package:royal_marble/services/checkin_service.dart';
 import 'package:royal_marble/services/tracking_service.dart';
 import 'package:royal_marble/shared/loading.dart';
@@ -631,33 +634,55 @@ class _SalesHome extends StatelessWidget {
     final active = projects.where((p) => p.projectStatus == 'active').toList();
     final potential = projects.where((p) => p.projectStatus == 'potential').toList();
 
-    void visits(bool viewing) => Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (_) =>
-                VisitFormStreams(currentUser: user, viewingVisit: viewing)));
+    void open(Widget page) =>
+        Navigator.push(context, MaterialPageRoute(builder: (_) => page));
+    final l = context.l10n;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       children: [
         _Greeting(user),
+        FilledButton.icon(
+          onPressed: () => open(VisitFormScreen(currentUser: user)),
+          icon: const Icon(Icons.add),
+          label: Text(l.newVisit),
+        ),
+        const SizedBox(height: 10),
         Row(children: [
           Expanded(
-            child: FilledButton.icon(
-              onPressed: () => visits(false),
-              icon: const Icon(Icons.add),
-              label: Text(context.l10n.newVisit),
+            child: OutlinedButton.icon(
+              onPressed: () => open(VisitsScreen(currentUser: user)),
+              icon: const Icon(Icons.list_alt),
+              label: Text(l.myVisits),
             ),
           ),
           const SizedBox(width: 10),
           Expanded(
             child: OutlinedButton.icon(
-              onPressed: () => visits(true),
-              icon: const Icon(Icons.list_alt),
-              label: Text(context.l10n.myVisits),
+              onPressed: () => open(ClientsScreen(currentUser: user)),
+              icon: const Icon(Icons.storefront_outlined),
+              label: Text(l.clients),
             ),
           ),
         ]),
+        VisitsBuilder(
+          userId: user.uid!,
+          from: today,
+          to: today.add(const Duration(days: 1)),
+          builder: (context, visits) => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SectionTitle(l.todaysVisits(visits?.length ?? 0)),
+              if (visits != null && visits.isEmpty)
+                Text(l.noVisitsToday,
+                    style: const TextStyle(color: AppColors.muted)),
+              for (final v in visits ?? const <SalesVisit>[])
+                VisitTile(visit: v, viewer: user),
+            ],
+          ),
+        ),
         SectionTitle(context.l10n.potentialProjects(potential.length)),
         for (final p in potential) _ProjectTile.project(p, user),
         SectionTitle(context.l10n.activeProjects(active.length)),

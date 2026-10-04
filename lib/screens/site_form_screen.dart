@@ -140,21 +140,6 @@ class _SiteFormScreenState extends State<SiteFormScreen> {
     }
   }
 
-  /// UAE numbers typed locally (05X…) are stored in international form.
-  Map<String, dynamic> _phoneMap() {
-    var raw = _phone.text.replaceAll(RegExp(r'[\s-]'), '');
-    // The 2023 app reads `phoneNumber.phoneNumber` without a null check.
-    if (raw.isEmpty) return {'phoneNumber': '', 'isoCode': 'AE', 'dialCode': '+971'};
-    if (raw.startsWith('00')) raw = '+${raw.substring(2)}';
-    if (raw.startsWith('0')) raw = '+971${raw.substring(1)}';
-    final uae = raw.startsWith('+971');
-    return {
-      'phoneNumber': raw,
-      'isoCode': uae ? 'AE' : null,
-      'dialCode': uae ? '+971' : null,
-    };
-  }
-
   Future<void> _save() async {
     final l = context.l10n;
     final valid = _form.currentState!.validate();
@@ -178,7 +163,7 @@ class _SiteFormScreenState extends State<SiteFormScreen> {
         status: _status,
         contractor: text(_contractor),
         contactPerson: text(_contact),
-        phone: _phoneMap(),
+        phone: contactPhoneMap(_phone.text),
         email: text(_email),
         createdBy: widget.createdBy,
       );
