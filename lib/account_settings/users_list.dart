@@ -115,7 +115,7 @@ class _UserListState extends State<UserList> {
           context,
           MaterialPageRoute(
             builder: (_) =>
-                UserAdminScreen(user: users[i], viewer: widget.currentUser!),
+                UserAdminScreen(user: users[i], viewer: widget.currentUser),
           ),
         ),
       ),

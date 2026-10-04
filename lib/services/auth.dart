@@ -44,9 +44,9 @@ class AuthService {
   //sign in with user name and password
   Future signInWithUserNameandPassword(String? email, String? password) async {
     try {
-      var result = await _auth!.signInWithEmailAndPassword(
+      var result = await _auth.signInWithEmailAndPassword(
           email: email!.trim(), password: password!);
-      var user = result.user!.uid;
+      var user = result.user?.uid;
       if (user != null) {
         return user;
       } else {
@@ -82,7 +82,7 @@ class AuthService {
     try {
       var result = await _auth.signInAnonymously();
       var user = result.user;
-      if (user!.uid != null) {
+      if (user != null) {
         return user.uid;
       } else {
         return null;

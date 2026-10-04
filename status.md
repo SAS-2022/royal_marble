@@ -21,10 +21,7 @@ section 4; the app was last left in Arabic.
 **Work queue (no deploys needed), in order:**
 1. ✅ **Phase 7 group 3 — sales screens** (done 2026-10-04, see Phase 7).
 2. ✅ **Phase 7 group 4 — live map** (done 2026-10-04, see Phase 7).
-3. **Phase 7 group 5 — dead code:** `shared/export_excel.dart`,
-   `shared/generating_pdf.dart`, `shared/pdf_builder.dart`, unused grids; unused
-   packages (`location`, `flutter_speed_dial`, `latlong2`, `flutter_map`,
-   `timer_builder`, `animated_text_kit`).
+3. ✅ **Phase 7 group 5 — dead code** (done 2026-10-04, see Phase 7).
 4. **Phase 4 client side:** push notifications wiring (`firebase_messaging`, FCM
    tokens per user, function on `device_events` for `left_site` etc.) — written and
    tested on the emulators, not deployed.
@@ -209,10 +206,9 @@ The new app's check-in depends on `checkInOut`. Old app versions still write
 | `4272c9d` | Production freeze noted |
 
 ### Known tech debt
-- ~249 analyzer infos/warnings (mostly old style lints in untouched screens).
-- Unused packages to remove: `location`, `flutter_speed_dial`, `latlong2`,
-  `flutter_map`, `timer_builder`, `animated_text_kit` (0 imports each); since the
-  old map went, also check `dio`, `flutter_polyline_points`, `flutter_spinkit`.
+- 16 analyzer style notes, no warnings (2026-10-04).
+- `intl_phone_number_input` is only used for the `PhoneNumber` type in
+  `business_model.dart`; could be replaced by a plain map.
 - Build warns that several plugins still apply the Kotlin Gradle Plugin (Firebase
   plugins, `location`); a future Flutter release will require plugin updates.
 - iOS not built yet: the Maps key is hard-coded in `ios/Runner/AppDelegate.swift`;
@@ -273,7 +269,7 @@ independent and needs no billing, so it goes first.
    multi-site sessions, per-site hours; migration script written but not run.
 4. 🔄 **Phase 7:** redesign the remaining old screens, written with translations from
    the start. Order: (1) ✅ sites, (2) ✅ own profile + helpers, (3) ✅ sales (clients,
-   visits), (4) ✅ live map, (5) dead-code cleanup.
+   visits), (4) ✅ live map, (5) ✅ dead-code cleanup.
 5. **Phase 4 client side** (geofence exit events; push wiring ready, not deployed).
 6. **Tech debt:** remove unused packages, iOS build prep.
 7. **Admin web dashboard** (Flutter web), developed locally.
@@ -468,8 +464,17 @@ Workers come from different countries; each user picks a language.
       Removed `lib/location/*` (5 files, ~1,500 lines), `models/directions.dart`
       and 5 DB methods. Also fixed: contractor phone shown as "971…+" in RTL, and
       a stray "- " at the start of looked-up addresses.
-- [ ] Dead code (group 5): export_excel,
-      generating_pdf, pdf_builder, unused grids.
+- [x] **Dead code (2026-10-04):** removed `core/env.dart` (only the old directions
+      code used it; the Android Maps key comes from `local.properties`),
+      `shared/constants.dart`, `export_excel.dart`, `generating_pdf.dart`,
+      `pdf_builder.dart`, `snack_bar.dart`, and 14 unused packages (`location`,
+      `flutter_speed_dial`, `latlong2`, `flutter_map`, `timer_builder`,
+      `animated_text_kit`, `dio`, `flutter_polyline_points`, `flutter_spinkit`,
+      `firebase_database`, `flutter_typeahead`, `syncfusion_flutter_datepicker`,
+      `http`, `image`). Fixed the last 6 analyzer warnings: 16 style notes left
+      (was ~249). Full debug APK builds; tests pass. **Not yet run on a device:**
+      the emulator is out of storage (shared with other projects' apps), so Royal
+      Marble is currently uninstalled from it.
 - iOS build (TestFlight), Android release build, Play listing.
 - Admin web dashboard (Flutter web): live map, team status, attendance and payroll
   reports, users and sites.
@@ -558,3 +563,8 @@ Workers come from different countries; each user picks a language.
   as admin with demo workers written to the local emulator (on site, outside,
   phone problem, stale): framing, filters, worker sheet, open site from the sheet,
   people list, long-press → new project form. Next: group 5 (dead code, packages).
+- **2026-10-04 (cont.)** — Phase 7 group 5 done: dead files and 14 unused packages
+  removed, analyzer warnings cleared. Debug APK builds and tests pass, but the
+  emulator ran out of storage so the new build is not yet installed there (Royal
+  Marble uninstalled from the emulator; the other projects' apps were left alone).
+  Next: Phase 4 push notifications (item 4), built and tested on the emulators.

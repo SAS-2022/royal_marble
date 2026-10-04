@@ -222,7 +222,7 @@ class DatabaseService {
   //Get users depending on their role
   Future<List<UserData>> getUsersPerRole({String? userRole}) async {
     try {
-      return userCollection
+      return await userCollection
           .where('roles', arrayContains: userRole)
           .get()
           .then((value) {
@@ -740,7 +740,7 @@ class DatabaseService {
       return await timeSheetCollection.doc(uid).get().then((value) {
         Map<String, dynamic> reportList = {};
         var result = value.data() as Map<String, dynamic>;
-        if (result.keys != null) {
+        if (result.isNotEmpty) {
           var keys = result.keys;
           var data = <String, dynamic>{};
           for (var key in keys) {
