@@ -1742,4 +1742,34 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get newMockupHere => 'یہاں نیا ماک اپ';
+
+  @override
+  String get mapLegendTitle => 'پن کے رنگوں کا مطلب';
+
+  @override
+  String get legendOnSite => 'سائٹ پر، حاضری درج';
+
+  @override
+  String get legendOutside => 'حاضری درج، مگر سائٹ سے باہر';
+
+  @override
+  String get legendProblem => 'فون میں مسئلہ (مقام بند، بیٹری سیور…)';
+
+  @override
+  String get legendNotCheckedIn => 'آج حاضری درج نہیں';
+
+  @override
+  String get legendStale => 'دھندلا: مقام 2 گھنٹے سے پرانا';
+
+  @override
+  String get legendSite => 'سائٹ اور اس کا حاضری کا علاقہ';
+
+  @override
+  String get zoomIn => 'زوم ان';
+
+  @override
+  String get zoomOut => 'زوم آؤٹ';
+
+  @override
+  String get close => 'بند کریں';
 }

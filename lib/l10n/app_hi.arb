@@ -502,5 +502,15 @@
   "showEveryone": "सबको दिखाएँ",
   "peopleOnMap": "नक्शे पर {total} में से {located}",
   "newProjectHere": "यहाँ नया प्रोजेक्ट",
-  "newMockupHere": "यहाँ नया मॉक-अप"
+  "newMockupHere": "यहाँ नया मॉक-अप",
+  "mapLegendTitle": "पिन के रंगों का मतलब",
+  "legendOnSite": "साइट पर, हाज़िरी दर्ज",
+  "legendOutside": "हाज़िरी दर्ज, पर साइट से बाहर",
+  "legendProblem": "फ़ोन में दिक्कत (लोकेशन बंद, बैटरी सेवर…)",
+  "legendNotCheckedIn": "आज हाज़िरी दर्ज नहीं",
+  "legendStale": "धुंधला: लोकेशन 2 घंटे से पुरानी",
+  "legendSite": "साइट और उसका हाज़िरी क्षेत्र",
+  "zoomIn": "ज़ूम इन",
+  "zoomOut": "ज़ूम आउट",
+  "close": "बंद करें"
 }

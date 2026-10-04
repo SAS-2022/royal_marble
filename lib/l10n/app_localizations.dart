@@ -3119,6 +3119,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'New mock-up here'**
   String get newMockupHere;
+
+  /// No description provided for @mapLegendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What the pins mean'**
+  String get mapLegendTitle;
+
+  /// No description provided for @legendOnSite.
+  ///
+  /// In en, this message translates to:
+  /// **'On site, checked in'**
+  String get legendOnSite;
+
+  /// No description provided for @legendOutside.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked in, but outside the site'**
+  String get legendOutside;
+
+  /// No description provided for @legendProblem.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone problem (location off, battery saver…)'**
+  String get legendProblem;
+
+  /// No description provided for @legendNotCheckedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Not checked in today'**
+  String get legendNotCheckedIn;
+
+  /// No description provided for @legendStale.
+  ///
+  /// In en, this message translates to:
+  /// **'Faded: location is over 2 hours old'**
+  String get legendStale;
+
+  /// No description provided for @legendSite.
+  ///
+  /// In en, this message translates to:
+  /// **'Site and its check-in area'**
+  String get legendSite;
+
+  /// No description provided for @zoomIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom in'**
+  String get zoomIn;
+
+  /// No description provided for @zoomOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom out'**
+  String get zoomOut;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
 }
 
 class _AppLocalizationsDelegate

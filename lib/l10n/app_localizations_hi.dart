@@ -1737,4 +1737,34 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get newMockupHere => 'यहाँ नया मॉक-अप';
+
+  @override
+  String get mapLegendTitle => 'पिन के रंगों का मतलब';
+
+  @override
+  String get legendOnSite => 'साइट पर, हाज़िरी दर्ज';
+
+  @override
+  String get legendOutside => 'हाज़िरी दर्ज, पर साइट से बाहर';
+
+  @override
+  String get legendProblem => 'फ़ोन में दिक्कत (लोकेशन बंद, बैटरी सेवर…)';
+
+  @override
+  String get legendNotCheckedIn => 'आज हाज़िरी दर्ज नहीं';
+
+  @override
+  String get legendStale => 'धुंधला: लोकेशन 2 घंटे से पुरानी';
+
+  @override
+  String get legendSite => 'साइट और उसका हाज़िरी क्षेत्र';
+
+  @override
+  String get zoomIn => 'ज़ूम इन';
+
+  @override
+  String get zoomOut => 'ज़ूम आउट';
+
+  @override
+  String get close => 'बंद करें';
 }

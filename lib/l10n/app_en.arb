@@ -1077,5 +1077,15 @@
     }
   },
   "newProjectHere": "New project here",
-  "newMockupHere": "New mock-up here"
+  "newMockupHere": "New mock-up here",
+  "mapLegendTitle": "What the pins mean",
+  "legendOnSite": "On site, checked in",
+  "legendOutside": "Checked in, but outside the site",
+  "legendProblem": "Phone problem (location off, battery saver…)",
+  "legendNotCheckedIn": "Not checked in today",
+  "legendStale": "Faded: location is over 2 hours old",
+  "legendSite": "Site and its check-in area",
+  "zoomIn": "Zoom in",
+  "zoomOut": "Zoom out",
+  "close": "Close"
 }

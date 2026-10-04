@@ -1741,4 +1741,34 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get newMockupHere => 'عيّنة جديدة هنا';
+
+  @override
+  String get mapLegendTitle => 'معنى ألوان الدبابيس';
+
+  @override
+  String get legendOnSite => 'في الموقع ومسجّل الحضور';
+
+  @override
+  String get legendOutside => 'مسجّل الحضور لكنه خارج الموقع';
+
+  @override
+  String get legendProblem => 'مشكلة في الهاتف (الموقع مغلق، توفير البطارية…)';
+
+  @override
+  String get legendNotCheckedIn => 'لم يسجّل الحضور اليوم';
+
+  @override
+  String get legendStale => 'باهت: آخر موقع منذ أكثر من ساعتين';
+
+  @override
+  String get legendSite => 'الموقع ونطاق تسجيل الحضور';
+
+  @override
+  String get zoomIn => 'تكبير';
+
+  @override
+  String get zoomOut => 'تصغير';
+
+  @override
+  String get close => 'إغلاق';
 }

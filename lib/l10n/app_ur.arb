@@ -502,5 +502,15 @@
   "showEveryone": "سب کو دکھائیں",
   "peopleOnMap": "نقشے پر {total} میں سے {located}",
   "newProjectHere": "یہاں نیا پروجیکٹ",
-  "newMockupHere": "یہاں نیا ماک اپ"
+  "newMockupHere": "یہاں نیا ماک اپ",
+  "mapLegendTitle": "پن کے رنگوں کا مطلب",
+  "legendOnSite": "سائٹ پر، حاضری درج",
+  "legendOutside": "حاضری درج، مگر سائٹ سے باہر",
+  "legendProblem": "فون میں مسئلہ (مقام بند، بیٹری سیور…)",
+  "legendNotCheckedIn": "آج حاضری درج نہیں",
+  "legendStale": "دھندلا: مقام 2 گھنٹے سے پرانا",
+  "legendSite": "سائٹ اور اس کا حاضری کا علاقہ",
+  "zoomIn": "زوم ان",
+  "zoomOut": "زوم آؤٹ",
+  "close": "بند کریں"
 }

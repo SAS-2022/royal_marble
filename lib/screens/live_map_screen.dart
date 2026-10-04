@@ -5,6 +5,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart' hide TextDirection;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../core/app_theme.dart';
@@ -68,6 +69,14 @@ double _hue(WorkerState s) => switch (s) {
       WorkerState.notCheckedIn => BitmapDescriptor.hueAzure,
     };
 
+/// The same colour as the pin, for chips, the list and the colour key.
+Color pinColor(WorkerState s) => switch (s) {
+      WorkerState.phoneProblem => const Color(0xFFE53935),
+      WorkerState.outside => const Color(0xFFF57C00),
+      WorkerState.onSite => const Color(0xFF43A047),
+      WorkerState.notCheckedIn => const Color(0xFF1E88E5),
+    };
+
 Tone _tone(WorkerState s) => switch (s) {
       WorkerState.phoneProblem => Tone.bad,
       WorkerState.outside => Tone.warn,
@@ -110,6 +119,26 @@ class _LiveMapScreenState extends State<LiveMapScreen> {
   GoogleMapController? _map;
   bool _framed = false;
   WorkerState? _filter;
+
+  /// The colour key starts open; once closed it stays closed on this phone.
+  static const _legendPref = 'mapLegendOpen';
+  bool _legend = true;
+
+  @override
+  void initState() {
+    super.initState();
+    SharedPreferences.getInstance().then((p) {
+      final open = p.getBool(_legendPref);
+      if (open != null && mounted) setState(() => _legend = open);
+    }).catchError((_) {});
+  }
+
+  void _setLegend(bool open) {
+    setState(() => _legend = open);
+    SharedPreferences.getInstance()
+        .then((p) => p.setBool(_legendPref, open))
+        .catchError((_) => false);
+  }
 
   /// Ids of the supervisor's own sites; null for admins (all sites).
   Set<String>? get _mySites => _role == AppRole.admin
@@ -251,8 +280,8 @@ class _LiveMapScreenState extends State<LiveMapScreen> {
                 for (final w in shown)
                   ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: _tone(w.state).bg,
-                      child: Icon(Icons.person, color: _tone(w.state).fg),
+                      backgroundColor: pinColor(w.state).withValues(alpha: 0.15),
+                      child: Icon(Icons.location_on, color: pinColor(w.state)),
                     ),
                     title: Text(w.name),
                     subtitle: Text(w.position == null
@@ -275,7 +304,13 @@ class _LiveMapScreenState extends State<LiveMapScreen> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: Text(l.liveMap)),
+      appBar: AppBar(title: Text(l.liveMap), actions: [
+        IconButton(
+          tooltip: l.mapLegendTitle,
+          icon: Icon(_legend ? Icons.info : Icons.info_outline),
+          onPressed: () => _setLegend(!_legend),
+        ),
+      ]),
       body: StreamBuilder<List<UserData>>(
         stream: _users,
         builder: (context, u) => StreamBuilder<Map<String, dynamic>>(
@@ -374,7 +409,7 @@ class _LiveMapScreenState extends State<LiveMapScreen> {
                               backgroundColor: Colors.white,
                               avatar: s == null
                                   ? null
-                                  : CircleAvatar(backgroundColor: _tone(s).fg, radius: 6),
+                                  : Icon(Icons.location_on, color: pinColor(s), size: 18),
                               label: Text(
                                   '${s == null ? l.everything : _stateLabel(l, s)} '
                                   '(${s == null ? workers.length : counts[s]})'),
@@ -385,18 +420,46 @@ class _LiveMapScreenState extends State<LiveMapScreen> {
                       ]),
                     ),
                   ),
+                  // Zoom and "show everyone", bottom corner.
                   PositionedDirectional(
-                    end: 16,
-                    bottom: 96,
-                    child: FloatingActionButton.small(
-                      heroTag: 'fit',
-                      tooltip: l.showEveryone,
-                      onPressed: () => _frame(located.isNotEmpty
-                          ? located.map((w) => w.position!)
-                          : sites.map((s) => s.center)),
-                      child: const Icon(Icons.fit_screen),
-                    ),
+                    end: 12,
+                    bottom: 92,
+                    child: Column(mainAxisSize: MainAxisSize.min, children: [
+                      FloatingActionButton.small(
+                        heroTag: 'fit',
+                        tooltip: l.showEveryone,
+                        onPressed: () => _frame(located.isNotEmpty
+                            ? located.map((w) => w.position!)
+                            : sites.map((s) => s.center)),
+                        child: const Icon(Icons.fit_screen),
+                      ),
+                      const SizedBox(height: 8),
+                      Material(
+                        color: Colors.white,
+                        elevation: 3,
+                        borderRadius: BorderRadius.circular(12),
+                        child: Column(mainAxisSize: MainAxisSize.min, children: [
+                          IconButton(
+                            tooltip: l.zoomIn,
+                            icon: const Icon(Icons.add),
+                            onPressed: () => _map?.animateCamera(CameraUpdate.zoomIn()),
+                          ),
+                          const SizedBox(width: 32, child: Divider(height: 1)),
+                          IconButton(
+                            tooltip: l.zoomOut,
+                            icon: const Icon(Icons.remove),
+                            onPressed: () => _map?.animateCamera(CameraUpdate.zoomOut()),
+                          ),
+                        ]),
+                      ),
+                    ]),
                   ),
+                  if (_legend)
+                    PositionedDirectional(
+                      start: 12,
+                      bottom: 92,
+                      child: _Legend(onClose: () => _setLegend(false)),
+                    ),
                   Positioned(
                     left: 16,
                     right: 16,
@@ -478,11 +541,11 @@ class _WorkerSheet extends StatelessWidget {
               Row(children: [
                 CircleAvatar(
                   radius: 24,
-                  backgroundColor: _tone(w.state).bg,
+                  backgroundColor: pinColor(w.state).withValues(alpha: 0.15),
                   child: Text(
                       '${w.user.firstName?.characters.firstOrNull ?? ''}${w.user.lastName?.characters.firstOrNull ?? ''}',
                       style: TextStyle(
-                          color: _tone(w.state).fg, fontWeight: FontWeight.w700)),
+                          color: pinColor(w.state), fontWeight: FontWeight.w700)),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -562,3 +625,73 @@ class _WorkerSheet extends StatelessWidget {
 /// "350 m" or "2.4 km".
 String _distance(AppLocalizations l, double m) =>
     m < 1000 ? l.metersShort(m.round()) : l.kilometersShort((m / 1000).toStringAsFixed(1));
+
+/// What each pin colour means, so nobody has to guess.
+class _Legend extends StatelessWidget {
+  const _Legend({required this.onClose});
+  final VoidCallback onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    Widget row(Widget icon, String text) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 3),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            SizedBox(width: 22, child: icon),
+            const SizedBox(width: 6),
+            Flexible(child: Text(text, style: const TextStyle(fontSize: 12.5))),
+          ]),
+        );
+    Widget pin(Color c, {double opacity = 1}) =>
+        Icon(Icons.location_on, color: c.withValues(alpha: opacity), size: 20);
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+          maxWidth: math.min(240, MediaQuery.of(context).size.width - 96)),
+      child: Material(
+        color: Colors.white.withValues(alpha: 0.96),
+        elevation: 3,
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(12, 4, 4, 10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(children: [
+                Expanded(
+                  child: Text(l.mapLegendTitle,
+                      style: const TextStyle(fontWeight: FontWeight.w700)),
+                ),
+                IconButton(
+                  visualDensity: VisualDensity.compact,
+                  tooltip: l.close,
+                  icon: const Icon(Icons.close, size: 18),
+                  onPressed: onClose,
+                ),
+              ]),
+              row(pin(pinColor(WorkerState.onSite)), l.legendOnSite),
+              row(pin(pinColor(WorkerState.outside)), l.legendOutside),
+              row(pin(pinColor(WorkerState.phoneProblem)), l.legendProblem),
+              row(pin(pinColor(WorkerState.notCheckedIn)), l.legendNotCheckedIn),
+              row(pin(pinColor(WorkerState.onSite), opacity: 0.4), l.legendStale),
+              row(
+                  Stack(alignment: Alignment.center, children: [
+                    Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.gold.withValues(alpha: 0.25),
+                        border: Border.all(color: AppColors.goldDeep, width: 1.5),
+                      ),
+                    ),
+                    const Icon(Icons.location_on, color: Color(0xFFFBC02D), size: 14),
+                  ]),
+                  l.legendSite),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

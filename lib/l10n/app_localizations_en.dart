@@ -1742,4 +1742,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get newMockupHere => 'New mock-up here';
+
+  @override
+  String get mapLegendTitle => 'What the pins mean';
+
+  @override
+  String get legendOnSite => 'On site, checked in';
+
+  @override
+  String get legendOutside => 'Checked in, but outside the site';
+
+  @override
+  String get legendProblem => 'Phone problem (location off, battery saver…)';
+
+  @override
+  String get legendNotCheckedIn => 'Not checked in today';
+
+  @override
+  String get legendStale => 'Faded: location is over 2 hours old';
+
+  @override
+  String get legendSite => 'Site and its check-in area';
+
+  @override
+  String get zoomIn => 'Zoom in';
+
+  @override
+  String get zoomOut => 'Zoom out';
+
+  @override
+  String get close => 'Close';
 }

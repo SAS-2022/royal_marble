@@ -502,5 +502,15 @@
   "showEveryone": "عرض الجميع",
   "peopleOnMap": "{located} من {total} على الخريطة",
   "newProjectHere": "مشروع جديد هنا",
-  "newMockupHere": "عيّنة جديدة هنا"
+  "newMockupHere": "عيّنة جديدة هنا",
+  "mapLegendTitle": "معنى ألوان الدبابيس",
+  "legendOnSite": "في الموقع ومسجّل الحضور",
+  "legendOutside": "مسجّل الحضور لكنه خارج الموقع",
+  "legendProblem": "مشكلة في الهاتف (الموقع مغلق، توفير البطارية…)",
+  "legendNotCheckedIn": "لم يسجّل الحضور اليوم",
+  "legendStale": "باهت: آخر موقع منذ أكثر من ساعتين",
+  "legendSite": "الموقع ونطاق تسجيل الحضور",
+  "zoomIn": "تكبير",
+  "zoomOut": "تصغير",
+  "close": "إغلاق"
 }
