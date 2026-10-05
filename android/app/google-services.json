@@ -14,7 +14,23 @@
       },
       "oauth_client": [
         {
-          "client_id": "420263984039-uaqf9f1lenuvvmoe1hj41of0k7s5p3g2.apps.googleusercontent.com",
+          "client_id": "420263984039-o0h2hia7gtjiu74sbpctlld7d9t3a6sh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.royalmarble.tracking",
+            "certificate_hash": "75e533bc9730c47f377722677fc65703b097b09a"
+          }
+        },
+        {
+          "client_id": "420263984039-ojo9hcl2g19te81fo9sl480p75lj1ljo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.royalmarble.tracking",
+            "certificate_hash": "8012226935e571a7695506b0f197eab8e6f1cbd6"
+          }
+        },
+        {
+          "client_id": "420263984039-j7u888sh0jc81ubfj48e6ru9bs1gdqg9.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -27,7 +43,7 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "420263984039-uaqf9f1lenuvvmoe1hj41of0k7s5p3g2.apps.googleusercontent.com",
+              "client_id": "420263984039-j7u888sh0jc81ubfj48e6ru9bs1gdqg9.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
