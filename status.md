@@ -126,12 +126,10 @@ supervisors see attendance, alerts and reports.
 
 - [x] **Firebase billing:** Blaze active (2026-10-05). Functions deployed 2026-10-05
       (us-central1, Node 22, 2nd gen); container images kept 1 day.
-- [ ] **Restore the `users` index (roles CONTAINS + firstName)** — deleted by mistake
-      during the 2026-10-05 deploy (it wasn't in `firestore.indexes.json`). Needed by
-      `getAllWorkers` (team sheet on site details) and `getSalesUsers` (visits,
-      reports), and by the 2023 app. Now in the file; deploy:
-      `firebase deploy --only firestore:indexes ...`. Never answer "yes" to deleting
-      indexes that aren't in the file.
+- [x] **`users` index (roles CONTAINS + firstName) restored 2026-10-05** — it was
+      deleted by mistake during the functions deploy (it wasn't in
+      `firestore.indexes.json`, now it is). Never answer "yes" to deleting indexes
+      that aren't in the file.
 - [ ] **Payment** under the contract (work paused until received)
 - [ ] Rotate or restrict the Google Maps API keys (exposed in git history)
 - [ ] A test mason account in production for end-to-end testing (emulator accounts exist)
@@ -145,7 +143,6 @@ supervisors see attendance, alerts and reports.
 |---|---|---|---|
 | `payroll` rules (additive) | `firebase deploy --only firestore:rules` | ✅ yes | no |
 | ✅ Functions `checkInOut`, `reportPresence`, `autoCheckout`, `correctAttendance`, `detectSilentDevices` + index — **deployed 2026-10-05** | `firebase deploy --only functions,firestore:indexes` | ✅ yes | yes (Blaze active) |
-| Restore the `users` roles + firstName index | `firebase deploy --only firestore:indexes` | ✅ yes (restores what the old app used) | no |
 | Assignment migration (`functions/scripts/migrate-assignments.js`: mason map → list, stale team entries) | dry run first, then `--project royal-marble --apply` | ❌ **only after every phone runs the new app** (old app reads a mason's assignment as a map) | no |
 | Strict role-based rules | copy `firestore.strict.rules` → `firestore.rules`, deploy | ❌ **only after every phone runs the new app** | no |
 
@@ -597,6 +594,6 @@ Workers come from different countries; each user picks a language.
   production (dry run first; the user ran the real deploy). During it, the CLI asked to
   delete a production index missing from `firestore.indexes.json` (`users`: roles
   CONTAINS + firstName), and "yes" was answered; the worker and sales-user lists need
-  it, so it was added to the file — deploy pending. `firebase-functions` 6.x shows an
-  "outdated" warning (upgrade has breaking changes; left for later). Next: restore the
-  index, then the `payroll` rules, then check-in on a real phone against production.
+  it, so it was added to the file — restored the same day. `firebase-functions` 6.x shows an
+  "outdated" warning (upgrade has breaking changes; left for later). Next: the `payroll`
+  rules (first try failed with 403: run without `--account`), then check-in on a real phone against production.
