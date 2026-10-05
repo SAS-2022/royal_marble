@@ -4,7 +4,7 @@ Living tracker for this project, kept up to date across chat sessions.
 **Read this first when resuming work. Update it after every step: tick tasks, change
 phase status, and add a line to the session log.**
 
-_Last updated: 2026-10-04_
+_Last updated: 2026-10-05_
 
 ---
 
@@ -124,9 +124,14 @@ supervisors see attendance, alerts and reports.
 > progress).
 
 
-- [ ] **Firebase billing:** user is upgrading to Blaze (2026-10-04); until then Cloud Functions can't deploy. Until
-      `checkInOut` is deployed, check-in in the new app fails.
-      Deploy: `firebase deploy --only functions,firestore:indexes ...`
+- [x] **Firebase billing:** Blaze active (2026-10-05). Functions deployed 2026-10-05
+      (us-central1, Node 22, 2nd gen); container images kept 1 day.
+- [ ] **Restore the `users` index (roles CONTAINS + firstName)** — deleted by mistake
+      during the 2026-10-05 deploy (it wasn't in `firestore.indexes.json`). Needed by
+      `getAllWorkers` (team sheet on site details) and `getSalesUsers` (visits,
+      reports), and by the 2023 app. Now in the file; deploy:
+      `firebase deploy --only firestore:indexes ...`. Never answer "yes" to deleting
+      indexes that aren't in the file.
 - [ ] **Payment** under the contract (work paused until received)
 - [ ] Rotate or restrict the Google Maps API keys (exposed in git history)
 - [ ] A test mason account in production for end-to-end testing (emulator accounts exist)
@@ -139,7 +144,8 @@ supervisors see attendance, alerts and reports.
 | What | Command (add `--project royal-marble --account royalmarble.uae@gmail.com`) | Safe for old app? | Needs billing? |
 |---|---|---|---|
 | `payroll` rules (additive) | `firebase deploy --only firestore:rules` | ✅ yes | no |
-| Functions `checkInOut`, `reportPresence`, `autoCheckout`, `correctAttendance`, `detectSilentDevices` + index | `firebase deploy --only functions,firestore:indexes` | ✅ yes (old app never calls them; `autoCheckout` only touches entries that have `sessions`, which only the new server writes) | **yes** |
+| ✅ Functions `checkInOut`, `reportPresence`, `autoCheckout`, `correctAttendance`, `detectSilentDevices` + index — **deployed 2026-10-05** | `firebase deploy --only functions,firestore:indexes` | ✅ yes | yes (Blaze active) |
+| Restore the `users` roles + firstName index | `firebase deploy --only firestore:indexes` | ✅ yes (restores what the old app used) | no |
 | Assignment migration (`functions/scripts/migrate-assignments.js`: mason map → list, stale team entries) | dry run first, then `--project royal-marble --apply` | ❌ **only after every phone runs the new app** (old app reads a mason's assignment as a map) | no |
 | Strict role-based rules | copy `firestore.strict.rules` → `firestore.rules`, deploy | ❌ **only after every phone runs the new app** | no |
 
@@ -587,3 +593,10 @@ Workers come from different countries; each user picks a language.
   re-run them (lesson saved: ask before changing shared tooling). Everything
   committed on `revive-2026`, not pushed. Paused by the user. Next: push
   notifications (queue item 4), or the deploys once Blaze is active.
+- **2026-10-05** — Blaze active. Functions and the `deviceStatus` index deployed to
+  production (dry run first; the user ran the real deploy). During it, the CLI asked to
+  delete a production index missing from `firestore.indexes.json` (`users`: roles
+  CONTAINS + firstName), and "yes" was answered; the worker and sales-user lists need
+  it, so it was added to the file — deploy pending. `firebase-functions` 6.x shows an
+  "outdated" warning (upgrade has breaking changes; left for later). Next: restore the
+  index, then the `payroll` rules, then check-in on a real phone against production.

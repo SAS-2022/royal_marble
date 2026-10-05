@@ -4,8 +4,28 @@
       "collectionGroup": "users",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "deviceStatus.silent", "order": "ASCENDING" },
-        { "fieldPath": "deviceStatus.lastSeen", "order": "ASCENDING" }
+        {
+          "fieldPath": "deviceStatus.silent",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deviceStatus.lastSeen",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "roles",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "firstName",
+          "order": "ASCENDING"
+        }
       ]
     }
   ],
