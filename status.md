@@ -4,52 +4,78 @@ Living tracker for this project, kept up to date across chat sessions.
 **Read this first when resuming work. Update it after every step: tick tasks, change
 phase status, and add a line to the session log.**
 
-_Last updated: 2026-10-05_
+_Last updated: 2026-10-05 (end of session)_
 
 ---
 
-## 0. Next session — start here (written 2026-10-04)
+## 0. Next session — start here (written 2026-10-05)
 
-**Where things stand:** all work is committed on `revive-2026` (latest `954708a` +
-this note) but **not pushed** to GitHub yet. Nothing deployed. Phase 7 is done
-(sites, profile + helpers, sales, live map with zoom and a pin colour key, dead-code
-cleanup).
+**Where things stand:** all work is committed on `revive-2026` but **not pushed**.
+Production now runs the new backend: Blaze is active, and all functions, the indexes
+and the `payroll` rules are deployed (section 3). Nobody uses the live app yet, so
+deploys can't lose data; each one still needs the user's go-ahead (dry run first).
+Running `firebase deploy` from here works when the user has said to deploy; writing
+to production directly (e.g. the Auth/Firestore REST APIs) is blocked by the
+permission check, so test accounts are made through the app.
 
-**Deploys:** the user said on 2026-10-04 that nobody is using the live app now, so
-deploys can't lose data. Each deploy still needs the user's go-ahead (show the exact
-command, dry run first). The user is upgrading Firebase from Spark to **Blaze**; when
-they confirm it's done, start with the pending deploys in section 3 (payroll rules,
-then functions + indexes). Ask whether the "after every phone runs the new app"
-gates (assignment migration, strict rules) still apply.
+**Done on 2026-10-05:**
+- Functions `checkInOut`, `reportPresence`, `autoCheckout`, `correctAttendance`,
+  `detectSilentDevices` + `notifyNewUser` live in us-central1 (Firestore is `nam5`).
+  Scheduled ones ran cleanly; callables refuse unsigned calls.
+- `users` index (roles CONTAINS + firstName) was deleted by mistake during the first
+  deploy and restored the same day. **Always answer "No" when the CLI offers to delete
+  indexes that aren't in `firestore.indexes.json`.**
+- Google sign-in (Android) works on a real phone; Apple sign-in coded, iOS only.
+- Registration: mobile = 05 + 8 digits only; company locked to "Royal Marble".
+- Push: admins/supervisors save FCM tokens; a new inactive profile notifies every
+  active admin (in their language). **Verified in the foreground** (snack bar with
+  "Details"; log: "→ 1 phone(s) of 3 admin(s)").
+
+**Next, in order:**
+1. **Verify push in the background:** lock the Motorola (signed in as admin),
+   register another account elsewhere → a system notification should appear; tap
+   it → the user's admin page opens. Also test with the app fully closed.
+2. Push for the other alerts: `left_site`, `silent`, `auto_checkout` → admins and
+   the site's supervisor, using `pushToUser` in `functions/src/notify.ts` (needs a
+   functions deploy).
+3. Notification settings (which alerts, quiet hours) — Phase 4 remainder.
+4. Ask the user: apply the same mobile/company limits on **My profile**?
+5. End-to-end attendance test in production with the test mason (check-in, refused
+   check-in from far away, leave/return, check-out, admin correction).
+6. Clean up production test data afterwards (list below).
+7. iOS build prep (Maps key out of `AppDelegate.swift`, Podfile,
+   `GoogleService-Info.plist`, reversed client id URL scheme, "Sign in with Apple"
+   capability), then the admin web dashboard.
+
+**Production test data to delete when testing is over:** logins + `users` docs +
+`profile_images/` photos for `mason.test@royalmarble.test` (approved, assigned to a
+site), the user's Google account sign-up (pending/approved), and the second test
+account the user registered on 2026-10-05; the test site the user created and its
+`time_sheet` entries. Test mason password is in the 2026-10-05 chat, not stored here.
+
+**Devices:** Motorola edge 60 stylus `ZY22MC9B2M` (USB; the link drops now and then —
+replug, keep unlocked, "File transfer"), signed in as admin with the latest build.
+The Xiaomi is away. The emulator `Pixel_3A` can't do Google sign-in (Play services
+22.50 from 2022, no Google account; updating it would touch the shared emulator).
+When driving the emulator, check Royal Marble is in front before each tap (a stray
+tap opened the Camera app on 2026-10-05).
+
+**Known small issues:**
+- On sign-out the old profile listener logs a harmless `permission-denied` (Wrapper's
+  stream outlives the login for a moment); could be silenced.
+- `firebase-functions` 6.x shows an "outdated" warning; upgrading has breaking
+  changes — do it deliberately, not before a deploy.
+- Build warns about the Kotlin Gradle Plugin (Firebase plugins); needs plugin updates
+  before a future Flutter release.
 
 **To start:** `cd functions && npm run emulators` (terminal 1), `npm run seed`, then
-run the app with `--dart-define=USE_EMULATOR=true` (see section 4). Test accounts in
-section 4 (now includes `sales@test.local`). The emulator was rebuilt on 2026-10-04
-(8 GB storage, fresh install, app language follows the phone: English).
+run the app with `--dart-define=USE_EMULATOR=true` (see section 4). Without that flag
+the app talks to **production**.
 
-**Work queue (no deploys needed), in order:**
-1. ✅ **Phase 7 group 3 — sales screens** (done 2026-10-04, see Phase 7).
-2. ✅ **Phase 7 group 4 — live map** (done 2026-10-04, see Phase 7).
-3. ✅ **Phase 7 group 5 — dead code** (done 2026-10-04, see Phase 7).
-4. 🔄 **Phase 4 client side:** push notifications wiring — started 2026-10-05:
-   FCM tokens per admin/supervisor (`users/{uid}.fcmTokens`, `PushService`) and the
-   `notifyNewUser` trigger (new inactive profile → every active admin, in their
-   language; tap opens the user's page). Next: `left_site` etc. via `pushToUser`
-   in `functions/src/notify.ts`. Remaining original text: (`firebase_messaging`, FCM
-   tokens per user, function on `device_events` for `left_site` etc.) — written and
-   tested on the emulators, not deployed.
-5. iOS build prep (Maps key out of `AppDelegate.swift`, Podfile), then the admin web
-   dashboard.
-
-**Needs a real phone / the user:**
-- Walk out of and back into a site with a real phone to confirm geofence
-  `left_site` / `returned_to_site` and the 60-min auto check-out.
-- Tap through "Delete my account" in the app once (verified only via script).
-
-**Waiting on the client:** payment, Blaze upgrade (user doing it; functions deploy),
-decisions in section 6 (esp. #2 auto check-out rules and whether short absences
-are paid), native-speaker review of Arabic/Hindi/Urdu, production test mason
-account, then the pending deploys table in section 3.
+**Waiting on the client:** payment; decisions in section 6 (esp. #2 auto check-out
+rules and whether short absences are paid); native-speaker review of Arabic/Hindi/
+Urdu; whether the "after every phone runs the new app" gates (assignment migration,
+strict rules) still apply now that nobody uses the old app.
 
 ---
 
@@ -296,7 +322,7 @@ independent and needs no billing, so it goes first.
 4. 🔄 **Phase 7:** redesign the remaining old screens, written with translations from
    the start. Order: (1) ✅ sites, (2) ✅ own profile + helpers, (3) ✅ sales (clients,
    visits), (4) ✅ live map, (5) ✅ dead-code cleanup.
-5. **Phase 4 client side** (geofence exit events; push wiring ready, not deployed).
+5. 🔄 **Phase 4 client side:** push wiring and new-sign-up notification live (2026-10-05); leaving-site etc. pushes next.
 6. **Tech debt:** remove unused packages, iOS build prep.
 7. **Admin web dashboard** (Flutter web), developed locally.
 
@@ -307,7 +333,7 @@ independent and needs no billing, so it goes first.
 | 1 Crashlytics | ✅ | — (open the Crashlytics page in the console once) |
 | 2 Attendance correctness | 🔄 code ✅ | Functions deploy (billing); client decision #2 |
 | 3 Multi-site + per-site hours | 🔄 code ✅ | Functions deploy; migration at rollout |
-| 4 Leaving-site alerts + push | 🔄 | `left_site` alerts done (in-app); push not started |
+| 4 Leaving-site alerts + push | 🔄 | `left_site` alerts in-app; push live for new sign-ups; other alert pushes next |
 | 5 Salary details | 🔄 | `payroll` rules deploy (production freeze) |
 | 6 Hours-based pay | ⬜ | Phases 2, 3, 5; client decisions (below) |
 | 7 Remaining UI + delivery | 🔄 sites, profile, sales, map ✅ | — (web dashboard after 2–4) |
@@ -382,9 +408,12 @@ Code done 2026-10-03, verified on the emulators; nothing deployed.
 
 ### Phase 4 — Admin alerts when a worker leaves (c)
 - Geofence exit while checked in → `device_events` type `left_site` (plus return).
-- Push notifications: `firebase_messaging`, save FCM tokens per user, and a Cloud
-  Function on `device_events` that notifies admins and the site's supervisor for
-  critical types.
+- [x] Push wiring (2026-10-05): `firebase_messaging`, `lib/services/push_service.dart`
+      (tokens for admins/supervisors, snack bar in the foreground, tap opens the
+      screen), `functions/src/notify.ts` (`pushToUser`, `notifyNewUser`).
+- [ ] Verify background / closed-app delivery on a phone.
+- [ ] Cloud Function on `device_events` that pushes critical types (`left_site`,
+      `silent`, `auto_checkout`) to admins and the site's supervisor.
 - Notification settings (which alerts, quiet hours).
 
 ### Phase 5 — Salary details (e)
@@ -637,3 +666,12 @@ Workers come from different countries; each user picks a language.
   `watchUser` waited for a server event that never comes when the profile is missing
   (now asks the server once). The emulator can't do Google sign-in (Play services
   22.50 from 2022, no Google account).
+- **2026-10-05 (end of session)** — Push notifications started: `firebase_messaging`,
+  `PushService` (tokens for admins/supervisors in `users/{uid}.fcmTokens`, removed on
+  sign-out; foreground messages as a snack bar; tapping opens the user's admin page)
+  and `notifyNewUser` (Firestore trigger on `users/{uid}` create). Deployed by Claude
+  with the user's go-ahead (first try failed while Eventarc permissions propagated;
+  retry after 4 min worked). Verified in the foreground on the Motorola: the user
+  registered a test account and got the snack bar; function log "1 phone(s) of 3
+  admin(s)". Background/closed-app delivery not yet verified. Paused by the user;
+  plan in section 0.
