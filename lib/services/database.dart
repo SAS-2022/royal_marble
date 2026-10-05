@@ -202,12 +202,27 @@ class DatabaseService {
 
   /// The user's profile, or null once the server confirms there is none
   /// (signed in with Google or Apple but registration not finished). A
-  /// cache-only "missing" is skipped so an offline start never looks new.
-  Stream<UserData?> watchUser(String uid) => userCollection
-      .doc(uid)
-      .snapshots()
-      .where((s) => s.exists || !s.metadata.isFromCache)
-      .map((s) => s.exists ? _singleUserDataFromSnapshot(s) : null);
+  /// cache-only "missing" is checked with the server, so an offline start
+  /// never looks like a new account. (The listener sends nothing more when
+  /// the server agrees the profile is missing, so it can't be awaited.)
+  Stream<UserData?> watchUser(String uid) async* {
+    final ref = userCollection.doc(uid);
+    await for (final s in ref.snapshots()) {
+      if (s.exists) {
+        yield _singleUserDataFromSnapshot(s);
+      } else if (!s.metadata.isFromCache) {
+        yield null;
+      } else {
+        try {
+          final server = await ref.get(const GetOptions(source: Source.server));
+          // If it does exist, the listener delivers it next.
+          if (!server.exists) yield null;
+        } catch (_) {
+          // Offline: keep waiting for the listener.
+        }
+      }
+    }
+  }
 
   Stream<List<UserData>> getAllUsers() {
     return userCollection

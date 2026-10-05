@@ -626,3 +626,10 @@ Workers come from different countries; each user picks a language.
   on a real phone after the SHA step. iOS still needs `GoogleService-Info.plist`,
   the reversed client id URL scheme and the "Sign in with Apple" capability (part
   of iOS build prep).
+- **2026-10-05 (cont.)** — Registration: mobile limited to 05 + 8 digits, company
+  fixed to "Royal Marble". SHA fingerprints added and new `google-services.json` in
+  place; **Google sign-in works on a real phone** (Motorola edge 60 stylus,
+  `ZY22MC9B2M`). Fixed: a first-time Google user was stuck on the spinner because
+  `watchUser` waited for a server event that never comes when the profile is missing
+  (now asks the server once). The emulator can't do Google sign-in (Play services
+  22.50 from 2022, no Google account).
