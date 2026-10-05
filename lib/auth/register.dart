@@ -6,6 +6,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:royal_marble/auth/social_buttons.dart';
@@ -413,25 +414,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
             TextFormField(
               controller: _phone,
               keyboardType: TextInputType.phone,
+              // UAE mobile as dialled locally: 05 + 8 digits.
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(10),
+              ],
               decoration: InputDecoration(
                 labelText: context.l10n.mobileNumber,
-                hintText: '05X XXX XXXX',
+                hintText: '05XXXXXXXX',
                 prefixIcon: Icon(Icons.phone_outlined),
               ),
-              validator: (v) => uaeMobile
-                      .hasMatch((v ?? '').replaceAll(RegExp(r'[\s-]'), ''))
+              validator: (v) => RegExp(r'^05\d{8}$').hasMatch(v ?? '')
                   ? null
                   : context.l10n.mobileInvalid,
             ),
             const SizedBox(height: 14),
             TextFormField(
               controller: _company,
-              textCapitalization: TextCapitalization.words,
+              // Everyone who registers works for Royal Marble.
+              readOnly: true,
+              enableInteractiveSelection: false,
               decoration: InputDecoration(
                 labelText: context.l10n.company,
                 prefixIcon: Icon(Icons.business_outlined),
+                suffixIcon: Icon(Icons.lock_outline, color: AppColors.muted),
               ),
-              validator: (v) => (v ?? '').trim().isEmpty ? context.l10n.required : null,
             ),
             const SizedBox(height: 14),
             _PickerField(
