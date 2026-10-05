@@ -28,16 +28,24 @@ permission check, so test accounts are made through the app.
 - Google sign-in (Android) works on a real phone; Apple sign-in coded, iOS only.
 - Registration: mobile = 05 + 8 digits only; company locked to "Royal Marble".
 - Push: admins/supervisors save FCM tokens; a new inactive profile notifies every
-  active admin (in their language). **Verified in the foreground** (snack bar with
-  "Details"; log: "→ 1 phone(s) of 3 admin(s)").
+  active admin (in their language) — `notifyNewUser`. Serious worker alerts
+  (`left_site`, `auto_checkout`, `silent`, `location_off`, `precise_off`,
+  `tracking_stopped`, `mock_location`, downgraded permission) go to active admins and
+  supervisors who share a site with the worker, max one per worker+type per 15 min
+  (`push_throttle/{uid}_{type}`) — `notifyAlert`. **Verified in production:**
+  foreground snack bar + "Details" opens the worker's page; a locked phone shows a
+  system notification.
+- Admin dashboard reworked: 2×2 tappable counts (on site / outside / phone
+  problems / pending) that jump to lists — waiting for approval, outside the site,
+  phone problems, on site now — each person opens their page.
+- Notifications use a white status-bar icon (`ic_stat_notify`, gold tint) and a
+  high-importance "alerts" channel created in `MainActivity` (manifest defaults).
 
 **Next, in order:**
-1. **Verify push in the background:** lock the Motorola (signed in as admin),
-   register another account elsewhere → a system notification should appear; tap
-   it → the user's admin page opens. Also test with the app fully closed.
-2. Push for the other alerts: `left_site`, `silent`, `auto_checkout` → admins and
-   the site's supervisor, using `pushToUser` in `functions/src/notify.ts` (needs a
-   functions deploy).
+1. Check with the app fully closed (swiped away) that a notification still arrives
+   and tapping it opens the person's page.
+2. `left_site` push needs a real phone walked out of a site (the emulator never
+   reports exits). The test mason on the emulator is still checked in at Test Site.
 3. Notification settings (which alerts, quiet hours) — Phase 4 remainder.
 4. Ask the user: apply the same mobile/company limits on **My profile**?
 5. End-to-end attendance test in production with the test mason (check-in, refused
@@ -675,3 +683,14 @@ Workers come from different countries; each user picks a language.
   registered a test account and got the snack bar; function log "1 phone(s) of 3
   admin(s)". Background/closed-app delivery not yet verified. Paused by the user;
   plan in section 0.
+- **2026-10-05 (afternoon)** — `notifyAlert` deployed (worker alerts → admins and
+  same-site supervisors, 15-min throttle); tested first on the emulators (Test Villa
+  leave → admin + supervisor; repeat throttled; info not pushed; Far Site → admin
+  only). In production: test mason checked in at Test Site via `checkInOut`;
+  switching the emulator's location off (user approved) sent "Location services
+  turned OFF" to the locked Motorola as a system notification, and in the
+  foreground as a snack bar whose "Details" opens the worker's page. Admin dashboard
+  reworked per the user (counts that jump to lists of sign-ups, outside the site,
+  phone problems, on site). Fixed the blank notification icon (white vector icon)
+  and added a high-importance Alerts channel. An accidental `flutter run -d all`
+  built macOS and rewrote `macos/` files — reverted; use explicit `-d` ids.
