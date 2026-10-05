@@ -8,6 +8,7 @@ import 'package:royal_marble/core/locale_controller.dart';
 import 'package:royal_marble/core/roles.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/services/database.dart';
+import 'package:royal_marble/services/push_service.dart';
 import 'package:royal_marble/shared/loading.dart';
 import 'package:royal_marble/widgets/checkin_card.dart';
 
@@ -41,6 +42,7 @@ class Wrapper extends StatelessWidget {
         final role = primaryRole(user.roles);
         ErrorReporter.setUser(uid: user.uid, role: role.name);
         context.read<LocaleController>().adoptFromProfile(user.language);
+        PushService.start(user);
         // Only people who manage others need everyone's profiles; workers
         // get just their own data.
         final seesTeam = role != AppRole.worker && role != AppRole.siteEngineer;

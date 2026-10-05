@@ -15,6 +15,7 @@ import 'package:royal_marble/screens/salary_screens.dart';
 import 'package:royal_marble/screens/site_form_screen.dart';
 import 'package:royal_marble/screens/sites_screen.dart';
 import 'package:royal_marble/services/checkin_service.dart' show SiteKind;
+import 'package:royal_marble/services/push_service.dart';
 import 'package:royal_marble/screens/team_status_screen.dart';
 import 'package:royal_marble/screens/visit_form_screen.dart';
 import 'package:royal_marble/screens/visits_screen.dart';
@@ -142,6 +143,7 @@ class ProfileDrawer extends StatelessWidget {
     );
     if (confirmed != true) return;
     await TrackingService.stop();
+    await PushService.stop();
     await ErrorReporter.setUser();
     await AuthService().signOut();
     // Clear session data but keep the device's language choice.

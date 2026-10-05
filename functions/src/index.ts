@@ -9,6 +9,8 @@ import {
   legacyFields, localClock, openSession, sessionsOf, stampToMs,
 } from "./attendance";
 
+export { notifyNewUser } from "./notify";
+
 initializeApp();
 const db = getFirestore();
 // Sessions carry optional fields; let Firestore drop the unset ones.

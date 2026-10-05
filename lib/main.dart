@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
     as bg;
 import 'package:provider/provider.dart';
+import 'package:royal_marble/services/push_service.dart';
 import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/core/emulators.dart';
 import 'package:royal_marble/core/error_reporter.dart';
@@ -78,6 +79,9 @@ class MyApp extends StatelessWidget {
       child: Consumer<LocaleController>(
         builder: (context, l, _) => MaterialApp(
           title: 'Royal Marble',
+          // Lets a tapped notification open a screen from outside the tree.
+          navigatorKey: PushService.navigatorKey,
+          scaffoldMessengerKey: PushService.messengerKey,
           debugShowCheckedModeBanner: false,
           theme: AppTheme.light(),
           locale: l.locale,

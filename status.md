@@ -31,7 +31,11 @@ section 4 (now includes `sales@test.local`). The emulator was rebuilt on 2026-10
 1. ✅ **Phase 7 group 3 — sales screens** (done 2026-10-04, see Phase 7).
 2. ✅ **Phase 7 group 4 — live map** (done 2026-10-04, see Phase 7).
 3. ✅ **Phase 7 group 5 — dead code** (done 2026-10-04, see Phase 7).
-4. **Phase 4 client side:** push notifications wiring (`firebase_messaging`, FCM
+4. 🔄 **Phase 4 client side:** push notifications wiring — started 2026-10-05:
+   FCM tokens per admin/supervisor (`users/{uid}.fcmTokens`, `PushService`) and the
+   `notifyNewUser` trigger (new inactive profile → every active admin, in their
+   language; tap opens the user's page). Next: `left_site` etc. via `pushToUser`
+   in `functions/src/notify.ts`. Remaining original text: (`firebase_messaging`, FCM
    tokens per user, function on `device_events` for `left_site` etc.) — written and
    tested on the emulators, not deployed.
 5. iOS build prep (Maps key out of `AppDelegate.swift`, Podfile), then the admin web
