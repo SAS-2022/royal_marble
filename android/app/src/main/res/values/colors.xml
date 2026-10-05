@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- AppColors.gold: tints the notification icon. -->
+    <color name="notification_gold">#C2A64A</color>
+</resources>

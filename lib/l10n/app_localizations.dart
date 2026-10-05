@@ -3221,6 +3221,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your profile and login are deleted for good and you can no longer sign in. Attendance and pay records stay with the company. You\'ll confirm with your Google or Apple account.'**
   String get deleteMyAccountBodyProvider;
+
+  /// No description provided for @waitingApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for approval'**
+  String get waitingApproval;
 }
 
 class _AppLocalizationsDelegate

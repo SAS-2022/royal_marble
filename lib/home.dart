@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:provider/provider.dart';
+import 'package:royal_marble/account_settings/admin_user_view.dart';
 import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/core/format.dart';
 import 'package:royal_marble/core/locale_controller.dart';
@@ -364,28 +365,62 @@ class _TeamRow extends StatelessWidget {
 
 // ───────────────────────── admin ─────────────────────────
 
-class _AdminHome extends StatelessWidget {
+/// The admin's overview: four tappable counts, then who needs a look
+/// (sign-ups, people outside their site, phone problems), who is on site,
+/// today's attendance and the sites.
+class _AdminHome extends StatefulWidget {
   const _AdminHome({required this.user});
   final UserData user;
 
   @override
+  State<_AdminHome> createState() => _AdminHomeState();
+}
+
+enum _Section { pending, outside, problems, onSite }
+
+class _AdminHomeState extends State<_AdminHome> {
+  final _keys = {for (final s in _Section.values) s: GlobalKey()};
+
+  /// A tile scrolls to its list further down.
+  void _jumpTo(_Section s) {
+    final target = _keys[s]!.currentContext;
+    if (target == null) return;
+    Scrollable.ensureVisible(target,
+        duration: const Duration(milliseconds: 350), curve: Curves.easeOut);
+  }
+
+  void _openUser(UserData u) => Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (_) => UserAdminScreen(user: u, viewer: widget.user)));
+
+  @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final allUsers = Provider.of<List<UserData>>(context);
     final projects = Provider.of<List<ProjectData>>(context);
     final mockups = Provider.of<List<MockupData>>(context);
     final timesheet = Provider.of<Map<String, dynamic>>(context);
+    final byUid = {for (final u in allUsers) u.uid: u};
+
+    // Today's open stays, split by whether the person is inside the site.
+    final open = [
+      for (final e in timesheet.entries)
+        if (e.value is Map)
+          if (DayEntry.fromMap(e.value as Map).open case final s?)
+            (uid: e.key, raw: e.value as Map, session: s)
+    ]..sort((a, b) => a.session.start.compareTo(b.session.start));
+    final onSite = open.where((o) => o.session.outsideSince == null).toList();
+    final outside = open.where((o) => o.session.outsideSince != null).toList();
 
     final tracked = allUsers
         .where((u) => u.isActive == true && !primaryRole(u.roles).canMonitor)
         .toList();
-    final onSite = timesheet.values
-        .whereType<Map>()
-        .where((e) => e['isOnSite'] == true && e['leaving_at'] == null)
-        .length;
-    final attention = tracked
+    final problems = tracked
         .where((u) => DeviceStatus.fromMap(u.deviceStatus).problems.isNotEmpty)
         .toList();
-    final pending = allUsers.where((u) => u.isActive != true && u.error == null).length;
+    final pending =
+        allUsers.where((u) => u.isActive != true && u.error == null).toList();
 
     final active = projects.where((p) => p.projectStatus == 'active').toList();
     final potential = projects.where((p) => p.projectStatus == 'potential').toList();
@@ -396,74 +431,172 @@ class _AdminHome extends StatelessWidget {
         MaterialPageRoute(
             builder: (_) => TeamStatusScreen(users: allUsers, initialTab: tab)));
 
+    String nameOf(String uid, Map raw) {
+      final u = byUid[uid];
+      return '${u?.firstName ?? raw['firstName'] ?? ''} ${u?.lastName ?? raw['lastName'] ?? ''}'
+          .trim();
+    }
+
+    String hm(DateTime d) => DateFormat('HH:mm').format(d);
+
+    Widget tile(_Section s, String label, int count, IconData icon, Tone tone,
+            {VoidCallback? whenEmpty}) =>
+        Expanded(
+          child: _StatTile(
+            label: label,
+            value: '$count',
+            icon: icon,
+            tone: count == 0 ? Tone.neutral : tone,
+            onTap: count > 0 ? () => _jumpTo(s) : whenEmpty,
+          ),
+        );
+
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       children: [
-        _Greeting(user),
+        _Greeting(widget.user),
         Row(children: [
-          Expanded(
-              child: _StatTile(
-                  label: context.l10n.onSiteNow,
-                  value: '$onSite',
-                  icon: Icons.engineering,
-                  tone: Tone.ok)),
+          tile(_Section.onSite, l.onSiteNow, onSite.length, Icons.engineering, Tone.ok),
           const SizedBox(width: 10),
-          Expanded(
-              child: _StatTile(
-                  label: context.l10n.phoneAlerts,
-                  value: '${attention.length}',
-                  icon: Icons.notifications_active,
-                  tone: attention.isEmpty ? Tone.neutral : Tone.bad,
-                  onTap: () => openTeam())),
-          const SizedBox(width: 10),
-          Expanded(
-              child: _StatTile(
-                  label: context.l10n.pendingLabel,
-                  value: '$pending',
-                  icon: Icons.person_add_alt,
-                  tone: pending == 0 ? Tone.neutral : Tone.warn)),
+          tile(_Section.outside, l.outsideSite, outside.length,
+              Icons.directions_walk, Tone.warn),
         ]),
-        if (attention.isNotEmpty) ...[
-          SectionTitle(context.l10n.needsAttention,
-              trailing: TextButton(
-                  onPressed: () => openTeam(), child: Text(context.l10n.seeAll))),
-          Card(
-            child: Column(children: [
-              for (final (i, u) in attention.take(5).indexed) ...[
-                if (i > 0) const Divider(indent: 16, endIndent: 16),
-                ListTile(
-                  onTap: () => openTeam(),
-                  title: Text('${u.firstName ?? ''} ${u.lastName ?? ''}'),
-                  subtitle: Text(
-                      DeviceStatus.fromMap(u.deviceStatus)
-                          .problems
-                          .map((p) => p.text(context.l10n))
-                          .join(' · ')),
-                  trailing: Text(
-                      timeAgo(context.l10n, DeviceStatus.fromMap(u.deviceStatus).lastSeen),
-                      style: const TextStyle(fontSize: 12, color: AppColors.muted)),
-                ),
-              ],
-            ]),
-          ),
+        const SizedBox(height: 4),
+        Row(children: [
+          tile(_Section.problems, l.phoneProblems, problems.length,
+              Icons.phonelink_erase, Tone.bad,
+              whenEmpty: () => openTeam()),
+          const SizedBox(width: 10),
+          tile(_Section.pending, l.pendingLabel, pending.length,
+              Icons.person_add_alt, Tone.warn),
+        ]),
+
+        if (pending.isNotEmpty) ...[
+          SectionTitle(l.waitingApproval, key: _keys[_Section.pending]),
+          _PeopleCard(children: [
+            for (final u in pending)
+              ListTile(
+                onTap: () => _openUser(u),
+                leading: _Avatar(u.imageUrl),
+                title: Text('${u.firstName ?? ''} ${u.lastName ?? ''}'.trim()),
+                subtitle: Text(
+                    [u.emailAddress, u.phoneNumber]
+                        .whereType<String>()
+                        .where((t) => t.isNotEmpty)
+                        .join(' · '),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis),
+                trailing: const Icon(Icons.chevron_right),
+              ),
+          ]),
         ],
-        SectionTitle(context.l10n.todaysAttendance,
-            trailing: TextButton(
-                onPressed: () => openTeam(1), child: Text(context.l10n.alertLog))),
+
+        if (outside.isNotEmpty) ...[
+          SectionTitle(l.outsideSite, key: _keys[_Section.outside]),
+          _PeopleCard(children: [
+            for (final o in outside)
+              ListTile(
+                onTap: byUid[o.uid] == null ? null : () => _openUser(byUid[o.uid]!),
+                leading: _Avatar(byUid[o.uid]?.imageUrl),
+                title: Text(nameOf(o.uid, o.raw)),
+                subtitle: Text(
+                    '${o.session.siteName} · ${l.outsideSiteSince(hm(o.session.outsideSince!))}'),
+                trailing: const Icon(Icons.directions_walk, color: AppColors.warn),
+              ),
+          ]),
+        ],
+
+        if (problems.isNotEmpty) ...[
+          SectionTitle(l.phoneProblems,
+              key: _keys[_Section.problems],
+              trailing: TextButton(onPressed: () => openTeam(), child: Text(l.seeAll))),
+          _PeopleCard(children: [
+            for (final u in problems)
+              Builder(builder: (context) {
+                final status = DeviceStatus.fromMap(u.deviceStatus);
+                return ListTile(
+                  onTap: () => _openUser(u),
+                  leading: _Avatar(u.imageUrl),
+                  title: Text('${u.firstName ?? ''} ${u.lastName ?? ''}'.trim()),
+                  subtitle: Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Wrap(spacing: 6, runSpacing: 4, children: [
+                      for (final p in status.problems)
+                        StatusPill(p.text(l), tone: Tone.bad),
+                    ]),
+                  ),
+                  trailing: Text(timeAgo(l, status.lastSeen),
+                      style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+                );
+              }),
+          ]),
+        ],
+
+        if (onSite.isNotEmpty) ...[
+          SectionTitle(l.onSiteNow, key: _keys[_Section.onSite]),
+          _PeopleCard(children: [
+            for (final o in onSite)
+              Builder(builder: (context) {
+                final u = byUid[o.uid];
+                final issues = DeviceStatus.fromMap(u?.deviceStatus).problems;
+                return ListTile(
+                  onTap: u == null ? null : () => _openUser(u),
+                  leading: _Avatar(u?.imageUrl),
+                  title: Text(nameOf(o.uid, o.raw)),
+                  subtitle: Text(l.onSiteAtSince(o.session.siteName, hm(o.session.start))),
+                  trailing: issues.isEmpty
+                      ? const Icon(Icons.check_circle, color: AppColors.ok)
+                      : StatusPill(issues.first.text(l), tone: Tone.bad),
+                );
+              }),
+          ]),
+        ],
+
+        SectionTitle(l.todaysAttendance,
+            trailing: TextButton(onPressed: () => openTeam(1), child: Text(l.alertLog))),
         _Attendance(timesheet: timesheet),
-        SectionTitle(context.l10n.activeProjects(active.length)),
-        for (final p in active) _ProjectTile.project(p, user),
+        SectionTitle(l.activeProjects(active.length)),
+        for (final p in active) _ProjectTile.project(p, widget.user),
         if (activeMockups.isNotEmpty) ...[
-          SectionTitle(context.l10n.activeMockups(activeMockups.length)),
-          for (final m in activeMockups) _ProjectTile.mockup(m, user),
+          SectionTitle(l.activeMockups(activeMockups.length)),
+          for (final m in activeMockups) _ProjectTile.mockup(m, widget.user),
         ],
         if (potential.isNotEmpty) ...[
-          SectionTitle(context.l10n.potentialProjects(potential.length)),
-          for (final p in potential) _ProjectTile.project(p, user),
+          SectionTitle(l.potentialProjects(potential.length)),
+          for (final p in potential) _ProjectTile.project(p, widget.user),
         ],
       ],
     );
   }
+}
+
+/// A card of people separated by dividers.
+class _PeopleCard extends StatelessWidget {
+  const _PeopleCard({required this.children});
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => Card(
+        child: Column(children: [
+          for (final (i, c) in children.indexed) ...[
+            if (i > 0) const Divider(indent: 16, endIndent: 16),
+            c,
+          ],
+        ]),
+      );
+}
+
+class _Avatar extends StatelessWidget {
+  const _Avatar(this.url);
+  final String? url;
+
+  @override
+  Widget build(BuildContext context) => CircleAvatar(
+        radius: 18,
+        backgroundColor: AppColors.gold.withValues(alpha: 0.18),
+        foregroundImage: (url ?? '').isEmpty ? null : NetworkImage(url!),
+        child: const Icon(Icons.person, size: 18, color: AppColors.goldDeep),
+      );
 }
 
 class _StatTile extends StatelessWidget {

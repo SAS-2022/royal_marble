@@ -1796,4 +1796,7 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get deleteMyAccountBodyProvider =>
       'سيُحذف ملفك الشخصي وحساب الدخول نهائياً ولن تتمكن من تسجيل الدخول مجدداً. تبقى سجلات الحضور والرواتب لدى الشركة. ستؤكد ذلك بحساب Google أو Apple.';
+
+  @override
+  String get waitingApproval => 'بانتظار الموافقة';
 }

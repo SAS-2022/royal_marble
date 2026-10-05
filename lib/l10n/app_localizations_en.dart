@@ -1797,4 +1797,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deleteMyAccountBodyProvider =>
       'Your profile and login are deleted for good and you can no longer sign in. Attendance and pay records stay with the company. You\'ll confirm with your Google or Apple account.';
+
+  @override
+  String get waitingApproval => 'Waiting for approval';
 }

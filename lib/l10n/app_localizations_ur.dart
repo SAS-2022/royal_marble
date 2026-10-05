@@ -1797,4 +1797,7 @@ class AppLocalizationsUr extends AppLocalizations {
   @override
   String get deleteMyAccountBodyProvider =>
       'آپ کا پروفائل اور لاگ اِن ہمیشہ کے لیے حذف ہو جائے گا اور آپ دوبارہ سائن اِن نہیں کر سکیں گے۔ حاضری اور تنخواہ کا ریکارڈ کمپنی کے پاس رہے گا۔ آپ اپنے Google یا Apple اکاؤنٹ سے تصدیق کریں گے۔';
+
+  @override
+  String get waitingApproval => 'منظوری کے منتظر';
 }
