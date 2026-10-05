@@ -1,4 +1,4 @@
-import { FieldValue, getFirestore } from "firebase-admin/firestore";
+import { FieldValue, getFirestore, Timestamp } from "firebase-admin/firestore";
 import { getMessaging } from "firebase-admin/messaging";
 import { logger } from "firebase-functions/v2";
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
@@ -71,3 +71,128 @@ export const notifyNewUser = onDocumentCreated("users/{uid}", async (event) => {
   }
   logger.info(`notifyNewUser: ${event.params.uid} → ${sent} phone(s) of ${admins.size} admin(s)`);
 });
+
+type Texts = Record<string, (site: string) => string>;
+
+/**
+ * Alert texts per type, the same wording the app shows in Team Status
+ * (`ev*` strings in lib/l10n). Only these types are pushed.
+ */
+const ALERT_TEXT: Record<string, Texts> = {
+  left_site: {
+    en: (s) => `Left ${s} while checked in`,
+    ar: (s) => `غادر ${s} أثناء تسجيل الدخول`,
+    hi: (s) => `चेक-इन रहते हुए ${s} से बाहर गया`,
+    ur: (s) => `چیک اِن کے دوران ${s} سے باہر گیا`,
+  },
+  auto_checkout: {
+    en: (s) => `Checked out automatically from ${s}`,
+    ar: (s) => `تم تسجيل خروجه تلقائياً من ${s}`,
+    hi: (s) => `${s} से अपने-आप चेक-आउट हुआ`,
+    ur: (s) => `${s} سے خودکار طور پر چیک آؤٹ ہوا`,
+  },
+  silent: {
+    en: () => "Phone stopped reporting. It may be switched off, offline, or the app was force-stopped.",
+    ar: () => "توقف الهاتف عن الإرسال. قد يكون مغلقاً أو غير متصل أو تم إيقاف التطبيق.",
+    hi: () => "फ़ोन ने रिपोर्ट करना बंद कर दिया। फ़ोन बंद, ऑफ़लाइन, या ऐप ज़बरदस्ती बंद हो सकता है।",
+    ur: () => "فون نے رپورٹ کرنا بند کر دیا۔ ہو سکتا ہے فون بند ہو، آف لائن ہو یا ایپ زبردستی بند کی گئی ہو۔",
+  },
+  location_off: {
+    en: () => "Location services turned OFF",
+    ar: () => "تم إيقاف خدمة الموقع",
+    hi: () => "लोकेशन सेवा बंद की गई",
+    ur: () => "لوکیشن سروس بند کر دی گئی",
+  },
+  precise_off: {
+    en: () => "Precise location turned off",
+    ar: () => "تم إيقاف الموقع الدقيق",
+    hi: () => "सटीक लोकेशन बंद की गई",
+    ur: () => "درست لوکیشن بند کر دی گئی",
+  },
+  tracking_stopped: {
+    en: () => "Location tracking stopped",
+    ar: () => "توقف تتبع الموقع",
+    hi: () => "लोकेशन ट्रैकिंग रुक गई",
+    ur: () => "لوکیشن ٹریکنگ رک گئی",
+  },
+  mock_location: {
+    en: () => "Fake GPS / mock location detected",
+    ar: () => "تم اكتشاف موقع مزيّف",
+    hi: () => "नकली GPS लोकेशन पकड़ी गई",
+    ur: () => "جعلی GPS لوکیشن کا پتہ چلا",
+  },
+  permission_changed: {
+    en: () => "Location permission changed",
+    ar: () => "تم تغيير إذن الموقع",
+    hi: () => "लोकेशन अनुमति बदली गई",
+    ur: () => "لوکیشن کی اجازت تبدیل کی گئی",
+  },
+};
+
+/** At most one push per worker and alert type in this window. */
+const THROTTLE_MIN = 15;
+
+/** Site ids from `assignedProject` / `assignedMockup` (a map or a list of maps). */
+function siteIds(user: FirebaseFirestore.DocumentData | undefined): Set<string> {
+  const ids = new Set<string>();
+  for (const field of ["assignedProject", "assignedMockup"]) {
+    const v = user?.[field];
+    for (const a of Array.isArray(v) ? v : [v]) {
+      if (a && typeof a.id === "string") ids.add(a.id);
+    }
+  }
+  return ids;
+}
+
+/** True the first time in THROTTLE_MIN for this worker and type. */
+async function claimPushSlot(uid: string, type: string): Promise<boolean> {
+  const db = getFirestore();
+  const ref = db.collection("push_throttle").doc(`${uid}_${type}`);
+  return db.runTransaction(async (tx) => {
+    const last = (await tx.get(ref)).get("at") as Timestamp | undefined;
+    if (last && Date.now() - last.toMillis() < THROTTLE_MIN * 60_000) return false;
+    tx.set(ref, { at: Timestamp.now() });
+    return true;
+  });
+}
+
+/**
+ * Serious phone/attendance alerts (`device_events`, written by the phones and
+ * by the server) go to every active admin and to the active supervisors who
+ * share a site with the worker. Tapping opens the worker's page.
+ */
+export const notifyAlert = onDocumentCreated("device_events/{id}", async (event) => {
+  const e = event.data?.data();
+  const texts = e ? ALERT_TEXT[e.type] : undefined;
+  if (!e || !texts || e.severity === "info" || typeof e.uid !== "string") return;
+  if (!(await claimPushSlot(e.uid, e.type))) return;
+
+  const db = getFirestore();
+  const worker = (await db.collection("users").doc(e.uid).get()).data();
+  const workerSites = siteIds(worker);
+  const [admins, supervisors] = await Promise.all([
+    db.collection("users").where("roles", "array-contains", "isAdmin").get(),
+    db.collection("users").where("roles", "array-contains", "isSupervisor").get(),
+  ]);
+  const recipients = new Map<string, FirebaseFirestore.DocumentSnapshot>();
+  for (const a of admins.docs) recipients.set(a.id, a);
+  for (const s of supervisors.docs) {
+    if ([...siteIds(s.data())].some((id) => workerSites.has(id))) recipients.set(s.id, s);
+  }
+
+  const name = (e.userName as string | undefined)?.trim() ||
+    `${worker?.firstName ?? ""} ${worker?.lastName ?? ""}`.trim() || "Worker";
+  const site = (e.site as string | undefined) || "the site";
+  let sent = 0;
+  for (const r of recipients.values()) {
+    if (r.get("isActive") !== true || r.id === e.uid) continue;
+    const text = texts[r.get("language")] ?? texts.en;
+    try {
+      sent += await pushToUser(r, name, text(site), { type: "alert", uid: e.uid });
+    } catch (err) {
+      logger.error(`notifyAlert: push to ${r.id} failed`, err);
+    }
+  }
+  logger.info(`notifyAlert: ${e.type} for ${e.uid} → ${sent} phone(s) of ${recipients.size} recipient(s)`);
+});
+

@@ -95,8 +95,10 @@ class PushService {
     ));
   }
 
+  /// New sign-ups and worker alerts both open the person's page.
   static bool _canOpen(RemoteMessage m) =>
-      m.data['type'] == 'new_user' && m.data['uid'] != null;
+      (m.data['type'] == 'new_user' || m.data['type'] == 'alert') &&
+      m.data['uid'] != null;
 
   static Future<void> _open(RemoteMessage m) async {
     final viewer = _viewer;

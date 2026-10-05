@@ -9,7 +9,7 @@ import {
   legacyFields, localClock, openSession, sessionsOf, stampToMs,
 } from "./attendance";
 
-export { notifyNewUser } from "./notify";
+export { notifyAlert, notifyNewUser } from "./notify";
 
 initializeApp();
 const db = getFirestore();
