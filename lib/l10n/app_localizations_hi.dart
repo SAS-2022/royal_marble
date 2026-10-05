@@ -1767,4 +1767,29 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get close => 'बंद करें';
+
+  @override
+  String get orDivider => 'या';
+
+  @override
+  String get continueWithGoogle => 'Google के साथ जारी रखें';
+
+  @override
+  String get continueWithApple => 'Apple के साथ जारी रखें';
+
+  @override
+  String get errAccountExists =>
+      'यह ईमेल पहले से किसी दूसरे साइन-इन तरीके से पंजीकृत है। अपने ईमेल और पासवर्ड से साइन इन करें।';
+
+  @override
+  String get finishSignUp => 'साइन अप पूरा करें';
+
+  @override
+  String signedInAs(String email) {
+    return '$email के रूप में साइन इन';
+  }
+
+  @override
+  String get deleteMyAccountBodyProvider =>
+      'आपकी प्रोफ़ाइल और लॉगिन हमेशा के लिए हट जाएँगे और आप फिर साइन इन नहीं कर पाएँगे। हाज़िरी और वेतन रिकॉर्ड कंपनी के पास रहेंगे। आप अपने Google या Apple खाते से पुष्टि करेंगे।';
 }

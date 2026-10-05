@@ -1771,4 +1771,29 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get close => 'إغلاق';
+
+  @override
+  String get orDivider => 'أو';
+
+  @override
+  String get continueWithGoogle => 'المتابعة باستخدام Google';
+
+  @override
+  String get continueWithApple => 'المتابعة باستخدام Apple';
+
+  @override
+  String get errAccountExists =>
+      'هذا البريد الإلكتروني مسجّل بطريقة دخول أخرى. سجّل الدخول بالبريد الإلكتروني وكلمة المرور.';
+
+  @override
+  String get finishSignUp => 'إكمال التسجيل';
+
+  @override
+  String signedInAs(String email) {
+    return 'تم تسجيل الدخول باسم $email';
+  }
+
+  @override
+  String get deleteMyAccountBodyProvider =>
+      'سيُحذف ملفك الشخصي وحساب الدخول نهائياً ولن تتمكن من تسجيل الدخول مجدداً. تبقى سجلات الحضور والرواتب لدى الشركة. ستؤكد ذلك بحساب Google أو Apple.';
 }

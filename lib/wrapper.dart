@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:royal_marble/auth/register.dart';
 import 'package:royal_marble/auth/sign_in.dart';
 import 'package:royal_marble/core/error_reporter.dart';
 import 'package:royal_marble/core/locale_controller.dart';
@@ -21,12 +23,20 @@ class Wrapper extends StatelessWidget {
     if (auth == null || auth.uid == null) return const SignInScreen();
 
     final db = DatabaseService();
-    return StreamBuilder<UserData>(
-      stream: db.getUserPerId(uid: auth.uid),
+    return StreamBuilder<UserData?>(
+      stream: db.watchUser(auth.uid!),
       builder: (context, snap) {
+        if (snap.hasError || snap.connectionState == ConnectionState.waiting) {
+          return const Scaffold(body: Center(child: Loading()));
+        }
         final user = snap.data;
         if (user == null) {
-          return const Scaffold(body: Center(child: Loading()));
+          // Signed in with Google/Apple for the first time: no profile yet.
+          final firebaseUser = FirebaseAuth.instance.currentUser;
+          return firebaseUser == null
+              ? const Scaffold(body: Center(child: Loading()))
+              : RegisterScreen(
+                  key: ValueKey(firebaseUser.uid), socialUser: firebaseUser);
         }
         final role = primaryRole(user.roles);
         ErrorReporter.setUser(uid: user.uid, role: role.name);

@@ -130,6 +130,15 @@ supervisors see attendance, alerts and reports.
       deleted by mistake during the functions deploy (it wasn't in
       `firestore.indexes.json`, now it is). Never answer "yes" to deleting indexes
       that aren't in the file.
+- [ ] **Google sign-in (user, Firebase console):** add the SHA fingerprints to the
+      Android app (Project settings → Your apps → com.royalmarble.tracking), then
+      download the new `google-services.json` into `android/app/`.
+      Debug SHA-1 `80:12:22:69:35:E5:71:A7:69:55:06:B0:F1:97:EA:B8:E6:F1:CB:D6`,
+      SHA-256 `28:E4:9A:40:C6:68:37:75:10:E1:E7:25:9B:DC:C3:BB:6E:CB:52:BD:E0:26:FE:8A:A8:BD:B0:AD:5A:AD:4B:AD`;
+      release (`royal-keystore.jks`) SHA-1 `75:E5:33:BC:97:30:C4:7F:37:77:22:67:7F:C6:57:03:B0:97:B0:9A`,
+      SHA-256 `CF:6E:D0:1B:5D:35:EA:54:4A:EC:A8:DA:D4:92:8A:51:AF:2D:70:1B:9B:78:0E:8E:4F:C1:F2:23:64:25:ED:61`.
+      If the app is on Google Play with Play App Signing, also add the "App signing
+      key" SHA-1 from Play Console.
 - [ ] **Payment** under the contract (work paused until received)
 - [ ] Rotate or restrict the Google Maps API keys (exposed in git history)
 - [ ] A test mason account in production for end-to-end testing (emulator accounts exist)
@@ -141,7 +150,7 @@ supervisors see attendance, alerts and reports.
 ### Pending production deploys (all on hold — each needs explicit approval)
 | What | Command (add `--project royal-marble --account royalmarble.uae@gmail.com`) | Safe for old app? | Needs billing? |
 |---|---|---|---|
-| `payroll` rules (additive) | `firebase deploy --only firestore:rules` | ✅ yes | no |
+| ✅ `payroll` rules (additive) — **deployed 2026-10-05** | `firebase deploy --only firestore:rules` | ✅ yes | no |
 | ✅ Functions `checkInOut`, `reportPresence`, `autoCheckout`, `correctAttendance`, `detectSilentDevices` + index — **deployed 2026-10-05** | `firebase deploy --only functions,firestore:indexes` | ✅ yes | yes (Blaze active) |
 | Assignment migration (`functions/scripts/migrate-assignments.js`: mason map → list, stale team entries) | dry run first, then `--project royal-marble --apply` | ❌ **only after every phone runs the new app** (old app reads a mason's assignment as a map) | no |
 | Strict role-based rules | copy `firestore.strict.rules` → `firestore.rules`, deploy | ❌ **only after every phone runs the new app** | no |
@@ -597,3 +606,23 @@ Workers come from different countries; each user picks a language.
   it, so it was added to the file — restored the same day. `firebase-functions` 6.x shows an
   "outdated" warning (upgrade has breaking changes; left for later). Next: the `payroll`
   rules (first try failed with 403: run without `--account`), then check-in on a real phone against production.
+- **2026-10-05 (cont.)** — Live checks: the 3 callables refuse unsigned calls;
+  `detectSilentDevices` (04:41) and `autoCheckout` (04:46) ran in production with no
+  errors. `payroll` rules deployed by the user. Test mason `mason.test@royalmarble.test`
+  registered through the app on the emulator against production (photo, profile,
+  pending screen OK); the user approved it and assigned a site. Production test data
+  to delete afterwards: that login, its `users` doc, `profile_images/` photo, the
+  test site and its timesheets.
+  **Google/Apple sign-in added:** "Continue with Google" on sign-in and at the top
+  of registration; Apple shown on iOS only (Android would need an Apple Services ID).
+  A first-time Google/Apple user lands on the registration steps without the
+  account step (name pre-filled), then waits for approval like everyone else
+  (`Wrapper` uses `watchUser`, which returns null only when the server confirms no
+  profile; the save re-checks the server so it never overwrites a profile).
+  Account deletion re-confirms with Google/Apple instead of a password. Package
+  `google_sign_in` 7.2. 7 new strings in 4 languages; 33 tests pass. On the emulator
+  the Google button fails cleanly ("no provider dependencies": SHA fingerprints not
+  in Firebase yet and the emulator's Play services lack Credential Manager) — test
+  on a real phone after the SHA step. iOS still needs `GoogleService-Info.plist`,
+  the reversed client id URL scheme and the "Sign in with Apple" capability (part
+  of iOS build prep).

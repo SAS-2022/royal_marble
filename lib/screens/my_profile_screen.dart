@@ -17,6 +17,7 @@ import '../core/locale_controller.dart';
 import '../core/roles.dart';
 import '../models/attendance.dart' show siteAssignments;
 import '../models/user_model.dart';
+import '../services/auth.dart';
 import '../services/database.dart';
 import '../services/tracking_service.dart';
 import '../widgets/helpers_card.dart';
@@ -329,6 +330,9 @@ class _DeleteAccountDialog extends StatefulWidget {
 
 class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
   final _password = TextEditingController();
+  final _auth = AuthService();
+  // Google/Apple accounts confirm with their provider instead of a password.
+  late final _usesPassword = _auth.signInMethod == 'password';
   bool _busy = false;
   String? _error;
 
@@ -342,14 +346,18 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
     final l = context.l10n;
     final auth = FirebaseAuth.instance;
     final current = auth.currentUser;
-    if (current == null || current.email == null) return;
+    if (current == null) return;
     setState(() {
       _busy = true;
       _error = null;
     });
     try {
-      await current.reauthenticateWithCredential(EmailAuthProvider.credential(
-          email: current.email!, password: _password.text));
+      if (_usesPassword) {
+        await current.reauthenticateWithCredential(EmailAuthProvider.credential(
+            email: current.email!, password: _password.text));
+      } else {
+        await _auth.reauthenticateWithProvider();
+      }
       await TrackingService.stop();
       await FirebaseFirestore.instance.collection('users').doc(current.uid).delete();
       await current.delete();
@@ -383,14 +391,20 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
     return AlertDialog(
       title: Text(l.deleteMyAccountTitle),
       content: Column(mainAxisSize: MainAxisSize.min, children: [
-        Text(l.deleteMyAccountBody),
-        const SizedBox(height: 16),
-        TextField(
-          controller: _password,
-          obscureText: true,
-          onChanged: (_) => setState(() {}),
-          decoration: InputDecoration(labelText: l.password, errorText: _error),
-        ),
+        Text(_usesPassword ? l.deleteMyAccountBody : l.deleteMyAccountBodyProvider),
+        if (_usesPassword) ...[
+          const SizedBox(height: 16),
+          TextField(
+            controller: _password,
+            obscureText: true,
+            onChanged: (_) => setState(() {}),
+            decoration: InputDecoration(labelText: l.password, errorText: _error),
+          ),
+        ] else if (_error != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(_error!, style: const TextStyle(color: AppColors.bad)),
+            ),
       ]),
       actions: [
         TextButton(
@@ -398,7 +412,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
             child: Text(l.cancel)),
         FilledButton(
           style: FilledButton.styleFrom(backgroundColor: AppColors.bad),
-          onPressed: _busy || _password.text.isEmpty ? null : _delete,
+          onPressed: _busy || (_usesPassword && _password.text.isEmpty) ? null : _delete,
           child: Text(l.delete),
         ),
       ],

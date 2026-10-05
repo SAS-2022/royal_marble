@@ -2,6 +2,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:royal_marble/auth/forgot_pass.dart';
 import 'package:royal_marble/auth/register.dart';
+import 'package:royal_marble/auth/social_buttons.dart';
 import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/core/locale_controller.dart';
 import 'package:royal_marble/widgets/language_picker.dart';
@@ -51,15 +52,7 @@ class _SignInState extends State<SignInScreen> {
   Widget build(BuildContext context) {
     final top = MediaQuery.of(context).padding.top;
     final l10n = context.l10n;
-    final errorText = switch (_error) {
-      null => null,
-      SignInError.invalidEmail => l10n.errInvalidEmail,
-      SignInError.userDisabled => l10n.errUserDisabled,
-      SignInError.tooManyRequests => l10n.errTooManyRequests,
-      SignInError.noInternet => l10n.errNoInternet,
-      SignInError.wrongCredentials => l10n.errWrongCredentials,
-      SignInError.other => l10n.errSignInGeneric,
-    };
+    final errorText = signInErrorText(l10n, _error);
     return Scaffold(
       backgroundColor: AppColors.charcoal,
       body: SingleChildScrollView(
@@ -182,7 +175,8 @@ class _SignInState extends State<SignInScreen> {
                                 )
                               : Text(l10n.signIn),
                         ),
-                        const SizedBox(height: 20),
+                        const SocialSignInButtons(),
+                        const SizedBox(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [

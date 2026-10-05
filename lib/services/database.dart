@@ -200,6 +200,15 @@ class DatabaseService {
     return userCollection.doc(uid).snapshots().map(_singleUserDataFromSnapshot);
   }
 
+  /// The user's profile, or null once the server confirms there is none
+  /// (signed in with Google or Apple but registration not finished). A
+  /// cache-only "missing" is skipped so an offline start never looks new.
+  Stream<UserData?> watchUser(String uid) => userCollection
+      .doc(uid)
+      .snapshots()
+      .where((s) => s.exists || !s.metadata.isFromCache)
+      .map((s) => s.exists ? _singleUserDataFromSnapshot(s) : null);
+
   Stream<List<UserData>> getAllUsers() {
     return userCollection
         .orderBy('firstName')

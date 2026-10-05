@@ -1772,4 +1772,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get close => 'Close';
+
+  @override
+  String get orDivider => 'or';
+
+  @override
+  String get continueWithGoogle => 'Continue with Google';
+
+  @override
+  String get continueWithApple => 'Continue with Apple';
+
+  @override
+  String get errAccountExists =>
+      'This email already has an account with a different sign-in method. Sign in with your email and password.';
+
+  @override
+  String get finishSignUp => 'Finish signing up';
+
+  @override
+  String signedInAs(String email) {
+    return 'Signed in as $email';
+  }
+
+  @override
+  String get deleteMyAccountBodyProvider =>
+      'Your profile and login are deleted for good and you can no longer sign in. Attendance and pay records stay with the company. You\'ll confirm with your Google or Apple account.';
 }

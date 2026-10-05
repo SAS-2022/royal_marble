@@ -1772,4 +1772,29 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get close => 'بند کریں';
+
+  @override
+  String get orDivider => 'یا';
+
+  @override
+  String get continueWithGoogle => 'Google کے ساتھ جاری رکھیں';
+
+  @override
+  String get continueWithApple => 'Apple کے ساتھ جاری رکھیں';
+
+  @override
+  String get errAccountExists =>
+      'یہ ای میل پہلے سے کسی اور سائن اِن طریقے سے رجسٹرڈ ہے۔ اپنی ای میل اور پاس ورڈ سے سائن اِن کریں۔';
+
+  @override
+  String get finishSignUp => 'سائن اپ مکمل کریں';
+
+  @override
+  String signedInAs(String email) {
+    return '$email کے طور پر سائن اِن';
+  }
+
+  @override
+  String get deleteMyAccountBodyProvider =>
+      'آپ کا پروفائل اور لاگ اِن ہمیشہ کے لیے حذف ہو جائے گا اور آپ دوبارہ سائن اِن نہیں کر سکیں گے۔ حاضری اور تنخواہ کا ریکارڈ کمپنی کے پاس رہے گا۔ آپ اپنے Google یا Apple اکاؤنٹ سے تصدیق کریں گے۔';
 }

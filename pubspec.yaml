@@ -38,6 +38,7 @@ dependencies:
   syncfusion_flutter_xlsio: ^35.1.37
   connectivity_plus: ^7.3.1
   firebase_crashlytics: ^5.4.0
+  google_sign_in: ^7.2.0
  
 
 dev_dependencies:

@@ -1087,5 +1087,19 @@
   "legendSite": "Site and its check-in area",
   "zoomIn": "Zoom in",
   "zoomOut": "Zoom out",
-  "close": "Close"
+  "close": "Close",
+  "orDivider": "or",
+  "continueWithGoogle": "Continue with Google",
+  "continueWithApple": "Continue with Apple",
+  "errAccountExists": "This email already has an account with a different sign-in method. Sign in with your email and password.",
+  "finishSignUp": "Finish signing up",
+  "signedInAs": "Signed in as {email}",
+  "@signedInAs": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteMyAccountBodyProvider": "Your profile and login are deleted for good and you can no longer sign in. Attendance and pay records stay with the company. You'll confirm with your Google or Apple account."
 }

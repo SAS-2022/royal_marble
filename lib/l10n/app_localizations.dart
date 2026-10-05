@@ -3179,6 +3179,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get close;
+
+  /// No description provided for @orDivider.
+  ///
+  /// In en, this message translates to:
+  /// **'or'**
+  String get orDivider;
+
+  /// No description provided for @continueWithGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Google'**
+  String get continueWithGoogle;
+
+  /// No description provided for @continueWithApple.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Apple'**
+  String get continueWithApple;
+
+  /// No description provided for @errAccountExists.
+  ///
+  /// In en, this message translates to:
+  /// **'This email already has an account with a different sign-in method. Sign in with your email and password.'**
+  String get errAccountExists;
+
+  /// No description provided for @finishSignUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish signing up'**
+  String get finishSignUp;
+
+  /// No description provided for @signedInAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in as {email}'**
+  String signedInAs(String email);
+
+  /// No description provided for @deleteMyAccountBodyProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'Your profile and login are deleted for good and you can no longer sign in. Attendance and pay records stay with the company. You\'ll confirm with your Google or Apple account.'**
+  String get deleteMyAccountBodyProvider;
 }
 
 class _AppLocalizationsDelegate
