@@ -7,22 +7,17 @@ import 'package:royal_marble/core/error_reporter.dart';
 import 'package:royal_marble/core/roles.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/reports/reports_screen.dart';
-import 'package:royal_marble/screens/client_form_screen.dart';
 import 'package:royal_marble/screens/clients_screen.dart';
 import 'package:royal_marble/screens/live_map_screen.dart';
 import 'package:royal_marble/screens/my_profile_screen.dart';
-import 'package:royal_marble/screens/notification_settings_screen.dart';
+import 'package:royal_marble/screens/settings_screen.dart';
 import 'package:royal_marble/screens/salary_screens.dart';
-import 'package:royal_marble/screens/site_form_screen.dart';
 import 'package:royal_marble/screens/sites_screen.dart';
-import 'package:royal_marble/services/checkin_service.dart' show SiteKind;
 import 'package:royal_marble/services/push_service.dart';
 import 'package:royal_marble/screens/team_status_screen.dart';
-import 'package:royal_marble/screens/visit_form_screen.dart';
 import 'package:royal_marble/screens/visits_screen.dart';
 import 'package:royal_marble/services/auth.dart';
 import 'package:royal_marble/services/tracking_service.dart';
-import 'package:royal_marble/widgets/language_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileDrawer extends StatelessWidget {
@@ -54,60 +49,39 @@ class ProfileDrawer extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 8),
               children: [
-                _Item(Icons.person_outline, l.myProfile,
-                    () => open(MyProfileScreen(user: user))),
-                if (!admin)
-                  _Item(Icons.payments_outlined, l.myPay,
-                      () => open(MyPayScreen(user: user))),
+                // Work first; the "new …" actions live as + buttons on
+                // each list, and Reports switches between attendance and sales.
                 if (admin || supervisor) ...[
-                  _Group(l.sectionTeam),
-                  _Item(Icons.notifications_active_outlined,
-                      l.teamStatusAlerts,
+                  _Item(Icons.notifications_active_outlined, l.teamStatusAlerts,
                       () => open(TeamStatusScreen(users: allUsers ?? const []))),
                   _Item(Icons.map_outlined, l.liveMap,
                       () => open(LiveMapScreen(currentUser: user))),
                   _Item(Icons.people_outline, l.users,
                       () => open(UserGrid(currentUser: user))),
-                  _Item(Icons.tune, l.notifications,
-                      () => open(NotificationSettingsScreen(user: user, isAdmin: admin))),
                 ],
-                if (admin || sales || supervisor) ...[
-                  _Group(l.sectionSites),
-                  _Item(Icons.location_city_outlined, l.allSites,
+                if (admin || sales || supervisor)
+                  _Item(Icons.location_city_outlined, l.sectionSites,
                       () => open(SitesScreen(currentUser: user))),
-                  _Item(Icons.add_business_outlined, l.newProject,
-                      () => open(SiteFormScreen(
-                          kind: SiteKind.project,
-                          createdBy: user.uid,
-                          currentUser: user))),
-                  _Item(Icons.view_in_ar_outlined, l.newMockup,
-                      () => open(SiteFormScreen(
-                          kind: SiteKind.mockup,
-                          createdBy: user.uid,
-                          currentUser: user))),
-                ],
                 if (admin || sales) ...[
-                  _Group(l.sectionSales),
                   _Item(Icons.storefront_outlined, l.clients,
                       () => open(ClientsScreen(currentUser: user))),
-                  _Item(Icons.person_add_alt, l.addClient,
-                      () => open(ClientFormScreen(ownerId: user.uid!))),
-                  _Item(Icons.edit_calendar_outlined, l.newVisit,
-                      () => open(VisitFormScreen(currentUser: user))),
                   _Item(Icons.event_note_outlined, l.visits,
                       () => open(VisitsScreen(currentUser: user))),
                 ],
-                if (admin || supervisor) ...[
-                  _Group(l.sectionReports),
-                  _Item(Icons.schedule_outlined, l.attendance,
+                if (admin || supervisor)
+                  _Item(Icons.bar_chart_outlined, l.sectionReports,
                       () => open(ReportsScreen(canCorrect: admin))),
-                  _Item(Icons.sell_outlined, l.salesActivity,
-                      () => open(
-                          const ReportsScreen(initial: ReportKind.sales))),
-                ],
-                const Divider(height: 24),
-                _Item(Icons.language, l.language,
-                    () => showLanguagePicker(context)),
+                if (admin || supervisor || sales) const Divider(height: 24),
+                _Item(Icons.person_outline, l.myProfile,
+                    () => open(MyProfileScreen(user: user))),
+                if (!admin)
+                  _Item(Icons.payments_outlined, l.myPay,
+                      () => open(MyPayScreen(user: user))),
+                _Item(Icons.settings_outlined, l.settings,
+                    () => open(SettingsScreen(
+                        user: user,
+                        getsAlerts: admin || supervisor,
+                        isAdmin: admin))),
               ],
             ),
           ),
@@ -201,22 +175,6 @@ class _Header extends StatelessWidget {
       ]),
     );
   }
-}
-
-class _Group extends StatelessWidget {
-  const _Group(this.label);
-  final String label;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.fromLTRB(20, 18, 20, 6),
-        child: Text(label.toUpperCase(),
-            style: const TextStyle(
-                fontSize: 12,
-                letterSpacing: 1.1,
-                fontWeight: FontWeight.w700,
-                color: AppColors.muted)),
-      );
 }
 
 class _Item extends StatelessWidget {
