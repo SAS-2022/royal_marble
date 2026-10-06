@@ -5,6 +5,7 @@ import 'package:country_picker/country_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -39,8 +40,14 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   final _form = GlobalKey<FormState>();
   late final _first = TextEditingController(text: widget.user.firstName);
   late final _last = TextEditingController(text: widget.user.lastName);
-  late final _phone = TextEditingController(text: widget.user.phoneNumber);
-  late final _company = TextEditingController(text: widget.user.company);
+  // Shown as 05XXXXXXXX (older profiles may hold +9715… or spaces).
+  late final _phone = TextEditingController(
+      text: normalizeUaeMobile(widget.user.phoneNumber ?? ''));
+  // Read-only: people can't change who they work for.
+  late final _company = TextEditingController(
+      text: (widget.user.company ?? '').trim().isEmpty
+          ? 'Royal Marble'
+          : widget.user.company);
   late Map<String, dynamic>? _nationality = widget.user.nationality;
   late Map<String, dynamic>? _home = widget.user.homeAddress;
   XFile? _photo;
@@ -123,7 +130,6 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         'firstName': _first.text.trim(),
         'lastName': _last.text.trim(),
         'phoneNumber': normalizeUaeMobile(_phone.text),
-        'company': _company.text.trim(),
         if (_nationality != null)
           'nationality': {
             // Older versions of this screen saved the misspelt `contryCode`.
@@ -233,22 +239,27 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               controller: _phone,
               keyboardType: TextInputType.phone,
               textDirection: TextDirection.ltr,
+              // Same rule as registration: 05 + 8 digits.
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(10),
+              ],
               decoration: InputDecoration(
                   labelText: l.mobileNumber,
-                  hintText: '05X XXX XXXX',
+                  hintText: '05XXXXXXXX',
                   prefixIcon: const Icon(Icons.phone_outlined)),
               validator: (v) =>
-                  uaeMobile.hasMatch((v ?? '').replaceAll(RegExp(r'[\s-]'), ''))
-                      ? null
-                      : l.mobileInvalid,
+                  RegExp(r'^05\d{8}$').hasMatch(v ?? '') ? null : l.mobileInvalid,
             ),
             const SizedBox(height: 12),
             TextFormField(
               controller: _company,
-              textCapitalization: TextCapitalization.words,
+              readOnly: true,
+              enableInteractiveSelection: false,
               decoration: InputDecoration(
                   labelText: l.company,
-                  prefixIcon: const Icon(Icons.business_outlined)),
+                  prefixIcon: const Icon(Icons.business_outlined),
+                  suffixIcon: const Icon(Icons.lock_outline, color: AppColors.muted)),
             ),
             const SizedBox(height: 12),
             _PickerField(

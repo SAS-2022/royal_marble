@@ -1800,4 +1800,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get waitingApproval => 'Waiting for approval';
+
+  @override
+  String get notifications => 'Notifications';
+
+  @override
+  String get notificationsIntro =>
+      'Choose which alerts send a notification to this phone. Every alert still shows in the app.';
+
+  @override
+  String get notifyNewUsers => 'New sign-ups';
+
+  @override
+  String get notifyLeftSite => 'Worker left the site';
+
+  @override
+  String get notifyAutoCheckout => 'Automatic check-outs';
+
+  @override
+  String get notifyPhoneProblemsHint =>
+      'Location off, not reporting, tracking stopped, fake GPS';
+
+  @override
+  String get notificationsBlocked =>
+      'Notifications are blocked for Royal Marble in your phone settings.';
 }

@@ -11,6 +11,13 @@ const NEW_USER_TEXT: Record<string, { title: string; body: (name: string) => str
   ur: { title: "نئی رجسٹریشن", body: (n) => `${n} منظوری کا منتظر ہے۔` },
 };
 
+/**
+ * The person's switch for an alert group (`users/{uid}.notify.{key}`, set in
+ * the app's Notifications screen). Missing means on.
+ */
+const wants = (user: FirebaseFirestore.DocumentSnapshot, key: string) =>
+  user.get(`notify.${key}`) !== false;
+
 /** Tokens FCM reports as gone; they are removed from the profile. */
 const DEAD_TOKEN_CODES = new Set([
   "messaging/registration-token-not-registered",
@@ -61,6 +68,7 @@ export const notifyNewUser = onDocumentCreated("users/{uid}", async (event) => {
   let sent = 0;
   for (const admin of admins.docs) {
     if (admin.get("isActive") !== true || admin.id === event.params.uid) continue;
+    if (!wants(admin, "newUsers")) continue;
     const text = NEW_USER_TEXT[admin.get("language")] ?? NEW_USER_TEXT.en;
     try {
       sent += await pushToUser(admin, text.title, text.body(name),
@@ -129,6 +137,12 @@ const ALERT_TEXT: Record<string, Texts> = {
   },
 };
 
+/** The Notifications switch each alert type belongs to; the rest are phone problems. */
+const ALERT_GROUP: Record<string, string> = {
+  left_site: "leftSite",
+  auto_checkout: "autoCheckout",
+};
+
 /** At most one push per worker and alert type in this window. */
 const THROTTLE_MIN = 15;
 
@@ -186,6 +200,7 @@ export const notifyAlert = onDocumentCreated("device_events/{id}", async (event)
   let sent = 0;
   for (const r of recipients.values()) {
     if (r.get("isActive") !== true || r.id === e.uid) continue;
+    if (!wants(r, ALERT_GROUP[e.type] ?? "phoneProblems")) continue;
     const text = texts[r.get("language")] ?? texts.en;
     try {
       sent += await pushToUser(r, name, text(site), { type: "alert", uid: e.uid });

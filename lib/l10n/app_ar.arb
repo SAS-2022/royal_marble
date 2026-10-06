@@ -520,5 +520,12 @@
   "finishSignUp": "إكمال التسجيل",
   "signedInAs": "تم تسجيل الدخول باسم {email}",
   "deleteMyAccountBodyProvider": "سيُحذف ملفك الشخصي وحساب الدخول نهائياً ولن تتمكن من تسجيل الدخول مجدداً. تبقى سجلات الحضور والرواتب لدى الشركة. ستؤكد ذلك بحساب Google أو Apple.",
-  "waitingApproval": "بانتظار الموافقة"
+  "waitingApproval": "بانتظار الموافقة",
+  "notifications": "الإشعارات",
+  "notificationsIntro": "اختر التنبيهات التي ترسل إشعاراً إلى هذا الهاتف. تظهر جميع التنبيهات في التطبيق دائماً.",
+  "notifyNewUsers": "تسجيلات جديدة",
+  "notifyLeftSite": "عامل غادر الموقع",
+  "notifyAutoCheckout": "تسجيل خروج تلقائي",
+  "notifyPhoneProblemsHint": "إيقاف الموقع، توقف الإرسال، توقف التتبع، موقع مزيّف",
+  "notificationsBlocked": "الإشعارات محظورة لتطبيق Royal Marble في إعدادات هاتفك."
 }

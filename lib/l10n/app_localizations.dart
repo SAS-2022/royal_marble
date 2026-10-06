@@ -3227,6 +3227,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Waiting for approval'**
   String get waitingApproval;
+
+  /// No description provided for @notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notifications;
+
+  /// No description provided for @notificationsIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose which alerts send a notification to this phone. Every alert still shows in the app.'**
+  String get notificationsIntro;
+
+  /// No description provided for @notifyNewUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'New sign-ups'**
+  String get notifyNewUsers;
+
+  /// No description provided for @notifyLeftSite.
+  ///
+  /// In en, this message translates to:
+  /// **'Worker left the site'**
+  String get notifyLeftSite;
+
+  /// No description provided for @notifyAutoCheckout.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic check-outs'**
+  String get notifyAutoCheckout;
+
+  /// No description provided for @notifyPhoneProblemsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Location off, not reporting, tracking stopped, fake GPS'**
+  String get notifyPhoneProblemsHint;
+
+  /// No description provided for @notificationsBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are blocked for Royal Marble in your phone settings.'**
+  String get notificationsBlocked;
 }
 
 class _AppLocalizationsDelegate

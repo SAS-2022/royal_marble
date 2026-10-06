@@ -520,5 +520,12 @@
   "finishSignUp": "سائن اپ مکمل کریں",
   "signedInAs": "{email} کے طور پر سائن اِن",
   "deleteMyAccountBodyProvider": "آپ کا پروفائل اور لاگ اِن ہمیشہ کے لیے حذف ہو جائے گا اور آپ دوبارہ سائن اِن نہیں کر سکیں گے۔ حاضری اور تنخواہ کا ریکارڈ کمپنی کے پاس رہے گا۔ آپ اپنے Google یا Apple اکاؤنٹ سے تصدیق کریں گے۔",
-  "waitingApproval": "منظوری کے منتظر"
+  "waitingApproval": "منظوری کے منتظر",
+  "notifications": "اطلاعات",
+  "notificationsIntro": "منتخب کریں کہ کون سے الرٹ اس فون پر اطلاع بھیجیں۔ تمام الرٹ ایپ میں ہمیشہ نظر آتے ہیں۔",
+  "notifyNewUsers": "نئی رجسٹریشن",
+  "notifyLeftSite": "کارکن سائٹ سے باہر گیا",
+  "notifyAutoCheckout": "خودکار چیک آؤٹ",
+  "notifyPhoneProblemsHint": "لوکیشن بند، رپورٹ نہیں، ٹریکنگ رکی، جعلی GPS",
+  "notificationsBlocked": "آپ کے فون کی ترتیبات میں Royal Marble کی اطلاعات بند ہیں۔"
 }

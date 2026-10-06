@@ -1800,4 +1800,28 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get waitingApproval => 'منظوری کے منتظر';
+
+  @override
+  String get notifications => 'اطلاعات';
+
+  @override
+  String get notificationsIntro =>
+      'منتخب کریں کہ کون سے الرٹ اس فون پر اطلاع بھیجیں۔ تمام الرٹ ایپ میں ہمیشہ نظر آتے ہیں۔';
+
+  @override
+  String get notifyNewUsers => 'نئی رجسٹریشن';
+
+  @override
+  String get notifyLeftSite => 'کارکن سائٹ سے باہر گیا';
+
+  @override
+  String get notifyAutoCheckout => 'خودکار چیک آؤٹ';
+
+  @override
+  String get notifyPhoneProblemsHint =>
+      'لوکیشن بند، رپورٹ نہیں، ٹریکنگ رکی، جعلی GPS';
+
+  @override
+  String get notificationsBlocked =>
+      'آپ کے فون کی ترتیبات میں Royal Marble کی اطلاعات بند ہیں۔';
 }

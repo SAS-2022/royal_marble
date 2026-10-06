@@ -1102,5 +1102,12 @@
     }
   },
   "deleteMyAccountBodyProvider": "Your profile and login are deleted for good and you can no longer sign in. Attendance and pay records stay with the company. You'll confirm with your Google or Apple account.",
-  "waitingApproval": "Waiting for approval"
+  "waitingApproval": "Waiting for approval",
+  "notifications": "Notifications",
+  "notificationsIntro": "Choose which alerts send a notification to this phone. Every alert still shows in the app.",
+  "notifyNewUsers": "New sign-ups",
+  "notifyLeftSite": "Worker left the site",
+  "notifyAutoCheckout": "Automatic check-outs",
+  "notifyPhoneProblemsHint": "Location off, not reporting, tracking stopped, fake GPS",
+  "notificationsBlocked": "Notifications are blocked for Royal Marble in your phone settings."
 }

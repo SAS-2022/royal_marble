@@ -11,6 +11,7 @@ import 'package:royal_marble/screens/client_form_screen.dart';
 import 'package:royal_marble/screens/clients_screen.dart';
 import 'package:royal_marble/screens/live_map_screen.dart';
 import 'package:royal_marble/screens/my_profile_screen.dart';
+import 'package:royal_marble/screens/notification_settings_screen.dart';
 import 'package:royal_marble/screens/salary_screens.dart';
 import 'package:royal_marble/screens/site_form_screen.dart';
 import 'package:royal_marble/screens/sites_screen.dart';
@@ -67,6 +68,8 @@ class ProfileDrawer extends StatelessWidget {
                       () => open(LiveMapScreen(currentUser: user))),
                   _Item(Icons.people_outline, l.users,
                       () => open(UserGrid(currentUser: user))),
+                  _Item(Icons.tune, l.notifications,
+                      () => open(NotificationSettingsScreen(user: user, isAdmin: admin))),
                 ],
                 if (admin || sales || supervisor) ...[
                   _Group(l.sectionSites),

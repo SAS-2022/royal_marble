@@ -1799,4 +1799,28 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get waitingApproval => 'بانتظار الموافقة';
+
+  @override
+  String get notifications => 'الإشعارات';
+
+  @override
+  String get notificationsIntro =>
+      'اختر التنبيهات التي ترسل إشعاراً إلى هذا الهاتف. تظهر جميع التنبيهات في التطبيق دائماً.';
+
+  @override
+  String get notifyNewUsers => 'تسجيلات جديدة';
+
+  @override
+  String get notifyLeftSite => 'عامل غادر الموقع';
+
+  @override
+  String get notifyAutoCheckout => 'تسجيل خروج تلقائي';
+
+  @override
+  String get notifyPhoneProblemsHint =>
+      'إيقاف الموقع، توقف الإرسال، توقف التتبع، موقع مزيّف';
+
+  @override
+  String get notificationsBlocked =>
+      'الإشعارات محظورة لتطبيق Royal Marble في إعدادات هاتفك.';
 }

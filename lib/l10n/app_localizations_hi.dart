@@ -1795,4 +1795,28 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get waitingApproval => 'स्वीकृति की प्रतीक्षा में';
+
+  @override
+  String get notifications => 'सूचनाएँ';
+
+  @override
+  String get notificationsIntro =>
+      'चुनें कि कौन-से अलर्ट इस फ़ोन पर सूचना भेजें। सभी अलर्ट ऐप में हमेशा दिखते हैं।';
+
+  @override
+  String get notifyNewUsers => 'नए पंजीकरण';
+
+  @override
+  String get notifyLeftSite => 'कर्मचारी साइट से बाहर गया';
+
+  @override
+  String get notifyAutoCheckout => 'अपने-आप चेक-आउट';
+
+  @override
+  String get notifyPhoneProblemsHint =>
+      'लोकेशन बंद, रिपोर्ट नहीं, ट्रैकिंग रुकी, नकली GPS';
+
+  @override
+  String get notificationsBlocked =>
+      'आपके फ़ोन की सेटिंग में Royal Marble की सूचनाएँ बंद हैं।';
 }
