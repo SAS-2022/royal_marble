@@ -46,6 +46,9 @@ export async function pushToUser(
     const code = res.responses[i].error?.code;
     return code != null && DEAD_TOKEN_CODES.has(code);
   });
+  // e.g. "messaging/third-party-auth-error" = no APNs key in Firebase for iPhones.
+  const failed = res.responses.map((r) => r.error?.code).filter((c) => c != null);
+  if (failed.length) logger.warn(`pushToUser ${user.id}: ${failed.join(", ")}`);
   if (dead.length) {
     await user.ref.update({ fcmTokens: FieldValue.arrayRemove(...dead) });
   }
