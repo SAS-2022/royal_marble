@@ -694,3 +694,17 @@ Workers come from different countries; each user picks a language.
   phone problems, on site). Fixed the blank notification icon (white vector icon)
   and added a high-importance Alerts channel. An accidental `flutter run -d all`
   built macOS and rewrote `macos/` files — reverted; use explicit `-d` ids.
+- **2026-10-07** — iOS set up and running on the user's iPhone ("Wiss", iOS 26.2,
+  wireless): `ios/Runner/GoogleService-Info.plist` (iOS app already registered in
+  Firebase), entitlements (push `aps-environment`, Sign in with Apple), background
+  `remote-notification`, iOS 15 target, fresh `Podfile.lock`, static pods
+  (Transistorsoft ships static xcframeworks). Google sign-in on iOS not possible
+  yet: the iOS config has no CLIENT_ID (enable/regenerate in Firebase). APNs:
+  Apple's 2-key limit was reached, so the existing team-scoped key `45J423HW4P`
+  (Sandbox & Production) was uploaded to Firebase Cloud Messaging by the user.
+  Test run on the emulator (mason) with admin on iPhone + Motorola: location off/on
+  → push; battery saver → in-app only (no push, by design); check-in/out at Test
+  Site OK; internet cut 04:50 → "silent" push at 05:11. After the APNs key both
+  admin phones got the pushes ("2 phone(s)"). Pending: deploy of the notification
+  switches + per-token failure logging (`526491c`); Sign in with Apple key for
+  token revocation before App Store review; the emulator still has battery saver on.
