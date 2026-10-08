@@ -4,11 +4,25 @@ Living tracker for this project, kept up to date across chat sessions.
 **Read this first when resuming work. Update it after every step: tick tasks, change
 phase status, and add a line to the session log.**
 
-_Last updated: 2026-10-05 (end of session)_
+_Last updated: 2026-10-08 (end of session)_
 
 ---
 
-## 0. Next session — start here (written 2026-10-05)
+## 0. Next session — start here (written 2026-10-08)
+
+**Resume here (2026-10-08):** finish testing the per-worker mutes. On the Motorola
+(admin), open the test mason's page → "Notifications about …" → switch **Check
+in/out** off; then check the mason in on the emulator (Test Site). Expected log:
+`pushWorkerAlert: check_in … → 1 phone(s)` (iPhone only) and nothing on the Motorola.
+Then switch it back on. Afterwards: try the other groups (location off → `location`,
+returned/left → needs a real phone), and a permission change back to "Always".
+State at pause: functions with all the new pushes **deployed** (by the user); test
+mason **checked out** at 08:40; emulator location on, battery saver off; Motorola
+connected by USB with the latest build; iPhone wireless debug fails to attach
+("mDNS query failed") — use USB or fix Local Network permission before iOS tests.
+Everything committed, not pushed.
+
+### Earlier notes (2026-10-05)
 
 **Where things stand:** all work is committed on `revive-2026` but **not pushed**.
 Production now runs the new backend: Blaze is active, and all functions, the indexes
@@ -419,8 +433,11 @@ Code done 2026-10-03, verified on the emulators; nothing deployed.
 - [x] Push wiring (2026-10-05): `firebase_messaging`, `lib/services/push_service.dart`
       (tokens for admins/supervisors, snack bar in the foreground, tap opens the
       screen), `functions/src/notify.ts` (`pushToUser`, `notifyNewUser`).
-- [ ] Verify background / closed-app delivery on a phone.
-- [ ] Cloud Function on `device_events` that pushes critical types (`left_site`,
+- [x] Background / closed-app delivery verified (Motorola locked 2026-10-05; iPhone
+      swiped away 2026-10-08).
+- [x] Check-in/out/switch, returned-to-site, permission-back-to-Always pushes;
+      per-worker mutes per viewer (2026-10-08). Mute switches not yet tested live.
+- [x] Cloud Function on `device_events` that pushes critical types (`left_site`,
       `silent`, `auto_checkout`) to admins and the site's supervisor.
 - Notification settings (which alerts, quiet hours).
 
@@ -724,4 +741,8 @@ Workers come from different countries; each user picks a language.
   `presence` (left/returned/auto check-out), `location`, `connection` (silent),
   `phoneSettings`; missing = on (check-ins on by default, user's choice). Notifications
   screen got a global "Check-ins and check-outs" switch. 31 emulator scenarios pass.
-  **Functions deploy pending** (dry run clean; the user runs it).
+  Functions deployed by the user. Live test: emulator mason checked out 08:40 →
+  "check_out → 2 phone(s) of 3 recipient(s)"; the Motorola (app open) showed the
+  snack bar, "Details" opened the worker's page. iPhone: two wireless launches failed
+  ("mDNS query failed", debugger never attached), so the Motorola (USB) was used.
+  Paused by the user before the mute test (plan in section 0).
