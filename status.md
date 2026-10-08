@@ -716,3 +716,12 @@ Workers come from different countries; each user picks a language.
   debug build launched without Xcode/`flutter run`; re-check the tap on a release /
   TestFlight build. Emulator battery saver is off, location back on. The test mason is
   still checked in at Test Site (end-of-day auto check-out at 22:00 will close it).
+- **2026-10-08 (cont.)** — Per the user: check-in, check-out and site switch now push
+  (from `checkInOut`, not throttled), as do `returned_to_site` and permission back to
+  "Always" (`permission_always`). All worker pushes go through `pushWorkerAlert`
+  (`notify.ts`). New per-worker mutes on the worker's page, **per viewer** (user's
+  choice): `users/{viewer}.notifyAbout.{workerUid}.{group}` with groups `checkInOut`,
+  `presence` (left/returned/auto check-out), `location`, `connection` (silent),
+  `phoneSettings`; missing = on (check-ins on by default, user's choice). Notifications
+  screen got a global "Check-ins and check-outs" switch. 31 emulator scenarios pass.
+  **Functions deploy pending** (dry run clean; the user runs it).
