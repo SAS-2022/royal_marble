@@ -1811,7 +1811,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get notifyNewUsers => 'تسجيلات جديدة';
 
   @override
-  String get notifyLeftSite => 'عامل غادر الموقع';
+  String get notifyLeftSite => 'عامل غادر الموقع أو عاد إليه';
 
   @override
   String get notifyAutoCheckout => 'تسجيل خروج تلقائي';
@@ -1823,4 +1823,39 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get notificationsBlocked =>
       'الإشعارات محظورة لتطبيق Royal Marble في إعدادات هاتفك.';
+
+  @override
+  String get notifyCheckInOut => 'تسجيل الدخول والخروج';
+
+  @override
+  String get notifyCheckInOutHint =>
+      'تسجيل الدخول والخروج والانتقال إلى موقع آخر';
+
+  @override
+  String notifyAboutTitle(String name) {
+    return 'الإشعارات الخاصة بـ $name';
+  }
+
+  @override
+  String get notifyAboutIntro =>
+      'لك أنت فقط. تبقى التنبيهات الخاصة بهذا الشخص ظاهرة في التطبيق.';
+
+  @override
+  String get notifyGroupPresence => 'مغادرة الموقع والعودة إليه';
+
+  @override
+  String get notifyGroupPresenceHint => 'يشمل تسجيل الخروج التلقائي';
+
+  @override
+  String get notifyGroupLocation => 'إيقاف الموقع';
+
+  @override
+  String get notifyGroupConnection => 'لا إنترنت / توقف الإرسال';
+
+  @override
+  String get notifyGroupPhoneSettings => 'إعدادات الهاتف';
+
+  @override
+  String get notifyGroupPhoneSettingsHint =>
+      'الموقع الدقيق، الإذن، التتبع، الموقع المزيّف';
 }

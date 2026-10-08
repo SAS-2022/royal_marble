@@ -1812,7 +1812,7 @@ class AppLocalizationsUr extends AppLocalizations {
   String get notifyNewUsers => 'نئی رجسٹریشن';
 
   @override
-  String get notifyLeftSite => 'کارکن سائٹ سے باہر گیا';
+  String get notifyLeftSite => 'کارکن سائٹ سے باہر گیا یا واپس آیا';
 
   @override
   String get notifyAutoCheckout => 'خودکار چیک آؤٹ';
@@ -1824,4 +1824,38 @@ class AppLocalizationsUr extends AppLocalizations {
   @override
   String get notificationsBlocked =>
       'آپ کے فون کی ترتیبات میں Royal Marble کی اطلاعات بند ہیں۔';
+
+  @override
+  String get notifyCheckInOut => 'چیک اِن اور چیک آؤٹ';
+
+  @override
+  String get notifyCheckInOutHint => 'چیک اِن، چیک آؤٹ اور دوسری سائٹ پر جانا';
+
+  @override
+  String notifyAboutTitle(String name) {
+    return '$name کی اطلاعات';
+  }
+
+  @override
+  String get notifyAboutIntro =>
+      'صرف آپ کے لیے۔ اس شخص کے الرٹس ایپ میں دکھتے رہیں گے۔';
+
+  @override
+  String get notifyGroupPresence => 'سائٹ سے جانا اور واپس آنا';
+
+  @override
+  String get notifyGroupPresenceHint => 'خودکار چیک آؤٹ بھی شامل';
+
+  @override
+  String get notifyGroupLocation => 'لوکیشن بند کی گئی';
+
+  @override
+  String get notifyGroupConnection => 'انٹرنیٹ نہیں / رپورٹ نہیں';
+
+  @override
+  String get notifyGroupPhoneSettings => 'فون کی سیٹنگز';
+
+  @override
+  String get notifyGroupPhoneSettingsHint =>
+      'درست لوکیشن، اجازت، ٹریکنگ، جعلی GPS';
 }

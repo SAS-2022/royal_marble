@@ -1812,7 +1812,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifyNewUsers => 'New sign-ups';
 
   @override
-  String get notifyLeftSite => 'Worker left the site';
+  String get notifyLeftSite => 'Worker left or returned to the site';
 
   @override
   String get notifyAutoCheckout => 'Automatic check-outs';
@@ -1824,4 +1824,39 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get notificationsBlocked =>
       'Notifications are blocked for Royal Marble in your phone settings.';
+
+  @override
+  String get notifyCheckInOut => 'Check-ins and check-outs';
+
+  @override
+  String get notifyCheckInOutHint =>
+      'Check-in, check-out and moving to another site';
+
+  @override
+  String notifyAboutTitle(String name) {
+    return 'Notifications about $name';
+  }
+
+  @override
+  String get notifyAboutIntro =>
+      'Only for you. Alerts about this person still show in the app.';
+
+  @override
+  String get notifyGroupPresence => 'Leaving and returning to the site';
+
+  @override
+  String get notifyGroupPresenceHint => 'Includes automatic check-outs';
+
+  @override
+  String get notifyGroupLocation => 'Location turned off';
+
+  @override
+  String get notifyGroupConnection => 'No internet / not reporting';
+
+  @override
+  String get notifyGroupPhoneSettings => 'Phone settings';
+
+  @override
+  String get notifyGroupPhoneSettingsHint =>
+      'Precise location, permission, tracking, fake GPS';
 }

@@ -9,6 +9,8 @@ import {
   legacyFields, localClock, openSession, sessionsOf, stampToMs,
 } from "./attendance";
 
+import { pushWorkerAlert } from "./notify";
+
 export { notifyAlert, notifyNewUser } from "./notify";
 
 initializeApp();
@@ -143,7 +145,7 @@ export const checkInOut = onCall(async (req: CallableRequest<CheckInRequest>) =>
   // Older report screens read `workCompleted`, including this misspelt key.
   const legacyWork = work ? { workCompleted: { ...work, sqaureMeters: work.squareMeters } } : {};
 
-  return db.runTransaction(async (tx) => {
+  const result = await db.runTransaction(async (tx) => {
     const sheet = (await tx.get(sheetRef)).data() ?? {};
     const entry = sheet[uid] as Entry | undefined;
     const sessions = sessionsOf(entry);
@@ -204,6 +206,17 @@ export const checkInOut = onCall(async (req: CallableRequest<CheckInRequest>) =>
     }, { merge: true });
     return { status: "checked_out", day: dayId, time: stamp, distance: Math.round(distance) };
   });
+
+  // Admins and the site's supervisors follow check-ins; a failed push never
+  // fails the check-in.
+  const alert = result.status === "checked_in" ? "check_in" :
+    result.status === "switched" ? "site_switch" : "check_out";
+  try {
+    await pushWorkerAlert(uid, alert, siteName, `${user.firstName ?? ""} ${user.lastName ?? ""}`);
+  } catch (e) {
+    logger.error(`checkInOut: ${alert} push for ${uid} failed`, e);
+  }
+  return result;
 });
 
 interface PresenceRequest {

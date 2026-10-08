@@ -45,6 +45,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       // Only admins get new sign-ups.
       if (widget.isAdmin)
         ('newUsers', Icons.person_add_alt, l.notifyNewUsers, null),
+      ('checkInOut', Icons.login, l.notifyCheckInOut, l.notifyCheckInOutHint),
       ('leftSite', Icons.directions_walk, l.notifyLeftSite, null),
       ('autoCheckout', Icons.timer_off_outlined, l.notifyAutoCheckout, null),
       ('phoneProblems', Icons.phonelink_erase, l.phoneProblems, l.notifyPhoneProblemsHint),

@@ -13,6 +13,7 @@ import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/shared/loading.dart';
 import 'package:royal_marble/widgets/helpers_card.dart';
 import 'package:royal_marble/widgets/status_widgets.dart';
+import 'package:royal_marble/widgets/worker_notify_card.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Opens another user live (role or access changes show at once) for an
@@ -271,6 +272,9 @@ class AdminUserView extends StatelessWidget {
                 child: AlertsFeed(uid: user.uid, limit: 100),
               ),
             ),
+            SectionTitle(context.l10n.notifyAboutTitle(
+                '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim())),
+            WorkerNotifyCard(workerUid: user.uid!, viewerUid: viewer.uid!),
           ],
 
           if (active && role == AppRole.worker)

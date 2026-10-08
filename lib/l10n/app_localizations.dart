@@ -3249,7 +3249,7 @@ abstract class AppLocalizations {
   /// No description provided for @notifyLeftSite.
   ///
   /// In en, this message translates to:
-  /// **'Worker left the site'**
+  /// **'Worker left or returned to the site'**
   String get notifyLeftSite;
 
   /// No description provided for @notifyAutoCheckout.
@@ -3269,6 +3269,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notifications are blocked for Royal Marble in your phone settings.'**
   String get notificationsBlocked;
+
+  /// No description provided for @notifyCheckInOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-ins and check-outs'**
+  String get notifyCheckInOut;
+
+  /// No description provided for @notifyCheckInOutHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-in, check-out and moving to another site'**
+  String get notifyCheckInOutHint;
+
+  /// No description provided for @notifyAboutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications about {name}'**
+  String notifyAboutTitle(String name);
+
+  /// No description provided for @notifyAboutIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Only for you. Alerts about this person still show in the app.'**
+  String get notifyAboutIntro;
+
+  /// No description provided for @notifyGroupPresence.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaving and returning to the site'**
+  String get notifyGroupPresence;
+
+  /// No description provided for @notifyGroupPresenceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes automatic check-outs'**
+  String get notifyGroupPresenceHint;
+
+  /// No description provided for @notifyGroupLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location turned off'**
+  String get notifyGroupLocation;
+
+  /// No description provided for @notifyGroupConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet / not reporting'**
+  String get notifyGroupConnection;
+
+  /// No description provided for @notifyGroupPhoneSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone settings'**
+  String get notifyGroupPhoneSettings;
+
+  /// No description provided for @notifyGroupPhoneSettingsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Precise location, permission, tracking, fake GPS'**
+  String get notifyGroupPhoneSettingsHint;
 }
 
 class _AppLocalizationsDelegate

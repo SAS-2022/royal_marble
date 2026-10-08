@@ -1106,8 +1106,25 @@
   "notifications": "Notifications",
   "notificationsIntro": "Choose which alerts send a notification to this phone. Every alert still shows in the app.",
   "notifyNewUsers": "New sign-ups",
-  "notifyLeftSite": "Worker left the site",
+  "notifyLeftSite": "Worker left or returned to the site",
   "notifyAutoCheckout": "Automatic check-outs",
   "notifyPhoneProblemsHint": "Location off, not reporting, tracking stopped, fake GPS",
-  "notificationsBlocked": "Notifications are blocked for Royal Marble in your phone settings."
+  "notificationsBlocked": "Notifications are blocked for Royal Marble in your phone settings.",
+  "notifyCheckInOut": "Check-ins and check-outs",
+  "notifyCheckInOutHint": "Check-in, check-out and moving to another site",
+  "notifyAboutTitle": "Notifications about {name}",
+  "@notifyAboutTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "notifyAboutIntro": "Only for you. Alerts about this person still show in the app.",
+  "notifyGroupPresence": "Leaving and returning to the site",
+  "notifyGroupPresenceHint": "Includes automatic check-outs",
+  "notifyGroupLocation": "Location turned off",
+  "notifyGroupConnection": "No internet / not reporting",
+  "notifyGroupPhoneSettings": "Phone settings",
+  "notifyGroupPhoneSettingsHint": "Precise location, permission, tracking, fake GPS"
 }

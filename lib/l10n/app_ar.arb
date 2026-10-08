@@ -524,8 +524,18 @@
   "notifications": "الإشعارات",
   "notificationsIntro": "اختر التنبيهات التي ترسل إشعاراً إلى هذا الهاتف. تظهر جميع التنبيهات في التطبيق دائماً.",
   "notifyNewUsers": "تسجيلات جديدة",
-  "notifyLeftSite": "عامل غادر الموقع",
+  "notifyLeftSite": "عامل غادر الموقع أو عاد إليه",
   "notifyAutoCheckout": "تسجيل خروج تلقائي",
   "notifyPhoneProblemsHint": "إيقاف الموقع، توقف الإرسال، توقف التتبع، موقع مزيّف",
-  "notificationsBlocked": "الإشعارات محظورة لتطبيق Royal Marble في إعدادات هاتفك."
+  "notificationsBlocked": "الإشعارات محظورة لتطبيق Royal Marble في إعدادات هاتفك.",
+  "notifyCheckInOut": "تسجيل الدخول والخروج",
+  "notifyCheckInOutHint": "تسجيل الدخول والخروج والانتقال إلى موقع آخر",
+  "notifyAboutTitle": "الإشعارات الخاصة بـ {name}",
+  "notifyAboutIntro": "لك أنت فقط. تبقى التنبيهات الخاصة بهذا الشخص ظاهرة في التطبيق.",
+  "notifyGroupPresence": "مغادرة الموقع والعودة إليه",
+  "notifyGroupPresenceHint": "يشمل تسجيل الخروج التلقائي",
+  "notifyGroupLocation": "إيقاف الموقع",
+  "notifyGroupConnection": "لا إنترنت / توقف الإرسال",
+  "notifyGroupPhoneSettings": "إعدادات الهاتف",
+  "notifyGroupPhoneSettingsHint": "الموقع الدقيق، الإذن، التتبع، الموقع المزيّف"
 }

@@ -524,8 +524,18 @@
   "notifications": "اطلاعات",
   "notificationsIntro": "منتخب کریں کہ کون سے الرٹ اس فون پر اطلاع بھیجیں۔ تمام الرٹ ایپ میں ہمیشہ نظر آتے ہیں۔",
   "notifyNewUsers": "نئی رجسٹریشن",
-  "notifyLeftSite": "کارکن سائٹ سے باہر گیا",
+  "notifyLeftSite": "کارکن سائٹ سے باہر گیا یا واپس آیا",
   "notifyAutoCheckout": "خودکار چیک آؤٹ",
   "notifyPhoneProblemsHint": "لوکیشن بند، رپورٹ نہیں، ٹریکنگ رکی، جعلی GPS",
-  "notificationsBlocked": "آپ کے فون کی ترتیبات میں Royal Marble کی اطلاعات بند ہیں۔"
+  "notificationsBlocked": "آپ کے فون کی ترتیبات میں Royal Marble کی اطلاعات بند ہیں۔",
+  "notifyCheckInOut": "چیک اِن اور چیک آؤٹ",
+  "notifyCheckInOutHint": "چیک اِن، چیک آؤٹ اور دوسری سائٹ پر جانا",
+  "notifyAboutTitle": "{name} کی اطلاعات",
+  "notifyAboutIntro": "صرف آپ کے لیے۔ اس شخص کے الرٹس ایپ میں دکھتے رہیں گے۔",
+  "notifyGroupPresence": "سائٹ سے جانا اور واپس آنا",
+  "notifyGroupPresenceHint": "خودکار چیک آؤٹ بھی شامل",
+  "notifyGroupLocation": "لوکیشن بند کی گئی",
+  "notifyGroupConnection": "انٹرنیٹ نہیں / رپورٹ نہیں",
+  "notifyGroupPhoneSettings": "فون کی سیٹنگز",
+  "notifyGroupPhoneSettingsHint": "درست لوکیشن، اجازت، ٹریکنگ، جعلی GPS"
 }
