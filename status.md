@@ -708,3 +708,11 @@ Workers come from different countries; each user picks a language.
   admin phones got the pushes ("2 phone(s)"). Pending: deploy of the notification
   switches + per-token failure logging (`526491c`); Sign in with Apple key for
   token revocation before App Store review; the emulator still has battery saver on.
+- **2026-10-08** — The user deployed the functions (notification switches + per-token
+  failure logging; Claude's deploy was blocked by the permission check, dry run was
+  clean). Test: mason on the emulator checked in at Test Site 07:27, location off →
+  `location_off` → "2 phone(s) of 3 recipient(s)", no token failures; **the iPhone got
+  it with the app swiped away.** Tapping it showed a white screen: expected for an iOS
+  debug build launched without Xcode/`flutter run`; re-check the tap on a release /
+  TestFlight build. Emulator battery saver is off, location back on. The test mason is
+  still checked in at Test Site (end-of-day auto check-out at 22:00 will close it).
