@@ -562,5 +562,9 @@
   "accuracyValue": "±{meters} م",
   "nobodyShort": "لا أحد",
   "activeSites": "المواقع النشطة ({count})",
-  "showMoreSites": "عرض {count} أخرى"
+  "showMoreSites": "عرض {count} أخرى",
+  "quietHours": "ساعات الهدوء",
+  "quietHoursHint": "تصل الإشعارات بصمت خلال هذه الساعات: بدون صوت أو نافذة منبثقة. وتبقى ظاهرة في قائمة الإشعارات وفي التطبيق.",
+  "quietFrom": "من",
+  "quietTo": "إلى"
 }

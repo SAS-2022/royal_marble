@@ -1949,4 +1949,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String showMoreSites(int count) {
     return 'عرض $count أخرى';
   }
+
+  @override
+  String get quietHours => 'ساعات الهدوء';
+
+  @override
+  String get quietHoursHint =>
+      'تصل الإشعارات بصمت خلال هذه الساعات: بدون صوت أو نافذة منبثقة. وتبقى ظاهرة في قائمة الإشعارات وفي التطبيق.';
+
+  @override
+  String get quietFrom => 'من';
+
+  @override
+  String get quietTo => 'إلى';
 }

@@ -18,6 +18,23 @@ const NEW_USER_TEXT: Record<string, { title: string; body: (name: string) => str
 const wants = (user: FirebaseFirestore.DocumentSnapshot, key: string) =>
   user.get(`notify.${key}`) !== false;
 
+/**
+ * True inside the person's quiet hours (`users/{uid}.quietHours` =
+ * `{on, from, to, offsetMin}`, minutes of the day in their local time, set on
+ * the Notifications screen). A window like 22:00–07:00 wraps midnight.
+ */
+export function inQuietHours(q: unknown, nowMs: number): boolean {
+  if (!q || typeof q !== "object") return false;
+  const { on, from, to, offsetMin } = q as Record<string, unknown>;
+  if (on !== true || typeof from !== "number" || typeof to !== "number" || from === to) return false;
+  const offset = typeof offsetMin === "number" ? offsetMin : 240;
+  const local = (((Math.floor(nowMs / 60_000) + offset) % 1440) + 1440) % 1440;
+  return from < to ? local >= from && local < to : local >= from || local < to;
+}
+
+/** Android channel without sound or pop-up (created in MainActivity). */
+const QUIET_CHANNEL = "quiet";
+
 /** Tokens FCM reports as gone; they are removed from the profile. */
 const DEAD_TOKEN_CODES = new Set([
   "messaging/registration-token-not-registered",
@@ -27,7 +44,8 @@ const DEAD_TOKEN_CODES = new Set([
 
 /**
  * Sends one notification to every phone the user is signed in on
- * (`users/{uid}.fcmTokens`, saved by the app) and drops dead tokens.
+ * (`users/{uid}.fcmTokens`, saved by the app) and drops dead tokens. During
+ * the person's quiet hours it arrives silently (no sound, no pop-up).
  * Returns how many phones accepted it.
  */
 export async function pushToUser(
@@ -36,12 +54,17 @@ export async function pushToUser(
 ): Promise<number> {
   const tokens: string[] = (user.get("fcmTokens") ?? []).filter((t: unknown) => typeof t === "string");
   if (!tokens.length) return 0;
+  const quiet = inQuietHours(user.get("quietHours"), Date.now());
   const res = await getMessaging().sendEachForMulticast({
     tokens,
     notification: { title, body },
     data,
-    android: { priority: "high" },
+    android: quiet ?
+      { priority: "normal", notification: { channelId: QUIET_CHANNEL } } :
+      { priority: "high" },
+    ...(quiet ? { apns: { payload: { aps: { "interruption-level": "passive" } } } } : {}),
   });
+  if (quiet) logger.info(`pushToUser ${user.id}: quiet hours, sent silently`);
   const dead = tokens.filter((_, i) => {
     const code = res.responses[i].error?.code;
     return code != null && DEAD_TOKEN_CODES.has(code);

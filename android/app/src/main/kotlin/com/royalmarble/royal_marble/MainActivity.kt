@@ -17,10 +17,13 @@ class MainActivity: FlutterActivity() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         val channel = NotificationChannel(ALERTS_CHANNEL, "Alerts", NotificationManager.IMPORTANCE_HIGH)
         channel.description = "Workers leaving a site, phone problems and new sign-ups"
-        getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
+        val quiet = NotificationChannel(QUIET_CHANNEL, "Quiet hours", NotificationManager.IMPORTANCE_LOW)
+        quiet.description = "Alerts during your quiet hours: no sound or pop-up"
+        getSystemService(NotificationManager::class.java).createNotificationChannels(listOf(channel, quiet))
     }
 
     companion object {
         const val ALERTS_CHANNEL = "alerts"
+        const val QUIET_CHANNEL = "quiet"
     }
 }

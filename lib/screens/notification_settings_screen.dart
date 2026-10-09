@@ -38,6 +38,74 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     }
   }
 
+  /// Saves `quietHours` = `{on, from, to, offsetMin}` (minutes of the day in
+  /// this phone's time zone, which the server needs to know when it's night).
+  Future<void> _setQuiet(bool on, int from, int to) async {
+    try {
+      await _doc.update({
+        'quietHours': {
+          'on': on,
+          'from': from,
+          'to': to,
+          'offsetMin': DateTime.now().timeZoneOffset.inMinutes,
+        }
+      });
+    } catch (e, st) {
+      await ErrorReporter.record(e, stackTrace: st);
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(context.l10n.somethingWrong)));
+      }
+    }
+  }
+
+  Widget _quietHours(Map quiet, bool ready) {
+    final l = context.l10n;
+    final on = quiet['on'] == true;
+    final from = (quiet['from'] as num?)?.toInt() ?? 22 * 60;
+    final to = (quiet['to'] as num?)?.toInt() ?? 7 * 60;
+    String fmt(int m) => MaterialLocalizations.of(context)
+        .formatTimeOfDay(TimeOfDay(hour: m ~/ 60, minute: m % 60));
+    Future<void> pick(bool isFrom) async {
+      final current = isFrom ? from : to;
+      final t = await showTimePicker(
+          context: context,
+          initialTime: TimeOfDay(hour: current ~/ 60, minute: current % 60));
+      if (t == null) return;
+      final m = t.hour * 60 + t.minute;
+      await _setQuiet(true, isFrom ? m : from, isFrom ? to : m);
+    }
+
+    return Card(
+      child: Column(children: [
+        SwitchListTile(
+          secondary: const Icon(Icons.bedtime_outlined, color: AppColors.goldDeep),
+          title: Text(l.quietHours),
+          subtitle: Text(l.quietHoursHint),
+          value: on,
+          onChanged: ready ? (v) => _setQuiet(v, from, to) : null,
+        ),
+        if (on) ...[
+          const Divider(indent: 16, endIndent: 16),
+          ListTile(
+            leading: const SizedBox(width: 24),
+            title: Text(l.quietFrom),
+            trailing: Text(fmt(from),
+                style: const TextStyle(fontWeight: FontWeight.w700)),
+            onTap: () => pick(true),
+          ),
+          ListTile(
+            leading: const SizedBox(width: 24),
+            title: Text(l.quietTo),
+            trailing: Text(fmt(to),
+                style: const TextStyle(fontWeight: FontWeight.w700)),
+            onTap: () => pick(false),
+          ),
+        ],
+      ]),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
@@ -90,6 +158,9 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                   ],
                 ]),
               ),
+              const SizedBox(height: 12),
+              _quietHours(
+                  (snap.data?.data()?['quietHours'] as Map?) ?? const {}, snap.hasData),
             ],
           );
         },

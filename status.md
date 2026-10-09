@@ -10,12 +10,13 @@ _Last updated: 2026-10-09_
 
 ## 0. Next session — start here (written 2026-10-08)
 
-**Resume here (2026-10-09):** the user deploys `pruneOldAlerts`
-(`firebase deploy --only functions:pruneOldAlerts --project royal-marble --account
-royalmarble.uae@gmail.com`); check its first log line. Then look at today's UI on the
+**Resume here (2026-10-09):** the user deploys the functions (`pruneOldAlerts` +
+quiet hours): `firebase deploy --only functions --project royal-marble --account
+royalmarble.uae@gmail.com` (answer No to any delete prompt); check `pruneOldAlerts`'s
+first log line and test quiet hours on the Motorola. Then look at today's UI on the
 Motorola (hot restart from VS Code): bell/unread alerts, Active sites overview,
 client map, live-map worker sheet. Then commit. Mute test is done. Next after that:
-quiet hours, production end-to-end attendance test + cleanup, iOS, web dashboard.
+production end-to-end attendance test + cleanup, iOS, web dashboard.
 The emulator is signed in as the test worker "Test" (`EylYaIF4…`); its internet is back on.
 
 ### Earlier notes (2026-10-05)
@@ -56,7 +57,7 @@ permission check, so test accounts are made through the app.
    and tapping it opens the person's page.
 2. `left_site` push needs a real phone walked out of a site (the emulator never
    reports exits). The test mason on the emulator is still checked in at Test Site.
-3. Notification settings (which alerts, quiet hours) — Phase 4 remainder.
+3. ✅ Notification settings (which alerts, quiet hours) — done 2026-10-09.
 4. Ask the user: apply the same mobile/company limits on **My profile**?
 5. End-to-end attendance test in production with the test mason (check-in, refused
    check-in from far away, leave/return, check-out, admin correction).
@@ -435,7 +436,7 @@ Code done 2026-10-03, verified on the emulators; nothing deployed.
       per-worker mutes per viewer (2026-10-08). Mute switches not yet tested live.
 - [x] Cloud Function on `device_events` that pushes critical types (`left_site`,
       `silent`, `auto_checkout`) to admins and the site's supervisor.
-- Notification settings (which alerts, quiet hours).
+- [x] Notification settings: per-kind switches, per-worker mutes, quiet hours (2026-10-09).
 
 ### Phase 5 — Salary details (e)
 Data: `payroll/{uid}` = `{currency, payType, basic, housing, transport, food,
@@ -759,4 +760,12 @@ Workers come from different countries; each user picks a language.
   grid (battery/charging, last report, internet, location, GPS accuracy, permission,
   precise, battery saver, tracking; red when bad), "Open profile". Avatars fall back
   quietly when the photo can't load (a DNS blip logged long traces). 24 strings ×
-  4 languages; 33 tests pass; analyzer 16 old notes. Not committed yet.
+  4 languages; 33 tests pass; analyzer 16 old notes. Committed `1cfbc9f`.
+- **2026-10-09 (cont.)** — **Quiet hours** (Phase 4 remainder): Notifications screen
+  switch + From/To (default 22:00–07:00), saved as `users/{uid}.quietHours =
+  {on, from, to, offsetMin}` (local minutes + the phone's UTC offset). `pushToUser`
+  sends silently inside the window (Android channel `quiet`, IMPORTANCE_LOW, created
+  in `MainActivity`; iOS `interruption-level: passive`), so alerts still land in the
+  tray and the app. `inQuietHours` checked for overnight/daytime/off cases. Needs a
+  functions deploy **and** a new app build (the channel). Server tests: 2 auto
+  check-out checks fail only because they ran at 23:41 (known after-22:00 issue).

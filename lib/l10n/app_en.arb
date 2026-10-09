@@ -1207,5 +1207,9 @@
         "type": "int"
       }
     }
-  }
+  },
+  "quietHours": "Quiet hours",
+  "quietHoursHint": "Notifications arrive silently during these hours: no sound or pop-up. They still show in the notification list and in the app.",
+  "quietFrom": "From",
+  "quietTo": "To"
 }

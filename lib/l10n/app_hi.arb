@@ -562,5 +562,9 @@
   "accuracyValue": "±{meters} मी",
   "nobodyShort": "कोई नहीं",
   "activeSites": "सक्रिय साइटें ({count})",
-  "showMoreSites": "{count} और दिखाएँ"
+  "showMoreSites": "{count} और दिखाएँ",
+  "quietHours": "शांत समय",
+  "quietHoursHint": "इन घंटों में सूचनाएँ चुपचाप आती हैं: न आवाज़, न पॉप-अप। वे सूचना सूची और ऐप में दिखती रहती हैं।",
+  "quietFrom": "से",
+  "quietTo": "तक"
 }

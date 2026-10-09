@@ -562,5 +562,9 @@
   "accuracyValue": "±{meters} میٹر",
   "nobodyShort": "کوئی نہیں",
   "activeSites": "فعال سائٹس ({count})",
-  "showMoreSites": "مزید {count} دکھائیں"
+  "showMoreSites": "مزید {count} دکھائیں",
+  "quietHours": "خاموش اوقات",
+  "quietHoursHint": "ان اوقات میں اطلاعات خاموشی سے آتی ہیں: نہ آواز، نہ پاپ اپ۔ وہ اطلاعات کی فہرست اور ایپ میں نظر آتی رہتی ہیں۔",
+  "quietFrom": "سے",
+  "quietTo": "تک"
 }

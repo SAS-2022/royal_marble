@@ -1950,4 +1950,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String showMoreSites(int count) {
     return 'Show $count more';
   }
+
+  @override
+  String get quietHours => 'Quiet hours';
+
+  @override
+  String get quietHoursHint =>
+      'Notifications arrive silently during these hours: no sound or pop-up. They still show in the notification list and in the app.';
+
+  @override
+  String get quietFrom => 'From';
+
+  @override
+  String get quietTo => 'To';
 }

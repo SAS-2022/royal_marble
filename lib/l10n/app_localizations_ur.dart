@@ -1949,4 +1949,17 @@ class AppLocalizationsUr extends AppLocalizations {
   String showMoreSites(int count) {
     return 'مزید $count دکھائیں';
   }
+
+  @override
+  String get quietHours => 'خاموش اوقات';
+
+  @override
+  String get quietHoursHint =>
+      'ان اوقات میں اطلاعات خاموشی سے آتی ہیں: نہ آواز، نہ پاپ اپ۔ وہ اطلاعات کی فہرست اور ایپ میں نظر آتی رہتی ہیں۔';
+
+  @override
+  String get quietFrom => 'سے';
+
+  @override
+  String get quietTo => 'تک';
 }

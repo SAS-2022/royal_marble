@@ -3479,6 +3479,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show {count} more'**
   String showMoreSites(int count);
+
+  /// No description provided for @quietHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiet hours'**
+  String get quietHours;
+
+  /// No description provided for @quietHoursHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications arrive silently during these hours: no sound or pop-up. They still show in the notification list and in the app.'**
+  String get quietHoursHint;
+
+  /// No description provided for @quietFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get quietFrom;
+
+  /// No description provided for @quietTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get quietTo;
 }
 
 class _AppLocalizationsDelegate
