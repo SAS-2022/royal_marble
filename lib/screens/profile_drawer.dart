@@ -53,7 +53,7 @@ class ProfileDrawer extends StatelessWidget {
                 // each list, and Reports switches between attendance and sales.
                 if (admin || supervisor) ...[
                   _Item(Icons.notifications_active_outlined, l.teamStatusAlerts,
-                      () => open(TeamStatusScreen(users: allUsers ?? const []))),
+                      () => open(TeamStatusScreen(users: allUsers ?? const [], viewer: user))),
                   _Item(Icons.map_outlined, l.liveMap,
                       () => open(LiveMapScreen(currentUser: user))),
                   _Item(Icons.people_outline, l.users,
@@ -154,6 +154,8 @@ class _Header extends StatelessWidget {
           radius: 32,
           backgroundColor: AppColors.gold,
           foregroundImage: hasImage ? NetworkImage(user.imageUrl!) : null,
+          // No connection or a deleted photo: show the fallback instead.
+          onForegroundImageError: (_, __) {},
           child: Text(initials,
               style: const TextStyle(
                   fontSize: 22,

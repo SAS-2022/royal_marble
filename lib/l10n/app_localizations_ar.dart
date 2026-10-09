@@ -1858,4 +1858,95 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get notifyGroupPhoneSettingsHint =>
       'الموقع الدقيق، الإذن، التتبع، الموقع المزيّف';
+
+  @override
+  String siteOnSiteCount(int count) {
+    return '$count في الموقع';
+  }
+
+  @override
+  String siteOutsideCount(int count) {
+    return '$count خارج الموقع';
+  }
+
+  @override
+  String siteAssignedCount(int count) {
+    return '$count معيّنون';
+  }
+
+  @override
+  String get phoneDetails => 'الهاتف';
+
+  @override
+  String get factBattery => 'البطارية';
+
+  @override
+  String get factLastReport => 'آخر تحديث';
+
+  @override
+  String get factInternet => 'الإنترنت';
+
+  @override
+  String get factLocation => 'الموقع';
+
+  @override
+  String get factGps => 'دقة GPS';
+
+  @override
+  String get factPermission => 'الإذن';
+
+  @override
+  String get factPrecise => 'الموقع الدقيق';
+
+  @override
+  String get factBatterySaver => 'توفير البطارية';
+
+  @override
+  String get factTracking => 'التتبع';
+
+  @override
+  String get valueOn => 'مفعّل';
+
+  @override
+  String get valueOff => 'متوقف';
+
+  @override
+  String get valueConnected => 'متصل';
+
+  @override
+  String get valueNoInternet => 'غير متصل';
+
+  @override
+  String get todayStays => 'اليوم';
+
+  @override
+  String get openProfile => 'فتح الملف الشخصي';
+
+  @override
+  String batteryValue(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String batteryCharging(int percent) {
+    return '$percent% · قيد الشحن';
+  }
+
+  @override
+  String accuracyValue(int meters) {
+    return '±$meters م';
+  }
+
+  @override
+  String get nobodyShort => 'لا أحد';
+
+  @override
+  String activeSites(int count) {
+    return 'المواقع النشطة ($count)';
+  }
+
+  @override
+  String showMoreSites(int count) {
+    return 'عرض $count أخرى';
+  }
 }

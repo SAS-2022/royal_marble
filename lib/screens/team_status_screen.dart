@@ -4,6 +4,7 @@ import 'package:royal_marble/core/l10n_helpers.dart';
 import 'package:royal_marble/core/locale_controller.dart';
 import 'package:intl/intl.dart';
 
+import '../account_settings/admin_user_view.dart';
 import '../core/app_theme.dart';
 import '../l10n/app_localizations.dart';
 import '../core/roles.dart';
@@ -53,35 +54,124 @@ String eventMessage(AppLocalizations l, DeviceEvent e) {
   };
 }
 
+/// When each admin/supervisor last looked at the alerts:
+/// `users/{viewer}.alertsSeenAt` (server time), so it follows the account
+/// across phones.
+class AlertsSeen {
+  static DocumentReference<Map<String, dynamic>> _doc(String uid) =>
+      FirebaseFirestore.instance.collection('users').doc(uid);
+
+  /// A just-written server time reads as null until confirmed: treat it as now.
+  static Stream<DateTime?> watch(String uid) => _doc(uid).snapshots().map((d) {
+        final data = d.data() ?? const {};
+        if (!data.containsKey('alertsSeenAt')) return null;
+        return (data['alertsSeenAt'] as Timestamp?)?.toDate() ?? DateTime.now();
+      });
+
+  static Future<DateTime?> get(String uid) async =>
+      ((await _doc(uid).get()).data()?['alertsSeenAt'] as Timestamp?)?.toDate();
+
+  static Future<void> markSeen(String uid) =>
+      _doc(uid).update({'alertsSeenAt': FieldValue.serverTimestamp()});
+}
+
 /// Admin/supervisor view: every tracked phone's health, plus the live feed of
-/// device events (location off, offline, silent, fake GPS…).
-class TeamStatusScreen extends StatelessWidget {
-  const TeamStatusScreen({super.key, required this.users, this.initialTab = 0});
+/// device events (location off, offline, silent, fake GPS…). Opening the
+/// Alerts tab marks them seen; the ones new since the last visit stay
+/// highlighted while the screen is open.
+class TeamStatusScreen extends StatefulWidget {
+  const TeamStatusScreen(
+      {super.key, required this.users, this.viewer, this.initialTab = 0});
 
   final List<UserData> users;
+  final UserData? viewer;
   final int initialTab;
 
   @override
+  State<TeamStatusScreen> createState() => _TeamStatusScreenState();
+}
+
+class _TeamStatusScreenState extends State<TeamStatusScreen>
+    with SingleTickerProviderStateMixin {
+  late final _tabs =
+      TabController(length: 2, vsync: this, initialIndex: widget.initialTab);
+  DateTime? _seenBefore;
+  bool _loaded = false;
+  bool _viewedAlerts = false;
+
+  String? get _viewerUid => widget.viewer?.uid;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabs.addListener(_onTab);
+    final uid = _viewerUid;
+    if (uid == null) {
+      _loaded = true;
+      return;
+    }
+    AlertsSeen.get(uid).then((t) {
+      if (!mounted) return;
+      setState(() {
+        _seenBefore = t;
+        _loaded = true;
+      });
+      _onTab();
+    }).catchError((_) {
+      if (mounted) setState(() => _loaded = true);
+    });
+  }
+
+  void _onTab() {
+    final uid = _viewerUid;
+    if (uid == null || !_loaded || _tabs.index != 1) return;
+    _viewedAlerts = true;
+    AlertsSeen.markSeen(uid).catchError((_) {});
+  }
+
+  @override
+  void dispose() {
+    // Alerts that arrived while the list was open count as seen too.
+    if (_viewedAlerts && _viewerUid != null) {
+      AlertsSeen.markSeen(_viewerUid!).catchError((_) {});
+    }
+    _tabs.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      initialIndex: initialTab,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(context.l10n.teamStatus),
-          bottom: TabBar(
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white60,
-            indicatorColor: AppColors.gold,
-            tabs: [Tab(text: context.l10n.phonesTab), Tab(text: context.l10n.alertsTab)],
-          ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(context.l10n.teamStatus),
+        bottom: TabBar(
+          controller: _tabs,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white60,
+          indicatorColor: AppColors.gold,
+          tabs: [Tab(text: context.l10n.phonesTab), Tab(text: context.l10n.alertsTab)],
         ),
-        body: TabBarView(children: [
-          _PhonesTab(users: users),
-          const AlertsFeed(),
-        ]),
       ),
+      body: TabBarView(controller: _tabs, children: [
+        _PhonesTab(users: widget.users),
+        !_loaded
+            ? const Center(child: CircularProgressIndicator())
+            : AlertsFeed(
+                highlightSince: _viewerUid == null ? null : _seenBefore,
+                highlight: _viewerUid != null,
+                onOpen: widget.viewer == null ? null : _openWorker,
+              ),
+      ]),
     );
+  }
+
+  void _openWorker(DeviceEvent e) {
+    final user = widget.users.where((u) => u.uid == e.uid).firstOrNull;
+    if (user == null) return;
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (_) => UserAdminScreen(user: user, viewer: widget.viewer!)));
   }
 }
 
@@ -189,10 +279,20 @@ class _PhonesTab extends StatelessWidget {
 }
 
 /// Live list of `device_events`, newest first. Pass [uid] for one person.
+/// With [highlight], events after [highlightSince] are marked as new.
 class AlertsFeed extends StatelessWidget {
-  const AlertsFeed({super.key, this.uid, this.limit = 200});
+  const AlertsFeed(
+      {super.key,
+      this.uid,
+      this.limit = 200,
+      this.highlight = false,
+      this.highlightSince,
+      this.onOpen});
   final String? uid;
   final int limit;
+  final bool highlight;
+  final DateTime? highlightSince;
+  final void Function(DeviceEvent)? onOpen;
 
   static Stream<List<DeviceEvent>> stream({int limit = 200}) =>
       FirebaseFirestore.instance
@@ -234,7 +334,11 @@ class AlertsFeed extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 8),
           itemCount: events.length,
           separatorBuilder: (_, __) => const Divider(indent: 72),
-          itemBuilder: (context, i) => AlertTile(events[i]),
+          itemBuilder: (context, i) => AlertTile(
+            events[i],
+            unseen: highlight && events[i].unseenSince(highlightSince),
+            onTap: onOpen == null ? null : () => onOpen!(events[i]),
+          ),
         );
       },
     );
@@ -242,8 +346,10 @@ class AlertsFeed extends StatelessWidget {
 }
 
 class AlertTile extends StatelessWidget {
-  const AlertTile(this.e, {super.key});
+  const AlertTile(this.e, {super.key, this.unseen = false, this.onTap});
   final DeviceEvent e;
+  final bool unseen;
+  final VoidCallback? onTap;
 
   static IconData iconFor(String type) => switch (type) {
         'location_off' || 'location_on' => Icons.location_off,
@@ -271,15 +377,33 @@ class AlertTile extends StatelessWidget {
       _ => Tone.ok,
     };
     return ListTile(
+      onTap: onTap,
+      tileColor: unseen ? AppColors.gold.withValues(alpha: 0.10) : null,
       leading: CircleAvatar(
         backgroundColor: tone.bg,
         child: Icon(iconFor(e.type), color: tone.fg, size: 20),
       ),
       title: Text(e.userName,
           style: const TextStyle(fontWeight: FontWeight.w700)),
-      subtitle: Text(eventMessage(context.l10n, e)),
-      trailing: Text(timeAgo(context.l10n, e.at),
-          style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+      subtitle: Text(eventMessage(context.l10n, e),
+          style: unseen
+              ? const TextStyle(fontWeight: FontWeight.w600, color: AppColors.ink)
+              : null),
+      trailing: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(timeAgo(context.l10n, e.at),
+              style: TextStyle(
+                  fontSize: 12,
+                  color: unseen ? AppColors.goldDeep : AppColors.muted,
+                  fontWeight: unseen ? FontWeight.w700 : null)),
+          if (unseen) ...[
+            const SizedBox(height: 6),
+            const Icon(Icons.circle, size: 10, color: AppColors.gold),
+          ],
+        ],
+      ),
     );
   }
 }

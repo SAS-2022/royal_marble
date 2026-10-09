@@ -1126,5 +1126,86 @@
   "notifyGroupLocation": "Location turned off",
   "notifyGroupConnection": "No internet / not reporting",
   "notifyGroupPhoneSettings": "Phone settings",
-  "notifyGroupPhoneSettingsHint": "Precise location, permission, tracking, fake GPS"
+  "notifyGroupPhoneSettingsHint": "Precise location, permission, tracking, fake GPS",
+  "siteOnSiteCount": "{count} on site",
+  "@siteOnSiteCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "siteOutsideCount": "{count} outside",
+  "@siteOutsideCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "siteAssignedCount": "{count} assigned",
+  "@siteAssignedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "phoneDetails": "Phone",
+  "factBattery": "Battery",
+  "factLastReport": "Last report",
+  "factInternet": "Internet",
+  "factLocation": "Location",
+  "factGps": "GPS accuracy",
+  "factPermission": "Permission",
+  "factPrecise": "Precise location",
+  "factBatterySaver": "Battery saver",
+  "factTracking": "Tracking",
+  "valueOn": "On",
+  "valueOff": "Off",
+  "valueConnected": "Connected",
+  "valueNoInternet": "No connection",
+  "todayStays": "Today",
+  "openProfile": "Open profile",
+  "batteryValue": "{percent}%",
+  "@batteryValue": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "batteryCharging": "{percent}% · charging",
+  "@batteryCharging": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "accuracyValue": "±{meters} m",
+  "@accuracyValue": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "nobodyShort": "Nobody",
+  "activeSites": "Active sites ({count})",
+  "@activeSites": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "showMoreSites": "Show {count} more",
+  "@showMoreSites": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

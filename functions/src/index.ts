@@ -486,3 +486,35 @@ export const detectSilentDevices = onSchedule("every 10 minutes", async () => {
   }
   logger.info(`detectSilentDevices: flagged ${stale.size}`);
 });
+
+/** Alerts (`device_events`) are kept this long, then deleted. */
+const ALERT_RETENTION_DAYS = 3;
+
+/** Deletes alerts older than ALERT_RETENTION_DAYS; returns how many. */
+async function pruneAlerts(now: number): Promise<number> {
+  const cutoff = Timestamp.fromMillis(now - ALERT_RETENTION_DAYS * 24 * 60 * 60_000);
+  let deleted = 0;
+  for (;;) {
+    const old = await db.collection("device_events")
+      .where("receivedAt", "<", cutoff)
+      .limit(400)
+      .get();
+    if (old.empty) break;
+    const batch = db.batch();
+    old.docs.forEach((d) => batch.delete(d.ref));
+    await batch.commit();
+    deleted += old.size;
+  }
+  return deleted;
+}
+
+export const pruneOldAlerts = onSchedule("every 6 hours", async () => {
+  logger.info(`pruneOldAlerts: deleted ${await pruneAlerts(Date.now())}`);
+});
+
+if (process.env.FUNCTIONS_EMULATOR === "true") {
+  exports.devPruneAlerts = onRequest(async (req, res) => {
+    const now = req.query.now ? Date.parse(String(req.query.now)) : Date.now();
+    res.json({ deleted: await pruneAlerts(now) });
+  });
+}

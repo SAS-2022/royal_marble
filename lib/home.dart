@@ -18,7 +18,6 @@ import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/screens/clients_screen.dart';
 import 'package:royal_marble/screens/profile_drawer.dart';
 import 'package:royal_marble/screens/site_details_screen.dart';
-import 'package:royal_marble/screens/site_form_screen.dart';
 import 'package:royal_marble/screens/team_status_screen.dart';
 import 'package:royal_marble/screens/visit_form_screen.dart';
 import 'package:royal_marble/screens/visits_screen.dart';
@@ -26,6 +25,7 @@ import 'package:royal_marble/services/checkin_service.dart';
 import 'package:royal_marble/services/tracking_service.dart';
 import 'package:royal_marble/shared/loading.dart';
 import 'package:royal_marble/widgets/checkin_card.dart';
+import 'package:royal_marble/widgets/sites_overview.dart';
 import 'package:royal_marble/widgets/status_widgets.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -89,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Royal Marble'),
         actions: [
-          if (role.canMonitor) _AlertsAction(users: allUsers),
+          if (role.canMonitor) _AlertsAction(users: allUsers, viewer: user),
         ],
       ),
       drawer: ProfileDrawer(currentUser: user, allUsers: allUsers),
@@ -208,26 +208,41 @@ class _PendingApproval extends StatelessWidget {
   }
 }
 
+/// The bell: counts warnings and critical alerts the viewer hasn't seen yet;
+/// with any, it opens straight on the Alerts tab.
 class _AlertsAction extends StatelessWidget {
-  const _AlertsAction({required this.users});
+  const _AlertsAction({required this.users, required this.viewer});
   final List<UserData> users;
+  final UserData viewer;
 
   @override
   Widget build(BuildContext context) {
-    final count = users
-        .where((u) =>
-            u.isActive == true &&
-            !primaryRole(u.roles).canMonitor &&
-            DeviceStatus.fromMap(u.deviceStatus).problems.isNotEmpty)
-        .length;
-    return IconButton(
-      tooltip: context.l10n.teamStatus,
-      onPressed: () => Navigator.push(context,
-          MaterialPageRoute(builder: (_) => TeamStatusScreen(users: users))),
-      icon: Badge(
-        isLabelVisible: count > 0,
-        label: Text('$count'),
-        child: const Icon(Icons.notifications_outlined),
+    return StreamBuilder<DateTime?>(
+      stream: AlertsSeen.watch(viewer.uid!),
+      builder: (context, seen) => StreamBuilder<List<DeviceEvent>>(
+        stream: seen.connectionState == ConnectionState.waiting
+            ? null
+            : AlertsFeed.stream(),
+        builder: (context, events) {
+          final count = (events.data ?? const <DeviceEvent>[])
+              .where((e) => e.important && e.unseenSince(seen.data))
+              .length;
+          return IconButton(
+            tooltip: context.l10n.teamStatus,
+            onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => TeamStatusScreen(
+                        users: users,
+                        viewer: viewer,
+                        initialTab: count > 0 ? 1 : 0))),
+            icon: Badge(
+              isLabelVisible: count > 0,
+              label: Text(count > 99 ? '99+' : '$count'),
+              child: const Icon(Icons.notifications_outlined),
+            ),
+          );
+        },
       ),
     );
   }
@@ -423,13 +438,13 @@ class _AdminHomeState extends State<_AdminHome> {
         allUsers.where((u) => u.isActive != true && u.error == null).toList();
 
     final active = projects.where((p) => p.projectStatus == 'active').toList();
-    final potential = projects.where((p) => p.projectStatus == 'potential').toList();
     final activeMockups = mockups.where((m) => m.mockupStatus == 'active').toList();
 
     void openTeam([int tab = 0]) => Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (_) => TeamStatusScreen(users: allUsers, initialTab: tab)));
+            builder: (_) => TeamStatusScreen(
+                users: allUsers, viewer: widget.user, initialTab: tab)));
 
     String nameOf(String uid, Map raw) {
       final u = byUid[uid];
@@ -555,16 +570,10 @@ class _AdminHomeState extends State<_AdminHome> {
         SectionTitle(l.todaysAttendance,
             trailing: TextButton(onPressed: () => openTeam(1), child: Text(l.alertLog))),
         _Attendance(timesheet: timesheet),
-        SectionTitle(l.activeProjects(active.length)),
-        for (final p in active) _ProjectTile.project(p, widget.user),
-        if (activeMockups.isNotEmpty) ...[
-          SectionTitle(l.activeMockups(activeMockups.length)),
-          for (final m in activeMockups) _ProjectTile.mockup(m, widget.user),
-        ],
-        if (potential.isNotEmpty) ...[
-          SectionTitle(l.potentialProjects(potential.length)),
-          for (final p in potential) _ProjectTile.project(p, widget.user),
-        ],
+        ActiveSitesOverview(user: widget.user, sites: [
+          for (final p in active) SiteRef.project(p),
+          for (final m in activeMockups) SiteRef.mockup(m),
+        ]),
       ],
     );
   }
@@ -595,6 +604,8 @@ class _Avatar extends StatelessWidget {
         radius: 18,
         backgroundColor: AppColors.gold.withValues(alpha: 0.18),
         foregroundImage: (url ?? '').isEmpty ? null : NetworkImage(url!),
+        // No connection or a deleted photo: show the fallback instead.
+        onForegroundImageError: (_, __) {},
         child: const Icon(Icons.person, size: 18, color: AppColors.goldDeep),
       );
 }
@@ -701,56 +712,24 @@ class _Attendance extends StatelessWidget {
   }
 }
 
-/// A site on the admin or sales home; opens its details screen.
-class _ProjectTile extends StatelessWidget {
-  const _ProjectTile.project(ProjectData this.project, this.user) : mockup = null;
-  const _ProjectTile.mockup(MockupData this.mockup, this.user) : project = null;
-
-  final ProjectData? project;
-  final MockupData? mockup;
+/// Compact site rows in one card, busiest first (the sales home).
+class _SiteList extends StatelessWidget {
+  const _SiteList({required this.sites, required this.user});
+  final List<SiteRef> sites;
   final UserData user;
-
-  String get _name => project?.projectName ?? mockup?.mockupName ?? '';
-  String? get _status => project?.projectStatus ?? mockup?.mockupStatus;
-  String get _address => prettyAddress(
-      (project?.projectAddress ?? mockup?.mockupAddress)?['addressName']);
-  int get _workers =>
-      (project?.assignedWorkers ?? mockup?.assignedWorkers ?? const []).length;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Card(
-        child: ListTile(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => SiteDetailsLoader(
-                kind: project != null ? SiteKind.project : SiteKind.mockup,
-                id: (project?.uid ?? mockup?.uid)!,
-                currentUser: user,
-              ),
-            ),
-          ),
-          leading: CircleAvatar(
-            backgroundColor: AppColors.gold.withValues(alpha: 0.18),
-            child: Icon(project != null ? Icons.apartment : Icons.view_in_ar,
-                color: AppColors.goldDeep),
-          ),
-          title: Text(_name, style: const TextStyle(fontWeight: FontWeight.w700)),
-          subtitle: Text(_address, maxLines: 1, overflow: TextOverflow.ellipsis),
-          trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-            if (_status == 'potential')
-              Padding(
-                padding: const EdgeInsetsDirectional.only(end: 6),
-                child: StatusPill(siteStatusLabel(context, _status),
-                    tone: siteStatusTone(_status)),
-              ),
-            StatusPill('$_workers', icon: Icons.person),
-          ]),
-        ),
-      ),
+    final rows =
+        SiteActivity.of(sites, Provider.of<Map<String, dynamic>>(context));
+    if (rows.isEmpty) return const SizedBox.shrink();
+    return Card(
+      child: Column(children: [
+        for (final (i, r) in rows.indexed) ...[
+          if (i > 0) const Divider(height: 1, indent: 56),
+          SiteRow(activity: r, user: user),
+        ],
+      ]),
     );
   }
 }
@@ -817,9 +796,9 @@ class _SalesHome extends StatelessWidget {
           ),
         ),
         SectionTitle(context.l10n.potentialProjects(potential.length)),
-        for (final p in potential) _ProjectTile.project(p, user),
+        _SiteList(sites: [for (final p in potential) SiteRef.project(p)], user: user),
         SectionTitle(context.l10n.activeProjects(active.length)),
-        for (final p in active) _ProjectTile.project(p, user),
+        _SiteList(sites: [for (final p in active) SiteRef.project(p)], user: user),
       ],
     );
   }

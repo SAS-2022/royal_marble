@@ -143,6 +143,8 @@ class AdminUserView extends StatelessWidget {
               radius: 36,
               backgroundColor: AppColors.gold.withValues(alpha: 0.2),
               foregroundImage: hasImage ? NetworkImage(user.imageUrl!) : null,
+              // No connection or a deleted photo: show the fallback instead.
+              onForegroundImageError: (_, __) {},
               child: Text(
                 '${user.firstName?.characters.firstOrNull ?? ''}${user.lastName?.characters.firstOrNull ?? ''}',
                 style: const TextStyle(

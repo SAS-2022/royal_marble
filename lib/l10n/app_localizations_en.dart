@@ -1859,4 +1859,95 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get notifyGroupPhoneSettingsHint =>
       'Precise location, permission, tracking, fake GPS';
+
+  @override
+  String siteOnSiteCount(int count) {
+    return '$count on site';
+  }
+
+  @override
+  String siteOutsideCount(int count) {
+    return '$count outside';
+  }
+
+  @override
+  String siteAssignedCount(int count) {
+    return '$count assigned';
+  }
+
+  @override
+  String get phoneDetails => 'Phone';
+
+  @override
+  String get factBattery => 'Battery';
+
+  @override
+  String get factLastReport => 'Last report';
+
+  @override
+  String get factInternet => 'Internet';
+
+  @override
+  String get factLocation => 'Location';
+
+  @override
+  String get factGps => 'GPS accuracy';
+
+  @override
+  String get factPermission => 'Permission';
+
+  @override
+  String get factPrecise => 'Precise location';
+
+  @override
+  String get factBatterySaver => 'Battery saver';
+
+  @override
+  String get factTracking => 'Tracking';
+
+  @override
+  String get valueOn => 'On';
+
+  @override
+  String get valueOff => 'Off';
+
+  @override
+  String get valueConnected => 'Connected';
+
+  @override
+  String get valueNoInternet => 'No connection';
+
+  @override
+  String get todayStays => 'Today';
+
+  @override
+  String get openProfile => 'Open profile';
+
+  @override
+  String batteryValue(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String batteryCharging(int percent) {
+    return '$percent% · charging';
+  }
+
+  @override
+  String accuracyValue(int meters) {
+    return '±$meters m';
+  }
+
+  @override
+  String get nobodyShort => 'Nobody';
+
+  @override
+  String activeSites(int count) {
+    return 'Active sites ($count)';
+  }
+
+  @override
+  String showMoreSites(int count) {
+    return 'Show $count more';
+  }
 }

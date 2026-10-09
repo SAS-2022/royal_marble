@@ -129,6 +129,10 @@ class DeviceEvent {
   final String severity;
   final DateTime? at;
 
+  /// Server time of arrival; compared with the viewer's `alertsSeenAt`
+  /// (phone clocks can be off). Null while a local write is pending.
+  final DateTime? receivedAt;
+
   /// Site name for attendance alerts (left site, auto check-out).
   final String? site;
 
@@ -140,8 +144,18 @@ class DeviceEvent {
     required this.message,
     required this.severity,
     this.at,
+    this.receivedAt,
     this.site,
   });
+
+  /// Not yet seen by a viewer who last opened the alerts at [seenAt].
+  bool unseenSince(DateTime? seenAt) {
+    final t = receivedAt ?? at;
+    return t != null && (seenAt == null || t.isAfter(seenAt));
+  }
+
+  /// Worth a badge: warnings and critical alerts, not routine info.
+  bool get important => severity == 'critical' || severity == 'warning';
 
   factory DeviceEvent.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
     final d = doc.data() ?? const {};
@@ -153,6 +167,7 @@ class DeviceEvent {
       message: d['message'] ?? '',
       severity: d['severity'] ?? 'info',
       at: ((d['at'] ?? d['receivedAt']) as Timestamp?)?.toDate(),
+      receivedAt: (d['receivedAt'] as Timestamp?)?.toDate(),
       site: d['site'] as String?,
     );
   }

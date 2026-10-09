@@ -1853,4 +1853,95 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get notifyGroupPhoneSettingsHint =>
       'सटीक लोकेशन, अनुमति, ट्रैकिंग, नकली GPS';
+
+  @override
+  String siteOnSiteCount(int count) {
+    return '$count साइट पर';
+  }
+
+  @override
+  String siteOutsideCount(int count) {
+    return '$count साइट से बाहर';
+  }
+
+  @override
+  String siteAssignedCount(int count) {
+    return '$count नियुक्त';
+  }
+
+  @override
+  String get phoneDetails => 'फ़ोन';
+
+  @override
+  String get factBattery => 'बैटरी';
+
+  @override
+  String get factLastReport => 'आख़िरी रिपोर्ट';
+
+  @override
+  String get factInternet => 'इंटरनेट';
+
+  @override
+  String get factLocation => 'लोकेशन';
+
+  @override
+  String get factGps => 'GPS सटीकता';
+
+  @override
+  String get factPermission => 'अनुमति';
+
+  @override
+  String get factPrecise => 'सटीक लोकेशन';
+
+  @override
+  String get factBatterySaver => 'बैटरी सेवर';
+
+  @override
+  String get factTracking => 'ट्रैकिंग';
+
+  @override
+  String get valueOn => 'चालू';
+
+  @override
+  String get valueOff => 'बंद';
+
+  @override
+  String get valueConnected => 'जुड़ा है';
+
+  @override
+  String get valueNoInternet => 'कनेक्शन नहीं';
+
+  @override
+  String get todayStays => 'आज';
+
+  @override
+  String get openProfile => 'प्रोफ़ाइल खोलें';
+
+  @override
+  String batteryValue(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String batteryCharging(int percent) {
+    return '$percent% · चार्ज हो रही है';
+  }
+
+  @override
+  String accuracyValue(int meters) {
+    return '±$meters मी';
+  }
+
+  @override
+  String get nobodyShort => 'कोई नहीं';
+
+  @override
+  String activeSites(int count) {
+    return 'सक्रिय साइटें ($count)';
+  }
+
+  @override
+  String showMoreSites(int count) {
+    return '$count और दिखाएँ';
+  }
 }

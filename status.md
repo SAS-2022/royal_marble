@@ -4,23 +4,19 @@ Living tracker for this project, kept up to date across chat sessions.
 **Read this first when resuming work. Update it after every step: tick tasks, change
 phase status, and add a line to the session log.**
 
-_Last updated: 2026-10-08 (end of session)_
+_Last updated: 2026-10-09_
 
 ---
 
 ## 0. Next session — start here (written 2026-10-08)
 
-**Resume here (2026-10-08):** finish testing the per-worker mutes. On the Motorola
-(admin), open the test mason's page → "Notifications about …" → switch **Check
-in/out** off; then check the mason in on the emulator (Test Site). Expected log:
-`pushWorkerAlert: check_in … → 1 phone(s)` (iPhone only) and nothing on the Motorola.
-Then switch it back on. Afterwards: try the other groups (location off → `location`,
-returned/left → needs a real phone), and a permission change back to "Always".
-State at pause: functions with all the new pushes **deployed** (by the user); test
-mason **checked out** at 08:40; emulator location on, battery saver off; Motorola
-connected by USB with the latest build; iPhone wireless debug fails to attach
-("mDNS query failed") — use USB or fix Local Network permission before iOS tests.
-Everything committed, not pushed.
+**Resume here (2026-10-09):** the user deploys `pruneOldAlerts`
+(`firebase deploy --only functions:pruneOldAlerts --project royal-marble --account
+royalmarble.uae@gmail.com`); check its first log line. Then look at today's UI on the
+Motorola (hot restart from VS Code): bell/unread alerts, Active sites overview,
+client map, live-map worker sheet. Then commit. Mute test is done. Next after that:
+quiet hours, production end-to-end attendance test + cleanup, iOS, web dashboard.
+The emulator is signed in as the test worker "Test" (`EylYaIF4…`); its internet is back on.
 
 ### Earlier notes (2026-10-05)
 
@@ -746,3 +742,21 @@ Workers come from different countries; each user picks a language.
   snack bar, "Details" opened the worker's page. iPhone: two wireless launches failed
   ("mDNS query failed", debugger never attached), so the Motorola (USB) was used.
   Paused by the user before the mute test (plan in section 0).
+- **2026-10-09** — Mute test done (user confirmed): `location_off` with Location muted →
+  "0 phone(s) of 3 recipient(s)", nothing on iPhone or Motorola (both are the user's
+  admin account; mutes are per account). Built: **unread alerts** — bell counts
+  warning/critical alerts newer than `users/{viewer}.alertsSeenAt` (server time;
+  compared with each event's `receivedAt`), opens on the Alerts tab, unseen rows tinted
+  with a gold dot, opening the tab marks them seen, tapping an alert opens the worker.
+  **Alert retention 3 days:** scheduled `pruneOldAlerts` (every 6 h, by `receivedAt`;
+  emulator trigger `devPruneAlerts`) — dry run clean, **deploy pending (user runs it)**.
+  **Admin home sites:** one "Active sites" section (projects + mock-ups): a lite map
+  with every site (green = someone there; tap opens Live map) and compact rows sorted
+  by who is there (● on site, ▲ outside), top 5 + "Show N more", "All sites" link;
+  potential projects only on All sites (sales home keeps them as compact rows)
+  (`lib/widgets/sites_overview.dart`). **Client details** show a map of the pin (tap →
+  directions; `MapSnapshot` widget). **Live map worker sheet:** today's stays, phone
+  grid (battery/charging, last report, internet, location, GPS accuracy, permission,
+  precise, battery saver, tracking; red when bad), "Open profile". Avatars fall back
+  quietly when the photo can't load (a DNS blip logged long traces). 24 strings ×
+  4 languages; 33 tests pass; analyzer 16 old notes. Not committed yet.

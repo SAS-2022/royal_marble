@@ -8,6 +8,7 @@ import 'package:intl/intl.dart' hide TextDirection;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../account_settings/admin_user_view.dart' show UserAdminScreen;
 import '../core/app_theme.dart';
 import '../core/l10n_helpers.dart';
 import '../core/locale_controller.dart';
@@ -262,6 +263,14 @@ class _LiveMapScreenState extends State<LiveMapScreen> {
           Navigator.pop(context);
           _openSite(s);
         },
+        onOpenProfile: () {
+          Navigator.pop(context);
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) =>
+                      UserAdminScreen(user: w.user, viewer: widget.currentUser)));
+        },
       ),
     );
   }
@@ -503,10 +512,14 @@ String _stateText(AppLocalizations l, MapWorker w) {
 
 class _WorkerSheet extends StatelessWidget {
   const _WorkerSheet(
-      {required this.worker, required this.sites, required this.onOpenSite});
+      {required this.worker,
+      required this.sites,
+      required this.onOpenSite,
+      required this.onOpenProfile});
   final MapWorker worker;
   final List<_MapSite> sites;
   final void Function(_MapSite) onOpenSite;
+  final VoidCallback onOpenProfile;
 
   @override
   Widget build(BuildContext context) {
@@ -532,7 +545,10 @@ class _WorkerSheet extends StatelessWidget {
     }
     final phone = w.user.phoneNumber;
     return SafeArea(
-      child: Padding(
+      child: ConstrainedBox(
+        constraints:
+            BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.85),
+        child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -584,6 +600,31 @@ class _WorkerSheet extends StatelessWidget {
                     StatusPill(p.text(l), tone: Tone.bad, icon: Icons.warning_amber),
                 ]),
               ],
+              if (w.today.sessions.isNotEmpty) ...[
+                SectionTitle(l.todayStays),
+                Card(
+                  child: Column(children: [
+                    for (final s in w.today.sessions)
+                      ListTile(
+                        dense: true,
+                        leading: Icon(
+                            s.kind == SiteKind.project ? Icons.apartment : Icons.view_in_ar,
+                            size: 20,
+                            color: AppColors.goldDeep),
+                        title: Text(s.siteName),
+                        // Times read left to right even in Arabic and Urdu.
+                        trailing: Text(
+                            '${DateFormat('HH:mm').format(s.start)} → '
+                            '${s.end == null ? l.nowLabel : DateFormat('HH:mm').format(s.end!)}',
+                            textDirection: TextDirection.ltr),
+                      ),
+                  ]),
+                ),
+              ],
+              if (w.status.hasData) ...[
+                SectionTitle(l.phoneDetails),
+                _PhoneFacts(w.status),
+              ],
               const SizedBox(height: 14),
               Row(children: [
                 if (phone?.isNotEmpty == true)
@@ -616,7 +657,110 @@ class _WorkerSheet extends StatelessWidget {
                   label: Text(openSite.name),
                 ),
               ],
+              const SizedBox(height: 10),
+              TextButton.icon(
+                onPressed: onOpenProfile,
+                icon: const Icon(Icons.person_outline),
+                label: Text(l.openProfile),
+              ),
             ]),
+        ),
+      ),
+    );
+  }
+}
+
+/// The phone's state in a two-column grid; values that need attention are red.
+class _PhoneFacts extends StatelessWidget {
+  const _PhoneFacts(this.s);
+  final DeviceStatus s;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    String onOff(bool v) => v ? l.valueOn : l.valueOff;
+    final percent =
+        s.battery != null && s.battery! >= 0 ? (s.battery! * 100).round() : null;
+    final facts = <(IconData, String, String, bool)>[
+      if (percent != null)
+        (
+          s.charging == true
+              ? Icons.battery_charging_full
+              : percent < 15
+                  ? Icons.battery_alert
+                  : Icons.battery_std,
+          l.factBattery,
+          s.charging == true ? l.batteryCharging(percent) : l.batteryValue(percent),
+          percent < 15 && s.charging != true,
+        ),
+      (Icons.update, l.factLastReport, timeAgo(l, s.lastSeen), s.silent),
+      if (s.online != null)
+        (
+          s.online! ? Icons.wifi : Icons.wifi_off,
+          l.factInternet,
+          s.online! ? l.valueConnected : l.valueNoInternet,
+          !s.online!,
+        ),
+      if (s.locationEnabled != null)
+        (
+          s.locationEnabled! ? Icons.location_on_outlined : Icons.location_off_outlined,
+          l.factLocation,
+          onOff(s.locationEnabled!),
+          !s.locationEnabled!,
+        ),
+      if (s.lastAccuracy != null)
+        (
+          Icons.gps_fixed,
+          l.factGps,
+          l.accuracyValue(s.lastAccuracy!.round()),
+          s.lastAccuracy! > 30,
+        ),
+      if (s.permission != null)
+        (
+          Icons.lock_outline,
+          l.factPermission,
+          permissionLabel(l, s.permission),
+          s.permission != 'always',
+        ),
+      if (s.preciseLocation != null)
+        (Icons.gps_not_fixed, l.factPrecise, onOff(s.preciseLocation!), !s.preciseLocation!),
+      if (s.powerSave != null)
+        (Icons.battery_saver, l.factBatterySaver, onOff(s.powerSave!), s.powerSave!),
+      if (s.trackingEnabled != null)
+        (
+          s.trackingEnabled! ? Icons.play_circle_outline : Icons.pause_circle_outline,
+          l.factTracking,
+          onOff(s.trackingEnabled!),
+          !s.trackingEnabled!,
+        ),
+    ];
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: LayoutBuilder(builder: (context, c) {
+          final width = (c.maxWidth - 12) / 2;
+          return Wrap(spacing: 12, runSpacing: 12, children: [
+            for (final (icon, label, value, bad) in facts)
+              SizedBox(
+                width: width,
+                child: Row(children: [
+                  Icon(icon, size: 20, color: bad ? AppColors.bad : AppColors.muted),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text(label,
+                          style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+                      Text(value,
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: bad ? AppColors.bad : AppColors.ink)),
+                    ]),
+                  ),
+                ]),
+              ),
+          ]);
+        }),
       ),
     );
   }

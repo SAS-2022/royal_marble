@@ -1858,4 +1858,95 @@ class AppLocalizationsUr extends AppLocalizations {
   @override
   String get notifyGroupPhoneSettingsHint =>
       'درست لوکیشن، اجازت، ٹریکنگ، جعلی GPS';
+
+  @override
+  String siteOnSiteCount(int count) {
+    return '$count سائٹ پر';
+  }
+
+  @override
+  String siteOutsideCount(int count) {
+    return '$count سائٹ سے باہر';
+  }
+
+  @override
+  String siteAssignedCount(int count) {
+    return '$count مقرر';
+  }
+
+  @override
+  String get phoneDetails => 'فون';
+
+  @override
+  String get factBattery => 'بیٹری';
+
+  @override
+  String get factLastReport => 'آخری رپورٹ';
+
+  @override
+  String get factInternet => 'انٹرنیٹ';
+
+  @override
+  String get factLocation => 'لوکیشن';
+
+  @override
+  String get factGps => 'GPS درستگی';
+
+  @override
+  String get factPermission => 'اجازت';
+
+  @override
+  String get factPrecise => 'درست لوکیشن';
+
+  @override
+  String get factBatterySaver => 'بیٹری سیور';
+
+  @override
+  String get factTracking => 'ٹریکنگ';
+
+  @override
+  String get valueOn => 'آن';
+
+  @override
+  String get valueOff => 'آف';
+
+  @override
+  String get valueConnected => 'منسلک';
+
+  @override
+  String get valueNoInternet => 'کنکشن نہیں';
+
+  @override
+  String get todayStays => 'آج';
+
+  @override
+  String get openProfile => 'پروفائل کھولیں';
+
+  @override
+  String batteryValue(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String batteryCharging(int percent) {
+    return '$percent% · چارج ہو رہی ہے';
+  }
+
+  @override
+  String accuracyValue(int meters) {
+    return '±$meters میٹر';
+  }
+
+  @override
+  String get nobodyShort => 'کوئی نہیں';
+
+  @override
+  String activeSites(int count) {
+    return 'فعال سائٹس ($count)';
+  }
+
+  @override
+  String showMoreSites(int count) {
+    return 'مزید $count دکھائیں';
+  }
 }

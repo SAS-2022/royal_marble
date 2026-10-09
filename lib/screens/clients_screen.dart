@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' show LatLng;
 import 'package:url_launcher/url_launcher.dart';
 
 import '../core/app_theme.dart';
@@ -11,6 +12,7 @@ import '../models/sales_visit.dart';
 import '../models/user_model.dart';
 import '../services/database.dart';
 import '../shared/loading.dart';
+import '../widgets/map_snapshot.dart';
 import '../widgets/status_widgets.dart';
 import 'client_form_screen.dart';
 import 'visit_form_screen.dart';
@@ -227,11 +229,20 @@ class _ClientDetailsScreenState extends State<ClientDetailsScreen> {
   Widget _body(ClientData c) {
     final l = context.l10n;
     final address = prettyAddress(c.clientAddress?['addressName']);
+    final lat = (c.clientAddress?['Lat'] as num?)?.toDouble();
+    final lng = (c.clientAddress?['Lng'] as num?)?.toDouble();
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
       children: [
         Card(
+          clipBehavior: Clip.antiAlias,
           child: Column(children: [
+            if (c.hasPin && lat != null && lng != null)
+              MapSnapshot(
+                pin: LatLng(lat, lng),
+                height: 170,
+                onTap: () => openDirections(lat, lng),
+              ),
             if (c.contactPerson?.isNotEmpty == true)
               ListTile(
                 leading: const Icon(Icons.person_outline),

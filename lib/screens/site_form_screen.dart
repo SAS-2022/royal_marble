@@ -278,13 +278,13 @@ class _SiteFormScreenState extends State<SiteFormScreen> {
                       child: GoogleMap(
                         key: ValueKey('$pin|$_radius'),
                         initialCameraPosition: CameraPosition(
-                            target: pin, zoom: _zoomFor(_radius)),
+                            target: pin, zoom: siteZoomFor(_radius)),
                         liteModeEnabled: true,
                         zoomControlsEnabled: false,
                         mapToolbarEnabled: false,
                         myLocationButtonEnabled: false,
                         markers: {Marker(markerId: const MarkerId('pin'), position: pin)},
-                        circles: {_radiusCircle(pin, _radius)},
+                        circles: {siteRadiusCircle(pin, _radius)},
                       ),
                     ),
                   ),
@@ -405,7 +405,7 @@ class _SiteFormScreenState extends State<SiteFormScreen> {
 }
 
 /// Zoom that fits a site of [radius] metres comfortably on a phone screen.
-double _zoomFor(double radius) => radius <= 100
+double siteZoomFor(double radius) => radius <= 100
     ? 17
     : radius <= 200
         ? 16
@@ -413,7 +413,7 @@ double _zoomFor(double radius) => radius <= 100
             ? 15
             : 14;
 
-Circle _radiusCircle(LatLng center, double radius) => Circle(
+Circle siteRadiusCircle(LatLng center, double radius) => Circle(
       circleId: const CircleId('radius'),
       center: center,
       radius: radius,
@@ -480,7 +480,7 @@ class _SitePinPickerState extends State<SitePinPicker> {
         return;
       }
       final p = await Geolocator.getCurrentPosition();
-      await _moveTo(LatLng(p.latitude, p.longitude), zoom: _zoomFor(widget.radius));
+      await _moveTo(LatLng(p.latitude, p.longitude), zoom: siteZoomFor(widget.radius));
     } catch (_) {
       // No fix: the admin can still search or move the map by hand.
     }
@@ -498,7 +498,7 @@ class _SitePinPickerState extends State<SitePinPicker> {
       final found = await _geocoder.locationFromAddress(q);
       if (found.isEmpty) throw StateError('none');
       await _moveTo(LatLng(found.first.latitude, found.first.longitude),
-          zoom: _zoomFor(widget.radius));
+          zoom: siteZoomFor(widget.radius));
     } catch (_) {
       if (mounted) setState(() => _error = context.l10n.addressNotFound);
     }
@@ -534,13 +534,13 @@ class _SitePinPickerState extends State<SitePinPicker> {
       body: Stack(children: [
         GoogleMap(
           initialCameraPosition:
-              CameraPosition(target: _center, zoom: widget.initial == null ? 11 : _zoomFor(widget.radius)),
+              CameraPosition(target: _center, zoom: widget.initial == null ? 11 : siteZoomFor(widget.radius)),
           onMapCreated: (c) => _map = c,
           onCameraMove: (p) => setState(() => _center = p.target),
           myLocationEnabled: true,
           myLocationButtonEnabled: false,
           zoomControlsEnabled: false,
-          circles: {if (widget.radius > 0) _radiusCircle(_center, widget.radius)},
+          circles: {if (widget.radius > 0) siteRadiusCircle(_center, widget.radius)},
         ),
         // The pin's tip sits on the map centre.
         const IgnorePointer(

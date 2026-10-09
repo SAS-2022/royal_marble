@@ -3329,6 +3329,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Precise location, permission, tracking, fake GPS'**
   String get notifyGroupPhoneSettingsHint;
+
+  /// No description provided for @siteOnSiteCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} on site'**
+  String siteOnSiteCount(int count);
+
+  /// No description provided for @siteOutsideCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} outside'**
+  String siteOutsideCount(int count);
+
+  /// No description provided for @siteAssignedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} assigned'**
+  String siteAssignedCount(int count);
+
+  /// No description provided for @phoneDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get phoneDetails;
+
+  /// No description provided for @factBattery.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery'**
+  String get factBattery;
+
+  /// No description provided for @factLastReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Last report'**
+  String get factLastReport;
+
+  /// No description provided for @factInternet.
+  ///
+  /// In en, this message translates to:
+  /// **'Internet'**
+  String get factInternet;
+
+  /// No description provided for @factLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get factLocation;
+
+  /// No description provided for @factGps.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS accuracy'**
+  String get factGps;
+
+  /// No description provided for @factPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission'**
+  String get factPermission;
+
+  /// No description provided for @factPrecise.
+  ///
+  /// In en, this message translates to:
+  /// **'Precise location'**
+  String get factPrecise;
+
+  /// No description provided for @factBatterySaver.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery saver'**
+  String get factBatterySaver;
+
+  /// No description provided for @factTracking.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking'**
+  String get factTracking;
+
+  /// No description provided for @valueOn.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get valueOn;
+
+  /// No description provided for @valueOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get valueOff;
+
+  /// No description provided for @valueConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get valueConnected;
+
+  /// No description provided for @valueNoInternet.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection'**
+  String get valueNoInternet;
+
+  /// No description provided for @todayStays.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get todayStays;
+
+  /// No description provided for @openProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Open profile'**
+  String get openProfile;
+
+  /// No description provided for @batteryValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}%'**
+  String batteryValue(int percent);
+
+  /// No description provided for @batteryCharging.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% · charging'**
+  String batteryCharging(int percent);
+
+  /// No description provided for @accuracyValue.
+  ///
+  /// In en, this message translates to:
+  /// **'±{meters} m'**
+  String accuracyValue(int meters);
+
+  /// No description provided for @nobodyShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody'**
+  String get nobodyShort;
+
+  /// No description provided for @activeSites.
+  ///
+  /// In en, this message translates to:
+  /// **'Active sites ({count})'**
+  String activeSites(int count);
+
+  /// No description provided for @showMoreSites.
+  ///
+  /// In en, this message translates to:
+  /// **'Show {count} more'**
+  String showMoreSites(int count);
 }
 
 class _AppLocalizationsDelegate
