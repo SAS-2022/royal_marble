@@ -8,18 +8,46 @@ _Last updated: 2026-10-11_
 
 ---
 
-## 0. Next session — start here (written 2026-10-08)
+## 0. Next session — start here (written 2026-10-11)
 
-**Resume here (2026-10-11):** functions are deployed (`pruneOldAlerts` + quiet hours;
-`pruneOldAlerts` deleted 20 and 14 old alerts on its first runs, 0 since). **Quiet hours
-verified 2026-10-11** (user signed it off). Block A tests done 2026-10-11 (log below). **Deploy pending (user):** `correctAttendance`
-refuses future times — `firebase deploy --only functions:correctAttendance --project
-royal-marble --account royalmarble.uae@gmail.com`. Production test data is **kept until go-live** (user, 2026-10-11): delete it
-(list below) just before real users start. Next: Block B/C. Still to do: review the 2026-10-09 UI
-(bell/unread alerts, Active sites overview, client map, live-map worker sheet). Then
-production end-to-end attendance test + cleanup, iOS release build, web dashboard.
-iOS prep is done except a release/TestFlight build and the Sign in with Apple key.
-The emulator is signed in as the test worker "Test" (`EylYaIF4…`).
+**Where we stopped (2026-10-11, paused by the user):** Block A (testing) is finished
+and everything is committed on `revive-2026` (last code commit `d2d07e9`), **not
+pushed**. Quiet hours, check-in/out, leave/return pushes, admin correction and My pay
+were all verified in production (session log below).
+
+**1. Waiting on the user — deploy:**
+`firebase deploy --only functions:correctAttendance --project royal-marble --account
+royalmarble.uae@gmail.com` (refuses correction times later than now; the app already
+blocks it). Answer **No** to any delete prompt.
+
+**2. Then pick the next block** (agreed plan, 2026-10-11):
+- **Block B — store builds** (needs the user's store accounts): Android release build
+  signed with `royal-keystore.jks` + Play listing and location-privacy text; iOS
+  TestFlight build + Sign in with Apple key; fix small items first (`firebase-functions`
+  upgrade, Kotlin/Gradle plugin warnings, sign-out `permission-denied` log, rotate Maps
+  keys).
+- **Block C — admin web dashboard** (no client input needed, ~2–3 sessions): Flutter
+  web build of the app, admin screens only (live map, team status/alerts, attendance
+  reports with corrections, users and sites), wide layout, Firebase Hosting (one deploy
+  approval). Suggested next.
+- **Block D — after the client answers:** Phase 6 pay from hours (decisions #1–7),
+  Phase 3 rollout (migration, strict rules) once every phone runs the new app,
+  translation review fixes.
+
+**Optional, any time:** user reviews the 2026-10-09 UI (bell/unread alerts, Active
+sites overview, client map, live-map worker sheet) and the new wheel time picker;
+a real-phone walk out of a site (`left_site`) and a 60-min auto check-out test with
+Quiet Tester.
+
+**Test data is kept until go-live** (user's decision): delete the list below just
+before real users start.
+
+**Devices now:** admin signed in on the Xiaomi `76031c77` (USB) and the Motorola
+`ZY22MC9B2M`; the emulator (`emulator-5554`) is signed in as the test worker
+**Quiet Tester** (`quiet.tester@royalmarble.test`, uid `LdEsCrk0…`, assigned to Test
+Site, pay package set; password only in the 2026-10-11 chat). Test Site is at
+25.07978, 55.13976 (radius 200 m). To fake a walk on the emulator, send `adb emu geo
+fix <lng> <lat>` steps ~2 s apart (a single jump doesn't wake tracking).
 
 ### Earlier notes (2026-10-05)
 
