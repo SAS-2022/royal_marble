@@ -4,20 +4,19 @@ Living tracker for this project, kept up to date across chat sessions.
 **Read this first when resuming work. Update it after every step: tick tasks, change
 phase status, and add a line to the session log.**
 
-_Last updated: 2026-10-09_
+_Last updated: 2026-10-11_
 
 ---
 
 ## 0. Next session — start here (written 2026-10-08)
 
-**Resume here (2026-10-09):** the user deploys the functions (`pruneOldAlerts` +
-quiet hours): `firebase deploy --only functions --project royal-marble --account
-royalmarble.uae@gmail.com` (answer No to any delete prompt); check `pruneOldAlerts`'s
-first log line and test quiet hours on the Motorola. Then look at today's UI on the
-Motorola (hot restart from VS Code): bell/unread alerts, Active sites overview,
-client map, live-map worker sheet. Then commit. Mute test is done. Next after that:
-production end-to-end attendance test + cleanup, iOS, web dashboard.
-The emulator is signed in as the test worker "Test" (`EylYaIF4…`); its internet is back on.
+**Resume here (2026-10-11):** functions are deployed (`pruneOldAlerts` + quiet hours;
+`pruneOldAlerts` deleted 20 and 14 old alerts on its first runs, 0 since). **Quiet hours
+verified 2026-10-11** (user signed it off). Still to do: review the 2026-10-09 UI
+(bell/unread alerts, Active sites overview, client map, live-map worker sheet). Then
+production end-to-end attendance test + cleanup, iOS release build, web dashboard.
+iOS prep is done except a release/TestFlight build and the Sign in with Apple key.
+The emulator is signed in as the test worker "Test" (`EylYaIF4…`).
 
 ### Earlier notes (2026-10-05)
 
@@ -62,11 +61,14 @@ permission check, so test accounts are made through the app.
 5. End-to-end attendance test in production with the test mason (check-in, refused
    check-in from far away, leave/return, check-out, admin correction).
 6. Clean up production test data afterwards (list below).
-7. iOS build prep (Maps key out of `AppDelegate.swift`, Podfile,
-   `GoogleService-Info.plist`, reversed client id URL scheme, "Sign in with Apple"
-   capability), then the admin web dashboard.
+7. ✅ iOS build prep (2026-10-07/09: Podfile, `GoogleService-Info.plist`, Maps key in
+   git-ignored `ios/Flutter/Secrets.xcconfig`, Google client id + URL scheme, Sign in
+   with Apple capability). Left: TestFlight build, Apple key for token revocation.
+   Then the admin web dashboard.
 
-**Production test data to delete when testing is over:** logins + `users` docs +
+**Production test data to delete when testing is over:** `quiet.tester@royalmarble.test`
+("Quiet Tester", registered 2026-10-11 on the emulator, approved, no site; password in
+that day's chat) and its `profile_images/` photo; logins + `users` docs +
 `profile_images/` photos for `mason.test@royalmarble.test` (approved, assigned to a
 site), the user's Google account sign-up (pending/approved), and the second test
 account the user registered on 2026-10-05; the test site the user created and its
@@ -282,8 +284,6 @@ The new app's check-in depends on `checkInOut`. Old app versions still write
   `business_model.dart`; could be replaced by a plain map.
 - Build warns that several plugins still apply the Kotlin Gradle Plugin (Firebase
   plugins, `location`); a future Flutter release will require plugin updates.
-- iOS not built yet: the Maps key is hard-coded in `ios/Runner/AppDelegate.swift`;
-  Podfile needs updating.
 - `AlertsFeed` filters a single user's alerts client-side from the latest N events
   (fine now; needs an indexed query at scale).
 - The `CheckInCard` reads today's timesheet by the phone's date, while the server
@@ -769,3 +769,18 @@ Workers come from different countries; each user picks a language.
   tray and the app. `inQuietHours` checked for overnight/daytime/off cases. Needs a
   functions deploy **and** a new app build (the channel). Server tests: 2 auto
   check-out checks fail only because they ran at 23:41 (known after-22:00 issue).
+- **2026-10-09 (late)** — iOS: Maps key moved from `AppDelegate.swift` into a
+  git-ignored `ios/Flutter/Secrets.xcconfig` (template `Secrets.example.xcconfig`)
+  (`b2400ca`); Google sign-in client id and reversed URL scheme (`e37c666`).
+- **2026-10-11** — Checked production: functions deployed by the user, `pruneOldAlerts`
+  runs every 6 h (deleted 20, 14, then 0). No pushes since the deploy, so quiet hours
+  are untested; no device connected.
+- **2026-10-11 (cont.)** — New build on the Motorola: `alerts` (importance 4) and
+  `quiet` (importance 2) channels present. Registered test worker "Quiet Tester" on
+  the emulator (production); the user approved it. Quiet hours on for the user's admin
+  account (22:00–07:00): `notifyNewUser` and then `location_off` (emulator location off
+  at 06:37) both logged "quiet hours, sent silently" → 2 phone(s); the Motorola (app in
+  background) showed "Quiet Tester — Location services turned OFF" on the `quiet`
+  channel with no sound or vibration. In the foreground the push still shows as the
+  snack bar. One stale admin token (`registration-token-not-registered`) is logged on
+  each push; harmless.
