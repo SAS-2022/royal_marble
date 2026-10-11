@@ -120,6 +120,12 @@ abstract class AppLocalizations {
   /// **'Choose language'**
   String get chooseLanguage;
 
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
+
   /// No description provided for @cancel.
   ///
   /// In en, this message translates to:
@@ -2213,6 +2219,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} no out'**
   String noOutCount(int count);
+
+  /// No description provided for @errFutureTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Times can\'t be later than now.'**
+  String get errFutureTime;
 
   /// No description provided for @errEndBeforeStart.
   ///

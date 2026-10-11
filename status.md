@@ -12,7 +12,10 @@ _Last updated: 2026-10-11_
 
 **Resume here (2026-10-11):** functions are deployed (`pruneOldAlerts` + quiet hours;
 `pruneOldAlerts` deleted 20 and 14 old alerts on its first runs, 0 since). **Quiet hours
-verified 2026-10-11** (user signed it off). Still to do: review the 2026-10-09 UI
+verified 2026-10-11** (user signed it off). Block A tests done 2026-10-11 (log below). **Deploy pending (user):** `correctAttendance`
+refuses future times — `firebase deploy --only functions:correctAttendance --project
+royal-marble --account royalmarble.uae@gmail.com`. Then delete the production test data
+(list below) and continue with Block B/C. Still to do: review the 2026-10-09 UI
 (bell/unread alerts, Active sites overview, client map, live-map worker sheet). Then
 production end-to-end attendance test + cleanup, iOS release build, web dashboard.
 iOS prep is done except a release/TestFlight build and the Sign in with Apple key.
@@ -409,7 +412,8 @@ Code done 2026-10-03, verified on the emulators; nothing deployed.
 - [x] Admin correction screen (`lib/screens/attendance_edit_screen.dart`, opened by
       tapping a report row): change site/times, add or remove a stay, or approve as is;
       `correctAttendance` keeps `corrections` (who, when, reason, previous sessions).
-- [ ] Verify geofence events on a real phone (the emulator can't move realistically).
+- [x] Geofence exit/return verified on the emulator 2026-10-11 by feeding a walk of
+      `geo fix` points (2 s apart). A real phone walk is still worth doing once.
 - [ ] Night shifts across midnight aren't modelled (a session belongs to its start day).
 
 ### Phase 3 — Multiple sites per worker, hours per site (d)
@@ -451,7 +455,9 @@ writes a snapshot to `payroll/{uid}/history/{auto}`.
 - [ ] **Deploy the `payroll` rules** — on hold (production freeze). Purely additive:
       existing rules are unchanged and current app versions never touch `payroll`.
       Until deployed, the Pay card shows "not available yet" (seen on the emulator)
-- [ ] Verify on device: admin sets a package, the worker sees it, another user can't
+- [x] Verify on device (2026-10-11): admin set a package on the Xiaomi, Quiet Tester sees it
+      in My pay. "Another user can't" checked by reading the deployed rule only (live read
+      blocked by the permission check).
 
 ### Phase 6 — Hours-based pay (f)
 - Monthly calculation from attended hours (Phase 2–3 data) against the salary
@@ -784,3 +790,21 @@ Workers come from different countries; each user picks a language.
   channel with no sound or vibration. In the foreground the push still shows as the
   snack bar. One stale admin token (`registration-token-not-registered`) is logged on
   each push; harmless.
+- **2026-10-11 (cont.)** — Block A, production, Quiet Tester on the emulator, admin on the
+  Xiaomi (`76031c77`): check-in from 18.6 km refused ("You are 18619 m outside the
+  site"); check-in 07:02 → push; walking 1.3 km away (40 `geo fix` steps) → geofence
+  exit → `left_site` push; walking back → `returned_to_site`; check-out with work sheet
+  07:09 → push. Admin correction and salary done by the user; My pay shows the package.
+  Auto check-out not tested (the correction closed that stay).
+  **Fixed:** an admin's push token came back right after sign-out (stop() edits the
+  profile → Wrapper rebuilds → start() saved it again), so a worker on that phone got
+  the admin's alerts. `PushService` now ignores the signing-out user, and phones of
+  people who don't get alerts delete their token once (the server drops it as dead on
+  the next send) — verified: 4 → 3 phones, stray token removed.
+  **Fixed:** a correction could set times later than now (user saved 07:11 → 10:09 at
+  07:23). App and `correctAttendance` refuse it (`errFutureTime`, 4 languages); server
+  scenario added (32 pass). Server part needs a deploy.
+  **New:** scroll-wheel time picker (`lib/widgets/time_wheel_picker.dart`) replaces the
+  Android clock dial in attendance correction, quiet hours and the visit time (user's
+  request): big readout, hour/minute wheels, AM/PM on 12-hour phones, LTR in RTL
+  languages. Checked on the Xiaomi; 3 widget tests; 36 app tests pass.

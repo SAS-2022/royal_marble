@@ -5,6 +5,7 @@ import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/core/error_reporter.dart';
 import 'package:royal_marble/core/locale_controller.dart';
 import 'package:royal_marble/models/user_model.dart';
+import 'package:royal_marble/widgets/time_wheel_picker.dart';
 
 /// Which alerts send a push to this account. Stored as
 /// `users/{uid}.notify.{key}`; a missing key means on. The server checks
@@ -68,9 +69,9 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
         .formatTimeOfDay(TimeOfDay(hour: m ~/ 60, minute: m % 60));
     Future<void> pick(bool isFrom) async {
       final current = isFrom ? from : to;
-      final t = await showTimePicker(
-          context: context,
-          initialTime: TimeOfDay(hour: current ~/ 60, minute: current % 60));
+      final t = await showTimeWheel(context,
+          initial: TimeOfDay(hour: current ~/ 60, minute: current % 60),
+          title: isFrom ? l.quietFrom : l.quietTo);
       if (t == null) return;
       final m = t.hour * 60 + t.minute;
       await _setQuiet(true, isFrom ? m : from, isFrom ? to : m);

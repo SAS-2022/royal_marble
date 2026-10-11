@@ -18,6 +18,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chooseLanguage => 'Choose language';
 
   @override
+  String get done => 'Done';
+
+  @override
   String get cancel => 'Cancel';
 
   @override
@@ -1224,6 +1227,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String noOutCount(int count) {
     return '$count no out';
   }
+
+  @override
+  String get errFutureTime => 'Times can\'t be later than now.';
 
   @override
   String get errEndBeforeStart => 'Check-out must be after check-in.';

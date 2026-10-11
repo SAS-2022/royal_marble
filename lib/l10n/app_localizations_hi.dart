@@ -18,6 +18,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get chooseLanguage => 'भाषा चुनें';
 
   @override
+  String get done => 'हो गया';
+
+  @override
   String get cancel => 'रद्द करें';
 
   @override
@@ -1219,6 +1222,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String noOutCount(int count) {
     return '$count बिना चेक-आउट';
   }
+
+  @override
+  String get errFutureTime => 'समय अभी के बाद का नहीं हो सकता।';
 
   @override
   String get errEndBeforeStart => 'चेक-आउट, चेक-इन के बाद होना चाहिए।';

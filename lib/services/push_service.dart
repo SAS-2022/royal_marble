@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:royal_marble/account_settings/admin_user_view.dart';
@@ -22,11 +23,25 @@ class PushService {
   static UserData? _viewer;
   static bool _listening = false;
   static StreamSubscription<String>? _refresh;
+  // Signing out: `stop()` edits the profile, the wrapper rebuilds and would
+  // register the token again before the sign-out finishes.
+  static String? _closing;
+  static bool _tokenDropped = false;
 
   /// Called by the wrapper for every signed-in profile; only people who get
   /// alerts are registered (and asked for the notification permission).
   static Future<void> start(UserData user) async {
-    if (user.isActive != true || !primaryRole(user.roles).canMonitor) return;
+    if (user.uid == _closing) return;
+    if (user.isActive != true || !primaryRole(user.roles).canMonitor) {
+      // A token left on someone else's profile (e.g. an admin who used this
+      // phone before) dies here; the server drops dead tokens on its next send.
+      if (!_tokenDropped) {
+        _tokenDropped = true;
+        FirebaseMessaging.instance.deleteToken().catchError((_) {});
+      }
+      return;
+    }
+    _tokenDropped = false;
     final firstTime = _viewer?.uid != user.uid;
     _viewer = user;
     if (!firstTime) return;
@@ -58,6 +73,11 @@ class PushService {
     await _refresh?.cancel();
     _refresh = null;
     if (uid == null) return;
+    _closing = uid;
+    FirebaseAuth.instance
+        .authStateChanges()
+        .firstWhere((u) => u?.uid != uid)
+        .then((_) => _closing = null);
     try {
       final token = await FirebaseMessaging.instance.getToken();
       if (token != null) {

@@ -408,6 +408,12 @@ export const correctAttendance = onCall(async (req: CallableRequest<CorrectionRe
       const ms = stampToMs(stamp, offset);
       return ms == null ? null : Timestamp.fromMillis(ms);
     };
+    // A stay can't end (or start) later than now; 2 min allow for clock drift.
+    const latest = Date.now() + 2 * 60_000;
+    if (incoming.some((s) => (stampToMs(s.in, offset) ?? 0) > latest ||
+        (stampToMs(s.out, offset) ?? 0) > latest)) {
+      throw bad("Times can't be in the future.");
+    }
     const after: Session[] = incoming.map((s) => {
       const prev = s.from != null ? before[s.from] : undefined;
       const sameIn = prev?.in === s.in;

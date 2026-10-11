@@ -12,6 +12,7 @@ import '../models/user_model.dart';
 import '../services/database.dart';
 import 'client_form_screen.dart';
 import 'visits_screen.dart' show purposeLabel, visitKindIcon;
+import '../widgets/time_wheel_picker.dart';
 
 /// Something a visit can be about: a client or a project.
 class _Target {
@@ -109,8 +110,8 @@ class _VisitFormScreenState extends State<VisitFormScreen> {
       lastDate: now,
     );
     if (day == null || !mounted) return;
-    final t = await showTimePicker(
-        context: context, initialTime: TimeOfDay.fromDateTime(_time));
+    final t = await showTimeWheel(context,
+        initial: TimeOfDay.fromDateTime(_time));
     if (t == null) return;
     var picked = DateTime(day.year, day.month, day.day, t.hour, t.minute);
     if (picked.isAfter(now)) picked = now;

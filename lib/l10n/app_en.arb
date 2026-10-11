@@ -3,6 +3,7 @@
   "languageName": "English",
   "language": "Language",
   "chooseLanguage": "Choose language",
+  "done": "Done",
   "cancel": "Cancel",
   "save": "Save",
   "back": "Back",
@@ -786,6 +787,7 @@
       }
     }
   },
+  "errFutureTime": "Times can't be later than now.",
   "errEndBeforeStart": "Check-out must be after check-in.",
   "errOnlyLastOpen": "Only the last stay can be left without a check-out.",
   "errSessionsOverlap": "Two stays overlap. Adjust the times.",

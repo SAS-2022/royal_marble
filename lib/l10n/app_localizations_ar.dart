@@ -18,6 +18,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chooseLanguage => 'اختر اللغة';
 
   @override
+  String get done => 'تم';
+
+  @override
   String get cancel => 'إلغاء';
 
   @override
@@ -1222,6 +1225,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String noOutCount(int count) {
     return '$count بدون خروج';
   }
+
+  @override
+  String get errFutureTime => 'لا يمكن أن يكون الوقت بعد الآن.';
 
   @override
   String get errEndBeforeStart => 'يجب أن يكون الخروج بعد الدخول.';

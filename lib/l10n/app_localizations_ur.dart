@@ -18,6 +18,9 @@ class AppLocalizationsUr extends AppLocalizations {
   String get chooseLanguage => 'زبان منتخب کریں';
 
   @override
+  String get done => 'ہو گیا';
+
+  @override
   String get cancel => 'منسوخ کریں';
 
   @override
@@ -1222,6 +1225,9 @@ class AppLocalizationsUr extends AppLocalizations {
   String noOutCount(int count) {
     return '$count بغیر چیک آؤٹ';
   }
+
+  @override
+  String get errFutureTime => 'وقت ابھی کے بعد کا نہیں ہو سکتا۔';
 
   @override
   String get errEndBeforeStart => 'چیک آؤٹ، چیک اِن کے بعد ہونا چاہیے۔';

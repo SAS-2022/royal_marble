@@ -11,6 +11,7 @@ import '../models/attendance.dart';
 import '../reports/report_data.dart' show dayId;
 import '../services/checkin_service.dart' show SiteKind;
 import '../widgets/status_widgets.dart';
+import '../widgets/time_wheel_picker.dart';
 
 /// A site an admin can pick for a session.
 class _Site {
@@ -121,7 +122,11 @@ class _AttendanceEditScreenState extends State<AttendanceEditScreen> {
   String? _validate() {
     final l = context.l10n;
     final sorted = [..._drafts]..sort((a, b) => a.start.compareTo(b.start));
+    final latest = DateTime.now().add(const Duration(minutes: 2));
     for (final (i, d) in sorted.indexed) {
+      if (d.start.isAfter(latest) || (d.end?.isAfter(latest) ?? false)) {
+        return l.errFutureTime;
+      }
       if (d.end != null && !d.end!.isAfter(d.start)) return l.errEndBeforeStart;
       if (d.end == null && i != sorted.length - 1) return l.errOnlyLastOpen;
       if (i > 0 && (sorted[i - 1].end ?? d.start).isAfter(d.start)) {
@@ -131,11 +136,10 @@ class _AttendanceEditScreenState extends State<AttendanceEditScreen> {
     return null;
   }
 
-  Future<DateTime?> _pickTime(DateTime? initial) async {
-    final t = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.fromDateTime(initial ?? DateTime.now()),
-    );
+  Future<DateTime?> _pickTime(DateTime? initial, String title) async {
+    final t = await showTimeWheel(context,
+        initial: TimeOfDay.fromDateTime(initial ?? DateTime.now()),
+        title: title);
     if (t == null) return null;
     final d = widget.day;
     return DateTime(d.year, d.month, d.day, t.hour, t.minute);
@@ -227,11 +231,11 @@ class _AttendanceEditScreenState extends State<AttendanceEditScreen> {
                     sites: _sites,
                     canBeOpen: i == _drafts.length - 1,
                     onPickStart: () async {
-                      final t = await _pickTime(d.start);
+                      final t = await _pickTime(d.start, l.checkIn);
                       if (t != null) setState(() => d.start = t);
                     },
                     onPickEnd: () async {
-                      final t = await _pickTime(d.end ?? d.start);
+                      final t = await _pickTime(d.end ?? d.start, l.checkOut);
                       if (t != null) setState(() => d.end = t);
                     },
                     onClearEnd: () => setState(() => d.end = null),

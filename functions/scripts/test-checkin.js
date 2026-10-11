@@ -168,12 +168,15 @@ async function main() {
   // ── Admin correction ──
   const admin = await token("admin@test.local");
   const fixed = [{ siteId: "p_far", siteKind: "project", siteName: "Far Site",
-    in: localStamp(7, 0), out: localStamp(16, 30), from: 0 }];
+    in: localStamp(0, 10), out: localStamp(0, 40), from: 0 }];
   expect("a worker can't correct attendance",
     await correct(m1, { day: dayId(), uid: m2Id, sessions: fixed }), { error: "not_admin" });
   expect("overlapping sessions are rejected",
     await correct(admin, { day: dayId(), uid: m2Id, sessions: [...fixed,
-      { siteId: "p_far", siteKind: "project", siteName: "Far Site", in: localStamp(16, 0), out: localStamp(17, 0) }] }),
+      { siteId: "p_far", siteKind: "project", siteName: "Far Site", in: localStamp(0, 30), out: localStamp(0, 50) }] }),
+    { error: "bad_sessions" });
+  expect("a check-out later than now is rejected",
+    await correct(admin, { day: dayId(), uid: m2Id, sessions: [{ ...fixed[0], out: localStamp(23, 59) }] }),
     { error: "bad_sessions" });
   expect("an admin can fix the times",
     await correct(admin, { day: dayId(), uid: m2Id, sessions: fixed, note: "Forgot to check out" }),
@@ -182,7 +185,7 @@ async function main() {
   expect("the fix is applied and the previous version kept",
     [e.leaving_at, e.sessions[0].corrected, e.sessions[0].auto, e.corrections.length,
       e.corrections[0].note, e.corrections[0].before[0].auto, !!e.reviewed],
-    [localStamp(16, 30), true, "end_of_day", 1, "Forgot to check out", "end_of_day", true]);
+    [localStamp(0, 40), true, "end_of_day", 1, "Forgot to check out", "end_of_day", true]);
 
   console.log(failures ? `\n${failures} check(s) failed` : "\nAll checks passed");
   process.exit(failures ? 1 : 0);
