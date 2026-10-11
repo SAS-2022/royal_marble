@@ -14,8 +14,8 @@ _Last updated: 2026-10-11_
 `pruneOldAlerts` deleted 20 and 14 old alerts on its first runs, 0 since). **Quiet hours
 verified 2026-10-11** (user signed it off). Block A tests done 2026-10-11 (log below). **Deploy pending (user):** `correctAttendance`
 refuses future times — `firebase deploy --only functions:correctAttendance --project
-royal-marble --account royalmarble.uae@gmail.com`. Then delete the production test data
-(list below) and continue with Block B/C. Still to do: review the 2026-10-09 UI
+royal-marble --account royalmarble.uae@gmail.com`. Production test data is **kept until go-live** (user, 2026-10-11): delete it
+(list below) just before real users start. Next: Block B/C. Still to do: review the 2026-10-09 UI
 (bell/unread alerts, Active sites overview, client map, live-map worker sheet). Then
 production end-to-end attendance test + cleanup, iOS release build, web dashboard.
 iOS prep is done except a release/TestFlight build and the Sign in with Apple key.
@@ -69,7 +69,7 @@ permission check, so test accounts are made through the app.
    with Apple capability). Left: TestFlight build, Apple key for token revocation.
    Then the admin web dashboard.
 
-**Production test data to delete when testing is over:** `quiet.tester@royalmarble.test`
+**Production test data — keep until go-live, then delete (user's call, 2026-10-11):** `quiet.tester@royalmarble.test`
 ("Quiet Tester", registered 2026-10-11 on the emulator, approved, no site; password in
 that day's chat) and its `profile_images/` photo; logins + `users` docs +
 `profile_images/` photos for `mason.test@royalmarble.test` (approved, assigned to a
