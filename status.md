@@ -21,20 +21,10 @@ were all verified in production (session log below).
 **1. ✅ `correctAttendance` deployed** (2026-10-11 07:36 local, by the user): the server
 now refuses correction times later than now, as the app does.
 
-**2. Then pick the next block** — full plan with reasons in section 6 → "Plans log" →
-"2026-10-11 — Blocks A–D". Summary:
-- **Block B — store builds** (needs the user's store accounts): Android release build
-  signed with `royal-keystore.jks` + Play listing and location-privacy text; iOS
-  TestFlight build + Sign in with Apple key; fix small items first (`firebase-functions`
-  upgrade, Kotlin/Gradle plugin warnings, sign-out `permission-denied` log, rotate Maps
-  keys).
-- **Block C — admin web dashboard** (no client input needed, ~2–3 sessions): Flutter
-  web build of the app, admin screens only (live map, team status/alerts, attendance
-  reports with corrections, users and sites), wide layout, Firebase Hosting (one deploy
-  approval). Suggested next.
-- **Block D — after the client answers:** Phase 6 pay from hours (decisions #1–7),
-  Phase 3 rollout (migration, strict rules) once every phone runs the new app,
-  translation review fixes.
+**2. Now: Block C — admin web dashboard** (chosen 2026-10-12). Steps C1–C5 with
+reasons in section 6 → "Plans log" → "2026-10-12 — Block C". Resume at the first
+unticked step. Block B (store builds) and D (after the client answers) come later
+(see "2026-10-11 — Blocks A–D").
 
 **Optional, any time:** user reviews the 2026-10-09 UI (bell/unread alerts, Active
 sites overview, client map, live-map worker sheet) and the new wheel time picker;
@@ -366,6 +356,34 @@ independent and needs no billing, so it goes first.
 ### Plans log
 Newest first. Each plan: when, why, the steps, and decisions. Tick steps as they finish.
 
+#### 2026-10-12 — Block C: admin web dashboard (detailed plan)
+**Why:** the user chose Block C after Block A (it needs nothing from the client). Findings
+before planning: `web/` exists and `flutter build web` already compiles (53 s); no
+Firebase **web app** is registered (only Android/iOS); the app starts Firebase without
+options (fine on phones, not on the web); Crashlytics, background tracking, push and
+check-in are phone-only; photo upload and PDF/Excel export use `dart:io` files;
+`firebase.json` hosting points at an old `public/` folder.
+
+**Decisions (defaults, change if the user says so):** one codebase (the same app runs on
+the web with `kIsWeb` guards, no second project); **admins only** on the web (others see
+"use the phone app"); hosted at `royal-marble.web.app` (custom domain later); built and
+tested against the local emulators first, production only at C5.
+
+- [ ] **C1 Web foundation** — web Firebase options from `config/env.json` (git-ignored),
+      skip Crashlytics/tracking/push/check-in on the web, admin-only gate, Maps JS key
+      injected at build time; runs in Chrome against the emulators (`USE_EMULATOR=true`).
+- [ ] **C2 Wide layout** — side navigation (Dashboard, Team status & alerts, Live map,
+      Reports, Users, Sites, Clients, Visits), content width limits, tables instead of
+      cards where lists are long (reports, users).
+- [ ] **C3 Screen fixes for the browser** — PDF/Excel exports download in the browser,
+      photo upload from bytes, Google sign-in on the web, map and links.
+- [ ] **C4 Test** — every admin screen in Chrome on the emulators (seeded data), English
+      and Arabic (RTL); then read-only check against production signed in as admin.
+- [ ] **C5 Go live (user steps + one deploy)** — user registers a Firebase web app and a
+      web Maps key restricted to the hosting domain; hosting `public` → `build/web`;
+      `firebase deploy --only hosting` with the user's approval; add the domain to the
+      Google sign-in authorised domains.
+
 #### 2026-10-11 — Blocks A–D (finish the remaining phases)
 **Why:** after the quiet-hours test the user asked to see the remaining phases and how
 to divide them. Claude listed what's left per phase (Phases 2–8) and grouped the work
@@ -400,7 +418,7 @@ that need nobody else go first. The user chose Block A first.
         strict rules
   - [ ] Fixes from the native-speaker translation review (Phase 8)
 
-Status 2026-10-12: Block A done and `correctAttendance` deployed; the user picks B or C next.
+Status 2026-10-12: Block A done and `correctAttendance` deployed; **the user chose Block C** (plan above).
 
 #### 2026-10-01 — Current agenda (below)
 **Why:** billing was expired and production frozen, so the agenda was work that needs no
@@ -886,3 +904,5 @@ Workers come from different countries; each user picks a language.
   why, steps, decisions); added the Blocks A–D plan of 2026-10-11 and the 2026-10-01
   agenda's origin. Rule added to the top of this file.
   `correctAttendance` deploy confirmed in the logs (2026-10-11 07:36 local).
+- **2026-10-12 (cont.)** — The user chose Block C. Web build checked (compiles); no Firebase
+  web app yet. Plan C1–C5 logged in the Plans log. Starting C1.
