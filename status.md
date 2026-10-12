@@ -21,7 +21,7 @@ were all verified in production (session log below).
 **1. ✅ `correctAttendance` deployed** (2026-10-11 07:36 local, by the user): the server
 now refuses correction times later than now, as the app does.
 
-**2. Now: Block C — admin web dashboard** (chosen 2026-10-12; C1–C3 done, next C4). Steps C1–C5 with
+**2. Now: Block C — admin web dashboard** (chosen 2026-10-12; C1–C4 done; **C5 waits on the user**: web app + web Maps key, then a hosting deploy — steps in the Plans log). Steps C1–C5 with
 reasons in section 6 → "Plans log" → "2026-10-12 — Block C". Resume at the first
 unticked step. Block B (store builds) and D (after the client answers) come later
 (see "2026-10-11 — Blocks A–D").
@@ -396,12 +396,26 @@ tested against the local emulators first, production only at C5.
       the web is coded (popup) but can only be tested at C5 (needs the real web app).
       Not changed: sign-up (`register.dart`) still uses `dart:io` — not reachable on the
       web.
-- [ ] **C4 Test** — every admin screen in Chrome on the emulators (seeded data), English
-      and Arabic (RTL); then read-only check against production signed in as admin.
-- [ ] **C5 Go live (user steps + one deploy)** — user registers a Firebase web app and a
-      web Maps key restricted to the hosting domain; hosting `public` → `build/web`;
-      `firebase deploy --only hosting` with the user's approval; add the domain to the
-      Google sign-in authorised domains.
+- [x] **C4 Test** (2026-10-12, local part) — every admin menu page opened in headless
+      Chrome on the emulators with no errors (English); dashboard and Reports in Arabic
+      (sidebar on the right, RTL correct); exports and the time wheel checked in C3.
+      The read-only production check moves into C5 (it needs the real web app).
+- [ ] **C5 Go live (user steps + one deploy)** — prepared 2026-10-12: `firebase.json`
+      hosting now serves `build/web` (old `public/` placeholder removed). Steps:
+      1. [ ] Register a Firebase **web app** (console → Project settings → Add app → Web,
+         or `firebase apps:create web "Royal Marble dashboard"` with the user's OK);
+         put its `apiKey` / `appId` in `config/env.json` as `WEB_API_KEY` / `WEB_APP_ID`.
+      2. [ ] Google Cloud console: enable **Maps JavaScript API**; create a browser key
+         restricted to that API and to `https://royal-marble.web.app/*`,
+         `https://royal-marble.firebaseapp.com/*`, `http://localhost:*/*`; put it in
+         `config/env.json` as `MAPS_API_KEY_WEB`.
+      3. [ ] `flutter build web --release --dart-define-from-file=config/env.json`
+      4. [ ] Read-only check against production in Chrome (`flutter run -d chrome
+         --dart-define-from-file=config/env.json`), signed in as admin.
+      5. [ ] `firebase deploy --only hosting --project royal-marble --account
+         royalmarble.uae@gmail.com` (user's approval) → https://royal-marble.web.app
+      6. [ ] Google sign-in on the live site (`royal-marble.web.app` and
+         `firebaseapp.com` are authorised by default; check in Auth → Settings).
 
 #### 2026-10-11 — Blocks A–D (finish the remaining phases)
 **Why:** after the quiet-hours test the user asked to see the remaining phases and how
@@ -938,3 +952,6 @@ Workers come from different countries; each user picks a language.
   placeholder key (refused; no data reached). Next: C3 browser fixes (exports, photo
   upload, Google sign-in).
 - **2026-10-12 (cont.)** — C3 done (exports, profile photo, wheel in the browser). Next: C4.
+- **2026-10-12 (cont.)** — C4 local tests done (English + Arabic). C5 prepared: hosting serves
+  `build/web`, old `public/` placeholder removed. Waiting on the user for the Firebase web
+  app and a web Maps key (C5 steps 1–2).
