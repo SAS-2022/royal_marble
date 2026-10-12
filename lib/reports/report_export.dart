@@ -11,8 +11,9 @@ import 'report_data.dart';
 final _day = DateFormat('EEE d MMM yyyy');
 final _time = DateFormat('HH:mm');
 String _t(DateTime? d) => d == null ? '' : _time.format(d);
+// Plain hyphens: the PDF's built-in Helvetica has no "–".
 String _range(DateTimeRange r) =>
-    '${DateFormat('d MMM yyyy').format(r.start)} – ${DateFormat('d MMM yyyy').format(r.end)}';
+    '${DateFormat('d MMM yyyy').format(r.start)} - ${DateFormat('d MMM yyyy').format(r.end)}';
 
 const _gold = PdfColor.fromInt(0xFFC2A64A);
 const _charcoal = PdfColor.fromInt(0xFF23221C);
@@ -63,7 +64,7 @@ Future<Uint8List> attendancePdf({
       child: pw.Row(
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
-          pw.Text('ROYAL MARBLE · $title',
+          pw.Text('ROYAL MARBLE · ${title.replaceAll('–', '-')}',
               style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 14)),
           pw.Text(_range(range), style: const pw.TextStyle(fontSize: 10)),
         ],

@@ -402,18 +402,24 @@ tested against the local emulators first, production only at C5.
       The read-only production check moves into C5 (it needs the real web app).
 - [ ] **C5 Go live (user steps + one deploy)** — prepared 2026-10-12: `firebase.json`
       hosting now serves `build/web` (old `public/` placeholder removed). Steps:
-      1. [ ] Register a Firebase **web app** (console → Project settings → Add app → Web,
+      1. [x] (2026-10-12, by the user: "Royal Marble Web", appId `…:web:9a504f…`; keys in
+         `config/env.json`) Register a Firebase **web app** (console → Project settings → Add app → Web,
          or `firebase apps:create web "Royal Marble dashboard"` with the user's OK);
          put its `apiKey` / `appId` in `config/env.json` as `WEB_API_KEY` / `WEB_APP_ID`.
-      2. [ ] Google Cloud console: enable **Maps JavaScript API**; create a browser key
+      2. [x] (2026-10-12, by the user; restricted to the two Firebase domains + localhost;
+         key in `config/env.json`) Google Cloud console: enable **Maps JavaScript API**; create a browser key
          restricted to that API and to `https://royal-marble.web.app/*`,
          `https://royal-marble.firebaseapp.com/*`, `http://localhost:*/*`; put it in
          `config/env.json` as `MAPS_API_KEY_WEB`.
       3. [ ] `flutter build web --release --dart-define-from-file=config/env.json`
-      4. [ ] Read-only check against production in Chrome (`flutter run -d chrome
+      4. [ ] (in progress 2026-10-12, `flutter run -d chrome --web-port 8099`) Read-only check against production in Chrome (`flutter run -d chrome
          --dart-define-from-file=config/env.json`), signed in as admin.
       5. [ ] `firebase deploy --only hosting --project royal-marble --account
          royalmarble.uae@gmail.com` (user's approval) → https://royal-marble.web.app
+      **Found during step 4:** profile photos don't load in the browser (Firebase Storage
+      blocks cross-site image downloads: bucket has no CORS rule) — fix pending, user to
+      choose: CORS rule on the bucket (production setting) or a code workaround. Fixed:
+      PDF exports dropped the "–" in date ranges (Helvetica has no glyph) → hyphens.
       6. [ ] Google sign-in on the live site (`royal-marble.web.app` and
          `firebaseapp.com` are authorised by default; check in Auth → Settings).
 
@@ -955,3 +961,6 @@ Workers come from different countries; each user picks a language.
 - **2026-10-12 (cont.)** — C4 local tests done (English + Arabic). C5 prepared: hosting serves
   `build/web`, old `public/` placeholder removed. Waiting on the user for the Firebase web
   app and a web Maps key (C5 steps 1–2).
+- **2026-10-12 (cont.)** — User registered the Firebase web app and created the web Maps key;
+  production check running in Chrome. Found: profile photos blocked in the browser (no
+  CORS on the Storage bucket); PDF "–" missing (fixed).
