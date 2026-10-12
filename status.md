@@ -21,10 +21,11 @@ were all verified in production (session log below).
 **1. ✅ `correctAttendance` deployed** (2026-10-11 07:36 local, by the user): the server
 now refuses correction times later than now, as the app does.
 
-**2. Now: Block C — admin web dashboard** (chosen 2026-10-12; C1–C4 done; **C5 waits on the user**: web app + web Maps key, then a hosting deploy — steps in the Plans log). Steps C1–C5 with
-reasons in section 6 → "Plans log" → "2026-10-12 — Block C". Resume at the first
-unticked step. Block B (store builds) and D (after the client answers) come later
-(see "2026-10-11 — Blocks A–D").
+**2. Now: HR role + pay earned + overtime** (plan "2026-10-12 — HR role, pay earned so
+far, overtime approval" in section 6 → Plans log; steps H1–H7, resume at the first
+unticked one). **Block C** is done except C5 step 5 (hosting deploy, needs the user's
+go-ahead) and step 6 (Google sign-in on the live site); Storage CORS rule for the web
+was given to the user to run in Cloud Shell (photos on the web).
 
 **Optional, any time:** user reviews the 2026-10-09 UI (bell/unread alerts, Active
 sites overview, client map, live-map worker sheet) and the new wheel time picker;
@@ -356,6 +357,52 @@ independent and needs no billing, so it goes first.
 ### Plans log
 Newest first. Each plan: when, why, the steps, and decisions. Tick steps as they finish.
 
+#### 2026-10-12 — HR role, pay earned so far, overtime approval (Phase 6, part 1)
+**Why:** after checking the web dashboard against production the user asked for (1) a new
+**HR** user who monitors timing, check-ins/outs and pay, (2) workers seeing **how much of
+their pay they have earned so far**, from their pay package and set working hours
+(e.g. 48 h/week), and (3) **overtime** (time after 5 PM) listed separately for HR to
+**approve or reject**, paid at an **hourly overtime rate HR sets**. This answers part of
+the client decisions for Phase 6 (#1 hours, #3 overtime, #7 who approves).
+
+**Decisions (user, 2026-10-12, all the recommended options):**
+- HR = attendance + pay: sees everyone's check-ins/outs and reports, can correct
+  attendance, sets pay packages, working hours and overtime rates, approves/rejects
+  overtime. Cannot approve sign-ups, manage sites or change roles (admin only). Uses
+  the phone app and the web dashboard. Role key `isHR`.
+- Earned so far = hourly rate × regular hours worked this month + approved overtime.
+  Hourly rate = monthly total (basic + allowances) ÷ expected monthly hours
+  (weekly hours × 52 ÷ 12; 48 h → 208 h). Shown to the worker (My pay) and to HR.
+- Overtime = time checked in after the worker's day-end time (default 17:00) each day.
+  Pending until HR approves or rejects; only approved overtime is paid.
+- Overtime rate = per worker, AED per hour, on the pay package (set by HR/admin).
+
+**Still open (ask the client later):** weekends/public holidays, days without a
+check-out, daily/hourly pay types (planned: hourly uses basic as the rate; daily uses
+basic ÷ (weekly hours ÷ 6)), whether allowances are pro-rated (planned: yes, inside
+the hourly rate), what happens to overtime changed after approval (planned: flagged
+for HR to re-check).
+
+- [ ] **H1 HR role** — `AppRole.hr` (`isHR`), label in 4 languages, role picker on the
+      user page, HR home (pending overtime, this month's pay summary), menu (Reports,
+      Users, Overtime, Payroll), web dashboard allows HR; `correctAttendance` accepts
+      HR; rules: HR reads/writes `payroll` and `overtime` (interim + strict files).
+- [ ] **H2 Pay settings** — on the pay package: weekly hours (default 48), day-end
+      time (default 17:00), overtime rate (AED/h); salary editor fields (HR/admin).
+- [ ] **H3 Calculation** — pure Dart (`lib/models/pay_calc.dart`) with unit tests:
+      hourly rate, per-day regular vs overtime minutes from sessions (time after day
+      end), month-to-date totals, earned amount.
+- [ ] **H4 Overtime review** — HR screen: days with overtime (pending / approved /
+      rejected), approve or reject with a note; decisions in `overtime/{uid}_{day}`
+      {minutes, rate, status, by, at, note}; flagged when attendance changed later.
+- [ ] **H5 Earned so far** — My pay card for the worker (regular hours, approved
+      overtime, pending overtime not yet paid, total); same card on the worker's page
+      for HR/admin; month payroll list for HR (Excel export).
+- [ ] **H6 Tests** — unit tests, emulator scenario (HR correction allowed, worker
+      refused), rules compile (dry run), screens on the emulator (phone) and the web.
+- [ ] **H7 Deploy (user's approval)** — rules + `correctAttendance`; then the user
+      makes an HR account (role picker) and tries it.
+
 #### 2026-10-12 — Block C: admin web dashboard (detailed plan)
 **Why:** the user chose Block C after Block A (it needs nothing from the client). Findings
 before planning: `web/` exists and `flutter build web` already compiles (53 s); no
@@ -412,7 +459,7 @@ tested against the local emulators first, production only at C5.
          `https://royal-marble.firebaseapp.com/*`, `http://localhost:*/*`; put it in
          `config/env.json` as `MAPS_API_KEY_WEB`.
       3. [ ] `flutter build web --release --dart-define-from-file=config/env.json`
-      4. [ ] (in progress 2026-10-12, `flutter run -d chrome --web-port 8099`) Read-only check against production in Chrome (`flutter run -d chrome
+      4. [x] (2026-10-12: the user reports the website works like the app) Read-only check against production in Chrome (`flutter run -d chrome
          --dart-define-from-file=config/env.json`), signed in as admin.
       5. [ ] `firebase deploy --only hosting --project royal-marble --account
          royalmarble.uae@gmail.com` (user's approval) → https://royal-marble.web.app
@@ -964,3 +1011,6 @@ Workers come from different countries; each user picks a language.
 - **2026-10-12 (cont.)** — User registered the Firebase web app and created the web Maps key;
   production check running in Chrome. Found: profile photos blocked in the browser (no
   CORS on the Storage bucket); PDF "–" missing (fixed).
+- **2026-10-12 (cont.)** — User: the website works like the app. New request: HR role, pay
+  earned so far, overtime approval with HR-set hourly rate. Decisions taken (all
+  recommended options); plan H1–H7 logged. Starting H1.
