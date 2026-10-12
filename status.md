@@ -21,7 +21,7 @@ were all verified in production (session log below).
 **1. ✅ `correctAttendance` deployed** (2026-10-11 07:36 local, by the user): the server
 now refuses correction times later than now, as the app does.
 
-**2. Now: Block C — admin web dashboard** (chosen 2026-10-12; C1–C2 done, next C3). Steps C1–C5 with
+**2. Now: Block C — admin web dashboard** (chosen 2026-10-12; C1–C3 done, next C4). Steps C1–C5 with
 reasons in section 6 → "Plans log" → "2026-10-12 — Block C". Resume at the first
 unticked step. Block B (store builds) and D (after the client answers) come later
 (see "2026-10-11 — Blocks A–D").
@@ -387,8 +387,15 @@ tested against the local emulators first, production only at C5.
       phones unchanged (checked at 800 px). All 9 menu pages open with no errors.
       **Dropped:** tables instead of cards — the card lists read well at this width;
       revisit only if the user asks.
-- [ ] **C3 Screen fixes for the browser** — PDF/Excel exports download in the browser,
-      photo upload from bytes, Google sign-in on the web, map and links.
+- [x] **C3 Screen fixes for the browser** (2026-10-12) — Excel export downloads in the
+      browser (`save_launch_file.dart` now picks `_io` / `_web`; PDF already did via
+      `printing`), both checked with real rows (emulator data from `test:checkin`); My
+      profile photo works from bytes (`putData`, `MemoryImage`; no `dart:io`, phones
+      too; the browser goes straight to its file chooser); time wheel works in the
+      browser incl. mouse-wheel scrolling and the 12-hour AM/PM wheel. Google sign-in on
+      the web is coded (popup) but can only be tested at C5 (needs the real web app).
+      Not changed: sign-up (`register.dart`) still uses `dart:io` — not reachable on the
+      web.
 - [ ] **C4 Test** — every admin screen in Chrome on the emulators (seeded data), English
       and Arabic (RTL); then read-only check against production signed in as admin.
 - [ ] **C5 Go live (user steps + one deploy)** — user registers a Firebase web app and a
@@ -930,3 +937,4 @@ Workers come from different countries; each user picks a language.
   before the app switches to the emulators and goes to Google's real endpoint with the
   placeholder key (refused; no data reached). Next: C3 browser fixes (exports, photo
   upload, Google sign-in).
+- **2026-10-12 (cont.)** — C3 done (exports, profile photo, wheel in the browser). Next: C4.

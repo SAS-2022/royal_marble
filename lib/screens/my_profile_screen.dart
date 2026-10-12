@@ -1,9 +1,9 @@
-import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -50,7 +50,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           : widget.user.company);
   late Map<String, dynamic>? _nationality = widget.user.nationality;
   late Map<String, dynamic>? _home = widget.user.homeAddress;
-  XFile? _photo;
+  // The picked photo's bytes: work the same on phones and the web dashboard.
+  Uint8List? _photo;
   bool _saving = false;
 
   @override
@@ -61,9 +62,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     super.dispose();
   }
 
-  Future<void> _pickPhoto() async {
+  Future<ImageSource?> _askSource() {
     final l = context.l10n;
-    final source = await showModalBottomSheet<ImageSource>(
+    return showModalBottomSheet<ImageSource>(
       context: context,
       showDragHandle: true,
       builder: (context) => SafeArea(
@@ -81,6 +82,12 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         ]),
       ),
     );
+  }
+
+  Future<void> _pickPhoto() async {
+    final l = context.l10n;
+    // A browser only offers its file chooser.
+    final source = kIsWeb ? ImageSource.gallery : await _askSource();
     if (source == null) return;
     try {
       final img = await ImagePicker().pickImage(
@@ -88,7 +95,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           preferredCameraDevice: CameraDevice.front,
           maxWidth: 800,
           imageQuality: 85);
-      if (img != null) setState(() => _photo = img);
+      if (img == null) return;
+      final bytes = await img.readAsBytes();
+      setState(() => _photo = bytes);
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context)
@@ -117,7 +126,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   /// One file per user, so a new photo replaces the old one.
   Future<String> _uploadPhoto() async {
     final ref = FirebaseStorage.instance.ref('profile_images/${widget.user.uid}.jpg');
-    await ref.putFile(File(_photo!.path));
+    await ref.putData(_photo!, SettableMetadata(contentType: 'image/jpeg'));
     return ref.getDownloadURL();
   }
 
@@ -187,7 +196,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                     radius: 52,
                     backgroundColor: AppColors.gold.withValues(alpha: 0.2),
                     foregroundImage: _photo != null
-                        ? FileImage(File(_photo!.path))
+                        ? MemoryImage(_photo!)
                         : hasImage
                             ? NetworkImage(u.imageUrl!) as ImageProvider
                             : null,
