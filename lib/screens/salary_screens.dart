@@ -9,6 +9,7 @@ import '../models/salary.dart';
 import '../models/user_model.dart';
 import '../services/payroll_service.dart';
 import '../widgets/status_widgets.dart';
+import '../widgets/time_wheel_picker.dart';
 
 final _money = NumberFormat('#,##0.##');
 String money(double v, String currency) => '$currency ${_money.format(v)}';
@@ -62,6 +63,17 @@ class SalaryBreakdown extends StatelessWidget {
         const Divider(height: 18),
         row(l.totalPerMonth, p.monthlyTotal!, bold: true),
       ],
+      const SizedBox(height: 8),
+      Text(
+          l.workingTermsLine(
+              _hours.format(p.weeklyHours),
+              MaterialLocalizations.of(context).formatTimeOfDay(
+                  TimeOfDay(hour: p.dayEndMinutes ~/ 60, minute: p.dayEndMinutes % 60),
+                  alwaysUse24HourFormat: true),
+              p.overtimeRate > 0
+                  ? '${money(p.overtimeRate, p.currency)} ${l.perHour}'
+                  : l.overtimeRateNotSet),
+          style: const TextStyle(fontSize: 13, color: AppColors.muted)),
       if (p.notes?.isNotEmpty == true) ...[
         const SizedBox(height: 8),
         Text(p.notes!, style: const TextStyle(color: AppColors.muted)),
@@ -132,6 +144,9 @@ class SalaryEditorScreen extends StatefulWidget {
   State<SalaryEditorScreen> createState() => _SalaryEditorScreenState();
 }
 
+/// "48" or "47.5": hours without trailing zeros.
+final _hours = NumberFormat('0.#');
+
 class _SalaryEditorScreenState extends State<SalaryEditorScreen> {
   final _form = GlobalKey<FormState>();
   late PayType _type = widget.initial.payType;
@@ -141,6 +156,10 @@ class _SalaryEditorScreenState extends State<SalaryEditorScreen> {
   late final _transport = _ctrl(widget.initial.transport);
   late final _food = _ctrl(widget.initial.food);
   late final _notes = TextEditingController(text: widget.initial.notes);
+  late final _weeklyHours = TextEditingController(
+      text: _hours.format(widget.initial.weeklyHours));
+  late int _dayEnd = widget.initial.dayEndMinutes;
+  late final _overtimeRate = _ctrl(widget.initial.overtimeRate);
   late final List<(TextEditingController, TextEditingController)> _other = [
     for (final a in widget.initial.other)
       (TextEditingController(text: a.name), _ctrl(a.amount))
@@ -165,6 +184,10 @@ class _SalaryEditorScreenState extends State<SalaryEditorScreen> {
             if (n.text.trim().isNotEmpty && _val(a) > 0)
               Allowance(n.text.trim(), _val(a))
         ],
+        weeklyHours: double.tryParse(_weeklyHours.text.trim()) ??
+            SalaryPackage.defaultWeeklyHours,
+        dayEndMinutes: _dayEnd,
+        overtimeRate: _val(_overtimeRate),
         effectiveFrom: DateTime(_from.year, _from.month, _from.day),
         notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
       );
@@ -265,6 +288,45 @@ class _SalaryEditorScreenState extends State<SalaryEditorScreen> {
                 label: Text(context.l10n.addAllowance),
               ),
             ),
+            SectionTitle(context.l10n.workingHoursOvertime),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: TextFormField(
+                controller: _weeklyHours,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
+                decoration: InputDecoration(
+                    labelText: context.l10n.hoursPerWeek,
+                    suffixText: context.l10n.hoursUnit),
+                onChanged: (_) => setState(() {}),
+                validator: (v) {
+                  final n = double.tryParse((v ?? '').trim());
+                  return n == null || n <= 0 || n > 84
+                      ? context.l10n.enterValidHours
+                      : null;
+                },
+              ),
+            ),
+            InkWell(
+              onTap: () async {
+                final t = await showTimeWheel(context,
+                    initial: TimeOfDay(hour: _dayEnd ~/ 60, minute: _dayEnd % 60),
+                    title: context.l10n.dayEndsAt);
+                if (t != null) setState(() => _dayEnd = t.hour * 60 + t.minute);
+              },
+              child: InputDecorator(
+                decoration: InputDecoration(
+                    labelText: context.l10n.dayEndsAt,
+                    helperText: context.l10n.dayEndHint,
+                    suffixIcon: const Icon(Icons.schedule)),
+                child: Text(MaterialLocalizations.of(context).formatTimeOfDay(
+                    TimeOfDay(hour: _dayEnd ~/ 60, minute: _dayEnd % 60),
+                    alwaysUse24HourFormat: true)),
+              ),
+            ),
+            const SizedBox(height: 12),
+            _amount(_overtimeRate,
+                '${context.l10n.overtimeRate} ${context.l10n.perHour}'),
             SectionTitle(context.l10n.details),
             InkWell(
               onTap: () async {

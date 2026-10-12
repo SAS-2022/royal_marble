@@ -586,6 +586,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboard => 'Dashboard';
 
   @override
+  String get workingHoursOvertime => 'Working hours and overtime';
+
+  @override
+  String get hoursPerWeek => 'Hours per week';
+
+  @override
+  String get hoursUnit => 'h';
+
+  @override
+  String get enterValidHours => 'Enter hours between 1 and 84';
+
+  @override
+  String get dayEndsAt => 'Working day ends at';
+
+  @override
+  String get dayEndHint => 'Time checked in after this counts as overtime';
+
+  @override
+  String get overtimeRate => 'Overtime rate';
+
+  @override
+  String get overtimeRateNotSet => 'not set';
+
+  @override
+  String workingTermsLine(String hours, String dayEnd, String rate) {
+    return '$hours h a week · day ends $dayEnd · overtime $rate';
+  }
+
+  @override
   String get signOut => 'Sign out';
 
   @override

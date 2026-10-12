@@ -40,6 +40,16 @@ class SalaryPackage {
   final double transport;
   final double food;
   final List<Allowance> other;
+
+  /// Contracted hours per week (e.g. 48); sets the hourly rate of monthly pay.
+  final double weeklyHours;
+
+  /// Local time the working day ends, in minutes after midnight (17:00 =
+  /// 1020). Time checked in after it is overtime, pending HR approval.
+  final int dayEndMinutes;
+
+  /// What HR pays per approved overtime hour, in [currency].
+  final double overtimeRate;
   final DateTime? effectiveFrom;
   final String? notes;
   final DateTime? updatedAt;
@@ -53,11 +63,17 @@ class SalaryPackage {
     this.transport = 0,
     this.food = 0,
     this.other = const [],
+    this.weeklyHours = defaultWeeklyHours,
+    this.dayEndMinutes = defaultDayEnd,
+    this.overtimeRate = 0,
     this.effectiveFrom,
     this.notes,
     this.updatedAt,
     this.updatedBy,
   });
+
+  static const defaultWeeklyHours = 48.0;
+  static const defaultDayEnd = 17 * 60;
 
   double get monthlyAllowances =>
       housing + transport + food + other.fold(0.0, (t, a) => t + a.amount);
@@ -83,6 +99,10 @@ class SalaryPackage {
         for (final a in (m['other'] as List?) ?? const [])
           if (a is Map) Allowance.fromMap(a)
       ],
+      // Packages saved before working hours existed get the defaults.
+      weeklyHours: (m['weeklyHours'] as num?)?.toDouble() ?? defaultWeeklyHours,
+      dayEndMinutes: (m['dayEndMinutes'] as num?)?.toInt() ?? defaultDayEnd,
+      overtimeRate: _d(m['overtimeRate']),
       effectiveFrom: (m['effectiveFrom'] as Timestamp?)?.toDate(),
       notes: m['notes'] as String?,
       updatedAt: (m['updatedAt'] as Timestamp?)?.toDate(),
@@ -98,6 +118,9 @@ class SalaryPackage {
         'transport': transport,
         'food': food,
         'other': [for (final a in other) a.toMap()],
+        'weeklyHours': weeklyHours,
+        'dayEndMinutes': dayEndMinutes,
+        'overtimeRate': overtimeRate,
         'effectiveFrom':
             effectiveFrom == null ? null : Timestamp.fromDate(effectiveFrom!),
         'notes': notes,

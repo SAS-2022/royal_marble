@@ -587,6 +587,35 @@ class AppLocalizationsUr extends AppLocalizations {
   String get dashboard => 'ڈیش بورڈ';
 
   @override
+  String get workingHoursOvertime => 'کام کے اوقات اور اوور ٹائم';
+
+  @override
+  String get hoursPerWeek => 'فی ہفتہ گھنٹے';
+
+  @override
+  String get hoursUnit => 'گھنٹے';
+
+  @override
+  String get enterValidHours => '1 سے 84 کے درمیان گھنٹے درج کریں';
+
+  @override
+  String get dayEndsAt => 'کام کا دن ختم ہوتا ہے';
+
+  @override
+  String get dayEndHint => 'اس کے بعد چیک اِن کا وقت اوور ٹائم شمار ہوتا ہے';
+
+  @override
+  String get overtimeRate => 'اوور ٹائم کی شرح';
+
+  @override
+  String get overtimeRateNotSet => 'مقرر نہیں';
+
+  @override
+  String workingTermsLine(String hours, String dayEnd, String rate) {
+    return 'ہفتے میں $hours گھنٹے · دن $dayEnd پر ختم · اوور ٹائم $rate';
+  }
+
+  @override
   String get signOut => 'سائن آؤٹ';
 
   @override

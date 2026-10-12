@@ -394,8 +394,11 @@ for HR to re-check).
       for `payroll`, new `overtime` collection (HR/admin write, worker reads own);
       strict: HR reads `users`. Checked on the web dashboard as HR (emulators).
       **Not deployed** (H7).
-- [ ] **H2 Pay settings** — on the pay package: weekly hours (default 48), day-end
-      time (default 17:00), overtime rate (AED/h); salary editor fields (HR/admin).
+- [x] **H2 Pay settings** (2026-10-12) — `SalaryPackage.weeklyHours` (default 48),
+      `dayEndMinutes` (default 17:00 = 1020), `overtimeRate` (per hour); old packages
+      read with the defaults. Editor section "Working hours and overtime" (day end via
+      the time wheel); summary line "48 h a week · day ends 17:00 · overtime AED 15 /
+      hour". 2 unit tests (38 pass). Saved as HR on the emulators (rules allow it).
 - [ ] **H3 Calculation** — pure Dart (`lib/models/pay_calc.dart`) with unit tests:
       hourly rate, per-day regular vs overtime minutes from sessions (time after day
       end), month-to-date totals, earned amount.
@@ -1023,3 +1026,5 @@ Workers come from different countries; each user picks a language.
   recommended options); plan H1–H7 logged. Starting H1.
 - **2026-10-12 (cont.)** — H1 done (HR role). Next: H2 pay settings (weekly hours, day end,
   overtime rate).
+- **2026-10-12 (cont.)** — H2 done (working hours and overtime rate on the pay package).
+  Next: H3 calculation.

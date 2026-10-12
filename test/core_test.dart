@@ -59,6 +59,17 @@ void main() {
       expect(back.basic, 15);
       expect(back.other.single.name, 'Tools');
     });
+    test('working hours and overtime rate round-trip', () {
+      const p = SalaryPackage(
+          basic: 2000, weeklyHours: 45, dayEndMinutes: 18 * 60, overtimeRate: 12.5);
+      final back = SalaryPackage.fromMap(p.toMap());
+      expect([back.weeklyHours, back.dayEndMinutes, back.overtimeRate],
+          [45, 18 * 60, 12.5]);
+    });
+    test('packages saved before working hours existed get the defaults', () {
+      final old = SalaryPackage.fromMap({'payType': 'monthly', 'basic': 1800});
+      expect([old.weeklyHours, old.dayEndMinutes, old.overtimeRate], [48, 17 * 60, 0]);
+    });
   });
 
   group('localization', () {

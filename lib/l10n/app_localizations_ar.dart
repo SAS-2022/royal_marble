@@ -579,6 +579,35 @@ class AppLocalizationsAr extends AppLocalizations {
   String get dashboard => 'لوحة التحكم';
 
   @override
+  String get workingHoursOvertime => 'ساعات العمل والعمل الإضافي';
+
+  @override
+  String get hoursPerWeek => 'الساعات في الأسبوع';
+
+  @override
+  String get hoursUnit => 'س';
+
+  @override
+  String get enterValidHours => 'أدخل عدد ساعات بين 1 و84';
+
+  @override
+  String get dayEndsAt => 'ينتهي يوم العمل في';
+
+  @override
+  String get dayEndHint => 'الوقت المسجل بعد هذا يُحسب عملاً إضافياً';
+
+  @override
+  String get overtimeRate => 'أجر العمل الإضافي';
+
+  @override
+  String get overtimeRateNotSet => 'غير محدد';
+
+  @override
+  String workingTermsLine(String hours, String dayEnd, String rate) {
+    return '$hours ساعة أسبوعياً · ينتهي اليوم $dayEnd · العمل الإضافي $rate';
+  }
+
+  @override
   String get signOut => 'تسجيل الخروج';
 
   @override

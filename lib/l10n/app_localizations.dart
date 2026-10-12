@@ -1122,6 +1122,60 @@ abstract class AppLocalizations {
   /// **'Dashboard'**
   String get dashboard;
 
+  /// No description provided for @workingHoursOvertime.
+  ///
+  /// In en, this message translates to:
+  /// **'Working hours and overtime'**
+  String get workingHoursOvertime;
+
+  /// No description provided for @hoursPerWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Hours per week'**
+  String get hoursPerWeek;
+
+  /// No description provided for @hoursUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'h'**
+  String get hoursUnit;
+
+  /// No description provided for @enterValidHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter hours between 1 and 84'**
+  String get enterValidHours;
+
+  /// No description provided for @dayEndsAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Working day ends at'**
+  String get dayEndsAt;
+
+  /// No description provided for @dayEndHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Time checked in after this counts as overtime'**
+  String get dayEndHint;
+
+  /// No description provided for @overtimeRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Overtime rate'**
+  String get overtimeRate;
+
+  /// No description provided for @overtimeRateNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'not set'**
+  String get overtimeRateNotSet;
+
+  /// No description provided for @workingTermsLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h a week · day ends {dayEnd} · overtime {rate}'**
+  String workingTermsLine(String hours, String dayEnd, String rate);
+
   /// No description provided for @signOut.
   ///
   /// In en, this message translates to:

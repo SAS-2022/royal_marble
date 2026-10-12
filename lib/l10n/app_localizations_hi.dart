@@ -584,6 +584,35 @@ class AppLocalizationsHi extends AppLocalizations {
   String get dashboard => 'डैशबोर्ड';
 
   @override
+  String get workingHoursOvertime => 'काम के घंटे और ओवरटाइम';
+
+  @override
+  String get hoursPerWeek => 'प्रति सप्ताह घंटे';
+
+  @override
+  String get hoursUnit => 'घं';
+
+  @override
+  String get enterValidHours => '1 से 84 के बीच घंटे दर्ज करें';
+
+  @override
+  String get dayEndsAt => 'काम का दिन समाप्त होता है';
+
+  @override
+  String get dayEndHint => 'इसके बाद चेक-इन का समय ओवरटाइम माना जाता है';
+
+  @override
+  String get overtimeRate => 'ओवरटाइम दर';
+
+  @override
+  String get overtimeRateNotSet => 'तय नहीं';
+
+  @override
+  String workingTermsLine(String hours, String dayEnd, String rate) {
+    return 'सप्ताह में $hours घंटे · दिन $dayEnd पर समाप्त · ओवरटाइम $rate';
+  }
+
+  @override
   String get signOut => 'साइन आउट';
 
   @override
