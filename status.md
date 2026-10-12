@@ -399,9 +399,15 @@ for HR to re-check).
       read with the defaults. Editor section "Working hours and overtime" (day end via
       the time wheel); summary line "48 h a week · day ends 17:00 · overtime AED 15 /
       hour". 2 unit tests (38 pass). Saved as HR on the emulators (rules allow it).
-- [ ] **H3 Calculation** — pure Dart (`lib/models/pay_calc.dart`) with unit tests:
-      hourly rate, per-day regular vs overtime minutes from sessions (time after day
-      end), month-to-date totals, earned amount.
+- [x] **H3 Calculation** (2026-10-12) — `lib/models/pay_calc.dart`: `hourlyRate`
+      (monthly: total ÷ (weekly h × 52 ÷ 12); daily: basic ÷ (weekly h ÷ 6) +
+      allowances/h; hourly: basic + allowances/h), `dayPay` (worked vs overtime =
+      time after the day end, on the day the stay started; open stay today counts to
+      now; a past stay never closed counts 0 until corrected), `paySoFar` (regular pay
+      + approved overtime at the rate saved with the approval; changed-after-approval
+      → pending), `OvertimeDecision` + `overtimeDocId` (`{uid}_{d-m-yyyy}`). 11 unit
+      tests (`test/pay_calc_test.dart`). Time outside the site (lunch) is not
+      deducted — client decision #2 still open.
 - [ ] **H4 Overtime review** — HR screen: days with overtime (pending / approved /
       rejected), approve or reject with a note; decisions in `overtime/{uid}_{day}`
       {minutes, rate, status, by, at, note}; flagged when attendance changed later.
@@ -1028,3 +1034,4 @@ Workers come from different countries; each user picks a language.
   overtime rate).
 - **2026-10-12 (cont.)** — H2 done (working hours and overtime rate on the pay package).
   Next: H3 calculation.
+- **2026-10-12 (cont.)** — H3 done (pay calculation + tests). Next: H4 overtime review.
