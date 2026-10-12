@@ -3,8 +3,11 @@
 Living tracker for this project, kept up to date across chat sessions.
 **Read this first when resuming work. Update it after every step: tick tasks, change
 phase status, and add a line to the session log.**
+**Every plan agreed in chat goes into "Plans log" (section 6) the same day: date, why it
+was made, the steps in order, and what was decided. Later changes to a plan are added
+under it, not overwritten.**
 
-_Last updated: 2026-10-11_
+_Last updated: 2026-10-12_
 
 ---
 
@@ -20,7 +23,8 @@ were all verified in production (session log below).
 royalmarble.uae@gmail.com` (refuses correction times later than now; the app already
 blocks it). Answer **No** to any delete prompt.
 
-**2. Then pick the next block** (agreed plan, 2026-10-11):
+**2. Then pick the next block** — full plan with reasons in section 6 → "Plans log" →
+"2026-10-11 — Blocks A–D". Summary:
 - **Block B — store builds** (needs the user's store accounts): Android release build
   signed with `royal-keystore.jks` + Play listing and location-privacy text; iOS
   TestFlight build + Sign in with Apple key; fix small items first (`firebase-functions`
@@ -360,6 +364,50 @@ The new app's check-in depends on `checkInOut`. Old app versions still write
 **Why this order:** pay (6) is only fair once attendance is trustworthy (2) and
 recorded per site (3). Leaving-site alerts (4) reuse the geofences from 2. Phase 1 is
 independent and needs no billing, so it goes first.
+
+### Plans log
+Newest first. Each plan: when, why, the steps, and decisions. Tick steps as they finish.
+
+#### 2026-10-11 — Blocks A–D (finish the remaining phases)
+**Why:** after the quiet-hours test the user asked to see the remaining phases and how
+to divide them. Claude listed what's left per phase (Phases 2–8) and grouped the work
+by what it waits on: nothing (testing, web dashboard), the user's store accounts
+(release builds), or the client's answers (pay rules, rollout, translations). Blocks
+that need nobody else go first. The user chose Block A first.
+
+- **Block A — finish testing** (no client input; ~1 session) — ✅ **done 2026-10-11**
+  - [x] Production attendance test with Quiet Tester on the emulator: far check-in
+        refused, check-in, leave/return pushes, check-out with work sheet
+  - [x] Admin correction (user, Xiaomi) — found future times allowed → fixed
+  - [x] Salary: package set by the admin, visible in My pay (other-user check by rule
+        reading only)
+  - [ ] Auto check-out after 60 min — skipped (the correction closed the stay); optional
+  - [ ] Real-phone walk out of a site — optional (emulator walk already worked)
+  - [x] Cleanup — **decided: keep test data until go-live**, then delete (user)
+  - Extra from the test: push token survived admin sign-out → fixed; the user asked
+    for a scroll-wheel time picker instead of the clock dial → built.
+- **Block B — store builds** (needs the user's Play Console / App Store Connect; ~1 session)
+  - [ ] Small fixes first: `firebase-functions` upgrade, Kotlin/Gradle plugin warnings,
+        sign-out `permission-denied` log, rotate/restrict Maps keys
+  - [ ] Android release build (`royal-keystore.jks`), Play listing, location-privacy text
+  - [ ] iOS TestFlight build + Sign in with Apple key (token revocation)
+- **Block C — admin web dashboard** (no client input; ~2–3 sessions) — **suggested next**
+  - [ ] Flutter web build of the app with admin screens only: live map, team status and
+        alerts, attendance reports with corrections, users and sites
+  - [ ] Wide-screen layout (side menu, tables instead of cards)
+  - [ ] Firebase Hosting (one deploy, needs the user's approval)
+- **Block D — after the client answers**
+  - [ ] Phase 6 pay from worked hours (client decisions #1–7)
+  - [ ] Phase 3 rollout once every phone runs the new app: migration dry run → apply →
+        strict rules
+  - [ ] Fixes from the native-speaker translation review (Phase 8)
+
+Status 2026-10-12: Block A done; the user deploys `correctAttendance`, then picks B or C.
+
+#### 2026-10-01 — Current agenda (below)
+**Why:** billing was expired and production frozen, so the agenda was work that needs no
+deploys: localization, a local test backend, Phase 2+3 code, remaining screens, push,
+tech debt, web dashboard. Items 1–5 are done or superseded by the Blocks plan above.
 
 ### Current agenda (no deploys needed) — set 2026-10-01
 1. **Phase 8 foundation:** localization setup, RTL, language picker, translate the
@@ -836,3 +884,6 @@ Workers come from different countries; each user picks a language.
   Android clock dial in attendance correction, quiet hours and the visit time (user's
   request): big readout, hour/minute wheels, AM/PM on 12-hour phones, LTR in RTL
   languages. Checked on the Xiaomi; 3 widget tests; 36 app tests pass.
+- **2026-10-12** — Per the user: every plan is now logged in section 6 "Plans log" (date,
+  why, steps, decisions); added the Blocks A–D plan of 2026-10-11 and the 2026-10-01
+  agenda's origin. Rule added to the top of this file.
