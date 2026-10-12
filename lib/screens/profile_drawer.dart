@@ -18,12 +18,20 @@ import 'package:royal_marble/screens/team_status_screen.dart';
 import 'package:royal_marble/screens/visits_screen.dart';
 import 'package:royal_marble/services/auth.dart';
 import 'package:royal_marble/services/tracking_service.dart';
+import 'package:royal_marble/widgets/web_shell.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileDrawer extends StatelessWidget {
-  const ProfileDrawer({super.key, this.currentUser, this.allUsers});
+  const ProfileDrawer(
+      {super.key, this.currentUser, this.allUsers, this.onOpen, this.current});
   final UserData? currentUser;
   final List<UserData>? allUsers;
+
+  /// Set when the menu is the web dashboard's sidebar: pages open beside it.
+  final OpenPage? onOpen;
+
+  /// Sidebar only: the type of the page on show, to highlight its item.
+  final Type? current;
 
   @override
   Widget build(BuildContext context) {
@@ -35,13 +43,18 @@ class ProfileDrawer extends StatelessWidget {
     final sales = role == AppRole.sales;
 
     void open(Widget page) {
+      if (onOpen != null) return onOpen!(page);
       Navigator.pop(context);
       Navigator.push(context, MaterialPageRoute(builder: (_) => page));
     }
 
     final l = context.l10n;
+    final sidebar = onOpen != null;
     return Drawer(
       backgroundColor: AppColors.surface,
+      width: sidebar ? double.infinity : null,
+      elevation: sidebar ? 0 : null,
+      shape: sidebar ? const RoundedRectangleBorder() : null,
       child: Column(
         children: [
           _Header(user: user, role: role),
@@ -49,35 +62,48 @@ class ProfileDrawer extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 8),
               children: [
+                if (sidebar)
+                  _Item(Icons.dashboard_outlined, l.dashboard,
+                      selected: current == null, () => onOpen!(null)),
                 // Work first; the "new …" actions live as + buttons on
                 // each list, and Reports switches between attendance and sales.
                 if (admin || supervisor) ...[
                   _Item(Icons.notifications_active_outlined, l.teamStatusAlerts,
+                      selected: sidebar && current == TeamStatusScreen,
                       () => open(TeamStatusScreen(users: allUsers ?? const [], viewer: user))),
                   _Item(Icons.map_outlined, l.liveMap,
+                      selected: sidebar && current == LiveMapScreen,
                       () => open(LiveMapScreen(currentUser: user))),
                   _Item(Icons.people_outline, l.users,
+                      selected: sidebar && current == UserGrid,
                       () => open(UserGrid(currentUser: user))),
                 ],
                 if (admin || sales || supervisor)
                   _Item(Icons.location_city_outlined, l.sectionSites,
+                      selected: sidebar && current == SitesScreen,
                       () => open(SitesScreen(currentUser: user))),
                 if (admin || sales) ...[
                   _Item(Icons.storefront_outlined, l.clients,
+                      selected: sidebar && current == ClientsScreen,
                       () => open(ClientsScreen(currentUser: user))),
                   _Item(Icons.event_note_outlined, l.visits,
+                      selected: sidebar && current == VisitsScreen,
                       () => open(VisitsScreen(currentUser: user))),
                 ],
                 if (admin || supervisor)
                   _Item(Icons.bar_chart_outlined, l.sectionReports,
+                      selected: sidebar && current == ReportsScreen,
                       () => open(ReportsScreen(canCorrect: admin))),
                 if (admin || supervisor || sales) const Divider(height: 24),
                 _Item(Icons.person_outline, l.myProfile,
+                    selected: sidebar && current == MyProfileScreen,
                     () => open(MyProfileScreen(user: user))),
                 if (!admin)
                   _Item(Icons.payments_outlined, l.myPay,
+                      selected: sidebar && current == MyPayScreen,
                       () => open(MyPayScreen(user: user))),
                 _Item(Icons.settings_outlined, l.settings,
+                    selected: sidebar && current == SettingsScreen,
                     () => open(SettingsScreen(
                         user: user,
                         getsAlerts: admin || supervisor,
@@ -180,16 +206,23 @@ class _Header extends StatelessWidget {
 }
 
 class _Item extends StatelessWidget {
-  const _Item(this.icon, this.label, this.onTap);
+  const _Item(this.icon, this.label, this.onTap, {this.selected = false});
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final bool selected;
 
   @override
   Widget build(BuildContext context) => ListTile(
         dense: true,
+        selected: selected,
+        selectedColor: AppColors.charcoal,
+        selectedTileColor: AppColors.gold.withValues(alpha: 0.18),
         leading: Icon(icon, color: AppColors.ink),
-        title: Text(label, style: const TextStyle(fontSize: 15)),
+        title: Text(label,
+            style: TextStyle(
+                fontSize: 15,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.normal)),
         onTap: onTap,
       );
 }

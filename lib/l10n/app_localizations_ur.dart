@@ -581,6 +581,9 @@ class AppLocalizationsUr extends AppLocalizations {
   String get mapUnavailable => 'نقشہ ابھی یہاں دستیاب نہیں';
 
   @override
+  String get dashboard => 'ڈیش بورڈ';
+
+  @override
   String get signOut => 'سائن آؤٹ';
 
   @override

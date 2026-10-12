@@ -341,6 +341,7 @@
   "webAdminsOnlyTitle": "The web dashboard is for admins",
   "webAdminsOnlyBody": "Please use the Royal Marble app on your phone.",
   "mapUnavailable": "Map not available here yet",
+  "dashboard": "Dashboard",
   "signOut": "Sign out",
   "signOutTitle": "Sign out?",
   "signOutBody": "Location tracking stops and you won't be able to check in until you sign in again.",

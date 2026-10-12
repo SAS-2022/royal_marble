@@ -21,7 +21,7 @@ were all verified in production (session log below).
 **1. ✅ `correctAttendance` deployed** (2026-10-11 07:36 local, by the user): the server
 now refuses correction times later than now, as the app does.
 
-**2. Now: Block C — admin web dashboard** (chosen 2026-10-12; C1 done, next C2). Steps C1–C5 with
+**2. Now: Block C — admin web dashboard** (chosen 2026-10-12; C1–C2 done, next C3). Steps C1–C5 with
 reasons in section 6 → "Plans log" → "2026-10-12 — Block C". Resume at the first
 unticked step. Block B (store builds) and D (after the client answers) come later
 (see "2026-10-11 — Blocks A–D").
@@ -379,9 +379,14 @@ tested against the local emulators first, production only at C5.
       service worker) and manifest. Verified headless in Chrome on the emulators: admin
       home loads with no errors; `mason1` gets the admins-only screen.
       Also fixed (phones too): `CircleAvatar` assertion when a person has no photo (5 places).
-- [ ] **C2 Wide layout** — side navigation (Dashboard, Team status & alerts, Live map,
-      Reports, Users, Sites, Clients, Visits), content width limits, tables instead of
-      cards where lists are long (reports, users).
+- [x] **C2 Wide layout** (2026-10-12) — `lib/widgets/web_shell.dart`: browser windows
+      ≥ 1000 px get the menu as a permanent sidebar (`ProfileDrawer(onOpen:, current:)`,
+      new "Dashboard" item, current page highlighted); pages open beside it in a nested
+      navigator, content max 1200 px; menu pages replace each other (no back arrow),
+      deeper pages keep one. Admin count tiles in one row of four. Narrow windows and
+      phones unchanged (checked at 800 px). All 9 menu pages open with no errors.
+      **Dropped:** tables instead of cards — the card lists read well at this width;
+      revisit only if the user asks.
 - [ ] **C3 Screen fixes for the browser** — PDF/Excel exports download in the browser,
       photo upload from bytes, Google sign-in on the web, map and links.
 - [ ] **C4 Test** — every admin screen in Chrome on the emulators (seeded data), English
@@ -920,3 +925,8 @@ Workers come from different countries; each user picks a language.
   the session scratchpad, not in the repo). Note for scripted tests: puppeteer's
   `keyboard.press('Enter')` adds a stray character in Flutter text fields; send a raw
   Enter or click the button. Next: C2 wide layout.
+- **2026-10-12 (cont.)** — C2 done (sidebar shell, see Plans log). Headless testing note:
+  start each run with a fresh browser profile — a saved Firebase session is restored
+  before the app switches to the emulators and goes to Google's real endpoint with the
+  placeholder key (refused; no data reached). Next: C3 browser fixes (exports, photo
+  upload, Google sign-in).

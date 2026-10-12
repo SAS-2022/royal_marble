@@ -578,6 +578,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get mapUnavailable => 'नक्शा अभी यहाँ उपलब्ध नहीं है';
 
   @override
+  String get dashboard => 'डैशबोर्ड';
+
+  @override
   String get signOut => 'साइन आउट';
 
   @override

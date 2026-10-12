@@ -572,6 +572,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get mapUnavailable => 'الخريطة غير متاحة هنا بعد';
 
   @override
+  String get dashboard => 'لوحة التحكم';
+
+  @override
   String get signOut => 'تسجيل الخروج';
 
   @override

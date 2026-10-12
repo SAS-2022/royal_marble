@@ -27,6 +27,7 @@ import 'package:royal_marble/shared/loading.dart';
 import 'package:royal_marble/widgets/checkin_card.dart';
 import 'package:royal_marble/widgets/sites_overview.dart';
 import 'package:royal_marble/widgets/status_widgets.dart';
+import 'package:royal_marble/widgets/web_shell.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, this.currentUser});
@@ -85,14 +86,15 @@ class _HomeScreenState extends State<HomeScreen> {
     _ensureTracking(user);
     final role = primaryRole(user.roles);
 
-    return Scaffold(
+    final wide = useWebShell(context);
+    final home = Scaffold(
       appBar: AppBar(
         title: const Text('Royal Marble'),
         actions: [
           if (role.canMonitor) _AlertsAction(users: allUsers, viewer: user),
         ],
       ),
-      drawer: ProfileDrawer(currentUser: user, allUsers: allUsers),
+      drawer: wide ? null : ProfileDrawer(currentUser: user, allUsers: allUsers),
       body: Column(
         children: [
           if (_offline)
@@ -121,6 +123,12 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+    );
+    if (!wide) return home;
+    return WebShell(
+      home: home,
+      sidebar: (open, current) => ProfileDrawer(
+          currentUser: user, allUsers: allUsers, onOpen: open, current: current),
     );
   }
 }
@@ -470,21 +478,26 @@ class _AdminHomeState extends State<_AdminHome> {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       children: [
         _Greeting(widget.user),
-        Row(children: [
-          tile(_Section.onSite, l.onSiteNow, onSite.length, Icons.engineering, Tone.ok),
-          const SizedBox(width: 10),
-          tile(_Section.outside, l.outsideSite, outside.length,
-              Icons.directions_walk, Tone.warn),
-        ]),
-        const SizedBox(height: 4),
-        Row(children: [
-          tile(_Section.problems, l.phoneProblems, problems.length,
-              Icons.phonelink_erase, Tone.bad,
-              whenEmpty: () => openTeam()),
-          const SizedBox(width: 10),
-          tile(_Section.pending, l.pendingLabel, pending.length,
-              Icons.person_add_alt, Tone.warn),
-        ]),
+        ...() {
+          final top = [
+            tile(_Section.onSite, l.onSiteNow, onSite.length, Icons.engineering, Tone.ok),
+            const SizedBox(width: 10),
+            tile(_Section.outside, l.outsideSite, outside.length,
+                Icons.directions_walk, Tone.warn),
+          ];
+          final bottom = [
+            tile(_Section.problems, l.phoneProblems, problems.length,
+                Icons.phonelink_erase, Tone.bad,
+                whenEmpty: () => openTeam()),
+            const SizedBox(width: 10),
+            tile(_Section.pending, l.pendingLabel, pending.length,
+                Icons.person_add_alt, Tone.warn),
+          ];
+          // The web dashboard has room for all four in one row.
+          return useWebShell(context)
+              ? [Row(children: [...top, const SizedBox(width: 10), ...bottom])]
+              : [Row(children: top), const SizedBox(height: 4), Row(children: bottom)];
+        }(),
 
         if (pending.isNotEmpty) ...[
           SectionTitle(l.waitingApproval, key: _keys[_Section.pending]),

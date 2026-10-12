@@ -580,6 +580,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapUnavailable => 'Map not available here yet';
 
   @override
+  String get dashboard => 'Dashboard';
+
+  @override
   String get signOut => 'Sign out';
 
   @override

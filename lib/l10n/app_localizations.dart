@@ -1110,6 +1110,12 @@ abstract class AppLocalizations {
   /// **'Map not available here yet'**
   String get mapUnavailable;
 
+  /// No description provided for @dashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get dashboard;
+
   /// No description provided for @signOut.
   ///
   /// In en, this message translates to:

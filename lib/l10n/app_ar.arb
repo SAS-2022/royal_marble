@@ -168,6 +168,7 @@
   "webAdminsOnlyTitle": "لوحة التحكم على الويب مخصصة للمشرفين",
   "webAdminsOnlyBody": "يرجى استخدام تطبيق Royal Marble على هاتفك.",
   "mapUnavailable": "الخريطة غير متاحة هنا بعد",
+  "dashboard": "لوحة التحكم",
   "signOut": "تسجيل الخروج",
   "signOutTitle": "تسجيل الخروج؟",
   "signOutBody": "سيتوقف تتبع الموقع ولن تتمكن من تسجيل الحضور حتى تسجّل الدخول مرة أخرى.",
