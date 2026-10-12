@@ -14,6 +14,7 @@ service cloud.firestore {
     function hasRole(r) {
       return signedIn() && r in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('roles', []);
     }
+    function managesPay() { return hasRole('isAdmin') || hasRole('isHR'); }
 
     match /{document=**} {
       allow read, write: if false;
@@ -32,14 +33,21 @@ service cloud.firestore {
     match /time_sheet/{id} { allow read, write: if signedIn(); }
     match /helper/{id}     { allow read, write: if signedIn(); }
 
-    // Pay packages: admins manage them; each worker can read only their own.
+    // Pay packages: admins and HR manage them; each worker can read only their own.
     match /payroll/{uid} {
-      allow read: if hasRole('isAdmin') || (signedIn() && request.auth.uid == uid);
-      allow write: if hasRole('isAdmin');
+      allow read: if managesPay() || (signedIn() && request.auth.uid == uid);
+      allow write: if managesPay();
       match /history/{doc} {
-        allow read: if hasRole('isAdmin') || (signedIn() && request.auth.uid == uid);
-        allow write: if hasRole('isAdmin');
+        allow read: if managesPay() || (signedIn() && request.auth.uid == uid);
+        allow write: if managesPay();
       }
+    }
+
+    // Overtime decisions (`{uid}_{day}`): HR and admins approve or reject;
+    // each worker can read their own.
+    match /overtime/{id} {
+      allow read: if managesPay() || (signedIn() && resource.data.uid == request.auth.uid);
+      allow write: if managesPay();
     }
 
     // Phones append their own status changes; admins and supervisors read them.

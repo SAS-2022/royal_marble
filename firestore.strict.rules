@@ -16,6 +16,8 @@ service cloud.firestore {
     function isAdmin() { return hasRole('isAdmin'); }
     function isSupervisor() { return hasRole('isSupervisor'); }
     function isSales() { return hasRole('isSales'); }
+    function isHR() { return hasRole('isHR'); }
+    function managesPay() { return isAdmin() || isHR(); }
     function isManager() { return isAdmin() || isSupervisor(); }
     function isActive() { return signedIn() && me().get('isActive', false) == true; }
     function isSelf(uid) { return signedIn() && request.auth.uid == uid; }
@@ -24,7 +26,7 @@ service cloud.firestore {
     }
 
     match /users/{uid} {
-      allow read: if isSelf(uid) || isManager() || isSales();
+      allow read: if isSelf(uid) || isManager() || isSales() || isHR();
 
       // Self-registration: always starts as an inactive worker.
       allow create: if isSelf(uid)
@@ -80,14 +82,21 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // Pay packages: admins manage them; each worker can read only their own.
+    // Pay packages: admins and HR manage them; each worker can read only their own.
     match /payroll/{uid} {
-      allow read: if isAdmin() || isSelf(uid);
-      allow write: if isAdmin();
+      allow read: if managesPay() || isSelf(uid);
+      allow write: if managesPay();
       match /history/{doc} {
-        allow read: if isAdmin() || isSelf(uid);
-        allow write: if isAdmin();
+        allow read: if managesPay() || isSelf(uid);
+        allow write: if managesPay();
       }
+    }
+
+    // Overtime decisions (`{uid}_{day}`): HR and admins approve or reject;
+    // each worker can read their own.
+    match /overtime/{id} {
+      allow read: if managesPay() || (signedIn() && resource.data.uid == request.auth.uid);
+      allow write: if managesPay();
     }
 
     // Phones append their own status changes; only managers read them.

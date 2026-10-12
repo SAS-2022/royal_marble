@@ -48,6 +48,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get turnOn => 'चालू करें';
 
   @override
+  String get roleHR => 'एचआर';
+
+  @override
   String get roleAdmin => 'एडमिन';
 
   @override
@@ -568,7 +571,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get salesActivity => 'सेल्स गतिविधि';
 
   @override
-  String get webAdminsOnlyTitle => 'वेब डैशबोर्ड केवल एडमिन के लिए है';
+  String get webAdminsOnlyTitle => 'वेब डैशबोर्ड एडमिन और एचआर के लिए है';
 
   @override
   String get webAdminsOnlyBody =>

@@ -309,7 +309,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               label: Text(l.saveChanges),
             ),
 
-            if (!role.canMonitor && role != AppRole.sales) ...[
+            if (role.inField && role != AppRole.sales) ...[
               SectionTitle(l.yourSites),
               Card(
                 child: sites.isEmpty

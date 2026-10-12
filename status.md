@@ -383,10 +383,17 @@ basic ÷ (weekly hours ÷ 6)), whether allowances are pro-rated (planned: yes, i
 the hourly rate), what happens to overtime changed after approval (planned: flagged
 for HR to re-check).
 
-- [ ] **H1 HR role** — `AppRole.hr` (`isHR`), label in 4 languages, role picker on the
-      user page, HR home (pending overtime, this month's pay summary), menu (Reports,
-      Users, Overtime, Payroll), web dashboard allows HR; `correctAttendance` accepts
-      HR; rules: HR reads/writes `payroll` and `overtime` (interim + strict files).
+- [x] **H1 HR role** (2026-10-12) — `AppRole.hr` (`isHR`) with `managesPay`,
+      `isTracked`, `inField` in `roles.dart` (HR: not tracked, no live map/alerts, left
+      out of field lists); label in 4 languages; role chip (admins only can give HR or
+      Admin); HR home (greeting + today's attendance; overtime/pay cards come in H4/H5);
+      menu Users + Reports (corrections allowed); user page for HR viewers: Work + Pay
+      (edit), no alerts, role, access or helper changes; web dashboard allows HR.
+      Server: `correctAttendance` accepts HR (2 emulator scenarios, all pass); seed has
+      `hr@test.local` ("Hana HR"). Rules (both files, dry-run compiled): `managesPay()`
+      for `payroll`, new `overtime` collection (HR/admin write, worker reads own);
+      strict: HR reads `users`. Checked on the web dashboard as HR (emulators).
+      **Not deployed** (H7).
 - [ ] **H2 Pay settings** — on the pay package: weekly hours (default 48), day-end
       time (default 17:00), overtime rate (AED/h); salary editor fields (HR/admin).
 - [ ] **H3 Calculation** — pure Dart (`lib/models/pay_calc.dart`) with unit tests:
@@ -1014,3 +1021,5 @@ Workers come from different countries; each user picks a language.
 - **2026-10-12 (cont.)** — User: the website works like the app. New request: HR role, pay
   earned so far, overtime approval with HR-set hourly rate. Decisions taken (all
   recommended options); plan H1–H7 logged. Starting H1.
+- **2026-10-12 (cont.)** — H1 done (HR role). Next: H2 pay settings (weekly hours, day end,
+  overtime rate).

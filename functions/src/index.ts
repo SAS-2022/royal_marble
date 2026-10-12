@@ -374,8 +374,9 @@ export const correctAttendance = onCall(async (req: CallableRequest<CorrectionRe
   const callerId = req.auth?.uid;
   if (!callerId) throw new HttpsError("unauthenticated", "Please sign in again.", { reason: "sign_in_again" });
   const caller = (await db.collection("users").doc(callerId).get()).data();
-  if (!caller || caller.isActive !== true || !caller.roles?.includes("isAdmin")) {
-    throw new HttpsError("permission-denied", "Only admins can correct attendance.", { reason: "not_admin" });
+  const canCorrect = caller?.roles?.includes("isAdmin") || caller?.roles?.includes("isHR");
+  if (!caller || caller.isActive !== true || !canCorrect) {
+    throw new HttpsError("permission-denied", "Only admins and HR can correct attendance.", { reason: "not_admin" });
   }
   const d = req.data;
   const day = /^(\d{1,2})-(\d{1,2})-(\d{4})$/.exec(d?.day ?? "");

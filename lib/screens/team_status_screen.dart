@@ -183,7 +183,7 @@ class _PhonesTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final tracked = users
         .where((u) =>
-            u.isActive == true && !primaryRole(u.roles).canMonitor && u.error == null)
+            u.isActive == true && primaryRole(u.roles).inField && u.error == null)
         .toList()
       ..sort((a, b) {
         final pa = DeviceStatus.fromMap(a.deviceStatus).problems.length;

@@ -5,6 +5,7 @@ import 'roles.dart';
 extension LocalizedRole on AppRole {
   String localized(AppLocalizations l) => switch (this) {
         AppRole.admin => l.roleAdmin,
+        AppRole.hr => l.roleHR,
         AppRole.supervisor => l.roleSupervisor,
         AppRole.sales => l.roleSales,
         AppRole.siteEngineer => l.roleSiteEngineer,

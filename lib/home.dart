@@ -66,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
   /// when the user or their assignment changes.
   void _ensureTracking(UserData user) {
     if (user.uid == null || user.isActive != true) return;
-    final track = primaryRole(user.roles) != AppRole.admin;
+    final track = primaryRole(user.roles).isTracked;
     final key =
         '${user.uid}|$track|${user.assignedProject}|${user.assignedMockups}';
     if (_trackingStartedFor == key) return;
@@ -116,6 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ? const _PendingApproval()
                 : switch (role) {
                     AppRole.admin => _AdminHome(user: user),
+                    AppRole.hr => _HrHome(user: user),
                     AppRole.sales => _SalesHome(user: user),
                     AppRole.supervisor => _SupervisorHome(user: user),
                     _ => _WorkerHome(user: user),
@@ -437,7 +438,7 @@ class _AdminHomeState extends State<_AdminHome> {
     final outside = open.where((o) => o.session.outsideSince != null).toList();
 
     final tracked = allUsers
-        .where((u) => u.isActive == true && !primaryRole(u.roles).canMonitor)
+        .where((u) => u.isActive == true && primaryRole(u.roles).inField)
         .toList();
     final problems = tracked
         .where((u) => DeviceStatus.fromMap(u.deviceStatus).problems.isNotEmpty)
@@ -587,6 +588,25 @@ class _AdminHomeState extends State<_AdminHome> {
           for (final p in active) SiteRef.project(p),
           for (final m in activeMockups) SiteRef.mockup(m),
         ]),
+      ],
+    );
+  }
+}
+
+/// HR: who is at work today; overtime and pay summaries are added below.
+class _HrHome extends StatelessWidget {
+  const _HrHome({required this.user});
+  final UserData user;
+
+  @override
+  Widget build(BuildContext context) {
+    final timesheet = Provider.of<Map<String, dynamic>>(context);
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+      children: [
+        _Greeting(user),
+        SectionTitle(context.l10n.todaysAttendance),
+        _Attendance(timesheet: timesheet),
       ],
     );
   }

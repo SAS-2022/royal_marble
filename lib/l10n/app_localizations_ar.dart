@@ -48,6 +48,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get turnOn => 'تشغيل';
 
   @override
+  String get roleHR => 'الموارد البشرية';
+
+  @override
   String get roleAdmin => 'مدير';
 
   @override
@@ -563,7 +566,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get salesActivity => 'نشاط المبيعات';
 
   @override
-  String get webAdminsOnlyTitle => 'لوحة التحكم على الويب مخصصة للمشرفين';
+  String get webAdminsOnlyTitle =>
+      'لوحة التحكم على الويب مخصصة للمشرفين والموارد البشرية';
 
   @override
   String get webAdminsOnlyBody => 'يرجى استخدام تطبيق Royal Marble على هاتفك.';

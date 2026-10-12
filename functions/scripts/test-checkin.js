@@ -187,6 +187,16 @@ async function main() {
       e.corrections[0].note, e.corrections[0].before[0].auto, !!e.reviewed],
     [localStamp(0, 40), true, "end_of_day", 1, "Forgot to check out", "end_of_day", true]);
 
+  // ── HR correction ──
+  const hr = await token("hr@test.local");
+  expect("HR can correct attendance too",
+    await correct(hr, { day: dayId(), uid: m2Id, note: "HR check",
+      sessions: [{ ...fixed[0], out: localStamp(0, 45) }] }),
+    { ok: "saved" });
+  e = await entryOf(m2Id);
+  expect("HR's fix is applied and recorded with their name",
+    [e.leaving_at, e.corrections.length, e.corrections[1].byName], [localStamp(0, 45), 2, "Hana HR"]);
+
   console.log(failures ? `\n${failures} check(s) failed` : "\nAll checks passed");
   process.exit(failures ? 1 : 0);
 }

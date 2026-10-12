@@ -42,7 +42,7 @@ class Wrapper extends StatelessWidget {
                   key: ValueKey(firebaseUser.uid), socialUser: firebaseUser);
         }
         final role = primaryRole(user.roles);
-        if (kIsWeb && (role != AppRole.admin || user.isActive != true)) {
+        if (kIsWeb && (!role.managesPay || user.isActive != true)) {
           return const _WebAdminsOnly();
         }
         ErrorReporter.setUser(uid: user.uid, role: role.name);
@@ -86,7 +86,7 @@ class Wrapper extends StatelessWidget {
   }
 }
 
-/// The browser build is the admin dashboard; everyone else uses the phone app.
+/// The browser build is for admins and HR; everyone else uses the phone app.
 class _WebAdminsOnly extends StatelessWidget {
   const _WebAdminsOnly();
 

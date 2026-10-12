@@ -180,6 +180,12 @@ abstract class AppLocalizations {
   /// **'Turn on'**
   String get turnOn;
 
+  /// No description provided for @roleHR.
+  ///
+  /// In en, this message translates to:
+  /// **'HR'**
+  String get roleHR;
+
   /// No description provided for @roleAdmin.
   ///
   /// In en, this message translates to:
@@ -1095,7 +1101,7 @@ abstract class AppLocalizations {
   /// No description provided for @webAdminsOnlyTitle.
   ///
   /// In en, this message translates to:
-  /// **'The web dashboard is for admins'**
+  /// **'The web dashboard is for admins and HR'**
   String get webAdminsOnlyTitle;
 
   /// No description provided for @webAdminsOnlyBody.

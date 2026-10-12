@@ -41,6 +41,7 @@ class ProfileDrawer extends StatelessWidget {
     final admin = role == AppRole.admin;
     final supervisor = role == AppRole.supervisor;
     final sales = role == AppRole.sales;
+    final hr = role == AppRole.hr;
 
     void open(Widget page) {
       if (onOpen != null) return onOpen!(page);
@@ -74,10 +75,11 @@ class ProfileDrawer extends StatelessWidget {
                   _Item(Icons.map_outlined, l.liveMap,
                       selected: sidebar && current == LiveMapScreen,
                       () => open(LiveMapScreen(currentUser: user))),
+                ],
+                if (admin || supervisor || hr)
                   _Item(Icons.people_outline, l.users,
                       selected: sidebar && current == UserGrid,
                       () => open(UserGrid(currentUser: user))),
-                ],
                 if (admin || sales || supervisor)
                   _Item(Icons.location_city_outlined, l.sectionSites,
                       selected: sidebar && current == SitesScreen,
@@ -90,11 +92,11 @@ class ProfileDrawer extends StatelessWidget {
                       selected: sidebar && current == VisitsScreen,
                       () => open(VisitsScreen(currentUser: user))),
                 ],
-                if (admin || supervisor)
+                if (admin || supervisor || hr)
                   _Item(Icons.bar_chart_outlined, l.sectionReports,
                       selected: sidebar && current == ReportsScreen,
-                      () => open(ReportsScreen(canCorrect: admin))),
-                if (admin || supervisor || sales) const Divider(height: 24),
+                      () => open(ReportsScreen(canCorrect: role.managesPay))),
+                if (admin || supervisor || sales || hr) const Divider(height: 24),
                 _Item(Icons.person_outline, l.myProfile,
                     selected: sidebar && current == MyProfileScreen,
                     () => open(MyProfileScreen(user: user))),

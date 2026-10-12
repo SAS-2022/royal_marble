@@ -48,6 +48,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get turnOn => 'Turn on';
 
   @override
+  String get roleHR => 'HR';
+
+  @override
   String get roleAdmin => 'Admin';
 
   @override
@@ -570,7 +573,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get salesActivity => 'Sales activity';
 
   @override
-  String get webAdminsOnlyTitle => 'The web dashboard is for admins';
+  String get webAdminsOnlyTitle => 'The web dashboard is for admins and HR';
 
   @override
   String get webAdminsOnlyBody =>

@@ -125,7 +125,10 @@ class AdminUserView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final role = primaryRole(user.roles);
-    final viewerIsAdmin = primaryRole(viewer.roles) == AppRole.admin;
+    final viewerRole = primaryRole(viewer.roles);
+    final viewerIsAdmin = viewerRole == AppRole.admin;
+    // HR handles pay and attendance, not accounts or roles.
+    final managesAccounts = viewerRole != AppRole.hr;
     final status = DeviceStatus.fromMap(user.deviceStatus);
     final active = user.isActive == true;
     final hasImage = user.imageUrl?.startsWith('http') == true;
@@ -237,7 +240,7 @@ class AdminUserView extends StatelessWidget {
           ),
 
           // Work and phone health
-          if (active && !role.canMonitor) ...[
+          if (active && role.inField) ...[
             SectionTitle(context.l10n.sectionWork),
             Card(
               child: Column(children: [
@@ -267,65 +270,69 @@ class AdminUserView extends StatelessWidget {
                 ),
               ]),
             ),
-            SectionTitle(context.l10n.recentAlerts),
-            Card(
-              child: SizedBox(
-                height: 260,
-                child: AlertsFeed(uid: user.uid, limit: 100),
+            if (viewerRole.canMonitor) ...[
+              SectionTitle(context.l10n.recentAlerts),
+              Card(
+                child: SizedBox(
+                  height: 260,
+                  child: AlertsFeed(uid: user.uid, limit: 100),
+                ),
               ),
-            ),
-            SectionTitle(context.l10n.notifyAboutTitle(
-                '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim())),
-            WorkerNotifyCard(workerUid: user.uid!, viewerUid: viewer.uid!),
+              SectionTitle(context.l10n.notifyAboutTitle(
+                  '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim())),
+              WorkerNotifyCard(workerUid: user.uid!, viewerUid: viewer.uid!),
+            ],
           ],
 
           if (active && role == AppRole.worker)
-            HelpersCard(mason: user, canManage: true),
+            HelpersCard(mason: user, canManage: managesAccounts),
 
-          // Pay (admins only; supervisors don't see salaries)
-          if (viewerIsAdmin && active) ...[
+          // Pay (admins and HR; supervisors don't see salaries)
+          if (viewerRole.managesPay && active) ...[
             SectionTitle(context.l10n.sectionPay),
             SalaryCard(user: user, canEdit: true),
           ],
 
           // Role
-          SectionTitle(context.l10n.sectionRole),
-          Wrap(spacing: 8, runSpacing: 8, children: [
-            for (final r in AppRole.values)
-              if (viewerIsAdmin || r != AppRole.admin)
-                ChoiceChip(
-                  label: Text(r.localized(context.l10n)),
-                  selected: role == r,
-                  onSelected: role == r ? null : (_) => _setRole(context, r),
-                ),
-          ]),
+          if (managesAccounts) ...[
+            SectionTitle(context.l10n.sectionRole),
+            Wrap(spacing: 8, runSpacing: 8, children: [
+              for (final r in AppRole.values)
+                if (viewerIsAdmin || (r != AppRole.admin && r != AppRole.hr))
+                  ChoiceChip(
+                    label: Text(r.localized(context.l10n)),
+                    selected: role == r,
+                    onSelected: role == r ? null : (_) => _setRole(context, r),
+                  ),
+            ]),
 
-          // Access
-          SectionTitle(context.l10n.sectionAccess),
-          if (active)
-            OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(foregroundColor: AppColors.bad),
-              onPressed: () => _setActive(context, false),
-              icon: const Icon(Icons.block),
-              label: Text(context.l10n.deactivateAccount),
-            )
-          else
-            FilledButton.icon(
-              style: FilledButton.styleFrom(backgroundColor: AppColors.ok),
-              onPressed: () => _setActive(context, true),
-              icon: const Icon(Icons.check),
-              label: Text(context.l10n.activateAccount),
-            ),
-          if (viewerIsAdmin) ...[
-            const SizedBox(height: 10),
-            TextButton.icon(
-              style: TextButton.styleFrom(foregroundColor: AppColors.bad),
-              onPressed: active ? null : () => _delete(context),
-              icon: const Icon(Icons.delete_outline),
-              label: Text(active
-                  ? context.l10n.deactivateBeforeDeleting
-                  : context.l10n.deletePermanently),
-            ),
+            // Access
+            SectionTitle(context.l10n.sectionAccess),
+            if (active)
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(foregroundColor: AppColors.bad),
+                onPressed: () => _setActive(context, false),
+                icon: const Icon(Icons.block),
+                label: Text(context.l10n.deactivateAccount),
+              )
+            else
+              FilledButton.icon(
+                style: FilledButton.styleFrom(backgroundColor: AppColors.ok),
+                onPressed: () => _setActive(context, true),
+                icon: const Icon(Icons.check),
+                label: Text(context.l10n.activateAccount),
+              ),
+            if (viewerIsAdmin) ...[
+              const SizedBox(height: 10),
+              TextButton.icon(
+                style: TextButton.styleFrom(foregroundColor: AppColors.bad),
+                onPressed: active ? null : () => _delete(context),
+                icon: const Icon(Icons.delete_outline),
+                label: Text(active
+                    ? context.l10n.deactivateBeforeDeleting
+                    : context.l10n.deletePermanently),
+              ),
+            ],
           ],
         ],
       ),

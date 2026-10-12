@@ -148,6 +148,9 @@ class DatabaseService {
       case 'Admin':
         roles = 'isAdmin';
         break;
+      case 'HR':
+        roles = 'isHR';
+        break;
     }
     try {
       return await userCollection.doc(uid).update({

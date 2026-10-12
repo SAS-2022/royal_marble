@@ -158,7 +158,7 @@ class _LiveMapScreenState extends State<LiveMapScreen> {
         if (u.error == null &&
             u.isActive == true &&
             u.uid != widget.currentUser.uid &&
-            !primaryRole(u.roles).canMonitor &&
+            primaryRole(u.roles).inField &&
             (mine == null ||
                 [...siteAssignments(u.assignedProject), ...siteAssignments(u.assignedMockups)]
                     .any((a) => mine.contains('${a['id']}'))))

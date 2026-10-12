@@ -48,6 +48,9 @@ class AppLocalizationsUr extends AppLocalizations {
   String get turnOn => 'آن کریں';
 
   @override
+  String get roleHR => 'ایچ آر';
+
+  @override
   String get roleAdmin => 'ایڈمن';
 
   @override
@@ -571,7 +574,7 @@ class AppLocalizationsUr extends AppLocalizations {
   String get salesActivity => 'سیلز سرگرمی';
 
   @override
-  String get webAdminsOnlyTitle => 'ویب ڈیش بورڈ صرف ایڈمنز کے لیے ہے';
+  String get webAdminsOnlyTitle => 'ویب ڈیش بورڈ ایڈمنز اور ایچ آر کے لیے ہے';
 
   @override
   String get webAdminsOnlyBody =>
