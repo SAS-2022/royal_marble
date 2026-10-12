@@ -1,12 +1,12 @@
 {
-    "name": "royal_marble",
-    "short_name": "royal_marble",
+    "name": "Royal Marble",
+    "short_name": "Royal Marble",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
-    "orientation": "portrait-primary",
+    "background_color": "#23221C",
+    "theme_color": "#23221C",
+    "description": "Royal Marble admin dashboard",
+    "orientation": "any",
     "prefer_related_applications": false,
     "icons": [
         {

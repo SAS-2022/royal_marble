@@ -563,6 +563,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get salesActivity => 'نشاط المبيعات';
 
   @override
+  String get webAdminsOnlyTitle => 'لوحة التحكم على الويب مخصصة للمشرفين';
+
+  @override
+  String get webAdminsOnlyBody => 'يرجى استخدام تطبيق Royal Marble على هاتفك.';
+
+  @override
+  String get mapUnavailable => 'الخريطة غير متاحة هنا بعد';
+
+  @override
   String get signOut => 'تسجيل الخروج';
 
   @override

@@ -12,6 +12,8 @@ import 'package:royal_marble/services/push_service.dart';
 import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/core/emulators.dart';
 import 'package:royal_marble/core/error_reporter.dart';
+import 'package:royal_marble/core/web/maps_loader.dart';
+import 'package:royal_marble/core/web_config.dart';
 import 'package:royal_marble/core/locale_controller.dart';
 import 'package:royal_marble/l10n/app_localizations.dart';
 import 'package:royal_marble/services/auth.dart';
@@ -35,9 +37,22 @@ const _crashlyticsInDebug = bool.fromEnvironment('CRASHLYTICS_DEBUG');
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  // The browser build is the admin dashboard: no Crashlytics (not on the web),
+  // no background tracking.
+  await Firebase.initializeApp(options: kIsWeb ? webFirebaseOptions : null);
   await configureEmulators();
+  if (kIsWeb) {
+    await loadGoogleMapsScript(webMapsKey);
+  } else {
+    await _setUpPhone();
+  }
 
+  final locale = LocaleController();
+  await locale.load();
+  runApp(MyApp(locale: locale));
+}
+
+Future<void> _setUpPhone() async {
   final crashlytics = FirebaseCrashlytics.instance;
   await crashlytics
       .setCrashlyticsCollectionEnabled(!kDebugMode || _crashlyticsInDebug);
@@ -55,10 +70,6 @@ void main() async {
 
   bg.BackgroundGeolocation.registerHeadlessTask(
       backgroundGeolocationHeadlessTask);
-
-  final locale = LocaleController();
-  await locale.load();
-  runApp(MyApp(locale: locale));
 }
 
 class MyApp extends StatelessWidget {

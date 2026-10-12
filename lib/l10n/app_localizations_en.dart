@@ -570,6 +570,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get salesActivity => 'Sales activity';
 
   @override
+  String get webAdminsOnlyTitle => 'The web dashboard is for admins';
+
+  @override
+  String get webAdminsOnlyBody =>
+      'Please use the Royal Marble app on your phone.';
+
+  @override
+  String get mapUnavailable => 'Map not available here yet';
+
+  @override
   String get signOut => 'Sign out';
 
   @override

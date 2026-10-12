@@ -600,14 +600,17 @@ class _Avatar extends StatelessWidget {
   final String? url;
 
   @override
-  Widget build(BuildContext context) => CircleAvatar(
-        radius: 18,
-        backgroundColor: AppColors.gold.withValues(alpha: 0.18),
-        foregroundImage: (url ?? '').isEmpty ? null : NetworkImage(url!),
-        // No connection or a deleted photo: show the fallback instead.
-        onForegroundImageError: (_, __) {},
-        child: const Icon(Icons.person, size: 18, color: AppColors.goldDeep),
-      );
+  Widget build(BuildContext context) {
+    final hasPhoto = (url ?? '').isNotEmpty;
+    return CircleAvatar(
+      radius: 18,
+      backgroundColor: AppColors.gold.withValues(alpha: 0.18),
+      foregroundImage: hasPhoto ? NetworkImage(url!) : null,
+      // No connection or a deleted photo: show the fallback instead.
+      onForegroundImageError: hasPhoto ? (_, __) {} : null,
+      child: const Icon(Icons.person, size: 18, color: AppColors.goldDeep),
+    );
+  }
 }
 
 class _StatTile extends StatelessWidget {

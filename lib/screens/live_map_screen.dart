@@ -27,6 +27,8 @@ import '../widgets/status_widgets.dart';
 import 'site_details_screen.dart' show SiteDetailsLoader;
 import 'site_form_screen.dart' show SiteFormScreen, addressFromPlacemark;
 import 'team_status_screen.dart' show timeAgo;
+import '../core/web_config.dart';
+import '../widgets/map_unavailable.dart';
 
 /// Where a worker stands today, most urgent first. Decides the pin colour.
 enum WorkerState { phoneProblem, outside, onSite, notCheckedIn }
@@ -354,7 +356,7 @@ class _LiveMapScreenState extends State<LiveMapScreen> {
                 }
 
                 return Stack(children: [
-                  GoogleMap(
+                  !mapsAvailable ? const MapUnavailable() : GoogleMap(
                     initialCameraPosition: const CameraPosition(target: _dubai, zoom: 10),
                     onMapCreated: (c) {
                       _map = c;

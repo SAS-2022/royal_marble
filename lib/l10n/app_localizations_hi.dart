@@ -568,6 +568,16 @@ class AppLocalizationsHi extends AppLocalizations {
   String get salesActivity => 'सेल्स गतिविधि';
 
   @override
+  String get webAdminsOnlyTitle => 'वेब डैशबोर्ड केवल एडमिन के लिए है';
+
+  @override
+  String get webAdminsOnlyBody =>
+      'कृपया अपने फ़ोन पर Royal Marble ऐप का उपयोग करें।';
+
+  @override
+  String get mapUnavailable => 'नक्शा अभी यहाँ उपलब्ध नहीं है';
+
+  @override
   String get signOut => 'साइन आउट';
 
   @override

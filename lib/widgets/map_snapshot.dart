@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../screens/site_form_screen.dart' show siteRadiusCircle, siteZoomFor;
+import '../core/web_config.dart';
+import 'map_unavailable.dart';
 
 /// A still picture of a pin (and a site's radius, if given): a lite-mode map
 /// on Android, a map with gestures off on iOS. Taps go to [onTap].
@@ -20,7 +22,7 @@ class MapSnapshot extends StatelessWidget {
       height: height,
       child: Stack(fit: StackFit.expand, children: [
         IgnorePointer(
-          child: GoogleMap(
+          child: !mapsAvailable ? const MapUnavailable() : GoogleMap(
             key: ValueKey('$pin|$radius'),
             initialCameraPosition: CameraPosition(
                 target: pin, zoom: radius > 0 ? siteZoomFor(radius) - 0.5 : 16),

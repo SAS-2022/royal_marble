@@ -571,6 +571,16 @@ class AppLocalizationsUr extends AppLocalizations {
   String get salesActivity => 'سیلز سرگرمی';
 
   @override
+  String get webAdminsOnlyTitle => 'ویب ڈیش بورڈ صرف ایڈمنز کے لیے ہے';
+
+  @override
+  String get webAdminsOnlyBody =>
+      'براہ کرم اپنے فون پر Royal Marble ایپ استعمال کریں۔';
+
+  @override
+  String get mapUnavailable => 'نقشہ ابھی یہاں دستیاب نہیں';
+
+  @override
   String get signOut => 'سائن آؤٹ';
 
   @override

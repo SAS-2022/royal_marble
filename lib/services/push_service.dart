@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:royal_marble/account_settings/admin_user_view.dart';
 import 'package:royal_marble/core/error_reporter.dart';
@@ -31,7 +32,8 @@ class PushService {
   /// Called by the wrapper for every signed-in profile; only people who get
   /// alerts are registered (and asked for the notification permission).
   static Future<void> start(UserData user) async {
-    if (user.uid == _closing) return;
+    // Alerts go to phones; the web dashboard shows them in the app.
+    if (kIsWeb || user.uid == _closing) return;
     if (user.isActive != true || !primaryRole(user.roles).canMonitor) {
       // A token left on someone else's profile (e.g. an admin who used this
       // phone before) dies here; the server drops dead tokens on its next send.
@@ -68,6 +70,7 @@ class PushService {
 
   /// Before sign-out: this phone stops getting the person's notifications.
   static Future<void> stop() async {
+    if (kIsWeb) return;
     final uid = _viewer?.uid;
     _viewer = null;
     await _refresh?.cancel();

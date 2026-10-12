@@ -1092,6 +1092,24 @@ abstract class AppLocalizations {
   /// **'Sales activity'**
   String get salesActivity;
 
+  /// No description provided for @webAdminsOnlyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The web dashboard is for admins'**
+  String get webAdminsOnlyTitle;
+
+  /// No description provided for @webAdminsOnlyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Please use the Royal Marble app on your phone.'**
+  String get webAdminsOnlyBody;
+
+  /// No description provided for @mapUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Map not available here yet'**
+  String get mapUnavailable;
+
   /// No description provided for @signOut.
   ///
   /// In en, this message translates to:

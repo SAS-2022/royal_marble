@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/services/database.dart';
@@ -94,6 +95,11 @@ class AuthService {
   /// no profile yet, so the wrapper then shows the rest of the registration.
   Future<SignInError?> signInWithGoogle() async {
     try {
+      if (kIsWeb) {
+        // The browser uses Firebase's own Google popup.
+        await _auth.signInWithPopup(GoogleAuthProvider());
+        return null;
+      }
       final account = await (await _google()).authenticate();
       await _auth.signInWithCredential(GoogleAuthProvider.credential(
           idToken: account.authentication.idToken));

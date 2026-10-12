@@ -87,7 +87,7 @@ class TrackingService {
   /// Starts tracking for [user]. Safe to call repeatedly (e.g. on every
   /// rebuild of the home screen); work is only redone when needed.
   static Future<void> start(UserData user) async {
-    if (user.uid == null) return;
+    if (kIsWeb || user.uid == null) return; // The web dashboard isn't tracked.
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_prefUserId, user.uid!);
     await prefs.setString(
@@ -130,6 +130,7 @@ class TrackingService {
 
   /// Stops tracking and forgets the user (sign-out).
   static Future<void> stop() async {
+    if (kIsWeb) return;
     try {
       await bg.BackgroundGeolocation.stop();
     } catch (_) {}

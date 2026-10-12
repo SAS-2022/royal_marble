@@ -21,7 +21,7 @@ were all verified in production (session log below).
 **1. ✅ `correctAttendance` deployed** (2026-10-11 07:36 local, by the user): the server
 now refuses correction times later than now, as the app does.
 
-**2. Now: Block C — admin web dashboard** (chosen 2026-10-12). Steps C1–C5 with
+**2. Now: Block C — admin web dashboard** (chosen 2026-10-12; C1 done, next C2). Steps C1–C5 with
 reasons in section 6 → "Plans log" → "2026-10-12 — Block C". Resume at the first
 unticked step. Block B (store builds) and D (after the client answers) come later
 (see "2026-10-11 — Blocks A–D").
@@ -369,9 +369,16 @@ the web with `kIsWeb` guards, no second project); **admins only** on the web (ot
 "use the phone app"); hosted at `royal-marble.web.app` (custom domain later); built and
 tested against the local emulators first, production only at C5.
 
-- [ ] **C1 Web foundation** — web Firebase options from `config/env.json` (git-ignored),
-      skip Crashlytics/tracking/push/check-in on the web, admin-only gate, Maps JS key
-      injected at build time; runs in Chrome against the emulators (`USE_EMULATOR=true`).
+- [x] **C1 Web foundation** (2026-10-12) — `lib/core/web_config.dart` (web Firebase options
+      from `WEB_API_KEY` / `WEB_APP_ID`, placeholders on the emulators; `MAPS_API_KEY_WEB`),
+      Maps script loaded at start-up (`lib/core/web/maps_loader*.dart`), no
+      Crashlytics/tracking/push on the web (`kIsWeb` guards in `main.dart`, services,
+      `ErrorReporter`), admins-only gate in `Wrapper` (`_WebAdminsOnly`), no sign-up link
+      on the web, Google sign-in by popup on the web, Apple check without `dart:io`, maps
+      show `MapUnavailable` until a web key exists, new `web/index.html` (bootstrap, no
+      service worker) and manifest. Verified headless in Chrome on the emulators: admin
+      home loads with no errors; `mason1` gets the admins-only screen.
+      Also fixed (phones too): `CircleAvatar` assertion when a person has no photo (5 places).
 - [ ] **C2 Wide layout** — side navigation (Dashboard, Team status & alerts, Live map,
       Reports, Users, Sites, Clients, Visits), content width limits, tables instead of
       cards where lists are long (reports, users).
@@ -906,3 +913,10 @@ Workers come from different countries; each user picks a language.
   `correctAttendance` deploy confirmed in the logs (2026-10-11 07:36 local).
 - **2026-10-12 (cont.)** — The user chose Block C. Web build checked (compiles); no Firebase
   web app yet. Plan C1–C5 logged in the Plans log. Starting C1.
+- **2026-10-12 (cont.)** — C1 done (see Plans log). How to run the web dashboard locally:
+  `cd functions && npm run emulators`, `npm run seed`, then `flutter run -d chrome
+  --dart-define-from-file=config/env.json --dart-define=USE_EMULATOR=true` (or `-d
+  web-server --web-port 8099`). Claude drives it with headless Chrome (puppeteer-core in
+  the session scratchpad, not in the repo). Note for scripted tests: puppeteer's
+  `keyboard.press('Enter')` adds a stray character in Flutter text fields; send a raw
+  Enter or click the button. Next: C2 wide layout.

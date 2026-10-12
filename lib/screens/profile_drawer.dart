@@ -155,7 +155,7 @@ class _Header extends StatelessWidget {
           backgroundColor: AppColors.gold,
           foregroundImage: hasImage ? NetworkImage(user.imageUrl!) : null,
           // No connection or a deleted photo: show the fallback instead.
-          onForegroundImageError: (_, __) {},
+          onForegroundImageError: hasImage ? (_, __) {} : null,
           child: Text(initials,
               style: const TextStyle(
                   fontSize: 22,

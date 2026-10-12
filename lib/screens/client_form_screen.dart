@@ -10,6 +10,8 @@ import '../models/business_model.dart';
 import '../services/database.dart';
 import '../widgets/status_widgets.dart';
 import 'site_form_screen.dart' show SitePinPicker;
+import '../core/web_config.dart';
+import '../widgets/map_unavailable.dart';
 
 /// Create or edit a sales client. A new client is returned to the caller
 /// (`Navigator.pop(context, client)`), so the visit form can pick it at once.
@@ -214,7 +216,7 @@ class _ClientFormScreenState extends State<ClientFormScreen> {
                   SizedBox(
                     height: 160,
                     child: IgnorePointer(
-                      child: GoogleMap(
+                      child: !mapsAvailable ? const MapUnavailable() : GoogleMap(
                         key: ValueKey('$pin'),
                         initialCameraPosition: CameraPosition(target: pin, zoom: 16),
                         liteModeEnabled: true,

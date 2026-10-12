@@ -1,4 +1,5 @@
 import 'package:email_validator/email_validator.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:royal_marble/auth/forgot_pass.dart';
 import 'package:royal_marble/auth/register.dart';
@@ -177,6 +178,8 @@ class _SignInState extends State<SignInScreen> {
                         ),
                         const SocialSignInButtons(),
                         const SizedBox(height: 12),
+                        // The web dashboard is for admins; sign-up is on phones.
+                        if (!kIsWeb)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [

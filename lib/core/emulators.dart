@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 
 /// Build with `--dart-define=USE_EMULATOR=true` to run against the local
 /// Firebase Emulator Suite (`firebase emulators:start`) instead of production.
@@ -8,8 +9,10 @@ const useEmulator = bool.fromEnvironment('USE_EMULATOR');
 
 /// Host of the Mac running the emulators, as seen from the device.
 /// 10.0.2.2 is the Android emulator's alias for the host machine; pass
-/// `--dart-define=EMULATOR_HOST=<mac LAN IP>` for a real phone.
-const _host = String.fromEnvironment('EMULATOR_HOST', defaultValue: '10.0.2.2');
+/// `--dart-define=EMULATOR_HOST=<mac LAN IP>` for a real phone. The web
+/// dashboard runs on the Mac itself.
+const _host = String.fromEnvironment('EMULATOR_HOST',
+    defaultValue: kIsWeb ? 'localhost' : '10.0.2.2');
 
 bool _configured = false;
 

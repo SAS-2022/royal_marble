@@ -14,6 +14,8 @@ import '../screens/site_details_screen.dart';
 import '../screens/sites_screen.dart';
 import '../services/checkin_service.dart' show SiteKind;
 import 'status_widgets.dart';
+import '../core/web_config.dart';
+import 'map_unavailable.dart';
 
 /// A site with today's head count: open stays inside and outside its area.
 class SiteActivity {
@@ -224,7 +226,7 @@ class _SitesMap extends StatelessWidget {
         height: _height,
         child: Stack(fit: StackFit.expand, children: [
           IgnorePointer(
-            child: GoogleMap(
+            child: !mapsAvailable ? const MapUnavailable() : GoogleMap(
               key: ValueKey(pins.map((p) => '${p.$1.site.id}${p.$1.present}').join()),
               initialCameraPosition: camera,
               liteModeEnabled: true,

@@ -1,6 +1,6 @@
-import 'dart:io';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/core/locale_controller.dart';
@@ -9,7 +9,8 @@ import 'package:royal_marble/services/auth.dart';
 
 /// Apple sign-in is offered on iOS only. On Android it needs an Apple
 /// "Services ID" set up in the Apple developer account and in Firebase.
-final bool appleSignInAvailable = Platform.isIOS;
+final bool appleSignInAvailable =
+    !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
 
 /// What to show for a failed sign-in, or null when there is nothing to say.
 String? signInErrorText(AppLocalizations l10n, SignInError? error) =>

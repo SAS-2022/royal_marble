@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,6 +8,7 @@ import 'package:royal_marble/core/error_reporter.dart';
 import 'package:royal_marble/core/locale_controller.dart';
 import 'package:royal_marble/core/roles.dart';
 import 'package:royal_marble/models/business_model.dart';
+import 'package:royal_marble/services/auth.dart';
 import 'package:royal_marble/services/database.dart';
 import 'package:royal_marble/services/push_service.dart';
 import 'package:royal_marble/shared/loading.dart';
@@ -40,6 +42,9 @@ class Wrapper extends StatelessWidget {
                   key: ValueKey(firebaseUser.uid), socialUser: firebaseUser);
         }
         final role = primaryRole(user.roles);
+        if (kIsWeb && (role != AppRole.admin || user.isActive != true)) {
+          return const _WebAdminsOnly();
+        }
         ErrorReporter.setUser(uid: user.uid, role: role.name);
         context.read<LocaleController>().adoptFromProfile(user.language);
         PushService.start(user);
@@ -77,6 +82,39 @@ class Wrapper extends StatelessWidget {
           child: HomeScreen(currentUser: user),
         );
       },
+    );
+  }
+}
+
+/// The browser build is the admin dashboard; everyone else uses the phone app.
+class _WebAdminsOnly extends StatelessWidget {
+  const _WebAdminsOnly();
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return Scaffold(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              const Icon(Icons.phone_iphone, size: 48),
+              const SizedBox(height: 16),
+              Text(l.webAdminsOnlyTitle,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 8),
+              Text(l.webAdminsOnlyBody, textAlign: TextAlign.center),
+              const SizedBox(height: 24),
+              FilledButton(
+                  onPressed: () => AuthService().signOut(),
+                  child: Text(l.signOut)),
+            ]),
+          ),
+        ),
+      ),
     );
   }
 }

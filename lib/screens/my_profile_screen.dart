@@ -192,7 +192,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                             ? NetworkImage(u.imageUrl!) as ImageProvider
                             : null,
                     // No connection or a deleted photo: show the initials instead.
-                    onForegroundImageError: (_, __) {},
+                    onForegroundImageError:
+                        _photo != null || hasImage ? (_, __) {} : null,
                     child: Text(
                       '${u.firstName?.characters.firstOrNull ?? ''}${u.lastName?.characters.firstOrNull ?? ''}',
                       style: const TextStyle(

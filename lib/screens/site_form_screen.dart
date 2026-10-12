@@ -13,6 +13,8 @@ import '../services/database.dart';
 import '../widgets/status_widgets.dart';
 import '../models/user_model.dart';
 import 'site_details_screen.dart' show SiteDetailsLoader, SiteRef;
+import '../core/web_config.dart';
+import '../widgets/map_unavailable.dart';
 
 /// Check-in radius choices in metres. Android geofences below ~150 m are
 /// unreliable, so smaller sites are allowed but not suggested first.
@@ -275,7 +277,7 @@ class _SiteFormScreenState extends State<SiteFormScreen> {
                   SizedBox(
                     height: 180,
                     child: IgnorePointer(
-                      child: GoogleMap(
+                      child: !mapsAvailable ? const MapUnavailable() : GoogleMap(
                         key: ValueKey('$pin|$_radius'),
                         initialCameraPosition: CameraPosition(
                             target: pin, zoom: siteZoomFor(_radius)),
@@ -532,7 +534,7 @@ class _SitePinPickerState extends State<SitePinPicker> {
     return Scaffold(
       appBar: AppBar(title: Text(widget.title ?? l.placePin)),
       body: Stack(children: [
-        GoogleMap(
+        !mapsAvailable ? const MapUnavailable() : GoogleMap(
           initialCameraPosition:
               CameraPosition(target: _center, zoom: widget.initial == null ? 11 : siteZoomFor(widget.radius)),
           onMapCreated: (c) => _map = c,
