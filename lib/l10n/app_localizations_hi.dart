@@ -613,6 +613,56 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
+  String get overtime => 'ओवरटाइम';
+
+  @override
+  String get overtimeWaiting => 'प्रतीक्षा में';
+
+  @override
+  String get overtimeApproved => 'स्वीकृत';
+
+  @override
+  String get overtimeRejected => 'अस्वीकृत';
+
+  @override
+  String get reject => 'अस्वीकार करें';
+
+  @override
+  String get rejectOvertimeTitle => 'यह ओवरटाइम अस्वीकार करें?';
+
+  @override
+  String get couldNotLoad => 'लोड नहीं हो सका। फिर से कोशिश करें।';
+
+  @override
+  String get noOvertime => 'यहाँ कोई ओवरटाइम नहीं';
+
+  @override
+  String get noOvertimeRate => 'इस कर्मचारी की ओवरटाइम दर तय नहीं';
+
+  @override
+  String get changedAfterDecision => 'निर्णय के बाद उपस्थिति बदली';
+
+  @override
+  String overtimeLine(String duration, String dayEnd, String out) {
+    return '$dayEnd के बाद $duration · चेक-आउट $out';
+  }
+
+  @override
+  String overtimeWorth(String amount, String rate) {
+    return '$rate प्रति घंटा पर $amount';
+  }
+
+  @override
+  String decidedBy(String name, String date) {
+    return '$name द्वारा · $date';
+  }
+
+  @override
+  String overtimeWaitingCount(int count) {
+    return 'प्रतीक्षा में ओवरटाइम: $count';
+  }
+
+  @override
   String get signOut => 'साइन आउट';
 
   @override

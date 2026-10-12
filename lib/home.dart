@@ -28,6 +28,7 @@ import 'package:royal_marble/widgets/checkin_card.dart';
 import 'package:royal_marble/widgets/sites_overview.dart';
 import 'package:royal_marble/widgets/status_widgets.dart';
 import 'package:royal_marble/widgets/web_shell.dart';
+import 'package:royal_marble/screens/overtime_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, this.currentUser});
@@ -593,19 +594,48 @@ class _AdminHomeState extends State<_AdminHome> {
   }
 }
 
-/// HR: who is at work today; overtime and pay summaries are added below.
-class _HrHome extends StatelessWidget {
+/// HR: overtime waiting for a decision, and who is at work today.
+class _HrHome extends StatefulWidget {
   const _HrHome({required this.user});
   final UserData user;
 
   @override
+  State<_HrHome> createState() => _HrHomeState();
+}
+
+class _HrHomeState extends State<_HrHome> {
+  late Future<int> _waiting = countWaitingOvertime();
+
+  Future<void> _openOvertime() async {
+    await Navigator.push(context,
+        MaterialPageRoute(builder: (_) => OvertimeScreen(viewer: widget.user)));
+    if (mounted) setState(() => _waiting = countWaitingOvertime());
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final timesheet = Provider.of<Map<String, dynamic>>(context);
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       children: [
-        _Greeting(user),
-        SectionTitle(context.l10n.todaysAttendance),
+        _Greeting(widget.user),
+        FutureBuilder<int>(
+          future: _waiting,
+          builder: (context, snap) {
+            final n = snap.data;
+            return Card(
+              child: ListTile(
+                onTap: _openOvertime,
+                leading: Icon(Icons.more_time,
+                    color: (n ?? 0) > 0 ? AppColors.warn : AppColors.muted),
+                title: Text(n == null ? l.overtime : l.overtimeWaitingCount(n)),
+                trailing: const Icon(Icons.chevron_right),
+              ),
+            );
+          },
+        ),
+        SectionTitle(l.todaysAttendance),
         _Attendance(timesheet: timesheet),
       ],
     );

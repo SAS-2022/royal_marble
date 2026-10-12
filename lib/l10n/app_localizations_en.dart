@@ -615,6 +615,56 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get overtime => 'Overtime';
+
+  @override
+  String get overtimeWaiting => 'Waiting';
+
+  @override
+  String get overtimeApproved => 'Approved';
+
+  @override
+  String get overtimeRejected => 'Rejected';
+
+  @override
+  String get reject => 'Reject';
+
+  @override
+  String get rejectOvertimeTitle => 'Reject this overtime?';
+
+  @override
+  String get couldNotLoad => 'Could not load. Please try again.';
+
+  @override
+  String get noOvertime => 'No overtime here';
+
+  @override
+  String get noOvertimeRate => 'No overtime rate set for this worker';
+
+  @override
+  String get changedAfterDecision => 'Attendance changed after the decision';
+
+  @override
+  String overtimeLine(String duration, String dayEnd, String out) {
+    return '$duration after $dayEnd · checked out $out';
+  }
+
+  @override
+  String overtimeWorth(String amount, String rate) {
+    return 'Worth $amount at $rate an hour';
+  }
+
+  @override
+  String decidedBy(String name, String date) {
+    return 'By $name · $date';
+  }
+
+  @override
+  String overtimeWaitingCount(int count) {
+    return 'Overtime waiting: $count';
+  }
+
+  @override
   String get signOut => 'Sign out';
 
   @override

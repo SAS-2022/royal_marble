@@ -101,7 +101,7 @@ class AdminUserView extends StatelessWidget {
     final name = '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim();
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (context) => AlertDialog(
         title: Text(context.l10n.deleteUserTitle(name)),
         content: Text(context.l10n.deleteUserBody),
         actions: [

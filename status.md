@@ -408,9 +408,18 @@ for HR to re-check).
       → pending), `OvertimeDecision` + `overtimeDocId` (`{uid}_{d-m-yyyy}`). 11 unit
       tests (`test/pay_calc_test.dart`). Time outside the site (lunch) is not
       deducted — client decision #2 still open.
-- [ ] **H4 Overtime review** — HR screen: days with overtime (pending / approved /
-      rejected), approve or reject with a note; decisions in `overtime/{uid}_{day}`
-      {minutes, rate, status, by, at, note}; flagged when attendance changed later.
+- [x] **H4 Overtime review** (2026-10-12) — `lib/services/pay_service.dart` (days of a
+      period from `time_sheet`, all packages, decisions by day range or by id, `decide`)
+      and `lib/screens/overtime_screen.dart` (This month / Last month; Waiting /
+      Approved / Rejected; worth at the worker's rate or "no overtime rate set";
+      reject asks for an optional note; decided days can be switched; changed-after-
+      decision flag). Menu "Overtime" for admin + HR; HR home card "Overtime waiting:
+      N". Rule fix: workers read their own decision **by id** (a missing doc would be
+      refused by a `resource.data` rule). Checked on the web as HR with emulator days
+      (approve Ravi 1h30 → AED 22.5; reject Imran with a note).
+      **Bug found and fixed:** dialogs that closed with the screen's context instead of
+      their own closed the *page* inside the web sidebar layout (overtime reject,
+      deleting a user, sign-out) — now use the dialog's context.
 - [ ] **H5 Earned so far** — My pay card for the worker (regular hours, approved
       overtime, pending overtime not yet paid, total); same card on the worker's page
       for HR/admin; month payroll list for HR (Excel export).
@@ -1035,3 +1044,4 @@ Workers come from different countries; each user picks a language.
 - **2026-10-12 (cont.)** — H2 done (working hours and overtime rate on the pay package).
   Next: H3 calculation.
 - **2026-10-12 (cont.)** — H3 done (pay calculation + tests). Next: H4 overtime review.
+- **2026-10-12 (cont.)** — H4 done (overtime review). Next: H5 earned-so-far card + month list.

@@ -1176,6 +1176,90 @@ abstract class AppLocalizations {
   /// **'{hours} h a week · day ends {dayEnd} · overtime {rate}'**
   String workingTermsLine(String hours, String dayEnd, String rate);
 
+  /// No description provided for @overtime.
+  ///
+  /// In en, this message translates to:
+  /// **'Overtime'**
+  String get overtime;
+
+  /// No description provided for @overtimeWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get overtimeWaiting;
+
+  /// No description provided for @overtimeApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get overtimeApproved;
+
+  /// No description provided for @overtimeRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get overtimeRejected;
+
+  /// No description provided for @reject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get reject;
+
+  /// No description provided for @rejectOvertimeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject this overtime?'**
+  String get rejectOvertimeTitle;
+
+  /// No description provided for @couldNotLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load. Please try again.'**
+  String get couldNotLoad;
+
+  /// No description provided for @noOvertime.
+  ///
+  /// In en, this message translates to:
+  /// **'No overtime here'**
+  String get noOvertime;
+
+  /// No description provided for @noOvertimeRate.
+  ///
+  /// In en, this message translates to:
+  /// **'No overtime rate set for this worker'**
+  String get noOvertimeRate;
+
+  /// No description provided for @changedAfterDecision.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance changed after the decision'**
+  String get changedAfterDecision;
+
+  /// No description provided for @overtimeLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{duration} after {dayEnd} · checked out {out}'**
+  String overtimeLine(String duration, String dayEnd, String out);
+
+  /// No description provided for @overtimeWorth.
+  ///
+  /// In en, this message translates to:
+  /// **'Worth {amount} at {rate} an hour'**
+  String overtimeWorth(String amount, String rate);
+
+  /// No description provided for @decidedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'By {name} · {date}'**
+  String decidedBy(String name, String date);
+
+  /// No description provided for @overtimeWaitingCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Overtime waiting: {count}'**
+  String overtimeWaitingCount(int count);
+
   /// No description provided for @signOut.
   ///
   /// In en, this message translates to:

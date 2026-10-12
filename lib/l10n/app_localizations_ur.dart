@@ -616,6 +616,56 @@ class AppLocalizationsUr extends AppLocalizations {
   }
 
   @override
+  String get overtime => 'اوور ٹائم';
+
+  @override
+  String get overtimeWaiting => 'زیر غور';
+
+  @override
+  String get overtimeApproved => 'منظور';
+
+  @override
+  String get overtimeRejected => 'مسترد';
+
+  @override
+  String get reject => 'مسترد کریں';
+
+  @override
+  String get rejectOvertimeTitle => 'یہ اوور ٹائم مسترد کریں؟';
+
+  @override
+  String get couldNotLoad => 'لوڈ نہیں ہو سکا۔ دوبارہ کوشش کریں۔';
+
+  @override
+  String get noOvertime => 'یہاں کوئی اوور ٹائم نہیں';
+
+  @override
+  String get noOvertimeRate => 'اس کارکن کی اوور ٹائم شرح مقرر نہیں';
+
+  @override
+  String get changedAfterDecision => 'فیصلے کے بعد حاضری بدل گئی';
+
+  @override
+  String overtimeLine(String duration, String dayEnd, String out) {
+    return '$dayEnd کے بعد $duration · چیک آؤٹ $out';
+  }
+
+  @override
+  String overtimeWorth(String amount, String rate) {
+    return '$rate فی گھنٹہ کے حساب سے $amount';
+  }
+
+  @override
+  String decidedBy(String name, String date) {
+    return '$name کی جانب سے · $date';
+  }
+
+  @override
+  String overtimeWaitingCount(int count) {
+    return 'زیر غور اوور ٹائم: $count';
+  }
+
+  @override
   String get signOut => 'سائن آؤٹ';
 
   @override

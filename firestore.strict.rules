@@ -95,7 +95,8 @@ service cloud.firestore {
     // Overtime decisions (`{uid}_{day}`): HR and admins approve or reject;
     // each worker can read their own.
     match /overtime/{id} {
-      allow read: if managesPay() || (signedIn() && resource.data.uid == request.auth.uid);
+      // By id, so a worker can also look up a day that has no decision yet.
+      allow read: if managesPay() || (signedIn() && id.matches(request.auth.uid + '_.*'));
       allow write: if managesPay();
     }
 

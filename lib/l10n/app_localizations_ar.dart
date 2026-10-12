@@ -608,6 +608,56 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get overtime => 'العمل الإضافي';
+
+  @override
+  String get overtimeWaiting => 'بانتظار القرار';
+
+  @override
+  String get overtimeApproved => 'موافق عليه';
+
+  @override
+  String get overtimeRejected => 'مرفوض';
+
+  @override
+  String get reject => 'رفض';
+
+  @override
+  String get rejectOvertimeTitle => 'رفض هذا العمل الإضافي؟';
+
+  @override
+  String get couldNotLoad => 'تعذر التحميل. حاول مرة أخرى.';
+
+  @override
+  String get noOvertime => 'لا يوجد عمل إضافي هنا';
+
+  @override
+  String get noOvertimeRate => 'لم يُحدد أجر العمل الإضافي لهذا العامل';
+
+  @override
+  String get changedAfterDecision => 'تغير الحضور بعد القرار';
+
+  @override
+  String overtimeLine(String duration, String dayEnd, String out) {
+    return '$duration بعد $dayEnd · خرج $out';
+  }
+
+  @override
+  String overtimeWorth(String amount, String rate) {
+    return 'بقيمة $amount بسعر $rate للساعة';
+  }
+
+  @override
+  String decidedBy(String name, String date) {
+    return 'بواسطة $name · $date';
+  }
+
+  @override
+  String overtimeWaitingCount(int count) {
+    return 'عمل إضافي بانتظار القرار: $count';
+  }
+
+  @override
   String get signOut => 'تسجيل الخروج';
 
   @override
