@@ -18,10 +18,8 @@ and everything is committed on `revive-2026` (last code commit `d2d07e9`), **not
 pushed**. Quiet hours, check-in/out, leave/return pushes, admin correction and My pay
 were all verified in production (session log below).
 
-**1. Waiting on the user — deploy:**
-`firebase deploy --only functions:correctAttendance --project royal-marble --account
-royalmarble.uae@gmail.com` (refuses correction times later than now; the app already
-blocks it). Answer **No** to any delete prompt.
+**1. ✅ `correctAttendance` deployed** (2026-10-11 07:36 local, by the user): the server
+now refuses correction times later than now, as the app does.
 
 **2. Then pick the next block** — full plan with reasons in section 6 → "Plans log" →
 "2026-10-11 — Blocks A–D". Summary:
@@ -402,7 +400,7 @@ that need nobody else go first. The user chose Block A first.
         strict rules
   - [ ] Fixes from the native-speaker translation review (Phase 8)
 
-Status 2026-10-12: Block A done; the user deploys `correctAttendance`, then picks B or C.
+Status 2026-10-12: Block A done and `correctAttendance` deployed; the user picks B or C next.
 
 #### 2026-10-01 — Current agenda (below)
 **Why:** billing was expired and production frozen, so the agenda was work that needs no
@@ -887,3 +885,4 @@ Workers come from different countries; each user picks a language.
 - **2026-10-12** — Per the user: every plan is now logged in section 6 "Plans log" (date,
   why, steps, decisions); added the Blocks A–D plan of 2026-10-11 and the 2026-10-01
   agenda's origin. Rule added to the top of this file.
+  `correctAttendance` deploy confirmed in the logs (2026-10-11 07:36 local).
