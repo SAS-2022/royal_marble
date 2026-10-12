@@ -6,6 +6,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xls;
 
+import '../models/pay_calc.dart';
 import 'report_data.dart';
 
 final _day = DateFormat('EEE d MMM yyyy');
@@ -278,4 +279,54 @@ Future<Uint8List> salesPdf({
     ],
   ));
   return doc.save();
+}
+
+/// One worker's line in the month's payroll export.
+typedef PayrollLine = ({String name, String currency, PaySoFar? pay});
+
+/// Month payroll as Excel: hours, overtime by status and pay, in English like
+/// the other exports. People without a pay package get hours only.
+List<int> payrollXlsx({required String month, required List<PayrollLine> lines}) {
+  final book = xls.Workbook();
+  final header = book.styles.add('header')
+    ..bold = true
+    ..fontColor = '#FFFFFF'
+    ..backColor = '#23221C';
+  final s = book.worksheets[0]..name = 'Payroll';
+  final names = [
+    'Name', 'Regular hours', 'Overtime approved (h)', 'Overtime waiting (h)',
+    'Overtime rejected (h)', 'Hourly rate', 'Regular pay', 'Overtime pay',
+    'Earned', 'Currency',
+  ];
+  s.getRangeByIndex(1, 1).setText('Payroll · $month');
+  for (var c = 0; c < names.length; c++) {
+    s.getRangeByIndex(2, c + 1)
+      ..setText(names[c])
+      ..cellStyle = header;
+  }
+  double h(int minutes) => double.parse((minutes / 60).toStringAsFixed(2));
+  double r2(double v) => double.parse(v.toStringAsFixed(2));
+  for (var i = 0; i < lines.length; i++) {
+    final l = lines[i];
+    final row = i + 3;
+    s.getRangeByIndex(row, 1).setText(l.name);
+    final p = l.pay;
+    if (p == null) {
+      s.getRangeByIndex(row, 10).setText('no pay package');
+      continue;
+    }
+    s.getRangeByIndex(row, 2).setNumber(h(p.regularMinutes));
+    s.getRangeByIndex(row, 3).setNumber(h(p.approvedOvertimeMinutes));
+    s.getRangeByIndex(row, 4).setNumber(h(p.pendingOvertimeMinutes));
+    s.getRangeByIndex(row, 5).setNumber(h(p.rejectedOvertimeMinutes));
+    s.getRangeByIndex(row, 6).setNumber(r2(p.hourlyRate));
+    s.getRangeByIndex(row, 7).setNumber(r2(p.regularPay));
+    s.getRangeByIndex(row, 8).setNumber(r2(p.overtimePay));
+    s.getRangeByIndex(row, 9).setNumber(r2(p.total));
+    s.getRangeByIndex(row, 10).setText(l.currency);
+  }
+  s.getRangeByIndex(2, 1, lines.length + 2, names.length).autoFitColumns();
+  final bytes = book.saveAsStream();
+  book.dispose();
+  return bytes;
 }

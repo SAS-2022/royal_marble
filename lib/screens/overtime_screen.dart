@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../core/app_theme.dart';
+import '../core/format.dart';
 import '../core/l10n_helpers.dart';
 import '../core/locale_controller.dart';
 import '../models/pay_calc.dart';
@@ -10,7 +11,6 @@ import '../models/user_model.dart';
 import '../services/pay_service.dart';
 import '../shared/loading.dart';
 import '../widgets/status_widgets.dart';
-import 'salary_screens.dart' show money;
 
 /// One worker's overtime on one day, as HR reviews it.
 class _Row {

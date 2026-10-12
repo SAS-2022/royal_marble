@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../core/app_theme.dart';
+import '../core/format.dart';
 import '../core/l10n_helpers.dart';
 import '../core/locale_controller.dart';
 import '../models/salary.dart';
@@ -10,9 +11,8 @@ import '../models/user_model.dart';
 import '../services/payroll_service.dart';
 import '../widgets/status_widgets.dart';
 import '../widgets/time_wheel_picker.dart';
+import '../widgets/earned_so_far.dart';
 
-final _money = NumberFormat('#,##0.##');
-String money(double v, String currency) => '$currency ${_money.format(v)}';
 
 /// Breakdown of a pay package; shows an empty state when none is set.
 class SalaryBreakdown extends StatelessWidget {
@@ -108,8 +108,11 @@ class SalaryCard extends StatelessWidget {
                           if (p == null || p.isEmpty)
                             Text(context.l10n.noPayDetails,
                                 style: TextStyle(color: AppColors.muted))
-                          else
+                          else ...[
                             SalaryBreakdown(p),
+                            const Divider(height: 28),
+                            EarnedSoFar(uid: user.uid!, package: p),
+                          ],
                           if (canEdit) ...[
                             const SizedBox(height: 12),
                             OutlinedButton.icon(
@@ -167,7 +170,7 @@ class _SalaryEditorScreenState extends State<SalaryEditorScreen> {
   bool _saving = false;
 
   static TextEditingController _ctrl(double v) =>
-      TextEditingController(text: v == 0 ? '' : _money.format(v).replaceAll(',', ''));
+      TextEditingController(text: v == 0 ? '' : NumberFormat('0.##').format(v));
 
   static double _val(TextEditingController c) =>
       double.tryParse(c.text.replaceAll(',', '').trim()) ?? 0;
@@ -412,6 +415,12 @@ class MyPayScreen extends StatelessWidget {
                   ),
                 )
               else ...[
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: EarnedSoFar(uid: user.uid!, package: p),
+                  ),
+                ),
                 SectionTitle(context.l10n.yourPackage),
                 Card(
                   child: Padding(

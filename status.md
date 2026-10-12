@@ -420,11 +420,21 @@ for HR to re-check).
       **Bug found and fixed:** dialogs that closed with the screen's context instead of
       their own closed the *page* inside the web sidebar layout (overtime reject,
       deleting a user, sign-out) — now use the dialog's context.
-- [ ] **H5 Earned so far** — My pay card for the worker (regular hours, approved
-      overtime, pending overtime not yet paid, total); same card on the worker's page
-      for HR/admin; month payroll list for HR (Excel export).
-- [ ] **H6 Tests** — unit tests, emulator scenario (HR correction allowed, worker
-      refused), rules compile (dry run), screens on the emulator (phone) and the web.
+- [x] **H5 Earned so far** (2026-10-12) — `lib/widgets/earned_so_far.dart` (month so
+      far: total, regular time, approved overtime, overtime waiting "not paid yet",
+      rejected, hourly-rate note): top card in **My pay** (worker) and inside the pay
+      card on the worker's page (HR/admin). `lib/screens/payroll_screen.dart` (menu
+      "Payroll", admin + HR): everyone tracked with a package or attendance, this/last
+      month, tap → worker page, Excel export (`payrollXlsx`, English). `money()` moved
+      to `core/format.dart` (an import loop made the web dev server serve a stale
+      module). Checked on the web as HR: Ravi AED 273.46 = 18 h × 13.94 + 1.5 h × 15,
+      Excel matches. Worker access checked on the emulator with mason1's token: own
+      decision 200, own undecided day 404, other's decision 403, writing own 403,
+      other's pay 403.
+- [ ] **H6 Tests** — done so far: 13 new unit tests (49 pass), 2 HR emulator scenarios
+      (34 pass), rules dry-run (both files), all HR screens on the web dashboard, worker
+      data access via REST. **Left:** My pay on a phone as a worker (after the deploy,
+      with Quiet Tester on the emulator).
 - [ ] **H7 Deploy (user's approval)** — rules + `correctAttendance`; then the user
       makes an HR account (role picker) and tries it.
 
@@ -1045,3 +1055,5 @@ Workers come from different countries; each user picks a language.
   Next: H3 calculation.
 - **2026-10-12 (cont.)** — H3 done (pay calculation + tests). Next: H4 overtime review.
 - **2026-10-12 (cont.)** — H4 done (overtime review). Next: H5 earned-so-far card + month list.
+- **2026-10-12 (cont.)** — H5 done (earned so far, payroll list + Excel). H6 mostly done.
+  Next: H7 deploy (rules, `correctAttendance`, hosting) with the user's go-ahead.

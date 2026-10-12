@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 /// Older projects store `addressName` as a raw `Placemark.toString()` dump
 /// ("Name: 14,\n Street: 14 11B St, ... Locality: Dubai, ..."). Turn that into
 /// "14 11B St, Al Quoz, Dubai"; plain addresses pass through unchanged.
@@ -41,3 +43,8 @@ String normalizeUaeMobile(String raw) {
   final m = RegExp(r'5\d{8}$').firstMatch(digits);
   return m == null ? digits : '0${m.group(0)}';
 }
+
+final _money = NumberFormat('#,##0.##');
+
+/// "AED 2,900" / "AED 22.5".
+String money(double v, String currency) => '$currency ${_money.format(v)}';

@@ -666,6 +666,37 @@ class AppLocalizationsUr extends AppLocalizations {
   }
 
   @override
+  String get payroll => 'پے رول';
+
+  @override
+  String get noPayrollYet => 'اس مہینے کے لیے ابھی کوئی نہیں';
+
+  @override
+  String earnedSoFarTitle(String month) {
+    return '$month میں اب تک کی کمائی';
+  }
+
+  @override
+  String get regularTime => 'عام وقت';
+
+  @override
+  String get approvedOvertime => 'منظور شدہ اوور ٹائم';
+
+  @override
+  String get overtimeWaitingHr => 'ایچ آر کے انتظار میں اوور ٹائم';
+
+  @override
+  String get notPaidYet => 'ابھی ادا نہیں ہوا';
+
+  @override
+  String get overtimeNotApproved => 'نامنظور اوور ٹائم';
+
+  @override
+  String hourlyRateNote(String rate, String hours) {
+    return 'فی گھنٹہ شرح $rate (مہینے میں $hours گھنٹے)۔ چیک اِن اور چیک آؤٹ سے؛ ایچ آر اب بھی انہیں درست کر سکتا ہے۔';
+  }
+
+  @override
   String get signOut => 'سائن آؤٹ';
 
   @override

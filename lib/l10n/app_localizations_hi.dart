@@ -663,6 +663,37 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
+  String get payroll => 'पेरोल';
+
+  @override
+  String get noPayrollYet => 'इस महीने के लिए अभी कोई नहीं';
+
+  @override
+  String earnedSoFarTitle(String month) {
+    return '$month में अब तक की कमाई';
+  }
+
+  @override
+  String get regularTime => 'सामान्य समय';
+
+  @override
+  String get approvedOvertime => 'स्वीकृत ओवरटाइम';
+
+  @override
+  String get overtimeWaitingHr => 'एचआर की प्रतीक्षा में ओवरटाइम';
+
+  @override
+  String get notPaidYet => 'अभी भुगतान नहीं';
+
+  @override
+  String get overtimeNotApproved => 'अस्वीकृत ओवरटाइम';
+
+  @override
+  String hourlyRateNote(String rate, String hours) {
+    return 'प्रति घंटा दर $rate (महीने में $hours घंटे)। चेक-इन और चेक-आउट से; एचआर अभी भी इन्हें सुधार सकता है।';
+  }
+
+  @override
   String get signOut => 'साइन आउट';
 
   @override

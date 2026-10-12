@@ -665,6 +665,37 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get payroll => 'Payroll';
+
+  @override
+  String get noPayrollYet => 'Nobody to show for this month yet';
+
+  @override
+  String earnedSoFarTitle(String month) {
+    return 'Earned so far in $month';
+  }
+
+  @override
+  String get regularTime => 'Regular time';
+
+  @override
+  String get approvedOvertime => 'Approved overtime';
+
+  @override
+  String get overtimeWaitingHr => 'Overtime waiting for HR';
+
+  @override
+  String get notPaidYet => 'not paid yet';
+
+  @override
+  String get overtimeNotApproved => 'Overtime not approved';
+
+  @override
+  String hourlyRateNote(String rate, String hours) {
+    return 'Hourly rate $rate ($hours h a month). From check-ins and check-outs; HR may still correct them.';
+  }
+
+  @override
   String get signOut => 'Sign out';
 
   @override

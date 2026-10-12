@@ -658,6 +658,37 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get payroll => 'الرواتب';
+
+  @override
+  String get noPayrollYet => 'لا يوجد أحد لعرضه لهذا الشهر بعد';
+
+  @override
+  String earnedSoFarTitle(String month) {
+    return 'المكتسب حتى الآن في $month';
+  }
+
+  @override
+  String get regularTime => 'الوقت العادي';
+
+  @override
+  String get approvedOvertime => 'عمل إضافي موافق عليه';
+
+  @override
+  String get overtimeWaitingHr => 'عمل إضافي بانتظار الموارد البشرية';
+
+  @override
+  String get notPaidYet => 'لم يُدفع بعد';
+
+  @override
+  String get overtimeNotApproved => 'عمل إضافي غير موافق عليه';
+
+  @override
+  String hourlyRateNote(String rate, String hours) {
+    return 'أجر الساعة $rate ($hours ساعة شهرياً). محسوب من تسجيلات الدخول والخروج وقد تصححها الموارد البشرية.';
+  }
+
+  @override
   String get signOut => 'تسجيل الخروج';
 
   @override

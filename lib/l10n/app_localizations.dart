@@ -1260,6 +1260,60 @@ abstract class AppLocalizations {
   /// **'Overtime waiting: {count}'**
   String overtimeWaitingCount(int count);
 
+  /// No description provided for @payroll.
+  ///
+  /// In en, this message translates to:
+  /// **'Payroll'**
+  String get payroll;
+
+  /// No description provided for @noPayrollYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody to show for this month yet'**
+  String get noPayrollYet;
+
+  /// No description provided for @earnedSoFarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Earned so far in {month}'**
+  String earnedSoFarTitle(String month);
+
+  /// No description provided for @regularTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Regular time'**
+  String get regularTime;
+
+  /// No description provided for @approvedOvertime.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved overtime'**
+  String get approvedOvertime;
+
+  /// No description provided for @overtimeWaitingHr.
+  ///
+  /// In en, this message translates to:
+  /// **'Overtime waiting for HR'**
+  String get overtimeWaitingHr;
+
+  /// No description provided for @notPaidYet.
+  ///
+  /// In en, this message translates to:
+  /// **'not paid yet'**
+  String get notPaidYet;
+
+  /// No description provided for @overtimeNotApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Overtime not approved'**
+  String get overtimeNotApproved;
+
+  /// No description provided for @hourlyRateNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Hourly rate {rate} ({hours} h a month). From check-ins and check-outs; HR may still correct them.'**
+  String hourlyRateNote(String rate, String hours);
+
   /// No description provided for @signOut.
   ///
   /// In en, this message translates to:

@@ -11,6 +11,7 @@ import 'package:royal_marble/screens/clients_screen.dart';
 import 'package:royal_marble/screens/live_map_screen.dart';
 import 'package:royal_marble/screens/my_profile_screen.dart';
 import 'package:royal_marble/screens/overtime_screen.dart';
+import 'package:royal_marble/screens/payroll_screen.dart';
 import 'package:royal_marble/screens/settings_screen.dart';
 import 'package:royal_marble/screens/salary_screens.dart';
 import 'package:royal_marble/screens/sites_screen.dart';
@@ -97,10 +98,14 @@ class ProfileDrawer extends StatelessWidget {
                   _Item(Icons.bar_chart_outlined, l.sectionReports,
                       selected: sidebar && current == ReportsScreen,
                       () => open(ReportsScreen(canCorrect: role.managesPay))),
-                if (role.managesPay)
+                if (role.managesPay) ...[
                   _Item(Icons.more_time, l.overtime,
                       selected: sidebar && current == OvertimeScreen,
                       () => open(OvertimeScreen(viewer: user))),
+                  _Item(Icons.account_balance_wallet_outlined, l.payroll,
+                      selected: sidebar && current == PayrollScreen,
+                      () => open(PayrollScreen(users: allUsers ?? const [], viewer: user))),
+                ],
                 if (admin || supervisor || sales || hr) const Divider(height: 24),
                 _Item(Icons.person_outline, l.myProfile,
                     selected: sidebar && current == MyProfileScreen,
