@@ -357,6 +357,32 @@ independent and needs no billing, so it goes first.
 ### Plans log
 Newest first. Each plan: when, why, the steps, and decisions. Tick steps as they finish.
 
+#### 2026-10-13 — Release 11.0.0 (build 11) for Google Play and the App Store
+**Why:** the user asked to prepare an update for both stores (the app is already on Google
+Play). Facts found: the last Android bundle (Dec 2023) was versionCode 10 / 10.0.0 (the old
+build.gradle hard-coded the code); no public App Store listing for
+`com.royalmarble.tracking-ios`; target SDK 36 (Flutter default) meets Play's requirement.
+
+- [x] Version `11.0.0+11` in `pubspec.yaml` (both platforms).
+- [x] `android/key.properties` (local, not in git): `storeFile` had the path written twice —
+      fixed to `/Users/wsabg/royal-keystore.jks`. Bundle signed with the same key Play knows
+      (SHA-1 `75:E5:33…`).
+- [x] Android permissions Play would flag removed in the app manifest (`tools:node="remove"`):
+      READ_MEDIA_IMAGES/VIDEO/AUDIO (from `open_filex`), AD_ID; leftover GALLERY, FLASHLIGHT.
+      Checked on the Xiaomi: Excel export opens, system photo picker opens. Kept: background
+      location + foreground service (core; Play declaration + video needed), ACTIVITY_RECOGNITION
+      (tracking plugin), SCHEDULE_EXACT_ALARM (max SDK 33), biometrics (Google sign-in).
+- [x] `build/app/outputs/bundle/release/app-release.aab` built (74 MB).
+- [x] iOS permission texts rewritten (were placeholders like "We need location always").
+- [x] iOS app icon: one real 1024 PNG (Xcode makes the sizes); the old set was JPEGs named
+      .png with wrong sizes. Launch screen: logo on the app's dark background.
+- [x] iOS IPA rebuilt (`build/ios/ipa/royal_marble.ipa`, 53 MB): App Store profile, cloud-managed
+      distribution certificate, team 4T796AUXJS; no validation warnings.
+- [ ] User: upload the AAB to Play (internal testing first), fill the background-location
+      declaration, data safety; upload the IPA (Transporter) and TestFlight.
+- Not done (from Block B list, separate): `firebase-functions` upgrade, Kotlin plugin
+  warnings, restrict/rotate the Maps keys.
+
 #### 2026-10-13 — Payroll approve and lock (Phase 6, part 2)
 **Why:** before the Play Store update (the app is already on Google Play, so it ships as an
 update), the user asked to finish H6 and add approving and locking each worker's monthly

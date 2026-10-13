@@ -50,19 +50,19 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Camera Access</string>
+	<string>Royal Marble uses the camera so you can take your profile photo.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Always and when in use</string>
+	<string>While you are checked in at a work site, Royal Marble uses your location in the background to record when you arrive and leave, so your working hours and pay are correct. Tracking stops when you sign out.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>We need location always</string>
+	<string>While you are checked in at a work site, Royal Marble uses your location in the background to record when you arrive and leave, so your working hours and pay are correct.</string>
 	<key>NSLocationUsageDescription</key>
-	<string>Older device need location</string>
+	<string>Royal Marble uses your location to check you in and out at your work site.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Need location when in use</string>
+	<string>Royal Marble uses your location to check you in and out at your assigned work site and to show how far you are from it.</string>
 	<key>NSMotionUsageDescription</key>
-	<string>Motion usage description</string>
+	<string>Royal Marble uses motion detection to save battery: location is only tracked while you are moving.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Gallery Access</string>
+	<string>Royal Marble lets you choose a profile photo from your photo library.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>
