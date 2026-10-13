@@ -65,6 +65,13 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.GALLERY" />
-    <uses-permission android:name="android.permission.FLASHLIGHT" />
+
+    <!-- Added by plugins but not needed, and each triggers a Google Play
+         declaration: open_filex only opens the app's own exports (no media
+         access), photos come from the system photo picker, and there are no
+         ads (advertising ID). -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" tools:node="remove" />
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" tools:node="remove" />
 </manifest>
