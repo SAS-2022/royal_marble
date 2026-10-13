@@ -7,6 +7,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xls;
 
 import '../models/pay_calc.dart';
+import '../models/payslip.dart';
 import 'report_data.dart';
 
 final _day = DateFormat('EEE d MMM yyyy');
@@ -282,7 +283,14 @@ Future<Uint8List> salesPdf({
 }
 
 /// One worker's line in the month's payroll export.
-typedef PayrollLine = ({String name, String currency, PaySoFar? pay});
+/// [slip] for an approved month (its saved numbers), else [pay] worked out now.
+typedef PayrollLine = ({
+  String name,
+  String currency,
+  PaySoFar? pay,
+  Payslip? slip,
+  String status,
+});
 
 /// Month payroll as Excel: hours, overtime by status and pay, in English like
 /// the other exports. People without a pay package get hours only.
@@ -296,7 +304,7 @@ List<int> payrollXlsx({required String month, required List<PayrollLine> lines})
   final names = [
     'Name', 'Regular hours', 'Overtime approved (h)', 'Overtime waiting (h)',
     'Overtime rejected (h)', 'Hourly rate', 'Regular pay', 'Overtime pay',
-    'Earned', 'Currency',
+    'Earned', 'Currency', 'Status',
   ];
   s.getRangeByIndex(1, 1).setText('Payroll · $month');
   for (var c = 0; c < names.length; c++) {
@@ -310,6 +318,19 @@ List<int> payrollXlsx({required String month, required List<PayrollLine> lines})
     final l = lines[i];
     final row = i + 3;
     s.getRangeByIndex(row, 1).setText(l.name);
+    s.getRangeByIndex(row, 11).setText(l.status);
+    if (l.slip case final slip?) {
+      s.getRangeByIndex(row, 2).setNumber(h(slip.regularMinutes));
+      s.getRangeByIndex(row, 3).setNumber(h(slip.overtimeMinutes));
+      s.getRangeByIndex(row, 4).setNumber(0);
+      s.getRangeByIndex(row, 5).setNumber(h(slip.rejectedOvertimeMinutes));
+      s.getRangeByIndex(row, 6).setNumber(slip.hourlyRate);
+      s.getRangeByIndex(row, 7).setNumber(slip.regularPay);
+      s.getRangeByIndex(row, 8).setNumber(slip.overtimePay);
+      s.getRangeByIndex(row, 9).setNumber(slip.total);
+      s.getRangeByIndex(row, 10).setText(slip.currency);
+      continue;
+    }
     final p = l.pay;
     if (p == null) {
       s.getRangeByIndex(row, 10).setText('no pay package');

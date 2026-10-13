@@ -18,6 +18,16 @@ service cloud.firestore {
     function isSales() { return hasRole('isSales'); }
     function isHR() { return hasRole('isHR'); }
     function managesPay() { return isAdmin() || isHR(); }
+    // `{uid}_{d-m-yyyy}` (an overtime day) → `{uid}_{m-yyyy}` (its payslip).
+    function overtimeSlipId(id) {
+      let parts = id.split('_');
+      let d = parts[1].split('-');
+      return parts[0] + '_' + d[1] + '-' + d[2];
+    }
+    function slipLocked(slipId) {
+      let p = /databases/$(database)/documents/payslips/$(slipId);
+      return exists(p) && get(p).data.status == 'locked';
+    }
     function isManager() { return isAdmin() || isSupervisor(); }
     function isActive() { return signedIn() && me().get('isActive', false) == true; }
     function isSelf(uid) { return signedIn() && request.auth.uid == uid; }
@@ -97,7 +107,23 @@ service cloud.firestore {
     match /overtime/{id} {
       // By id, so a worker can also look up a day that has no decision yet.
       allow read: if managesPay() || (signedIn() && id.matches(request.auth.uid + '_.*'));
-      allow write: if managesPay();
+      // Not once that worker's month is approved (payslip locked).
+      allow create, update: if managesPay() && !slipLocked(overtimeSlipId(id))
+        && request.resource.data.uid == id.split('_')[0];
+      allow delete: if managesPay() && !slipLocked(overtimeSlipId(id));
+    }
+
+    // Approved months (`{uid}_{m-yyyy}`): HR and admins approve and lock;
+    // only an admin reopens a locked one; never deleted. Workers read their own.
+    match /payslips/{id} {
+      allow read: if managesPay() || (signedIn() && id.matches(request.auth.uid + '_.*'));
+      allow create: if managesPay() && request.resource.data.status == 'locked'
+        && request.resource.data.uid == id.split('_')[0];
+      allow update: if managesPay() && request.resource.data.uid == resource.data.uid && (
+        (resource.data.status == 'reopened' && request.resource.data.status == 'locked') ||
+        (resource.data.status == 'locked' && request.resource.data.status == 'reopened'
+          && isAdmin()));
+      allow delete: if false;
     }
 
     // Phones append their own status changes; only managers read them.

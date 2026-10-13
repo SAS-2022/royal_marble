@@ -357,6 +357,40 @@ independent and needs no billing, so it goes first.
 ### Plans log
 Newest first. Each plan: when, why, the steps, and decisions. Tick steps as they finish.
 
+#### 2026-10-13 — Payroll approve and lock (Phase 6, part 2)
+**Why:** before the Play Store update (the app is already on Google Play, so it ships as an
+update), the user asked to finish H6 and add approving and locking each worker's monthly
+pay, so approved pay can't change underneath the office.
+
+**Decisions (user, 2026-10-13):** per worker (plus "Approve all ready"); HR or admin
+approves; approved overtime is its own line on the payslip and part of the total, and
+overtime still waiting must be approved or rejected first (Claude's reading of the
+user's answer, told to the user); only a month that has ended can be approved; an
+admin can reopen with a reason (kept), then HR re-approves.
+
+- [x] **P1 Data + rules** (2026-10-13; both files dry-run compiled) — `payslips/{uid}_{m-yyyy}`: snapshot (package, rate, regular
+      and overtime minutes and pay, total, days), `status` locked/reopened, who/when,
+      `reopened` list (who, when, reason). Rules: HR/admin create locked; only an admin
+      changes locked → reopened; nobody deletes; worker reads own by id. `overtime`
+      writes refused while that worker's month is locked.
+- [x] **P2 Server** (2026-10-13) — `correctAttendance` refuses days in a locked month
+      (`reason: month_locked`), translated in the app.
+- [x] **P3 Payroll screen** (2026-10-13) — status per worker (approved / ready / overtime waiting /
+      no pay details), locked lines use the payslip numbers; payslip page (breakdown,
+      Approve and lock, admin Reopen with reason); "Approve all ready"; Excel gets a
+      Status column.
+- [x] **P4 Other screens** (2026-10-13; reopen reasons hidden from the worker) — overtime and attendance correction show the month is
+      locked and don't offer changes; My pay shows the worker's approved payslips.
+- [x] **P5 Tests** (2026-10-13) — 8 unit tests (`test/payslip_test.dart`, 57 pass); 14
+      emulator scenarios (48 pass): lock, refused correction/overtime, worker reads own only,
+      HR can't reopen or edit a locked slip, nobody deletes, admin reopens, re-approve. Web
+      on the emulators as HR and admin: approve one, Approve all ready, locked overtime and
+      correction screens, reopen with reason, Excel (Status column, slip numbers), My pay's
+      Approved pay. **Bugs fixed:** `setState(() => _x = future)` threw in debug builds
+      (Payroll/Overtime month chips, HR home overtime count after leaving Overtime).
+- [ ] **P6 Worker check on a phone** (with H6): My pay as Quiet Tester.
+- [ ] **P7 Deploy (user)** — rules + `correctAttendance`, then hosting.
+
 #### 2026-10-12 — HR role, pay earned so far, overtime approval (Phase 6, part 1)
 **Why:** after checking the web dashboard against production the user asked for (1) a new
 **HR** user who monitors timing, check-ins/outs and pay, (2) workers seeing **how much of
@@ -433,8 +467,9 @@ for HR to re-check).
       other's pay 403.
 - [ ] **H6 Tests** — done so far: 13 new unit tests (49 pass), 2 HR emulator scenarios
       (34 pass), rules dry-run (both files), all HR screens on the web dashboard, worker
-      data access via REST. **Left:** My pay on a phone as a worker (after the deploy,
-      with Quiet Tester on the emulator).
+      data access via REST. Production, admin on the Xiaomi (2026-10-13): Quiet Tester's
+      pay card shows Earned so far AED 52.06 = 2h58m × 17.55 (3,650 ÷ 208) ✔. **Left:** My
+      pay as the worker (needs the user to sign in as Quiet Tester).
 - [ ] **H7 Deploy (user's approval)** — rules + `correctAttendance`; then the user
       makes an HR account (role picker) and tries it.
 
@@ -1066,3 +1101,10 @@ Workers come from different countries; each user picks a language.
 - **2026-10-13 (cont.)** — User deployed rules + `correctAttendance` (H7 deploy part;
   `correctAttendance` seen in `functions:list`). Icons committed. Next: H6 My pay as a
   worker on a phone, HR account test by the user.
+- **2026-10-13 (cont.)** — Current build on the Xiaomi (debug, over the old one; admin
+  still signed in). Admin view of Quiet Tester's pay on production correct (AED 52.06).
+  Worker My pay check waits on the user signing in as Quiet Tester.
+- **2026-10-13 (cont.)** — Plan "Payroll approve and lock" (P1–P7) logged; P1–P5 done
+  (see Plans log). Not deployed. Next: P7 deploy (rules + `correctAttendance` + hosting, user
+  runs it), then P6/H6 worker check on the Xiaomi as Quiet Tester, then Block B (Play Store
+  update: the app is already on Google Play).

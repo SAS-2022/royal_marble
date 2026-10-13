@@ -3737,6 +3737,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'To'**
   String get quietTo;
+
+  /// No description provided for @payStateApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get payStateApproved;
+
+  /// No description provided for @payStateReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to approve'**
+  String get payStateReady;
+
+  /// No description provided for @payStateMonthNotOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Month not over'**
+  String get payStateMonthNotOver;
+
+  /// No description provided for @payStateOvertimeWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Overtime waiting'**
+  String get payStateOvertimeWaiting;
+
+  /// No description provided for @payStateUnclosedStay.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay without check-out'**
+  String get payStateUnclosedStay;
+
+  /// No description provided for @approveAllReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve all ready ({count})'**
+  String approveAllReady(int count);
+
+  /// No description provided for @approveAllTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Approve and lock 1 payslip?} other{Approve and lock {count} payslips?}}'**
+  String approveAllTitle(int count);
+
+  /// No description provided for @approveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The amounts are saved as they are now. Attendance and overtime for this month can\'t be changed afterwards unless an admin reopens it.'**
+  String get approveBody;
+
+  /// No description provided for @approveAndLock.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve and lock'**
+  String get approveAndLock;
+
+  /// No description provided for @payslipApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay approved'**
+  String get payslipApproved;
+
+  /// No description provided for @approvedByOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved by {name} on {date}'**
+  String approvedByOn(String name, String date);
+
+  /// No description provided for @reopen.
+  ///
+  /// In en, this message translates to:
+  /// **'Reopen'**
+  String get reopen;
+
+  /// No description provided for @reopenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reopen this month?'**
+  String get reopenTitle;
+
+  /// No description provided for @reopenBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance and overtime can then be changed, and HR must approve the month again.'**
+  String get reopenBody;
+
+  /// No description provided for @reopenReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get reopenReason;
+
+  /// No description provided for @reopenedByOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Reopened by {name} on {date}: {reason}'**
+  String reopenedByOn(String name, String date, String reason);
+
+  /// No description provided for @approvedPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved pay'**
+  String get approvedPay;
+
+  /// No description provided for @daysWorked.
+  ///
+  /// In en, this message translates to:
+  /// **'Days worked'**
+  String get daysWorked;
+
+  /// No description provided for @totalPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get totalPay;
+
+  /// No description provided for @hourlyRateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Hourly rate'**
+  String get hourlyRateLabel;
+
+  /// No description provided for @monthLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'This month\'s pay is approved and locked. An admin can reopen it.'**
+  String get monthLocked;
+
+  /// No description provided for @approveAfterMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'You can approve once the month has ended.'**
+  String get approveAfterMonth;
+
+  /// No description provided for @decideOvertimeFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve or reject the waiting overtime first.'**
+  String get decideOvertimeFirst;
+
+  /// No description provided for @fixUnclosedFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'A stay has no check-out. Correct it in Reports first.'**
+  String get fixUnclosedFirst;
+
+  /// No description provided for @workerPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Worker\'s page'**
+  String get workerPage;
 }
 
 class _AppLocalizationsDelegate

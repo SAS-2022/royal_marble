@@ -2089,4 +2089,93 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get quietTo => 'तक';
+
+  @override
+  String get payStateApproved => 'स्वीकृत';
+
+  @override
+  String get payStateReady => 'स्वीकृति के लिए तैयार';
+
+  @override
+  String get payStateMonthNotOver => 'महीना अभी खत्म नहीं हुआ';
+
+  @override
+  String get payStateOvertimeWaiting => 'ओवरटाइम प्रतीक्षा में';
+
+  @override
+  String get payStateUnclosedStay => 'बिना चेक-आउट की हाज़िरी';
+
+  @override
+  String approveAllReady(int count) {
+    return 'सभी तैयार स्वीकृत करें ($count)';
+  }
+
+  @override
+  String approveAllTitle(int count) {
+    return '$count वेतन पर्चियाँ स्वीकृत और लॉक करें?';
+  }
+
+  @override
+  String get approveBody =>
+      'राशि अभी जैसी है वैसी सहेजी जाएगी। इसके बाद इस महीने की हाज़िरी और ओवरटाइम नहीं बदले जा सकते, जब तक एडमिन इसे दोबारा न खोले।';
+
+  @override
+  String get approveAndLock => 'स्वीकृत और लॉक करें';
+
+  @override
+  String get payslipApproved => 'वेतन स्वीकृत';
+
+  @override
+  String approvedByOn(String name, String date) {
+    return '$name ने $date को स्वीकृत किया';
+  }
+
+  @override
+  String get reopen => 'दोबारा खोलें';
+
+  @override
+  String get reopenTitle => 'यह महीना दोबारा खोलें?';
+
+  @override
+  String get reopenBody =>
+      'इसके बाद हाज़िरी और ओवरटाइम बदले जा सकते हैं, और HR को महीना फिर से स्वीकृत करना होगा।';
+
+  @override
+  String get reopenReason => 'कारण';
+
+  @override
+  String reopenedByOn(String name, String date, String reason) {
+    return '$name ने $date को दोबारा खोला: $reason';
+  }
+
+  @override
+  String get approvedPay => 'स्वीकृत वेतन';
+
+  @override
+  String get daysWorked => 'काम के दिन';
+
+  @override
+  String get totalPay => 'कुल';
+
+  @override
+  String get hourlyRateLabel => 'प्रति घंटा दर';
+
+  @override
+  String get monthLocked =>
+      'इस महीने का वेतन स्वीकृत और लॉक है। एडमिन इसे दोबारा खोल सकता है।';
+
+  @override
+  String get approveAfterMonth =>
+      'महीना खत्म होने के बाद आप स्वीकृत कर सकते हैं।';
+
+  @override
+  String get decideOvertimeFirst =>
+      'पहले प्रतीक्षा वाला ओवरटाइम स्वीकृत या अस्वीकार करें।';
+
+  @override
+  String get fixUnclosedFirst =>
+      'एक हाज़िरी में चेक-आउट नहीं है। पहले रिपोर्ट में इसे ठीक करें।';
+
+  @override
+  String get workerPage => 'कर्मचारी का पेज';
 }

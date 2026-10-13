@@ -400,8 +400,14 @@ export const correctAttendance = onCall(async (req: CallableRequest<CorrectionRe
   const worker = (await db.collection("users").doc(d.uid).get()).data();
   if (!worker) throw new HttpsError("not-found", "Unknown worker.", { reason: "bad_request" });
   const sheetRef = db.collection("time_sheet").doc(d.day);
+  // Once HR approves the worker's month (payslip locked) its days are final.
+  const slipRef = db.collection("payslips").doc(`${d.uid}_${Number(day[2])}-${day[3]}`);
 
   return db.runTransaction(async (tx) => {
+    if ((await tx.get(slipRef)).data()?.status === "locked") {
+      throw new HttpsError("failed-precondition", "This month's pay is approved and locked.",
+        { reason: "month_locked" });
+    }
     const entry = (await tx.get(sheetRef)).data()?.[d.uid] as Entry | undefined;
     const before = sessionsOf(entry);
     const offset = offsetOf(entry);

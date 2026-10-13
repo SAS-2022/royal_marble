@@ -2094,4 +2094,92 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get quietTo => 'تک';
+
+  @override
+  String get payStateApproved => 'منظور شدہ';
+
+  @override
+  String get payStateReady => 'منظوری کے لیے تیار';
+
+  @override
+  String get payStateMonthNotOver => 'مہینہ ابھی ختم نہیں ہوا';
+
+  @override
+  String get payStateOvertimeWaiting => 'اوور ٹائم زیرِ التوا';
+
+  @override
+  String get payStateUnclosedStay => 'چیک آؤٹ کے بغیر حاضری';
+
+  @override
+  String approveAllReady(int count) {
+    return 'تمام تیار منظور کریں ($count)';
+  }
+
+  @override
+  String approveAllTitle(int count) {
+    return '$count تنخواہ سلپس منظور اور لاک کریں؟';
+  }
+
+  @override
+  String get approveBody =>
+      'رقم ابھی جیسی ہے ویسی محفوظ ہو جائے گی۔ اس کے بعد اس مہینے کی حاضری اور اوور ٹائم تبدیل نہیں ہو سکتے، جب تک ایڈمن اسے دوبارہ نہ کھولے۔';
+
+  @override
+  String get approveAndLock => 'منظور اور لاک کریں';
+
+  @override
+  String get payslipApproved => 'تنخواہ منظور';
+
+  @override
+  String approvedByOn(String name, String date) {
+    return '$name نے $date کو منظور کیا';
+  }
+
+  @override
+  String get reopen => 'دوبارہ کھولیں';
+
+  @override
+  String get reopenTitle => 'یہ مہینہ دوبارہ کھولیں؟';
+
+  @override
+  String get reopenBody =>
+      'اس کے بعد حاضری اور اوور ٹائم تبدیل ہو سکتے ہیں، اور HR کو مہینہ دوبارہ منظور کرنا ہوگا۔';
+
+  @override
+  String get reopenReason => 'وجہ';
+
+  @override
+  String reopenedByOn(String name, String date, String reason) {
+    return '$name نے $date کو دوبارہ کھولا: $reason';
+  }
+
+  @override
+  String get approvedPay => 'منظور شدہ تنخواہ';
+
+  @override
+  String get daysWorked => 'کام کے دن';
+
+  @override
+  String get totalPay => 'کل';
+
+  @override
+  String get hourlyRateLabel => 'فی گھنٹہ شرح';
+
+  @override
+  String get monthLocked =>
+      'اس مہینے کی تنخواہ منظور اور لاک ہے۔ ایڈمن اسے دوبارہ کھول سکتا ہے۔';
+
+  @override
+  String get approveAfterMonth => 'مہینہ ختم ہونے کے بعد آپ منظور کر سکتے ہیں۔';
+
+  @override
+  String get decideOvertimeFirst =>
+      'پہلے زیرِ التوا اوور ٹائم منظور یا مسترد کریں۔';
+
+  @override
+  String get fixUnclosedFirst =>
+      'ایک حاضری میں چیک آؤٹ نہیں ہے۔ پہلے رپورٹس میں اسے درست کریں۔';
+
+  @override
+  String get workerPage => 'کارکن کا صفحہ';
 }

@@ -609,7 +609,10 @@ class _HrHomeState extends State<_HrHome> {
   Future<void> _openOvertime() async {
     await Navigator.push(context,
         MaterialPageRoute(builder: (_) => OvertimeScreen(viewer: widget.user)));
-    if (mounted) setState(() => _waiting = countWaitingOvertime());
+    if (!mounted) return;
+    setState(() {
+      _waiting = countWaitingOvertime();
+    });
   }
 
   @override

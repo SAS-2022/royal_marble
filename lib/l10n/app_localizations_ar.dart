@@ -2094,4 +2094,92 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get quietTo => 'إلى';
+
+  @override
+  String get payStateApproved => 'معتمد';
+
+  @override
+  String get payStateReady => 'جاهز للاعتماد';
+
+  @override
+  String get payStateMonthNotOver => 'الشهر لم ينتهِ';
+
+  @override
+  String get payStateOvertimeWaiting => 'عمل إضافي بانتظار القرار';
+
+  @override
+  String get payStateUnclosedStay => 'دوام بدون تسجيل خروج';
+
+  @override
+  String approveAllReady(int count) {
+    return 'اعتماد كل الجاهز ($count)';
+  }
+
+  @override
+  String approveAllTitle(int count) {
+    return 'اعتماد وقفل $count من كشوف الرواتب؟';
+  }
+
+  @override
+  String get approveBody =>
+      'تُحفظ المبالغ كما هي الآن. لا يمكن بعد ذلك تغيير الحضور أو العمل الإضافي لهذا الشهر إلا إذا أعاد المسؤول فتحه.';
+
+  @override
+  String get approveAndLock => 'اعتماد وقفل';
+
+  @override
+  String get payslipApproved => 'تم اعتماد الراتب';
+
+  @override
+  String approvedByOn(String name, String date) {
+    return 'اعتمده $name في $date';
+  }
+
+  @override
+  String get reopen => 'إعادة فتح';
+
+  @override
+  String get reopenTitle => 'إعادة فتح هذا الشهر؟';
+
+  @override
+  String get reopenBody =>
+      'يمكن بعدها تغيير الحضور والعمل الإضافي، ويجب على الموارد البشرية اعتماد الشهر مرة أخرى.';
+
+  @override
+  String get reopenReason => 'السبب';
+
+  @override
+  String reopenedByOn(String name, String date, String reason) {
+    return 'أعاد فتحه $name في $date: $reason';
+  }
+
+  @override
+  String get approvedPay => 'الرواتب المعتمدة';
+
+  @override
+  String get daysWorked => 'أيام العمل';
+
+  @override
+  String get totalPay => 'الإجمالي';
+
+  @override
+  String get hourlyRateLabel => 'أجر الساعة';
+
+  @override
+  String get monthLocked =>
+      'تم اعتماد وقفل راتب هذا الشهر. يمكن للمسؤول إعادة فتحه.';
+
+  @override
+  String get approveAfterMonth => 'يمكنك الاعتماد بعد انتهاء الشهر.';
+
+  @override
+  String get decideOvertimeFirst =>
+      'اعتمد أو ارفض العمل الإضافي المنتظر أولاً.';
+
+  @override
+  String get fixUnclosedFirst =>
+      'يوجد دوام بدون تسجيل خروج. صحّحه من التقارير أولاً.';
+
+  @override
+  String get workerPage => 'صفحة العامل';
 }

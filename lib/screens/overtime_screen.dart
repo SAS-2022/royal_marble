@@ -19,18 +19,22 @@ class _Row {
   final DayPay day;
   final DateTime? lastOut;
   final SalaryPackage package;
-  const _Row(this.uid, this.name, this.day, this.lastOut, this.package);
+
+  /// The worker's month is approved (payslip locked): no more changes.
+  final bool locked;
+  const _Row(this.uid, this.name, this.day, this.lastOut, this.package, this.locked);
 }
 
 /// Every worker's days with overtime in this month (or the last), newest first.
 Future<List<_Row>> _loadOvertime({bool lastMonth = false}) async {
   final now = DateTime.now();
-  final range =
-      PayService.month(lastMonth ? DateTime(now.year, now.month - 1) : now, now);
-  final (workers, packages, decisions) = await (
+  final month = DateTime(now.year, now.month - (lastMonth ? 1 : 0));
+  final range = PayService.month(month, now);
+  final (workers, packages, decisions, slips) = await (
     PayService.loadDays(range),
     PayService.packages(),
     PayService.decisionsIn(range),
+    PayService.payslipsIn(month),
   ).wait;
   final rows = <_Row>[];
   for (final MapEntry(key: uid, value: w) in workers.entries) {
@@ -40,7 +44,7 @@ Future<List<_Row>> _loadOvertime({bool lastMonth = false}) async {
       if (d.overtimeMinutes == 0) continue;
       final outs = entry.sessions.map((s) => s.end).whereType<DateTime>();
       final lastOut = outs.isEmpty ? null : outs.reduce((a, b) => a.isAfter(b) ? a : b);
-      rows.add(_Row(uid, w.name, d, lastOut, p));
+      rows.add(_Row(uid, w.name, d, lastOut, p, slips[uid]?.isLocked == true));
     }
   }
   rows.sort((a, b) {
@@ -71,7 +75,9 @@ class _OvertimeScreenState extends State<OvertimeScreen> {
 
   Future<List<_Row>> _load() => _loadOvertime(lastMonth: _lastMonth);
 
-  void _reload() => setState(() => _rows = _load());
+  void _reload() => setState(() {
+        _rows = _load();
+      });
 
   Future<void> _decide(_Row r, OvertimeStatus status) async {
     final l = context.l10n;
@@ -226,6 +232,10 @@ class _List extends StatelessWidget {
                           money(rate, r.package.currency))
                       : l.noOvertimeRate,
                   style: TextStyle(color: rate > 0 ? AppColors.ink : AppColors.warn)),
+              if (r.locked) ...[
+                const SizedBox(height: 8),
+                StatusPill(l.payslipApproved, tone: Tone.ok, icon: Icons.lock_outline),
+              ],
               if (d.changedSinceDecision) ...[
                 const SizedBox(height: 8),
                 StatusPill(l.changedAfterDecision, tone: Tone.warn, icon: Icons.edit_note),
@@ -239,27 +249,30 @@ class _List extends StatelessWidget {
                 if (dec.note?.isNotEmpty == true)
                   Text(dec.note!, style: const TextStyle(fontSize: 12, color: AppColors.muted)),
               ],
-              const SizedBox(height: 10),
-              // The theme's buttons are full width, so each takes half.
-              Row(children: [
-                if (status != OvertimeStatus.rejected)
-                  Expanded(
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(foregroundColor: AppColors.bad),
-                      onPressed: () => onDecide(r, OvertimeStatus.rejected),
-                      child: Text(l.reject),
+              // Locked once the worker's month is approved.
+              if (!r.locked) ...[
+                const SizedBox(height: 10),
+                // The theme's buttons are full width, so each takes half.
+                Row(children: [
+                  if (status != OvertimeStatus.rejected)
+                    Expanded(
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(foregroundColor: AppColors.bad),
+                        onPressed: () => onDecide(r, OvertimeStatus.rejected),
+                        child: Text(l.reject),
+                      ),
                     ),
-                  ),
-                if (status == OvertimeStatus.pending) const SizedBox(width: 10),
-                if (status != OvertimeStatus.approved)
-                  Expanded(
-                    child: FilledButton(
-                      style: FilledButton.styleFrom(backgroundColor: AppColors.ok),
-                      onPressed: () => onDecide(r, OvertimeStatus.approved),
-                      child: Text(l.approve),
+                  if (status == OvertimeStatus.pending) const SizedBox(width: 10),
+                  if (status != OvertimeStatus.approved)
+                    Expanded(
+                      child: FilledButton(
+                        style: FilledButton.styleFrom(backgroundColor: AppColors.ok),
+                        onPressed: () => onDecide(r, OvertimeStatus.approved),
+                        child: Text(l.approve),
+                      ),
                     ),
-                  ),
-              ]),
+                ]),
+              ],
             ]),
           ),
         );

@@ -86,7 +86,11 @@ class DayPay {
   final int overtimeMinutes;
   final OvertimeDecision? decision;
 
-  const DayPay(this.day, this.workedMinutes, this.overtimeMinutes, this.decision);
+  /// Stays from an earlier day that were never closed (they count nothing).
+  final int unclosedStays;
+
+  const DayPay(this.day, this.workedMinutes, this.overtimeMinutes, this.decision,
+      {this.unclosedStays = 0});
 
   int get regularMinutes => workedMinutes - overtimeMinutes;
 
@@ -101,14 +105,16 @@ class DayPay {
 
 DayPay dayPay(DateTime day, DayEntry entry, SalaryPackage p,
     OvertimeDecision? decision, DateTime now) {
-  var worked = 0, overtime = 0;
+  var worked = 0, overtime = 0, unclosed = 0;
   for (final s in entry.sessions) {
     final until = _until(s, now);
+    if (until == null) unclosed++;
     if (until == null || !until.isAfter(s.start)) continue;
     worked += until.difference(s.start).inMinutes;
     overtime += overtimeMinutesOf(s, p.dayEndMinutes, now);
   }
-  return DayPay(day, worked, math.min(overtime, worked), decision);
+  return DayPay(day, worked, math.min(overtime, worked), decision,
+      unclosedStays: unclosed);
 }
 
 /// Pay earned over a period (the month so far): regular hours at the hourly
@@ -128,6 +134,8 @@ class PaySoFar {
   int get approvedOvertimeMinutes => _overtime(OvertimeStatus.approved);
   int get pendingOvertimeMinutes => _overtime(OvertimeStatus.pending);
   int get rejectedOvertimeMinutes => _overtime(OvertimeStatus.rejected);
+  int get unclosedStays => _sum((d) => d.unclosedStays);
+  int get daysWorked => days.where((d) => d.workedMinutes > 0).length;
 
   double get regularPay => hourlyRate * regularMinutes / 60;
   double get overtimePay => days.fold(0.0, (t, d) {

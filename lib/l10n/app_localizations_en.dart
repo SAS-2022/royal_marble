@@ -2095,4 +2095,98 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quietTo => 'To';
+
+  @override
+  String get payStateApproved => 'Approved';
+
+  @override
+  String get payStateReady => 'Ready to approve';
+
+  @override
+  String get payStateMonthNotOver => 'Month not over';
+
+  @override
+  String get payStateOvertimeWaiting => 'Overtime waiting';
+
+  @override
+  String get payStateUnclosedStay => 'Stay without check-out';
+
+  @override
+  String approveAllReady(int count) {
+    return 'Approve all ready ($count)';
+  }
+
+  @override
+  String approveAllTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Approve and lock $count payslips?',
+      one: 'Approve and lock 1 payslip?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get approveBody =>
+      'The amounts are saved as they are now. Attendance and overtime for this month can\'t be changed afterwards unless an admin reopens it.';
+
+  @override
+  String get approveAndLock => 'Approve and lock';
+
+  @override
+  String get payslipApproved => 'Pay approved';
+
+  @override
+  String approvedByOn(String name, String date) {
+    return 'Approved by $name on $date';
+  }
+
+  @override
+  String get reopen => 'Reopen';
+
+  @override
+  String get reopenTitle => 'Reopen this month?';
+
+  @override
+  String get reopenBody =>
+      'Attendance and overtime can then be changed, and HR must approve the month again.';
+
+  @override
+  String get reopenReason => 'Reason';
+
+  @override
+  String reopenedByOn(String name, String date, String reason) {
+    return 'Reopened by $name on $date: $reason';
+  }
+
+  @override
+  String get approvedPay => 'Approved pay';
+
+  @override
+  String get daysWorked => 'Days worked';
+
+  @override
+  String get totalPay => 'Total';
+
+  @override
+  String get hourlyRateLabel => 'Hourly rate';
+
+  @override
+  String get monthLocked =>
+      'This month\'s pay is approved and locked. An admin can reopen it.';
+
+  @override
+  String get approveAfterMonth => 'You can approve once the month has ended.';
+
+  @override
+  String get decideOvertimeFirst =>
+      'Approve or reject the waiting overtime first.';
+
+  @override
+  String get fixUnclosedFirst =>
+      'A stay has no check-out. Correct it in Reports first.';
+
+  @override
+  String get workerPage => 'Worker\'s page';
 }

@@ -65,6 +65,20 @@ const localStamp = (h, m) => {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(h)}:${pad(m)}:00.000`;
 };
 
+/** Firestore REST as a signed-in user, so the security rules apply. */
+const FS = "http://127.0.0.1:8080/v1/projects/royal-marble/databases/(default)/documents";
+const fsValue = (v) => typeof v === "number" ? { integerValue: String(v) } : { stringValue: String(v) };
+async function fsReq(method, idToken, path, fields, mask) {
+  const q = mask ? "?" + mask.map((f) => `updateMask.fieldPaths=${f}`).join("&") : "";
+  const r = await fetch(`${FS}/${path}${q}`, {
+    method,
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
+    body: fields ? JSON.stringify({ fields: Object.fromEntries(
+      Object.entries(fields).map(([k, v]) => [k, fsValue(v)])) }) : undefined,
+  });
+  return r.status;
+}
+
 let failures = 0;
 function expect(name, got, want) {
   const pass = JSON.stringify(got) === JSON.stringify(want);
@@ -196,6 +210,48 @@ async function main() {
   e = await entryOf(m2Id);
   expect("HR's fix is applied and recorded with their name",
     [e.leaving_at, e.corrections.length, e.corrections[1].byName], [localStamp(0, 45), 2, "Hana HR"]);
+
+  // ── Payroll lock ──
+  const adm = await token("admin@test.local");
+  const now = new Date();
+  const slipId = `${m2Id}_${now.getMonth() + 1}-${now.getFullYear()}`;
+  const slip = { uid: m2Id, name: "Mason Two", year: now.getFullYear(), month: now.getMonth() + 1,
+    status: "locked", total: 100 };
+  await db.collection("payslips").doc(slipId).delete();
+  expect("HR can approve and lock a worker's month",
+    await fsReq("PATCH", hr, `payslips/${slipId}`, slip), 200);
+  expect("a correction in a locked month is refused",
+    await correct(hr, { day: dayId(), uid: m2Id, note: "late fix",
+      sessions: [{ ...fixed[0], out: localStamp(0, 50) }] }),
+    { error: "month_locked" });
+  const otId = `${m2Id}_${dayId()}`;
+  expect("an overtime decision in a locked month is refused",
+    await fsReq("PATCH", hr, `overtime/${otId}`, { uid: m2Id, status: "approved", minutes: 30 }), 403);
+  expect("the worker reads their own payslip",
+    await fsReq("GET", m2, `payslips/${slipId}`), 200);
+  expect("another worker can't read it",
+    await fsReq("GET", m1, `payslips/${slipId}`), 403);
+  expect("a worker can't approve pay",
+    await fsReq("PATCH", m1, `payslips/${await uidOf("mason1@test.local")}_1-2000`,
+      { ...slip, uid: await uidOf("mason1@test.local") }), 403);
+  expect("HR can't reopen a locked month",
+    await fsReq("PATCH", hr, `payslips/${slipId}`, { ...slip, status: "reopened" }), 403);
+  expect("HR can't change a locked payslip's numbers",
+    await fsReq("PATCH", hr, `payslips/${slipId}`, { ...slip, total: 999 }), 403);
+  expect("nobody deletes a payslip (admin)",
+    await fsReq("DELETE", adm, `payslips/${slipId}`), 403);
+  expect("an admin reopens it",
+    await fsReq("PATCH", adm, `payslips/${slipId}`, { status: "reopened", uid: m2Id }, ["status", "uid"]), 200);
+  expect("once reopened, corrections work again",
+    await correct(hr, { day: dayId(), uid: m2Id, note: "late fix",
+      sessions: [{ ...fixed[0], out: localStamp(0, 50) }] }),
+    { ok: "saved" });
+  expect("and overtime decisions too",
+    await fsReq("PATCH", hr, `overtime/${otId}`, { uid: m2Id, status: "approved", minutes: 30 }), 200);
+  expect("HR approves it again",
+    await fsReq("PATCH", hr, `payslips/${slipId}`, slip), 200);
+  expect("a decision for another worker's id is refused",
+    await fsReq("PATCH", hr, `overtime/${otId}x`, { uid: "someone_else", status: "approved" }), 403);
 
   console.log(failures ? `\n${failures} check(s) failed` : "\nAll checks passed");
   process.exit(failures ? 1 : 0);

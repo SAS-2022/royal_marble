@@ -5,6 +5,7 @@ import 'package:flutter/material.dart' show DateTimeRange;
 import '../core/error_reporter.dart';
 import '../models/attendance.dart';
 import '../models/pay_calc.dart';
+import '../models/payslip.dart';
 import '../models/salary.dart';
 import '../reports/report_data.dart' show dayId, dayOnly, daysIn;
 
@@ -87,6 +88,86 @@ class PayService {
       for (var i = 0; i < list.length; i++)
         if (snaps[i].data() case final m?) list[i]: OvertimeDecision.fromMap(m)
     };
+  }
+
+  static CollectionReference<Map<String, dynamic>> get _payslips =>
+      _db.collection('payslips');
+
+  /// Everyone's payslips for [month], by worker (HR and admins).
+  static Future<Map<String, Payslip>> payslipsIn(DateTime month) async {
+    final snap = await _payslips
+        .where('year', isEqualTo: month.year)
+        .where('month', isEqualTo: month.month)
+        .get();
+    return {for (final d in snap.docs) '${d.data()['uid']}': Payslip.fromMap(d.data())};
+  }
+
+  /// One worker's payslip for [month], or null (workers can read their own).
+  static Future<Payslip?> payslipFor(String uid, DateTime month) async {
+    final m = (await _payslips.doc(payslipDocId(uid, month)).get()).data();
+    return m == null ? null : Payslip.fromMap(m);
+  }
+
+  /// One worker's payslips for the given months, newest first, skipping
+  /// months with none.
+  static Future<List<Payslip>> payslipsFor(String uid, List<DateTime> months) async {
+    final slips = await Future.wait(months.map((m) => payslipFor(uid, m)));
+    return slips.whereType<Payslip>().toList()
+      ..sort((a, b) => b.monthStart.compareTo(a.monthStart));
+  }
+
+  /// Approves and locks each of [slips] (fields from [payslipFields]) in one
+  /// batch; returns null on success, or a message to show.
+  static Future<String?> approve(List<Map<String, dynamic>> slips,
+      {required String byName}) async {
+    final batch = _db.batch();
+    for (final f in slips) {
+      final month = DateTime(f['year'] as int, f['month'] as int);
+      batch.set(
+          _payslips.doc(payslipDocId('${f['uid']}', month)),
+          {
+            ...f,
+            'approvedBy': FirebaseAuth.instance.currentUser?.uid,
+            'approvedByName': byName,
+            'approvedAt': FieldValue.serverTimestamp(),
+          },
+          // Keeps the list of earlier reopenings.
+          SetOptions(merge: true));
+    }
+    return _write(batch.commit, 'You don\'t have permission to approve pay.');
+  }
+
+  /// Admins: reopens an approved month so attendance and overtime can change.
+  static Future<String?> reopen(Payslip slip,
+      {required String reason, required String byName}) {
+    return _write(
+        () => _payslips.doc(payslipDocId(slip.uid, slip.monthStart)).update({
+              'status': PayslipStatus.reopened.name,
+              'reopened': FieldValue.arrayUnion([
+                {
+                  'by': FirebaseAuth.instance.currentUser?.uid,
+                  'byName': byName,
+                  'at': Timestamp.now(),
+                  'reason': reason,
+                }
+              ]),
+            }),
+        'Only an admin can reopen approved pay.');
+  }
+
+  static Future<String?> _write(
+      Future<void> Function() write, String deniedMessage) async {
+    try {
+      await write();
+      return null;
+    } on FirebaseException catch (e) {
+      return e.code == 'permission-denied'
+          ? deniedMessage
+          : 'Could not save: ${e.message}';
+    } catch (e, st) {
+      await ErrorReporter.record(e, stackTrace: st);
+      return 'Could not save. Please try again.';
+    }
   }
 
   /// Saves HR's decision; returns null on success, or a message to show.

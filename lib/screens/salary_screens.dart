@@ -6,12 +6,15 @@ import '../core/app_theme.dart';
 import '../core/format.dart';
 import '../core/l10n_helpers.dart';
 import '../core/locale_controller.dart';
+import '../models/payslip.dart';
 import '../models/salary.dart';
 import '../models/user_model.dart';
+import '../services/pay_service.dart';
 import '../services/payroll_service.dart';
 import '../widgets/status_widgets.dart';
 import '../widgets/time_wheel_picker.dart';
 import '../widgets/earned_so_far.dart';
+import '../widgets/payslip_card.dart';
 
 
 /// Breakdown of a pay package; shows an empty state when none is set.
@@ -421,6 +424,7 @@ class MyPayScreen extends StatelessWidget {
                     child: EarnedSoFar(uid: user.uid!, package: p),
                   ),
                 ),
+                _ApprovedPay(uid: user.uid!),
                 SectionTitle(context.l10n.yourPackage),
                 Card(
                   child: Padding(
@@ -433,6 +437,53 @@ class MyPayScreen extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+}
+
+/// The worker's approved months (the last three), each opening to its
+/// breakdown. Nothing shows until HR has approved a month.
+class _ApprovedPay extends StatefulWidget {
+  const _ApprovedPay({required this.uid});
+  final String uid;
+
+  @override
+  State<_ApprovedPay> createState() => _ApprovedPayState();
+}
+
+class _ApprovedPayState extends State<_ApprovedPay> {
+  late final Future<List<Payslip>> _slips = () {
+    final now = DateTime.now();
+    return PayService.payslipsFor(
+        widget.uid, [for (var i = 1; i <= 3; i++) DateTime(now.year, now.month - i)]);
+  }();
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return FutureBuilder<List<Payslip>>(
+      future: _slips,
+      builder: (context, snap) {
+        final slips = snap.data?.where((s) => s.isLocked).toList() ?? const [];
+        if (slips.isEmpty) return const SizedBox.shrink();
+        return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          SectionTitle(l.approvedPay),
+          for (final slip in slips)
+            Card(
+              clipBehavior: Clip.antiAlias,
+              child: ExpansionTile(
+                shape: const Border(),
+                leading: const Icon(Icons.lock_outline, color: AppColors.ok),
+                title: Text(DateFormat('MMMM yyyy', l.localeName).format(slip.monthStart)),
+                trailing: Text(money(slip.total, slip.currency),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.charcoal)),
+                childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                children: [PayslipBreakdown(slip, showReopenings: false)],
+              ),
+            ),
+        ]);
+      },
     );
   }
 }

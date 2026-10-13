@@ -8,7 +8,9 @@ import '../core/error_reporter.dart';
 import '../core/l10n_helpers.dart';
 import '../core/locale_controller.dart';
 import '../models/attendance.dart';
+import '../models/payslip.dart';
 import '../reports/report_data.dart' show dayId;
+import '../services/pay_service.dart';
 import '../services/checkin_service.dart' show SiteKind;
 import '../widgets/status_widgets.dart';
 import '../widgets/time_wheel_picker.dart';
@@ -55,6 +57,9 @@ class _AttendanceEditScreenState extends State<AttendanceEditScreen> {
   bool _saving = false;
   String? _error;
 
+  /// The worker's pay for this month is approved: the day can't change.
+  bool _locked = false;
+
   @override
   void initState() {
     super.initState();
@@ -73,10 +78,12 @@ class _AttendanceEditScreenState extends State<AttendanceEditScreen> {
       db.collection('time_sheet').doc(dayId(widget.day)).get(),
       db.collection('projects').get(),
       db.collection('mockup').get(),
+      PayService.payslipFor(widget.uid, widget.day),
     ]);
     final sheet = results[0] as DocumentSnapshot<Map<String, dynamic>>;
     final projects = results[1] as QuerySnapshot<Map<String, dynamic>>;
     final mockups = results[2] as QuerySnapshot<Map<String, dynamic>>;
+    final locked = (results[3] as Payslip?)?.isLocked == true;
     final entry = DayEntry.fromMap(sheet.data()?[widget.uid] as Map?);
     final sites = [
       for (final d in projects.docs)
@@ -94,6 +101,7 @@ class _AttendanceEditScreenState extends State<AttendanceEditScreen> {
     setState(() {
       _entry = entry;
       _sites = sites;
+      _locked = locked;
       _drafts = [
         for (final (i, s) in entry.sessions.indexed)
           _Draft(sites.firstWhere((x) => x.kind == s.kind && x.id == s.siteId),
@@ -186,6 +194,7 @@ class _AttendanceEditScreenState extends State<AttendanceEditScreen> {
       final reason = e.details is Map ? (e.details as Map)['reason'] : null;
       setState(() => _error = switch (reason) {
             'not_admin' => l.errNotAdmin,
+            'month_locked' => l.monthLocked,
             'bad_sessions' => e.message ?? l.errCheckInFailed(e.code),
             _ => l.errCheckInFailed(e.code),
           });
@@ -258,9 +267,13 @@ class _AttendanceEditScreenState extends State<AttendanceEditScreen> {
                   const SizedBox(height: 12),
                   Text(_error!, style: const TextStyle(color: AppColors.bad)),
                 ],
+                if (_locked) ...[
+                  const SizedBox(height: 12),
+                  Text(l.monthLocked, style: const TextStyle(color: AppColors.warn)),
+                ],
                 const SizedBox(height: 16),
                 FilledButton.icon(
-                  onPressed: _saving || (!_changed && !entry.needsReview)
+                  onPressed: _locked || _saving || (!_changed && !entry.needsReview)
                       ? null
                       : _save,
                   icon: _saving
