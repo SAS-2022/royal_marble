@@ -3887,6 +3887,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Worker\'s page'**
   String get workerPage;
+
+  /// No description provided for @payStateNoAttendance.
+  ///
+  /// In en, this message translates to:
+  /// **'No attendance'**
+  String get payStateNoAttendance;
+
+  /// No description provided for @noAttendanceNote.
+  ///
+  /// In en, this message translates to:
+  /// **'No check-ins this month, so it isn\'t included in \"Approve all ready\". Approve it only if that\'s right, for example unpaid leave.'**
+  String get noAttendanceNote;
 }
 
 class _AppLocalizationsDelegate

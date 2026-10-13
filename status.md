@@ -1108,3 +1108,10 @@ Workers come from different countries; each user picks a language.
   (see Plans log). Not deployed. Next: P7 deploy (rules + `correctAttendance` + hosting, user
   runs it), then P6/H6 worker check on the Xiaomi as Quiet Tester, then Block B (Play Store
   update: the app is already on Google Play).
+- **2026-10-13 (cont.)** — User saw old screens: the phone had the 06:07 build (reinstalled)
+  and the browser had cached the old site (live files matched the new build). Hosting now
+  sends `Cache-Control: no-cache` for html/js/json so deploys show at once. Production showed
+  4 workers "Ready to approve" at AED 0 for September (nobody worked) → new **No attendance**
+  status: left out of "Approve all ready", can still be approved on the worker's page
+  (58 unit tests pass; checked on the Xiaomi against production, nothing approved).
+  Hosting deploy pending (user).

@@ -1286,5 +1286,7 @@
   "approveAfterMonth": "You can approve once the month has ended.",
   "decideOvertimeFirst": "Approve or reject the waiting overtime first.",
   "fixUnclosedFirst": "A stay has no check-out. Correct it in Reports first.",
-  "workerPage": "Worker's page"
+  "workerPage": "Worker's page",
+  "payStateNoAttendance": "No attendance",
+  "noAttendanceNote": "No check-ins this month, so it isn't included in \"Approve all ready\". Approve it only if that's right, for example unpaid leave."
 }

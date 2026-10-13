@@ -71,6 +71,10 @@ void main() {
       expect(payrollState(month: september, now: afterMonth, pay: pay(open)),
           PayrollState.unclosedStay);
     });
+    test('no check-ins all month: no attendance, not ready', () {
+      expect(payrollState(month: september, now: afterMonth, pay: pay(const {})),
+          PayrollState.noAttendance);
+    });
     test('no pay package', () {
       expect(payrollState(month: september, now: afterMonth),
           PayrollState.noPayDetails);

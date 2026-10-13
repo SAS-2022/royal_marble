@@ -66,11 +66,13 @@ extension on PayrollState {
         PayrollState.overtimeWaiting => l.payStateOvertimeWaiting,
         PayrollState.unclosedStay => l.payStateUnclosedStay,
         PayrollState.noPayDetails => l.noPayDetails,
+        PayrollState.noAttendance => l.payStateNoAttendance,
       };
 
   Tone get tone => switch (this) {
         PayrollState.approved => Tone.ok,
-        PayrollState.ready || PayrollState.monthNotOver => Tone.neutral,
+        PayrollState.ready || PayrollState.monthNotOver || PayrollState.noAttendance =>
+          Tone.neutral,
         _ => Tone.warn,
       };
 
@@ -78,6 +80,7 @@ extension on PayrollState {
         PayrollState.approved => Icons.lock_outline,
         PayrollState.ready => Icons.check_circle_outline,
         PayrollState.monthNotOver => Icons.schedule,
+        PayrollState.noAttendance => Icons.event_busy,
         _ => Icons.error_outline,
       };
 }
@@ -145,6 +148,7 @@ class _PayrollScreenState extends State<PayrollScreen> {
               PayrollState.overtimeWaiting => 'Overtime waiting',
               PayrollState.unclosedStay => 'Stay without check-out',
               PayrollState.noPayDetails => 'No pay details',
+              PayrollState.noAttendance => 'No attendance',
             },
           )
       ]),
@@ -438,6 +442,17 @@ class _PayslipScreenState extends State<_PayslipScreen> {
               ),
             PayrollState.unclosedStay => note(l.fixUnclosedFirst, color: AppColors.warn),
             PayrollState.noPayDetails => note(l.noPayDetails),
+            PayrollState.noAttendance => Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  note(l.noAttendanceNote),
+                  OutlinedButton.icon(
+                    onPressed: _saving ? null : _approve,
+                    icon: const Icon(Icons.lock_outline),
+                    label: Text(l.approveAndLock),
+                  ),
+                ],
+              ),
           },
           if (state == PayrollState.approved && _admin) ...[
             const SizedBox(height: 8),

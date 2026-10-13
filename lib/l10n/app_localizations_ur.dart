@@ -2182,4 +2182,11 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get workerPage => 'کارکن کا صفحہ';
+
+  @override
+  String get payStateNoAttendance => 'کوئی حاضری نہیں';
+
+  @override
+  String get noAttendanceNote =>
+      'اس مہینے کوئی چیک اِن نہیں ہے، اس لیے یہ \"تمام تیار منظور کریں\" میں شامل نہیں۔ اسے صرف تب منظور کریں جب یہ درست ہو، جیسے بغیر تنخواہ کی چھٹی۔';
 }

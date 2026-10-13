@@ -151,6 +151,10 @@ enum PayrollState {
 
   /// No pay package.
   noPayDetails,
+
+  /// Not one check-in that month. Left out of "Approve all ready"; HR can
+  /// still approve it on purpose (e.g. unpaid leave).
+  noAttendance,
 }
 
 PayrollState payrollState({
@@ -166,5 +170,6 @@ PayrollState payrollState({
   }
   if (pay.pendingOvertimeMinutes > 0) return PayrollState.overtimeWaiting;
   if (pay.unclosedStays > 0) return PayrollState.unclosedStay;
+  if (pay.daysWorked == 0) return PayrollState.noAttendance;
   return PayrollState.ready;
 }

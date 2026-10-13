@@ -2189,4 +2189,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get workerPage => 'Worker\'s page';
+
+  @override
+  String get payStateNoAttendance => 'No attendance';
+
+  @override
+  String get noAttendanceNote =>
+      'No check-ins this month, so it isn\'t included in \"Approve all ready\". Approve it only if that\'s right, for example unpaid leave.';
 }

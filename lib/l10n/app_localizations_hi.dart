@@ -2178,4 +2178,11 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get workerPage => 'कर्मचारी का पेज';
+
+  @override
+  String get payStateNoAttendance => 'कोई हाज़िरी नहीं';
+
+  @override
+  String get noAttendanceNote =>
+      'इस महीने कोई चेक-इन नहीं है, इसलिए यह \"सभी तैयार स्वीकृत करें\" में शामिल नहीं है। इसे तभी स्वीकृत करें जब यह सही हो, जैसे बिना वेतन की छुट्टी।';
 }

@@ -2182,4 +2182,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get workerPage => 'صفحة العامل';
+
+  @override
+  String get payStateNoAttendance => 'لا يوجد حضور';
+
+  @override
+  String get noAttendanceNote =>
+      'لا يوجد تسجيل دخول هذا الشهر، لذلك لا يُشمل في \"اعتماد كل الجاهز\". اعتمده فقط إذا كان ذلك صحيحاً، مثل إجازة بدون راتب.';
 }
