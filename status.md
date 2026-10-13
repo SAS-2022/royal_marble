@@ -493,10 +493,10 @@ tested against the local emulators first, production only at C5.
          restricted to that API and to `https://royal-marble.web.app/*`,
          `https://royal-marble.firebaseapp.com/*`, `http://localhost:*/*`; put it in
          `config/env.json` as `MAPS_API_KEY_WEB`.
-      3. [ ] `flutter build web --release --dart-define-from-file=config/env.json`
+      3. [x] (2026-10-12) `flutter build web --release --dart-define-from-file=config/env.json`
       4. [x] (2026-10-12: the user reports the website works like the app) Read-only check against production in Chrome (`flutter run -d chrome
          --dart-define-from-file=config/env.json`), signed in as admin.
-      5. [ ] `firebase deploy --only hosting --project royal-marble --account
+      5. [x] (2026-10-12, by the user; new logo favicon live) `firebase deploy --only hosting --project royal-marble --account
          royalmarble.uae@gmail.com` (user's approval) → https://royal-marble.web.app
       **Found during step 4:** profile photos don't load in the browser (Firebase Storage
       blocks cross-site image downloads: bucket has no CORS rule) — fix pending, user to
@@ -1057,3 +1057,12 @@ Workers come from different countries; each user picks a language.
 - **2026-10-12 (cont.)** — H4 done (overtime review). Next: H5 earned-so-far card + month list.
 - **2026-10-12 (cont.)** — H5 done (earned so far, payroll list + Excel). H6 mostly done.
   Next: H7 deploy (rules, `correctAttendance`, hosting) with the user's go-ahead.
+- **2026-10-12 (cont.)** — Web favicon and PWA icons (`web/favicon.png`, `web/icons/*`)
+  replaced with the app's logo (from the iOS 1024 icon; maskable ones padded for the safe
+  zone) and copied into `build/web`. Hosting dry run clean; deploy pending (user runs it).
+- **2026-10-13** — Checked: hosting is live (site favicon matches the new logo). Phase 6
+  part 1 left: H7 rules + `correctAttendance` deploy (not confirmed yet), then H6 My pay on
+  a phone, HR account test; C5 step 6 Google sign-in on the live site; photo CORS.
+- **2026-10-13 (cont.)** — User deployed rules + `correctAttendance` (H7 deploy part;
+  `correctAttendance` seen in `functions:list`). Icons committed. Next: H6 My pay as a
+  worker on a phone, HR account test by the user.

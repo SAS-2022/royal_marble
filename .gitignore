@@ -54,3 +54,6 @@ app.*.map.json
 firebase-debug.log
 firestore-debug.log
 ui-debug.log
+
+# Firebase CLI deploy cache
+.firebase/
