@@ -388,7 +388,8 @@ admin can reopen with a reason (kept), then HR re-approves.
       correction screens, reopen with reason, Excel (Status column, slip numbers), My pay's
       Approved pay. **Bugs fixed:** `setState(() => _x = future)` threw in debug builds
       (Payroll/Overtime month chips, HR home overtime count after leaving Overtime).
-- [ ] **P6 Worker check on a phone** (with H6): My pay as Quiet Tester.
+- [x] **P6 Worker check on a phone** (2026-10-13): My pay as Quiet Tester on the Xiaomi against
+      production — AED 52.06, own package, no Approved pay (none yet), no permission errors.
 - [ ] **P7 Deploy (user)** — rules + `correctAttendance`, then hosting.
 
 #### 2026-10-12 — HR role, pay earned so far, overtime approval (Phase 6, part 1)
@@ -465,7 +466,7 @@ for HR to re-check).
       Excel matches. Worker access checked on the emulator with mason1's token: own
       decision 200, own undecided day 404, other's decision 403, writing own 403,
       other's pay 403.
-- [ ] **H6 Tests** — done so far: 13 new unit tests (49 pass), 2 HR emulator scenarios
+- [x] **H6 Tests** (closed 2026-10-13: My pay as Quiet Tester on the Xiaomi, production) — done so far: 13 new unit tests (49 pass), 2 HR emulator scenarios
       (34 pass), rules dry-run (both files), all HR screens on the web dashboard, worker
       data access via REST. Production, admin on the Xiaomi (2026-10-13): Quiet Tester's
       pay card shows Earned so far AED 52.06 = 2h58m × 17.55 (3,650 ÷ 208) ✔. **Left:** My
@@ -1115,3 +1116,7 @@ Workers come from different countries; each user picks a language.
   status: left out of "Approve all ready", can still be approved on the worker's page
   (58 unit tests pass; checked on the Xiaomi against production, nothing approved).
   Hosting deploy pending (user).
+- **2026-10-13 (cont.)** — Quiet Tester's password reset by the user with the new
+  `functions/scripts/set-test-password.js` (@royalmarble.test only; hidden prompt; tested on the
+  Auth emulator; key file deleted after). **H6 and P6 done** on the Xiaomi (production). Left:
+  hosting deploy for "No attendance" + no-cache headers (user), then Block B (Play update).
