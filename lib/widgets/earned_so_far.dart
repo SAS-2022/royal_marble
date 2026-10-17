@@ -6,22 +6,30 @@ import '../core/format.dart';
 import '../core/l10n_helpers.dart';
 import '../core/locale_controller.dart';
 import '../models/attendance.dart';
+import '../models/leave.dart';
 import '../models/pay_calc.dart';
 import '../models/salary.dart';
+import '../services/leave_service.dart';
 import '../services/pay_service.dart';
+import 'payslip_card.dart' show leavePayRows;
 
-/// Loads one worker's month so far: their days and HR's overtime decisions.
+/// Loads one worker's month so far: their days, HR's overtime decisions
+/// and their leave.
 Future<PaySoFar> loadPaySoFar(String uid, SalaryPackage p) async {
   final now = DateTime.now();
-  final days =
-      (await PayService.loadDays(PayService.monthToDate(now), uid: uid))[uid]?.days ??
-          const <DateTime, DayEntry>{};
+  final range = PayService.monthToDate(now);
+  final (loaded, leave) = await (
+    PayService.loadDays(range, uid: uid),
+    LeaveService.forWorker(uid).catchError((_) => <LeaveRequest>[]),
+  ).wait;
+  final days = loaded[uid]?.days ?? const <DateTime, DayEntry>{};
   final withOvertime = [
     for (final e in days.entries)
       if (dayPay(e.key, e.value, p, null, now).overtimeMinutes > 0) e.key
   ];
   final decisions = await PayService.decisionsFor(uid, withOvertime);
-  return paySoFar(p, days, decisions, now);
+  return paySoFar(p, days, decisions, now,
+      leave: leave, from: range.start, to: range.end);
 }
 
 /// "Earned so far this month": regular time at the hourly rate plus approved
@@ -99,6 +107,17 @@ class _EarnedSoFarState extends State<EarnedSoFar> {
           if (pay.rejectedOvertimeMinutes > 0)
             row('${l.overtimeNotApproved} · ${h(pay.rejectedOvertimeMinutes)}', '—',
                 muted: true),
+          ...leavePayRows(l, row,
+              currency: cur,
+              paidDays: pay.paidLeaveDays,
+              paidPay: pay.paidLeavePay,
+              unpaidDays: pay.unpaidLeaveDays,
+              sickFull: pay.sickDays(1),
+              sickHalf: pay.sickDays(0.5),
+              sickUnpaid: pay.sickDays(0),
+              sickPay: pay.sickPay),
+          if (pay.pendingLeave > 0)
+            row(l.leaveWaitingHr, l.notPaidYet, muted: true),
           const SizedBox(height: 8),
           Text(
               l.hourlyRateNote(money(pay.hourlyRate, cur),

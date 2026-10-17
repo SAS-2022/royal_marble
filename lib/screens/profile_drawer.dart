@@ -8,6 +8,7 @@ import 'package:royal_marble/core/roles.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/reports/reports_screen.dart';
 import 'package:royal_marble/screens/clients_screen.dart';
+import 'package:royal_marble/screens/leave_screens.dart';
 import 'package:royal_marble/screens/live_map_screen.dart';
 import 'package:royal_marble/screens/my_profile_screen.dart';
 import 'package:royal_marble/screens/overtime_screen.dart';
@@ -105,6 +106,9 @@ class ProfileDrawer extends StatelessWidget {
                   _Item(Icons.account_balance_wallet_outlined, l.payroll,
                       selected: sidebar && current == PayrollScreen,
                       () => open(PayrollScreen(users: allUsers ?? const [], viewer: user))),
+                  _Item(Icons.beach_access_outlined, l.leaveRequests,
+                      selected: sidebar && current == LeaveRequestsScreen,
+                      () => open(LeaveRequestsScreen(viewer: user))),
                 ],
                 if (admin || supervisor || sales || hr) const Divider(height: 24),
                 _Item(Icons.person_outline, l.myProfile,
@@ -114,6 +118,10 @@ class ProfileDrawer extends StatelessWidget {
                   _Item(Icons.payments_outlined, l.myPay,
                       selected: sidebar && current == MyPayScreen,
                       () => open(MyPayScreen(user: user))),
+                if (!admin)
+                  _Item(Icons.beach_access_outlined, l.myLeave,
+                      selected: sidebar && current == MyLeaveScreen,
+                      () => open(MyLeaveScreen(user: user))),
                 _Item(Icons.settings_outlined, l.settings,
                     selected: sidebar && current == SettingsScreen,
                     () => open(SettingsScreen(

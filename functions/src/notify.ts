@@ -1,7 +1,7 @@
 import { FieldValue, getFirestore, Timestamp } from "firebase-admin/firestore";
 import { getMessaging } from "firebase-admin/messaging";
 import { logger } from "firebase-functions/v2";
-import { onDocumentCreated } from "firebase-functions/v2/firestore";
+import { onDocumentCreated, onDocumentWritten } from "firebase-functions/v2/firestore";
 
 /** Push texts in the reader's language (`users/{uid}.language`). */
 const NEW_USER_TEXT: Record<string, { title: string; body: (name: string) => string }> = {
@@ -298,4 +298,77 @@ export const notifyAlert = onDocumentCreated("device_events/{id}", async (event)
   const kind = e.type === "permission_changed" && e.severity === "info" ?
     "permission_always" : e.type as string;
   await pushWorkerAlert(e.uid, kind, e.site as string | undefined, e.userName as string | undefined);
+});
+
+/** Leave types in the reader's language (same words as the app). */
+const LEAVE_TYPE: Record<string, Record<string, string>> = {
+  en: { annual: "Annual leave", emergency: "Emergency leave", sick: "Sick leave" },
+  ar: { annual: "إجازة سنوية", emergency: "إجازة طارئة", sick: "إجازة مرضية" },
+  hi: { annual: "वार्षिक छुट्टी", emergency: "आपात छुट्टी", sick: "बीमारी की छुट्टी" },
+  ur: { annual: "سالانہ چھٹی", emergency: "ہنگامی چھٹی", sick: "بیماری کی چھٹی" },
+};
+
+const LEAVE_TEXT: Record<string, {
+  request: string; approved: string; rejected: string; days: (n: number) => string;
+}> = {
+  en: { request: "Leave request", approved: "Leave approved", rejected: "Leave rejected",
+    days: (n) => (n === 1 ? "1 day" : `${n} days`) },
+  ar: { request: "طلب إجازة", approved: "تمت الموافقة على الإجازة", rejected: "تم رفض الإجازة",
+    days: (n) => (n === 1 ? "يوم واحد" : `${n} أيام`) },
+  hi: { request: "छुट्टी का अनुरोध", approved: "छुट्टी मंज़ूर", rejected: "छुट्टी अस्वीकार",
+    days: (n) => (n === 1 ? "1 दिन" : `${n} दिन`) },
+  ur: { request: "چھٹی کی درخواست", approved: "چھٹی منظور", rejected: "چھٹی مسترد",
+    days: (n) => (n === 1 ? "1 دن" : `${n} دن`) },
+};
+
+/** "5/10" (day/month) of a leave date, stored as local midnight in Dubai. */
+const shortDate = (t: unknown) => {
+  if (!(t instanceof Timestamp)) return "";
+  const d = new Date(t.toMillis() + 4 * 3600_000);
+  return `${d.getUTCDate()}/${d.getUTCMonth() + 1}`;
+};
+
+/**
+ * Leave requests (`leave_requests/{id}`): a new pending request goes to every
+ * active admin and HR; HR's answer (approved or rejected) goes to the worker.
+ */
+export const notifyLeave = onDocumentWritten("leave_requests/{id}", async (event) => {
+  const before = event.data?.before.data();
+  const after = event.data?.after.data();
+  if (!after) return;
+  const db = getFirestore();
+
+  if (!before && after.status === "pending") {
+    const staff = await db.collection("users")
+      .where("roles", "array-contains-any", ["isAdmin", "isHR"]).get();
+    let sent = 0;
+    for (const u of staff.docs) {
+      if (u.get("isActive") !== true || u.id === after.uid) continue;
+      const lang = LEAVE_TEXT[u.get("language")] ? u.get("language") : "en";
+      const type = LEAVE_TYPE[lang][after.type] ?? after.type;
+      try {
+        sent += await pushToUser(u, LEAVE_TEXT[lang].request,
+          `${after.name}: ${type} · ${LEAVE_TEXT[lang].days(after.days ?? 0)}`,
+          { type: "leave_request", id: event.params.id });
+      } catch (e) {
+        logger.error(`notifyLeave: push to ${u.id} failed`, e);
+      }
+    }
+    logger.info(`notifyLeave: new ${event.params.id} → ${sent} phone(s)`);
+    return;
+  }
+
+  const decided = after.status === "approved" || after.status === "rejected";
+  if (!before || !decided || before.status === after.status) return;
+  const worker = await db.collection("users").doc(after.uid).get();
+  if (!worker.exists) return;
+  const lang = LEAVE_TEXT[worker.get("language")] ? worker.get("language") : "en";
+  const type = LEAVE_TYPE[lang][after.type] ?? after.type;
+  const dates = after.from?.isEqual?.(after.to) ?
+    shortDate(after.from) : `${shortDate(after.from)} – ${shortDate(after.to)}`;
+  const sent = await pushToUser(worker,
+    after.status === "approved" ? LEAVE_TEXT[lang].approved : LEAVE_TEXT[lang].rejected,
+    [`${type} · ${dates}`, after.note].filter((x) => x).join("\n"),
+    { type: "leave_decision", id: event.params.id });
+  logger.info(`notifyLeave: ${event.params.id} ${after.status} → ${sent} phone(s)`);
 });

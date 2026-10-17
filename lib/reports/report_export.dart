@@ -292,7 +292,7 @@ typedef PayrollLine = ({
   String status,
 });
 
-/// Month payroll as Excel: hours, overtime by status and pay, in English like
+/// Month payroll as Excel: hours, overtime by status, leave and pay, in English like
 /// the other exports. People without a pay package get hours only.
 List<int> payrollXlsx({required String month, required List<PayrollLine> lines}) {
   final book = xls.Workbook();
@@ -304,6 +304,7 @@ List<int> payrollXlsx({required String month, required List<PayrollLine> lines})
   final names = [
     'Name', 'Regular hours', 'Overtime approved (h)', 'Overtime waiting (h)',
     'Overtime rejected (h)', 'Hourly rate', 'Regular pay', 'Overtime pay',
+    'Paid leave days', 'Leave pay', 'Unpaid leave days', 'Sick days', 'Sick pay',
     'Earned', 'Currency', 'Status',
   ];
   s.getRangeByIndex(1, 1).setText('Payroll · $month');
@@ -318,7 +319,7 @@ List<int> payrollXlsx({required String month, required List<PayrollLine> lines})
     final l = lines[i];
     final row = i + 3;
     s.getRangeByIndex(row, 1).setText(l.name);
-    s.getRangeByIndex(row, 11).setText(l.status);
+    s.getRangeByIndex(row, 16).setText(l.status);
     if (l.slip case final slip?) {
       s.getRangeByIndex(row, 2).setNumber(h(slip.regularMinutes));
       s.getRangeByIndex(row, 3).setNumber(h(slip.overtimeMinutes));
@@ -327,13 +328,19 @@ List<int> payrollXlsx({required String month, required List<PayrollLine> lines})
       s.getRangeByIndex(row, 6).setNumber(slip.hourlyRate);
       s.getRangeByIndex(row, 7).setNumber(slip.regularPay);
       s.getRangeByIndex(row, 8).setNumber(slip.overtimePay);
-      s.getRangeByIndex(row, 9).setNumber(slip.total);
-      s.getRangeByIndex(row, 10).setText(slip.currency);
+      s.getRangeByIndex(row, 9).setNumber(slip.paidLeaveDays.toDouble());
+      s.getRangeByIndex(row, 10).setNumber(slip.paidLeavePay);
+      s.getRangeByIndex(row, 11).setNumber(slip.unpaidLeaveDays.toDouble());
+      s.getRangeByIndex(row, 12)
+          .setNumber((slip.sickFullDays + slip.sickHalfDays + slip.sickUnpaidDays).toDouble());
+      s.getRangeByIndex(row, 13).setNumber(slip.sickPay);
+      s.getRangeByIndex(row, 14).setNumber(slip.total);
+      s.getRangeByIndex(row, 15).setText(slip.currency);
       continue;
     }
     final p = l.pay;
     if (p == null) {
-      s.getRangeByIndex(row, 10).setText('no pay package');
+      s.getRangeByIndex(row, 15).setText('no pay package');
       continue;
     }
     s.getRangeByIndex(row, 2).setNumber(h(p.regularMinutes));
@@ -343,8 +350,14 @@ List<int> payrollXlsx({required String month, required List<PayrollLine> lines})
     s.getRangeByIndex(row, 6).setNumber(r2(p.hourlyRate));
     s.getRangeByIndex(row, 7).setNumber(r2(p.regularPay));
     s.getRangeByIndex(row, 8).setNumber(r2(p.overtimePay));
-    s.getRangeByIndex(row, 9).setNumber(r2(p.total));
-    s.getRangeByIndex(row, 10).setText(l.currency);
+    s.getRangeByIndex(row, 9).setNumber(p.paidLeaveDays.toDouble());
+    s.getRangeByIndex(row, 10).setNumber(r2(p.paidLeavePay));
+    s.getRangeByIndex(row, 11).setNumber(p.unpaidLeaveDays.toDouble());
+    s.getRangeByIndex(row, 12)
+        .setNumber((p.sickDays(1) + p.sickDays(0.5) + p.sickDays(0)).toDouble());
+    s.getRangeByIndex(row, 13).setNumber(r2(p.sickPay));
+    s.getRangeByIndex(row, 14).setNumber(r2(p.total));
+    s.getRangeByIndex(row, 15).setText(l.currency);
   }
   s.getRangeByIndex(2, 1, lines.length + 2, names.length).autoFitColumns();
   final bytes = book.saveAsStream();

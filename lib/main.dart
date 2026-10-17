@@ -103,15 +103,25 @@ class MyApp extends StatelessWidget {
           ],
           routes: <String, WidgetBuilder>{'/home': (context) => const Wrapper()},
           home: const SplashScreen(),
-          // Make it impossible to mistake a local test build for the real app.
-          builder: useEmulator
-              ? (context, child) => Banner(
-                    message: 'EMULATOR',
-                    location: BannerLocation.topStart,
-                    color: Colors.deepPurple,
-                    child: child!,
-                  )
-              : null,
+          builder: (context, child) {
+            // Tapping anywhere outside a text field closes the keyboard.
+            // Buttons and fields still win the tap, so only empty space unfocuses.
+            Widget app = GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+              child: child,
+            );
+            // Make it impossible to mistake a local test build for the real app.
+            if (useEmulator) {
+              app = Banner(
+                message: 'EMULATOR',
+                location: BannerLocation.topStart,
+                color: Colors.deepPurple,
+                child: app,
+              );
+            }
+            return app;
+          },
         ),
       ),
     );

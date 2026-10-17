@@ -29,6 +29,8 @@ import 'package:royal_marble/widgets/sites_overview.dart';
 import 'package:royal_marble/widgets/status_widgets.dart';
 import 'package:royal_marble/widgets/web_shell.dart';
 import 'package:royal_marble/screens/overtime_screen.dart';
+import 'package:royal_marble/screens/leave_screens.dart';
+import 'package:royal_marble/services/leave_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, this.currentUser});
@@ -633,6 +635,22 @@ class _HrHomeState extends State<_HrHome> {
                 leading: Icon(Icons.more_time,
                     color: (n ?? 0) > 0 ? AppColors.warn : AppColors.muted),
                 title: Text(n == null ? l.overtime : l.overtimeWaitingCount(n)),
+                trailing: const Icon(Icons.chevron_right),
+              ),
+            );
+          },
+        ),
+        StreamBuilder<int>(
+          stream: LeaveService.watchPendingCount(),
+          builder: (context, snap) {
+            final n = snap.data;
+            return Card(
+              child: ListTile(
+                onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => LeaveRequestsScreen(viewer: widget.user))),
+                leading: Icon(Icons.beach_access_outlined,
+                    color: (n ?? 0) > 0 ? AppColors.warn : AppColors.muted),
+                title: Text(n == null ? l.leaveRequests : l.leaveWaitingCount(n)),
                 trailing: const Icon(Icons.chevron_right),
               ),
             );

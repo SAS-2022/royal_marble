@@ -6,6 +6,7 @@ rules_version = '2';
 //   - the unused `testing` collection is closed
 //   - adds `device_events` for the new phone-status alerts
 //   - adds `payroll`, `overtime` and `payslips` (HR/admin, plus each worker's own read)
+//   - adds `leave_requests` (workers ask for their own; HR/admin decide)
 // Switch to firestore.strict.rules once every phone runs the new app.
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -24,6 +25,39 @@ service cloud.firestore {
     function slipLocked(slipId) {
       let p = /databases/$(database)/documents/payslips/$(slipId);
       return exists(p) && get(p).data.status == 'locked';
+    }
+    // A leave request's shape, and every month it touches (`months`, at most
+    // three: requests are 60 days at most) still open for changes.
+    function leaveMonthsOpen(d) {
+      let m = d.months;
+      return m.size() >= 1 && m.size() <= 3 && !slipLocked(d.uid + '_' + m[0])
+        && (m.size() < 2 || !slipLocked(d.uid + '_' + m[1]))
+        && (m.size() < 3 || !slipLocked(d.uid + '_' + m[2]));
+    }
+    // Sick leave: 1–5 report files, each in the worker's own Storage folder.
+    function ownReport(rs, i, uid) {
+      return rs.size() <= i || (rs[i].path is string
+        && rs[i].path.matches('leave_reports/' + uid + '/.+'));
+    }
+    function reportsOwn(rs, uid) {
+      return rs is list && rs.size() >= 1 && rs.size() <= 5 && ownReport(rs, 0, uid)
+        && ownReport(rs, 1, uid) && ownReport(rs, 2, uid) && ownReport(rs, 3, uid)
+        && ownReport(rs, 4, uid);
+    }
+    // Annual/emergency: `travel` is null (no travel) or where from, where to,
+    // and whether the company buys the ticket.
+    function travelValid(d) {
+      return d.type == 'sick' || d.get('travel', 'missing') == null || (d.travel is map
+        && d.travel.from is string && d.travel.from.size() > 0
+        && d.travel.to is string && d.travel.to.size() > 0
+        && d.travel.companyTicket is bool);
+    }
+    function leaveValid(d) {
+      return d.type in ['annual', 'emergency', 'sick']
+        && d.status in ['pending', 'approved', 'rejected', 'cancelled']
+        && d.from is timestamp && d.to is timestamp && d.from <= d.to
+        && d.to < d.from + duration.value(60, 'd')
+        && leaveMonthsOpen(d);
     }
 
     match /{document=**} {
@@ -74,6 +108,26 @@ service cloud.firestore {
         (resource.data.status == 'reopened' && request.resource.data.status == 'locked') ||
         (resource.data.status == 'locked' && request.resource.data.status == 'reopened'
           && hasRole('isAdmin')));
+      allow delete: if false;
+    }
+
+    // Leave requests: a worker asks for their own (pending; sick leave with the
+    // reports they uploaded, annual/emergency with travel details) and can
+    // cancel it while pending; HR and admins
+    // approve or reject. Nothing changes in a month whose payslip is locked.
+    match /leave_requests/{id} {
+      allow read: if managesPay() || (signedIn() && resource.data.uid == request.auth.uid);
+      allow create: if leaveValid(request.resource.data) && (managesPay() || (
+        signedIn() && request.resource.data.uid == request.auth.uid
+          && request.resource.data.status == 'pending' && request.resource.data.paid == false
+          && (request.resource.data.type != 'sick'
+                || reportsOwn(request.resource.data.reports, request.auth.uid))
+          && travelValid(request.resource.data)));
+      allow update: if leaveValid(request.resource.data) && leaveMonthsOpen(resource.data)
+        && request.resource.data.uid == resource.data.uid && (managesPay() || (
+          signedIn() && resource.data.uid == request.auth.uid
+            && resource.data.status == 'pending' && request.resource.data.status == 'cancelled'
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'at'])));
       allow delete: if false;
     }
 

@@ -2189,4 +2189,290 @@ class AppLocalizationsUr extends AppLocalizations {
   @override
   String get noAttendanceNote =>
       'اس مہینے کوئی چیک اِن نہیں ہے، اس لیے یہ \"تمام تیار منظور کریں\" میں شامل نہیں۔ اسے صرف تب منظور کریں جب یہ درست ہو، جیسے بغیر تنخواہ کی چھٹی۔';
+
+  @override
+  String get leaveAnnual => 'سالانہ چھٹی';
+
+  @override
+  String get leaveEmergency => 'ہنگامی چھٹی';
+
+  @override
+  String get leaveSick => 'بیماری کی چھٹی';
+
+  @override
+  String get leaveAnnualShort => 'سالانہ';
+
+  @override
+  String get leaveEmergencyShort => 'ہنگامی';
+
+  @override
+  String get leaveSickShort => 'بیماری';
+
+  @override
+  String get approveLeaveTitle => 'چھٹی منظور کریں؟';
+
+  @override
+  String get rejectLeaveTitle => 'چھٹی مسترد کریں؟';
+
+  @override
+  String get cancelLeaveTitle => 'یہ درخواست منسوخ کریں؟';
+
+  @override
+  String get cancelRequest => 'درخواست منسوخ کریں';
+
+  @override
+  String get choosePdf => 'PDF منتخب کریں';
+
+  @override
+  String get couldNotSaveTryAgain => 'محفوظ نہیں ہو سکا۔ دوبارہ کوشش کریں۔';
+
+  @override
+  String get daysAYear => 'دن سالانہ';
+
+  @override
+  String get decideLeaveFirst => 'پہلے زیرِ غور چھٹی منظور یا مسترد کریں۔';
+
+  @override
+  String get enterValidDays => 'دنوں کی تعداد لکھیں (زیادہ سے زیادہ 366)';
+
+  @override
+  String get hospitalReport => 'ہسپتال کی رپورٹ';
+
+  @override
+  String get hospitalReportHint =>
+      'بیماری کی چھٹی کے لیے ہسپتال یا کلینک کی رپورٹ ضروری ہے۔ اس کی تصاویر یا PDF شامل کریں (کئی صفحات بھی ٹھیک ہیں)۔';
+
+  @override
+  String get leaveCancelled => 'منسوخ';
+
+  @override
+  String get leaveDates => 'تاریخیں';
+
+  @override
+  String get leaveDenied =>
+      'آپ کو اس کی اجازت نہیں۔ ہو سکتا ہے اس مہینے کی تنخواہ منظور ہو چکی ہو۔';
+
+  @override
+  String get leaveOnlyDayOff => 'یہ تاریخیں صرف آپ کی ہفتہ وار چھٹی ہیں۔';
+
+  @override
+  String get leaveOverlaps => 'ان میں سے کچھ تاریخوں پر آپ کی چھٹی پہلے سے ہے۔';
+
+  @override
+  String get leaveReason => 'وجہ (اختیاری)';
+
+  @override
+  String get leaveRequests => 'چھٹی کی درخواستیں';
+
+  @override
+  String get leaveSent => 'درخواست ایچ آر کو بھیج دی گئی';
+
+  @override
+  String get leaveWaitingHr => 'ایچ آر کے انتظار میں چھٹی';
+
+  @override
+  String get myLeave => 'میری چھٹیاں';
+
+  @override
+  String get myRequests => 'میری درخواستیں';
+
+  @override
+  String get noLeaveRequests => 'چھٹی کی کوئی درخواست نہیں';
+
+  @override
+  String get overBalance =>
+      'یہ آپ کے باقی دنوں سے زیادہ ہے۔ ایچ آر اضافی دن بغیر تنخواہ منظور کر سکتا ہے۔';
+
+  @override
+  String get paidLeave => 'تنخواہ والی چھٹی';
+
+  @override
+  String get paidLeaveHint => 'ہر دن کی ادائیگی عام کام کے دن کی طرح ہوگی۔';
+
+  @override
+  String get unpaidLeave => 'بغیر تنخواہ چھٹی';
+
+  @override
+  String get unpaidLeaveHint => 'ان دنوں کی ادائیگی نہیں ہوگی۔';
+
+  @override
+  String get payStateLeaveWaiting => 'چھٹی زیرِ غور';
+
+  @override
+  String get pickLeaveDates => 'تاریخیں منتخب کریں';
+
+  @override
+  String get reportNeeded => 'ہسپتال کی رپورٹ شامل کریں';
+
+  @override
+  String get reportTooBig => 'رپورٹ بہت بڑی ہے (زیادہ سے زیادہ 10 MB)';
+
+  @override
+  String get reportUploadFailed =>
+      'رپورٹ اپ لوڈ نہیں ہو سکی۔ کنکشن چیک کریں اور دوبارہ کوشش کریں۔';
+
+  @override
+  String get requestLeave => 'چھٹی کی درخواست';
+
+  @override
+  String get sectionLeave => 'چھٹی';
+
+  @override
+  String get sendRequest => 'درخواست بھیجیں';
+
+  @override
+  String get viewReport => 'رپورٹ دیکھیں';
+
+  @override
+  String get weeklyDayOff => 'ہفتہ وار چھٹی کا دن';
+
+  @override
+  String get weeklyDayOffHint => 'چھٹی کی درخواستوں میں شمار نہیں ہوتا';
+
+  @override
+  String daysLeftOf(int count) {
+    return '$count میں سے باقی';
+  }
+
+  @override
+  String daysLeftThisYear(String type, int count) {
+    return '$type اس سال باقی: $count';
+  }
+
+  @override
+  String daysWaiting(int count) {
+    return '$count زیرِ غور';
+  }
+
+  @override
+  String leaveDaysNote(int count, String day) {
+    return 'چھٹی کے دن: $count ($day شمار نہیں)';
+  }
+
+  @override
+  String leaveTermsLine(int annual, int emergency, String day) {
+    return 'چھٹیاں: سال میں $annual سالانہ اور $emergency ہنگامی دن · ہفتہ وار چھٹی $day';
+  }
+
+  @override
+  String leaveThisYear(int year) {
+    return '$year میں چھٹیاں';
+  }
+
+  @override
+  String leaveTooLong(int count) {
+    return 'ایک درخواست زیادہ سے زیادہ $count دن کی ہو سکتی ہے';
+  }
+
+  @override
+  String leaveWaitingCount(int count) {
+    return 'زیرِ غور چھٹیاں: $count';
+  }
+
+  @override
+  String sickTiersLine(int full, int half, int unpaid) {
+    return 'پوری تنخواہ $full · آدھی تنخواہ $half · بغیر تنخواہ $unpaid';
+  }
+
+  @override
+  String get travel => 'سفر';
+
+  @override
+  String get travelQuestion => 'کیا آپ کو سفر کرنا ہے؟';
+
+  @override
+  String get travelFrom => 'کہاں سے (شہر، ملک)';
+
+  @override
+  String get travelTo => 'کہاں تک (شہر، ملک)';
+
+  @override
+  String get ticketQuestion => 'کیا کمپنی کو ٹکٹ دینا ہوگا؟';
+
+  @override
+  String get answerYes => 'ہاں';
+
+  @override
+  String get answerNo => 'نہیں';
+
+  @override
+  String get answerTravel => 'سفر کے سوالوں کے جواب دیں';
+
+  @override
+  String get noTravel => 'کوئی سفر نہیں';
+
+  @override
+  String travelLine(String from, String to) {
+    return 'سفر: $from ← $to';
+  }
+
+  @override
+  String get companyTicket => 'کمپنی کا ٹکٹ';
+
+  @override
+  String get ownTicket => 'اپنا ٹکٹ';
+
+  @override
+  String reportN(int number) {
+    return 'رپورٹ $number';
+  }
+
+  @override
+  String reportFilesLimit(int count) {
+    return 'زیادہ سے زیادہ $count فائلیں، تصاویر یا PDF، ہر ایک 10 MB تک';
+  }
+
+  @override
+  String sickPayRuleFor(int full, int half) {
+    return 'بیماری کی چھٹی کی تنخواہ: سال کے پہلے $full دن پوری تنخواہ، اگلے $half دن آدھی تنخواہ، اس کے بعد بغیر تنخواہ۔';
+  }
+
+  @override
+  String get setLeaveEntitlement => 'چھٹیوں کا حق مقرر کریں';
+
+  @override
+  String get setStartDateForLaw =>
+      'یو اے ای قانون کے مطابق سالانہ چھٹی نکالنے کے لیے شروع کی تاریخ درج کریں۔';
+
+  @override
+  String get leaveEntitlementSaved => 'چھٹیوں کا حق محفوظ ہو گیا';
+
+  @override
+  String leaveEntitlementFor(String name) {
+    return 'چھٹیوں کا حق · $name';
+  }
+
+  @override
+  String get startDate => 'شروع کی تاریخ';
+
+  @override
+  String get notSet => 'مقرر نہیں';
+
+  @override
+  String lawAnnualToday(int count) {
+    return 'آج یو اے ای قانون کے مطابق: سال میں $count سالانہ دن';
+  }
+
+  @override
+  String get useUaeLaw => 'یو اے ای قانون لاگو کریں';
+
+  @override
+  String get vacation => 'چھٹیاں';
+
+  @override
+  String get annualLawNote =>
+      'یو اے ای قانون: 6 ماہ سے کم سروس پر سالانہ چھٹی نہیں، 6 سے 12 ماہ پر ہر ماہ 2 دن، ایک سال کے بعد 30 دن۔';
+
+  @override
+  String get sickFullPayDays => 'پوری تنخواہ والے بیماری کے دن';
+
+  @override
+  String get sickHalfPayDays => 'آدھی تنخواہ والے بیماری کے دن';
+
+  @override
+  String get sickUnpaidDays => 'بغیر تنخواہ بیماری کے دن';
+
+  @override
+  String get sickLawNote =>
+      'یو اے ای قانون: سال میں 90 دن تک بیماری کی چھٹی (15 پوری تنخواہ، 30 آدھی تنخواہ، 45 بغیر تنخواہ)؛ پروبیشن میں تنخواہ والی بیماری کی چھٹی نہیں۔';
 }

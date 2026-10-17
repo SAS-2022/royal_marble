@@ -11,7 +11,7 @@ import {
 
 import { pushWorkerAlert } from "./notify";
 
-export { notifyAlert, notifyNewUser } from "./notify";
+export { notifyAlert, notifyLeave, notifyNewUser } from "./notify";
 
 initializeApp();
 const db = getFirestore();

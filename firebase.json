@@ -3,6 +3,9 @@
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
+  "storage": {
+    "rules": "storage.rules"
+  },
   "functions": {
     "source": "functions",
     "runtime": "nodejs22"
@@ -22,6 +25,10 @@
     ],
     "rewrites": [
       {
+        "source": "/delete-account",
+        "destination": "/delete-account.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
@@ -38,6 +45,10 @@
     },
     "firestore": {
       "port": 8080,
+      "host": "0.0.0.0"
+    },
+    "storage": {
+      "port": 9199,
       "host": "0.0.0.0"
     },
     "ui": {

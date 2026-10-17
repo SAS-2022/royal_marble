@@ -77,6 +77,11 @@ class SalaryBreakdown extends StatelessWidget {
                   ? '${money(p.overtimeRate, p.currency)} ${l.perHour}'
                   : l.overtimeRateNotSet),
           style: const TextStyle(fontSize: 13, color: AppColors.muted)),
+      const SizedBox(height: 4),
+      Text(
+          l.leaveTermsLine(p.annualLeaveDays, p.emergencyLeaveDays,
+              weekdayName(p.weeklyOffDay, l.localeName)),
+          style: const TextStyle(fontSize: 13, color: AppColors.muted)),
       if (p.notes?.isNotEmpty == true) ...[
         const SizedBox(height: 8),
         Text(p.notes!, style: const TextStyle(color: AppColors.muted)),
@@ -178,7 +183,20 @@ class _SalaryEditorScreenState extends State<SalaryEditorScreen> {
   static double _val(TextEditingController c) =>
       double.tryParse(c.text.replaceAll(',', '').trim()) ?? 0;
 
-  SalaryPackage get _package => SalaryPackage(
+  // Leave settings are kept as they are (set on the leave entitlement screen).
+  SalaryPackage get _package {
+    final i = widget.initial;
+    return _pay.withLeave(
+        annualLeaveDays: i.annualLeaveDays,
+        emergencyLeaveDays: i.emergencyLeaveDays,
+        weeklyOffDay: i.weeklyOffDay,
+        sickFullDays: i.sickFullDays,
+        sickHalfDays: i.sickHalfDays,
+        sickUnpaidDays: i.sickUnpaidDays,
+        joinDate: i.joinDate);
+  }
+
+  SalaryPackage get _pay => SalaryPackage(
         currency: widget.initial.currency,
         payType: _type,
         basic: _val(_basic),

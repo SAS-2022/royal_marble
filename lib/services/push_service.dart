@@ -9,6 +9,7 @@ import 'package:royal_marble/account_settings/admin_user_view.dart';
 import 'package:royal_marble/core/error_reporter.dart';
 import 'package:royal_marble/core/locale_controller.dart';
 import 'package:royal_marble/core/roles.dart';
+import 'package:royal_marble/screens/leave_screens.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/services/database.dart';
 
@@ -118,14 +119,25 @@ class PushService {
     ));
   }
 
-  /// New sign-ups and worker alerts both open the person's page.
+  /// New sign-ups and worker alerts both open the person's page; leave
+  /// requests open HR's list, and HR's answer the worker's leave page.
   static bool _canOpen(RemoteMessage m) =>
-      (m.data['type'] == 'new_user' || m.data['type'] == 'alert') &&
-      m.data['uid'] != null;
+      _leaveTypes.contains(m.data['type']) ||
+      ((m.data['type'] == 'new_user' || m.data['type'] == 'alert') && m.data['uid'] != null);
+
+  static const _leaveTypes = {'leave_request', 'leave_decision'};
 
   static Future<void> _open(RemoteMessage m) async {
     final viewer = _viewer;
     if (!_canOpen(m) || viewer == null) return;
+    if (_leaveTypes.contains(m.data['type'])) {
+      await navigatorKey.currentState?.push(MaterialPageRoute(
+        builder: (_) => m.data['type'] == 'leave_request'
+            ? LeaveRequestsScreen(viewer: viewer)
+            : MyLeaveScreen(user: viewer),
+      ));
+      return;
+    }
     try {
       final user = await DatabaseService().getUserPerId(uid: m.data['uid']).first;
       await navigatorKey.currentState?.push(MaterialPageRoute(

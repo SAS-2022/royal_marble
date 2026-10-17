@@ -3899,6 +3899,504 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No check-ins this month, so it isn\'t included in \"Approve all ready\". Approve it only if that\'s right, for example unpaid leave.'**
   String get noAttendanceNote;
+
+  /// No description provided for @leaveAnnual.
+  ///
+  /// In en, this message translates to:
+  /// **'Annual leave'**
+  String get leaveAnnual;
+
+  /// No description provided for @leaveEmergency.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency leave'**
+  String get leaveEmergency;
+
+  /// No description provided for @leaveSick.
+  ///
+  /// In en, this message translates to:
+  /// **'Sick leave'**
+  String get leaveSick;
+
+  /// No description provided for @leaveAnnualShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Annual'**
+  String get leaveAnnualShort;
+
+  /// No description provided for @leaveEmergencyShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency'**
+  String get leaveEmergencyShort;
+
+  /// No description provided for @leaveSickShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Sick'**
+  String get leaveSickShort;
+
+  /// No description provided for @approveLeaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve leave?'**
+  String get approveLeaveTitle;
+
+  /// No description provided for @rejectLeaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject leave?'**
+  String get rejectLeaveTitle;
+
+  /// No description provided for @cancelLeaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this request?'**
+  String get cancelLeaveTitle;
+
+  /// No description provided for @cancelRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel request'**
+  String get cancelRequest;
+
+  /// No description provided for @choosePdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a PDF'**
+  String get choosePdf;
+
+  /// No description provided for @couldNotSaveTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save. Please try again.'**
+  String get couldNotSaveTryAgain;
+
+  /// No description provided for @daysAYear.
+  ///
+  /// In en, this message translates to:
+  /// **'days a year'**
+  String get daysAYear;
+
+  /// No description provided for @decideLeaveFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve or reject the waiting leave first.'**
+  String get decideLeaveFirst;
+
+  /// No description provided for @enterValidDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number of days (366 at most)'**
+  String get enterValidDays;
+
+  /// No description provided for @hospitalReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Hospital report'**
+  String get hospitalReport;
+
+  /// No description provided for @hospitalReportHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sick leave needs a report from a hospital or clinic. Add photos of it or PDFs (several pages are fine).'**
+  String get hospitalReportHint;
+
+  /// No description provided for @leaveCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get leaveCancelled;
+
+  /// No description provided for @leaveDates.
+  ///
+  /// In en, this message translates to:
+  /// **'Dates'**
+  String get leaveDates;
+
+  /// No description provided for @leaveDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have permission to do that. The month\'s pay may already be approved.'**
+  String get leaveDenied;
+
+  /// No description provided for @leaveOnlyDayOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Those dates are only your day off.'**
+  String get leaveOnlyDayOff;
+
+  /// No description provided for @leaveOverlaps.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have leave on some of these dates.'**
+  String get leaveOverlaps;
+
+  /// No description provided for @leaveReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason (optional)'**
+  String get leaveReason;
+
+  /// No description provided for @leaveRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave requests'**
+  String get leaveRequests;
+
+  /// No description provided for @leaveSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent to HR'**
+  String get leaveSent;
+
+  /// No description provided for @leaveWaitingHr.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave waiting for HR'**
+  String get leaveWaitingHr;
+
+  /// No description provided for @myLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'My leave'**
+  String get myLeave;
+
+  /// No description provided for @myRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'My requests'**
+  String get myRequests;
+
+  /// No description provided for @noLeaveRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'No leave requests'**
+  String get noLeaveRequests;
+
+  /// No description provided for @overBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s more than you have left. HR may approve the extra days as unpaid.'**
+  String get overBalance;
+
+  /// No description provided for @paidLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid leave'**
+  String get paidLeave;
+
+  /// No description provided for @paidLeaveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Each day is paid as a normal working day.'**
+  String get paidLeaveHint;
+
+  /// No description provided for @unpaidLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpaid leave'**
+  String get unpaidLeave;
+
+  /// No description provided for @unpaidLeaveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'These days are not paid.'**
+  String get unpaidLeaveHint;
+
+  /// No description provided for @payStateLeaveWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave waiting'**
+  String get payStateLeaveWaiting;
+
+  /// No description provided for @pickLeaveDates.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the dates'**
+  String get pickLeaveDates;
+
+  /// No description provided for @reportNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the hospital report'**
+  String get reportNeeded;
+
+  /// No description provided for @reportTooBig.
+  ///
+  /// In en, this message translates to:
+  /// **'The report is too big (10 MB at most)'**
+  String get reportTooBig;
+
+  /// No description provided for @reportUploadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not upload the report. Check the connection and try again.'**
+  String get reportUploadFailed;
+
+  /// No description provided for @requestLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Request leave'**
+  String get requestLeave;
+
+  /// No description provided for @sectionLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get sectionLeave;
+
+  /// No description provided for @sendRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Send request'**
+  String get sendRequest;
+
+  /// No description provided for @viewReport.
+  ///
+  /// In en, this message translates to:
+  /// **'View report'**
+  String get viewReport;
+
+  /// No description provided for @weeklyDayOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly day off'**
+  String get weeklyDayOff;
+
+  /// No description provided for @weeklyDayOffHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Not counted in leave requests'**
+  String get weeklyDayOffHint;
+
+  /// No description provided for @daysLeftOf.
+  ///
+  /// In en, this message translates to:
+  /// **'left of {count}'**
+  String daysLeftOf(int count);
+
+  /// No description provided for @daysLeftThisYear.
+  ///
+  /// In en, this message translates to:
+  /// **'{type} left this year: {count}'**
+  String daysLeftThisYear(String type, int count);
+
+  /// No description provided for @daysWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} waiting'**
+  String daysWaiting(int count);
+
+  /// No description provided for @leaveDaysNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave days: {count} ({day} not counted)'**
+  String leaveDaysNote(int count, String day);
+
+  /// No description provided for @leaveTermsLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave: {annual} annual and {emergency} emergency days a year · day off {day}'**
+  String leaveTermsLine(int annual, int emergency, String day);
+
+  /// No description provided for @leaveThisYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave in {year}'**
+  String leaveThisYear(int year);
+
+  /// No description provided for @leaveTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'A request can be {count} days at most'**
+  String leaveTooLong(int count);
+
+  /// No description provided for @leaveWaitingCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave waiting: {count}'**
+  String leaveWaitingCount(int count);
+
+  /// No description provided for @sickTiersLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Full pay {full} · half pay {half} · unpaid {unpaid}'**
+  String sickTiersLine(int full, int half, int unpaid);
+
+  /// No description provided for @travel.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel'**
+  String get travel;
+
+  /// No description provided for @travelQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you need to travel?'**
+  String get travelQuestion;
+
+  /// No description provided for @travelFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From (city, country)'**
+  String get travelFrom;
+
+  /// No description provided for @travelTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To (city, country)'**
+  String get travelTo;
+
+  /// No description provided for @ticketQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Does the company need to provide the ticket?'**
+  String get ticketQuestion;
+
+  /// No description provided for @answerYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get answerYes;
+
+  /// No description provided for @answerNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get answerNo;
+
+  /// No description provided for @answerTravel.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer the travel questions'**
+  String get answerTravel;
+
+  /// No description provided for @noTravel.
+  ///
+  /// In en, this message translates to:
+  /// **'No travel'**
+  String get noTravel;
+
+  /// No description provided for @travelLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel: {from} → {to}'**
+  String travelLine(String from, String to);
+
+  /// No description provided for @companyTicket.
+  ///
+  /// In en, this message translates to:
+  /// **'company ticket'**
+  String get companyTicket;
+
+  /// No description provided for @ownTicket.
+  ///
+  /// In en, this message translates to:
+  /// **'own ticket'**
+  String get ownTicket;
+
+  /// No description provided for @reportN.
+  ///
+  /// In en, this message translates to:
+  /// **'Report {number}'**
+  String reportN(int number);
+
+  /// No description provided for @reportFilesLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {count} files, photos or PDFs, 10 MB each'**
+  String reportFilesLimit(int count);
+
+  /// No description provided for @sickPayRuleFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Sick leave pay: the first {full} days a year in full, the next {half} at half pay, then unpaid.'**
+  String sickPayRuleFor(int full, int half);
+
+  /// No description provided for @setLeaveEntitlement.
+  ///
+  /// In en, this message translates to:
+  /// **'Set leave entitlement'**
+  String get setLeaveEntitlement;
+
+  /// No description provided for @setStartDateForLaw.
+  ///
+  /// In en, this message translates to:
+  /// **'Set the start date to work out annual leave by the UAE law.'**
+  String get setStartDateForLaw;
+
+  /// No description provided for @leaveEntitlementSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave entitlement saved'**
+  String get leaveEntitlementSaved;
+
+  /// No description provided for @leaveEntitlementFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave entitlement · {name}'**
+  String leaveEntitlementFor(String name);
+
+  /// No description provided for @startDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Start date'**
+  String get startDate;
+
+  /// No description provided for @notSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get notSet;
+
+  /// No description provided for @lawAnnualToday.
+  ///
+  /// In en, this message translates to:
+  /// **'UAE law today: {count} annual days a year'**
+  String lawAnnualToday(int count);
+
+  /// No description provided for @useUaeLaw.
+  ///
+  /// In en, this message translates to:
+  /// **'Use UAE law'**
+  String get useUaeLaw;
+
+  /// No description provided for @vacation.
+  ///
+  /// In en, this message translates to:
+  /// **'Vacation'**
+  String get vacation;
+
+  /// No description provided for @annualLawNote.
+  ///
+  /// In en, this message translates to:
+  /// **'UAE law: under 6 months of service no annual leave, 6–12 months 2 days per month, after one year 30 days.'**
+  String get annualLawNote;
+
+  /// No description provided for @sickFullPayDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Sick days at full pay'**
+  String get sickFullPayDays;
+
+  /// No description provided for @sickHalfPayDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Sick days at half pay'**
+  String get sickHalfPayDays;
+
+  /// No description provided for @sickUnpaidDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Sick days unpaid'**
+  String get sickUnpaidDays;
+
+  /// No description provided for @sickLawNote.
+  ///
+  /// In en, this message translates to:
+  /// **'UAE law: up to 90 sick days a year (15 full pay, 30 half pay, 45 unpaid); no paid sick leave during probation.'**
+  String get sickLawNote;
 }
 
 class _AppLocalizationsDelegate

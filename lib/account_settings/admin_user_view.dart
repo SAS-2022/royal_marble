@@ -7,6 +7,7 @@ import 'package:royal_marble/core/roles.dart';
 import 'package:royal_marble/models/attendance.dart';
 import 'package:royal_marble/models/device_status.dart';
 import 'package:royal_marble/models/user_model.dart';
+import 'package:royal_marble/screens/leave_screens.dart';
 import 'package:royal_marble/screens/salary_screens.dart';
 import 'package:royal_marble/screens/team_status_screen.dart';
 import 'package:royal_marble/services/database.dart';
@@ -291,6 +292,8 @@ class AdminUserView extends StatelessWidget {
           if (viewerRole.managesPay && active) ...[
             SectionTitle(context.l10n.sectionPay),
             SalaryCard(user: user, canEdit: true),
+            SectionTitle(context.l10n.sectionLeave),
+            WorkerLeaveCard(user: user),
           ],
 
           // Role

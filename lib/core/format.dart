@@ -48,3 +48,7 @@ final _money = NumberFormat('#,##0.##');
 
 /// "AED 2,900" / "AED 22.5".
 String money(double v, String currency) => '$currency ${_money.format(v)}';
+
+/// "Sunday" for a [DateTime.weekday] (1 Jan 2024 was a Monday).
+String weekdayName(int weekday, String locale) =>
+    DateFormat.EEEE(locale).format(DateTime(2024, 1, weekday));

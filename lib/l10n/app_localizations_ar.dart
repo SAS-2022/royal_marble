@@ -2189,4 +2189,290 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get noAttendanceNote =>
       'لا يوجد تسجيل دخول هذا الشهر، لذلك لا يُشمل في \"اعتماد كل الجاهز\". اعتمده فقط إذا كان ذلك صحيحاً، مثل إجازة بدون راتب.';
+
+  @override
+  String get leaveAnnual => 'إجازة سنوية';
+
+  @override
+  String get leaveEmergency => 'إجازة طارئة';
+
+  @override
+  String get leaveSick => 'إجازة مرضية';
+
+  @override
+  String get leaveAnnualShort => 'سنوية';
+
+  @override
+  String get leaveEmergencyShort => 'طارئة';
+
+  @override
+  String get leaveSickShort => 'مرضية';
+
+  @override
+  String get approveLeaveTitle => 'الموافقة على الإجازة؟';
+
+  @override
+  String get rejectLeaveTitle => 'رفض الإجازة؟';
+
+  @override
+  String get cancelLeaveTitle => 'إلغاء هذا الطلب؟';
+
+  @override
+  String get cancelRequest => 'إلغاء الطلب';
+
+  @override
+  String get choosePdf => 'اختيار ملف PDF';
+
+  @override
+  String get couldNotSaveTryAgain => 'تعذّر الحفظ. حاول مرة أخرى.';
+
+  @override
+  String get daysAYear => 'يوم في السنة';
+
+  @override
+  String get decideLeaveFirst => 'وافق على الإجازة المنتظرة أو ارفضها أولاً.';
+
+  @override
+  String get enterValidDays => 'أدخل عدد الأيام (366 كحد أقصى)';
+
+  @override
+  String get hospitalReport => 'تقرير المستشفى';
+
+  @override
+  String get hospitalReportHint =>
+      'الإجازة المرضية تحتاج تقريراً من مستشفى أو عيادة. أضف صوراً له أو ملفات PDF (يمكن عدة صفحات).';
+
+  @override
+  String get leaveCancelled => 'ملغى';
+
+  @override
+  String get leaveDates => 'التواريخ';
+
+  @override
+  String get leaveDenied =>
+      'ليست لديك صلاحية لذلك. ربما تمت الموافقة على راتب هذا الشهر.';
+
+  @override
+  String get leaveOnlyDayOff => 'هذه التواريخ هي يوم عطلتك فقط.';
+
+  @override
+  String get leaveOverlaps => 'لديك إجازة بالفعل في بعض هذه التواريخ.';
+
+  @override
+  String get leaveReason => 'السبب (اختياري)';
+
+  @override
+  String get leaveRequests => 'طلبات الإجازة';
+
+  @override
+  String get leaveSent => 'تم إرسال الطلب إلى الموارد البشرية';
+
+  @override
+  String get leaveWaitingHr => 'إجازة بانتظار الموارد البشرية';
+
+  @override
+  String get myLeave => 'إجازاتي';
+
+  @override
+  String get myRequests => 'طلباتي';
+
+  @override
+  String get noLeaveRequests => 'لا توجد طلبات إجازة';
+
+  @override
+  String get overBalance =>
+      'هذا أكثر من رصيدك المتبقي. قد توافق الموارد البشرية على الأيام الزائدة بدون راتب.';
+
+  @override
+  String get paidLeave => 'إجازة مدفوعة';
+
+  @override
+  String get paidLeaveHint => 'يُدفع كل يوم كيوم عمل عادي.';
+
+  @override
+  String get unpaidLeave => 'إجازة بدون راتب';
+
+  @override
+  String get unpaidLeaveHint => 'هذه الأيام غير مدفوعة.';
+
+  @override
+  String get payStateLeaveWaiting => 'إجازة بالانتظار';
+
+  @override
+  String get pickLeaveDates => 'اختر التواريخ';
+
+  @override
+  String get reportNeeded => 'أضف تقرير المستشفى';
+
+  @override
+  String get reportTooBig => 'التقرير كبير جداً (10 ميغابايت كحد أقصى)';
+
+  @override
+  String get reportUploadFailed =>
+      'تعذّر رفع التقرير. تحقق من الاتصال وحاول مرة أخرى.';
+
+  @override
+  String get requestLeave => 'طلب إجازة';
+
+  @override
+  String get sectionLeave => 'الإجازات';
+
+  @override
+  String get sendRequest => 'إرسال الطلب';
+
+  @override
+  String get viewReport => 'عرض التقرير';
+
+  @override
+  String get weeklyDayOff => 'يوم العطلة الأسبوعية';
+
+  @override
+  String get weeklyDayOffHint => 'لا يُحسب في طلبات الإجازة';
+
+  @override
+  String daysLeftOf(int count) {
+    return 'متبقٍ من $count';
+  }
+
+  @override
+  String daysLeftThisYear(String type, int count) {
+    return '$type المتبقية هذه السنة: $count';
+  }
+
+  @override
+  String daysWaiting(int count) {
+    return '$count بالانتظار';
+  }
+
+  @override
+  String leaveDaysNote(int count, String day) {
+    return 'أيام الإجازة: $count (لا يُحسب يوم $day)';
+  }
+
+  @override
+  String leaveTermsLine(int annual, int emergency, String day) {
+    return 'الإجازات: $annual سنوية و$emergency طارئة في السنة · العطلة يوم $day';
+  }
+
+  @override
+  String leaveThisYear(int year) {
+    return 'الإجازات في $year';
+  }
+
+  @override
+  String leaveTooLong(int count) {
+    return 'الطلب $count يوماً كحد أقصى';
+  }
+
+  @override
+  String leaveWaitingCount(int count) {
+    return 'إجازات بالانتظار: $count';
+  }
+
+  @override
+  String sickTiersLine(int full, int half, int unpaid) {
+    return 'راتب كامل $full · نصف راتب $half · بدون راتب $unpaid';
+  }
+
+  @override
+  String get travel => 'السفر';
+
+  @override
+  String get travelQuestion => 'هل تحتاج إلى السفر؟';
+
+  @override
+  String get travelFrom => 'من (المدينة، الدولة)';
+
+  @override
+  String get travelTo => 'إلى (المدينة، الدولة)';
+
+  @override
+  String get ticketQuestion => 'هل تحتاج أن توفر الشركة التذكرة؟';
+
+  @override
+  String get answerYes => 'نعم';
+
+  @override
+  String get answerNo => 'لا';
+
+  @override
+  String get answerTravel => 'أجب عن أسئلة السفر';
+
+  @override
+  String get noTravel => 'بدون سفر';
+
+  @override
+  String travelLine(String from, String to) {
+    return 'السفر: $from ← $to';
+  }
+
+  @override
+  String get companyTicket => 'تذكرة من الشركة';
+
+  @override
+  String get ownTicket => 'تذكرة على حسابه';
+
+  @override
+  String reportN(int number) {
+    return 'التقرير $number';
+  }
+
+  @override
+  String reportFilesLimit(int count) {
+    return 'حتى $count ملفات، صور أو PDF، 10 ميغابايت لكل ملف';
+  }
+
+  @override
+  String sickPayRuleFor(int full, int half) {
+    return 'راتب الإجازة المرضية: أول $full يوماً في السنة براتب كامل، ثم $half يوماً بنصف الراتب، ثم بدون راتب.';
+  }
+
+  @override
+  String get setLeaveEntitlement => 'تحديد استحقاق الإجازات';
+
+  @override
+  String get setStartDateForLaw =>
+      'حدد تاريخ البدء لحساب الإجازة السنوية حسب قانون الإمارات.';
+
+  @override
+  String get leaveEntitlementSaved => 'تم حفظ استحقاق الإجازات';
+
+  @override
+  String leaveEntitlementFor(String name) {
+    return 'استحقاق الإجازات · $name';
+  }
+
+  @override
+  String get startDate => 'تاريخ البدء';
+
+  @override
+  String get notSet => 'غير محدد';
+
+  @override
+  String lawAnnualToday(int count) {
+    return 'حسب قانون الإمارات اليوم: $count يوم إجازة سنوية في السنة';
+  }
+
+  @override
+  String get useUaeLaw => 'تطبيق قانون الإمارات';
+
+  @override
+  String get vacation => 'الإجازات';
+
+  @override
+  String get annualLawNote =>
+      'قانون الإمارات: أقل من 6 أشهر خدمة لا إجازة سنوية، من 6 إلى 12 شهراً يومان عن كل شهر، بعد سنة 30 يوماً.';
+
+  @override
+  String get sickFullPayDays => 'أيام مرضية براتب كامل';
+
+  @override
+  String get sickHalfPayDays => 'أيام مرضية بنصف الراتب';
+
+  @override
+  String get sickUnpaidDays => 'أيام مرضية بدون راتب';
+
+  @override
+  String get sickLawNote =>
+      'قانون الإمارات: حتى 90 يوماً مرضياً في السنة (15 براتب كامل، 30 بنصف الراتب، 45 بدون راتب)؛ لا إجازة مرضية مدفوعة خلال فترة التجربة.';
 }

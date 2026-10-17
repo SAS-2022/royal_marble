@@ -2196,4 +2196,290 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get noAttendanceNote =>
       'No check-ins this month, so it isn\'t included in \"Approve all ready\". Approve it only if that\'s right, for example unpaid leave.';
+
+  @override
+  String get leaveAnnual => 'Annual leave';
+
+  @override
+  String get leaveEmergency => 'Emergency leave';
+
+  @override
+  String get leaveSick => 'Sick leave';
+
+  @override
+  String get leaveAnnualShort => 'Annual';
+
+  @override
+  String get leaveEmergencyShort => 'Emergency';
+
+  @override
+  String get leaveSickShort => 'Sick';
+
+  @override
+  String get approveLeaveTitle => 'Approve leave?';
+
+  @override
+  String get rejectLeaveTitle => 'Reject leave?';
+
+  @override
+  String get cancelLeaveTitle => 'Cancel this request?';
+
+  @override
+  String get cancelRequest => 'Cancel request';
+
+  @override
+  String get choosePdf => 'Choose a PDF';
+
+  @override
+  String get couldNotSaveTryAgain => 'Could not save. Please try again.';
+
+  @override
+  String get daysAYear => 'days a year';
+
+  @override
+  String get decideLeaveFirst => 'Approve or reject the waiting leave first.';
+
+  @override
+  String get enterValidDays => 'Enter a number of days (366 at most)';
+
+  @override
+  String get hospitalReport => 'Hospital report';
+
+  @override
+  String get hospitalReportHint =>
+      'Sick leave needs a report from a hospital or clinic. Add photos of it or PDFs (several pages are fine).';
+
+  @override
+  String get leaveCancelled => 'Cancelled';
+
+  @override
+  String get leaveDates => 'Dates';
+
+  @override
+  String get leaveDenied =>
+      'You don\'t have permission to do that. The month\'s pay may already be approved.';
+
+  @override
+  String get leaveOnlyDayOff => 'Those dates are only your day off.';
+
+  @override
+  String get leaveOverlaps => 'You already have leave on some of these dates.';
+
+  @override
+  String get leaveReason => 'Reason (optional)';
+
+  @override
+  String get leaveRequests => 'Leave requests';
+
+  @override
+  String get leaveSent => 'Request sent to HR';
+
+  @override
+  String get leaveWaitingHr => 'Leave waiting for HR';
+
+  @override
+  String get myLeave => 'My leave';
+
+  @override
+  String get myRequests => 'My requests';
+
+  @override
+  String get noLeaveRequests => 'No leave requests';
+
+  @override
+  String get overBalance =>
+      'That\'s more than you have left. HR may approve the extra days as unpaid.';
+
+  @override
+  String get paidLeave => 'Paid leave';
+
+  @override
+  String get paidLeaveHint => 'Each day is paid as a normal working day.';
+
+  @override
+  String get unpaidLeave => 'Unpaid leave';
+
+  @override
+  String get unpaidLeaveHint => 'These days are not paid.';
+
+  @override
+  String get payStateLeaveWaiting => 'Leave waiting';
+
+  @override
+  String get pickLeaveDates => 'Pick the dates';
+
+  @override
+  String get reportNeeded => 'Add the hospital report';
+
+  @override
+  String get reportTooBig => 'The report is too big (10 MB at most)';
+
+  @override
+  String get reportUploadFailed =>
+      'Could not upload the report. Check the connection and try again.';
+
+  @override
+  String get requestLeave => 'Request leave';
+
+  @override
+  String get sectionLeave => 'Leave';
+
+  @override
+  String get sendRequest => 'Send request';
+
+  @override
+  String get viewReport => 'View report';
+
+  @override
+  String get weeklyDayOff => 'Weekly day off';
+
+  @override
+  String get weeklyDayOffHint => 'Not counted in leave requests';
+
+  @override
+  String daysLeftOf(int count) {
+    return 'left of $count';
+  }
+
+  @override
+  String daysLeftThisYear(String type, int count) {
+    return '$type left this year: $count';
+  }
+
+  @override
+  String daysWaiting(int count) {
+    return '$count waiting';
+  }
+
+  @override
+  String leaveDaysNote(int count, String day) {
+    return 'Leave days: $count ($day not counted)';
+  }
+
+  @override
+  String leaveTermsLine(int annual, int emergency, String day) {
+    return 'Leave: $annual annual and $emergency emergency days a year · day off $day';
+  }
+
+  @override
+  String leaveThisYear(int year) {
+    return 'Leave in $year';
+  }
+
+  @override
+  String leaveTooLong(int count) {
+    return 'A request can be $count days at most';
+  }
+
+  @override
+  String leaveWaitingCount(int count) {
+    return 'Leave waiting: $count';
+  }
+
+  @override
+  String sickTiersLine(int full, int half, int unpaid) {
+    return 'Full pay $full · half pay $half · unpaid $unpaid';
+  }
+
+  @override
+  String get travel => 'Travel';
+
+  @override
+  String get travelQuestion => 'Do you need to travel?';
+
+  @override
+  String get travelFrom => 'From (city, country)';
+
+  @override
+  String get travelTo => 'To (city, country)';
+
+  @override
+  String get ticketQuestion => 'Does the company need to provide the ticket?';
+
+  @override
+  String get answerYes => 'Yes';
+
+  @override
+  String get answerNo => 'No';
+
+  @override
+  String get answerTravel => 'Answer the travel questions';
+
+  @override
+  String get noTravel => 'No travel';
+
+  @override
+  String travelLine(String from, String to) {
+    return 'Travel: $from → $to';
+  }
+
+  @override
+  String get companyTicket => 'company ticket';
+
+  @override
+  String get ownTicket => 'own ticket';
+
+  @override
+  String reportN(int number) {
+    return 'Report $number';
+  }
+
+  @override
+  String reportFilesLimit(int count) {
+    return 'Up to $count files, photos or PDFs, 10 MB each';
+  }
+
+  @override
+  String sickPayRuleFor(int full, int half) {
+    return 'Sick leave pay: the first $full days a year in full, the next $half at half pay, then unpaid.';
+  }
+
+  @override
+  String get setLeaveEntitlement => 'Set leave entitlement';
+
+  @override
+  String get setStartDateForLaw =>
+      'Set the start date to work out annual leave by the UAE law.';
+
+  @override
+  String get leaveEntitlementSaved => 'Leave entitlement saved';
+
+  @override
+  String leaveEntitlementFor(String name) {
+    return 'Leave entitlement · $name';
+  }
+
+  @override
+  String get startDate => 'Start date';
+
+  @override
+  String get notSet => 'Not set';
+
+  @override
+  String lawAnnualToday(int count) {
+    return 'UAE law today: $count annual days a year';
+  }
+
+  @override
+  String get useUaeLaw => 'Use UAE law';
+
+  @override
+  String get vacation => 'Vacation';
+
+  @override
+  String get annualLawNote =>
+      'UAE law: under 6 months of service no annual leave, 6–12 months 2 days per month, after one year 30 days.';
+
+  @override
+  String get sickFullPayDays => 'Sick days at full pay';
+
+  @override
+  String get sickHalfPayDays => 'Sick days at half pay';
+
+  @override
+  String get sickUnpaidDays => 'Sick days unpaid';
+
+  @override
+  String get sickLawNote =>
+      'UAE law: up to 90 sick days a year (15 full pay, 30 half pay, 45 unpaid); no paid sick leave during probation.';
 }

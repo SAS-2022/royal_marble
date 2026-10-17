@@ -5,10 +5,39 @@ import '../core/app_theme.dart';
 import '../core/format.dart';
 import '../core/l10n_helpers.dart';
 import '../core/locale_controller.dart';
+import '../l10n/app_localizations.dart';
 import '../models/payslip.dart';
 
-/// A month's pay: regular time and approved overtime as separate lines,
-/// both in the total. Shows an approved payslip, or what approving would
+/// Leave lines of a month's pay: paid annual/emergency days (in the total),
+/// unpaid ones, and sick days with their tiers.
+List<Widget> leavePayRows(
+  AppLocalizations l,
+  Widget Function(String label, String value, {bool muted}) row, {
+  required String currency,
+  required int paidDays,
+  required double paidPay,
+  required int unpaidDays,
+  required int sickFull,
+  required int sickHalf,
+  required int sickUnpaid,
+  required double sickPay,
+}) {
+  final sickDays = sickFull + sickHalf + sickUnpaid;
+  return [
+    if (paidDays > 0)
+      row('${l.paidLeave} · ${l.daysCount(paidDays)}', money(paidPay, currency)),
+    if (unpaidDays > 0)
+      row('${l.unpaidLeave} · ${l.daysCount(unpaidDays)}', '—', muted: true),
+    if (sickDays > 0)
+      row('${l.leaveSick} · ${l.daysCount(sickDays)}', money(sickPay, currency)),
+    if (sickHalf + sickUnpaid > 0)
+      Text(l.sickTiersLine(sickFull, sickHalf, sickUnpaid),
+          style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+  ];
+}
+
+/// A month's pay: regular time, approved overtime and leave as separate
+/// lines, all in the total. Shows an approved payslip, or what approving would
 /// save.
 class PayslipBreakdown extends StatelessWidget {
   const PayslipBreakdown(this.slip,
@@ -51,6 +80,15 @@ class PayslipBreakdown extends StatelessWidget {
         row('${l.approvedOvertime} · ${h(slip.overtimeMinutes)}', money(slip.overtimePay, cur)),
       if (slip.rejectedOvertimeMinutes > 0)
         row('${l.overtimeNotApproved} · ${h(slip.rejectedOvertimeMinutes)}', '—', muted: true),
+      ...leavePayRows(l, row,
+          currency: cur,
+          paidDays: slip.paidLeaveDays,
+          paidPay: slip.paidLeavePay,
+          unpaidDays: slip.unpaidLeaveDays,
+          sickFull: slip.sickFullDays,
+          sickHalf: slip.sickHalfDays,
+          sickUnpaid: slip.sickUnpaidDays,
+          sickPay: slip.sickPay),
       const Divider(height: 20),
       row(l.totalPay, money(slip.total, cur), bold: true),
       const SizedBox(height: 4),

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 
 /// Build with `--dart-define=USE_EMULATOR=true` to run against the local
@@ -16,7 +17,7 @@ const _host = String.fromEnvironment('EMULATOR_HOST',
 
 bool _configured = false;
 
-/// Points Auth, Firestore and Functions at the emulators. Must run right
+/// Points Auth, Firestore, Functions and Storage at the emulators. Must run right
 /// after `Firebase.initializeApp()` in every isolate (app and headless task).
 Future<void> configureEmulators() async {
   if (!useEmulator || _configured) return;
@@ -24,4 +25,5 @@ Future<void> configureEmulators() async {
   await FirebaseAuth.instance.useAuthEmulator(_host, 9099);
   FirebaseFirestore.instance.useFirestoreEmulator(_host, 8080);
   FirebaseFunctions.instance.useFunctionsEmulator(_host, 5001);
+  await FirebaseStorage.instance.useStorageEmulator(_host, 9199);
 }

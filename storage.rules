@@ -1,0 +1,31 @@
+rules_version = '2';
+
+// ⚠️ Until 2026-10-17 Storage rules lived only in the Firebase console. Before
+// the first deploy of this file, compare it with the live rules (console →
+// Storage → Rules) and carry over anything the live ones allow that's missing
+// here, or older app versions may lose access.
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() { return request.auth != null; }
+    function managesPay() {
+      let roles = firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.get('roles', []);
+      return signedIn() && ('isAdmin' in roles || 'isHR' in roles);
+    }
+
+    // Profile photos (registration and My profile).
+    match /profile_images/{name} {
+      allow read, write: if signedIn();
+    }
+
+    // Hospital reports for sick leave: the worker uploads their own (a photo
+    // or PDF, 10 MB at most, never replaced); HR and admins read them.
+    match /leave_reports/{uid}/{name} {
+      allow read: if (signedIn() && request.auth.uid == uid) || managesPay();
+      allow create: if signedIn() && request.auth.uid == uid && resource == null
+        && request.resource.size < 10 * 1024 * 1024
+        && (request.resource.contentType.matches('image/.*')
+            || request.resource.contentType == 'application/pdf');
+      allow update, delete: if false;
+    }
+  }
+}

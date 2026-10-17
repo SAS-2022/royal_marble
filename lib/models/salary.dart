@@ -50,6 +50,23 @@ class SalaryPackage {
 
   /// What HR pays per approved overtime hour, in [currency].
   final double overtimeRate;
+
+  /// Leave allowed per calendar year, in days, set by HR.
+  final int annualLeaveDays;
+  final int emergencyLeaveDays;
+
+  /// The weekly day off as a [DateTime.weekday] (7 = Sunday); leave
+  /// requests don't count it.
+  final int weeklyOffDay;
+
+  /// Sick days a year at full pay, then half pay, then unpaid (UAE law:
+  /// 15, 30, 45).
+  final int sickFullDays;
+  final int sickHalfDays;
+  final int sickUnpaidDays;
+
+  /// When the worker started, for the annual leave the law allows.
+  final DateTime? joinDate;
   final DateTime? effectiveFrom;
   final String? notes;
   final DateTime? updatedAt;
@@ -66,6 +83,13 @@ class SalaryPackage {
     this.weeklyHours = defaultWeeklyHours,
     this.dayEndMinutes = defaultDayEnd,
     this.overtimeRate = 0,
+    this.annualLeaveDays = 0,
+    this.emergencyLeaveDays = 0,
+    this.weeklyOffDay = DateTime.sunday,
+    this.sickFullDays = lawSickFull,
+    this.sickHalfDays = lawSickHalf,
+    this.sickUnpaidDays = lawSickUnpaid,
+    this.joinDate,
     this.effectiveFrom,
     this.notes,
     this.updatedAt,
@@ -74,6 +98,11 @@ class SalaryPackage {
 
   static const defaultWeeklyHours = 48.0;
   static const defaultDayEnd = 17 * 60;
+  static const lawSickFull = 15;
+  static const lawSickHalf = 30;
+  static const lawSickUnpaid = 45;
+
+  int get sickDaysTotal => sickFullDays + sickHalfDays + sickUnpaidDays;
 
   double get monthlyAllowances =>
       housing + transport + food + other.fold(0.0, (t, a) => t + a.amount);
@@ -83,6 +112,38 @@ class SalaryPackage {
       payType == PayType.monthly ? basic + monthlyAllowances : null;
 
   bool get isEmpty => basic == 0 && monthlyAllowances == 0;
+
+  /// This package with new leave settings (the leave entitlement screen).
+  SalaryPackage withLeave({
+    required int annualLeaveDays,
+    required int emergencyLeaveDays,
+    required int weeklyOffDay,
+    required int sickFullDays,
+    required int sickHalfDays,
+    required int sickUnpaidDays,
+    required DateTime? joinDate,
+  }) =>
+      SalaryPackage(
+        currency: currency,
+        payType: payType,
+        basic: basic,
+        housing: housing,
+        transport: transport,
+        food: food,
+        other: other,
+        weeklyHours: weeklyHours,
+        dayEndMinutes: dayEndMinutes,
+        overtimeRate: overtimeRate,
+        annualLeaveDays: annualLeaveDays,
+        emergencyLeaveDays: emergencyLeaveDays,
+        weeklyOffDay: weeklyOffDay,
+        sickFullDays: sickFullDays,
+        sickHalfDays: sickHalfDays,
+        sickUnpaidDays: sickUnpaidDays,
+        joinDate: joinDate,
+        effectiveFrom: effectiveFrom,
+        notes: notes,
+      );
 
   static double _d(dynamic v) => (v as num?)?.toDouble() ?? 0;
 
@@ -103,6 +164,13 @@ class SalaryPackage {
       weeklyHours: (m['weeklyHours'] as num?)?.toDouble() ?? defaultWeeklyHours,
       dayEndMinutes: (m['dayEndMinutes'] as num?)?.toInt() ?? defaultDayEnd,
       overtimeRate: _d(m['overtimeRate']),
+      annualLeaveDays: (m['annualLeaveDays'] as num?)?.toInt() ?? 0,
+      emergencyLeaveDays: (m['emergencyLeaveDays'] as num?)?.toInt() ?? 0,
+      weeklyOffDay: (m['weeklyOffDay'] as num?)?.toInt() ?? DateTime.sunday,
+      sickFullDays: (m['sickFullDays'] as num?)?.toInt() ?? lawSickFull,
+      sickHalfDays: (m['sickHalfDays'] as num?)?.toInt() ?? lawSickHalf,
+      sickUnpaidDays: (m['sickUnpaidDays'] as num?)?.toInt() ?? lawSickUnpaid,
+      joinDate: (m['joinDate'] as Timestamp?)?.toDate(),
       effectiveFrom: (m['effectiveFrom'] as Timestamp?)?.toDate(),
       notes: m['notes'] as String?,
       updatedAt: (m['updatedAt'] as Timestamp?)?.toDate(),
@@ -121,6 +189,13 @@ class SalaryPackage {
         'weeklyHours': weeklyHours,
         'dayEndMinutes': dayEndMinutes,
         'overtimeRate': overtimeRate,
+        'annualLeaveDays': annualLeaveDays,
+        'emergencyLeaveDays': emergencyLeaveDays,
+        'weeklyOffDay': weeklyOffDay,
+        'sickFullDays': sickFullDays,
+        'sickHalfDays': sickHalfDays,
+        'sickUnpaidDays': sickUnpaidDays,
+        'joinDate': joinDate == null ? null : Timestamp.fromDate(joinDate!),
         'effectiveFrom':
             effectiveFrom == null ? null : Timestamp.fromDate(effectiveFrom!),
         'notes': notes,

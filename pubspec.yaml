@@ -1,7 +1,7 @@
 name: royal_marble
 description: An app that would track the live location of workers.
 
-version: 11.0.0+11
+version: 11.0.1+12
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -41,6 +41,7 @@ dependencies:
   google_sign_in: ^7.2.0
   firebase_messaging: ^16.7.0
   web: ^1.1.1
+  file_picker: ^13.1.0
  
 
 dev_dependencies:

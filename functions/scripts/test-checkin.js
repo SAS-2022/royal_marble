@@ -1,7 +1,8 @@
 /* eslint-disable no-console */
 /**
  * End-to-end checks for the attendance functions (checkInOut, reportPresence,
- * auto check-out, correctAttendance) against the LOCAL emulators.
+ * auto check-out, correctAttendance) and the pay/leave security rules against
+ * the LOCAL emulators.
  * Run after `npm run emulators`:  npm run test:checkin  (re-seeds first)
  */
 const { initializeApp } = require("firebase-admin/app");
@@ -67,7 +68,17 @@ const localStamp = (h, m) => {
 
 /** Firestore REST as a signed-in user, so the security rules apply. */
 const FS = "http://127.0.0.1:8080/v1/projects/royal-marble/databases/(default)/documents";
-const fsValue = (v) => typeof v === "number" ? { integerValue: String(v) } : { stringValue: String(v) };
+const fsValue = (v) => {
+  if (v === null) return { nullValue: null };
+  if (typeof v === "number") return { integerValue: String(v) };
+  if (typeof v === "boolean") return { booleanValue: v };
+  if (v instanceof Date) return { timestampValue: v.toISOString() };
+  if (Array.isArray(v)) return { arrayValue: { values: v.map(fsValue) } };
+  if (typeof v === "object") {
+    return { mapValue: { fields: Object.fromEntries(Object.entries(v).map(([k, x]) => [k, fsValue(x)])) } };
+  }
+  return { stringValue: String(v) };
+};
 async function fsReq(method, idToken, path, fields, mask) {
   const q = mask ? "?" + mask.map((f) => `updateMask.fieldPaths=${f}`).join("&") : "";
   const r = await fetch(`${FS}/${path}${q}`, {
@@ -91,6 +102,10 @@ async function main() {
   const m2 = await token("mason2@test.local");
   const pending = await token("pending@test.local");
   const at = (pos, extra = {}) => ({ kind: "project", ...pos, ...extra });
+  // The payroll checks below end with this month locked; unlock it for a rerun.
+  const today = new Date();
+  await db.collection("payslips")
+    .doc(`${await uidOf("mason2@test.local")}_${today.getMonth() + 1}-${today.getFullYear()}`).delete();
 
   expect("outside the radius is rejected",
     await call(m1, { action: "in", siteId: "p_marina", ...at({ lat: 25.0900, lng: 55.1400 }) }),
@@ -252,6 +267,101 @@ async function main() {
     await fsReq("PATCH", hr, `payslips/${slipId}`, slip), 200);
   expect("a decision for another worker's id is refused",
     await fsReq("PATCH", hr, `overtime/${otId}x`, { uid: "someone_else", status: "approved" }), 403);
+
+  // ── Leave requests ──
+  const leaveIds = ["l_annual", "l_other", "l_approved", "l_sick_none", "l_sick", "l_sick_theirs",
+    "l_long", "l_hr", "l_locked", "l_no_travel_answer", "l_travel_blank", "l_travel", "l_sick_two",
+    "l_sick_six"];
+  await Promise.all(leaveIds.map((id) => db.collection("leave_requests").doc(id).delete()));
+  // 2–4 March 2001 (local midnight); far from any payslip the tests lock.
+  const day = (y, m, d) => new Date(y, m - 1, d);
+  const leave = (extra = {}) => ({ uid: m1Id, name: "Mason One", type: "annual",
+    from: day(2001, 3, 2), to: day(2001, 3, 4), days: 3, months: ["3-2001"], reason: "",
+    reports: [], travel: null, status: "pending", paid: false, ...extra });
+  expect("a worker asks for their own leave",
+    await fsReq("PATCH", m1, "leave_requests/l_annual", leave()), 200);
+  expect("not for someone else",
+    await fsReq("PATCH", m1, "leave_requests/l_other", leave({ uid: m2Id })), 403);
+  expect("not already approved",
+    await fsReq("PATCH", m1, "leave_requests/l_approved", leave({ status: "approved" })), 403);
+  expect("sick leave without a report is refused",
+    await fsReq("PATCH", m1, "leave_requests/l_sick_none", leave({ type: "sick" })), 403);
+  const report = (uid, i = 0) => ({ path: `leave_reports/${uid}/1_${i}_report.pdf`, name: "report.pdf",
+    contentType: "application/pdf" });
+  const reports = (n, uid = m1Id) => Array.from({ length: n }, (_, i) => report(uid, i));
+  expect("sick leave with their own report",
+    await fsReq("PATCH", m1, "leave_requests/l_sick", leave({ type: "sick", reports: reports(1) })), 200);
+  expect("sick leave with two files",
+    await fsReq("PATCH", m1, "leave_requests/l_sick_two", leave({ type: "sick", reports: reports(2) })), 200);
+  expect("not more than five files",
+    await fsReq("PATCH", m1, "leave_requests/l_sick_six", leave({ type: "sick", reports: reports(6) })), 403);
+  expect("not with a report from another worker's folder",
+    await fsReq("PATCH", m1, "leave_requests/l_sick_theirs",
+      leave({ type: "sick", reports: [report(m1Id), report(m2Id, 1)] })), 403);
+  const { travel: _omit, ...noTravelAnswer } = leave();
+  expect("annual leave must answer the travel question",
+    await fsReq("PATCH", m1, "leave_requests/l_no_travel_answer", noTravelAnswer), 403);
+  expect("travel needs from and to",
+    await fsReq("PATCH", m1, "leave_requests/l_travel_blank",
+      leave({ travel: { from: "", to: "Kathmandu", companyTicket: true } })), 403);
+  expect("annual leave with travel details",
+    await fsReq("PATCH", m1, "leave_requests/l_travel",
+      leave({ from: day(2001, 3, 10), to: day(2001, 3, 12),
+        travel: { from: "Dubai", to: "Kathmandu", companyTicket: true } })), 200);
+  expect("more than 60 days is refused",
+    await fsReq("PATCH", m1, "leave_requests/l_long",
+      leave({ to: day(2001, 5, 2), months: ["3-2001", "4-2001", "5-2001"] })), 403);
+  expect("the worker reads their own request",
+    await fsReq("GET", m1, "leave_requests/l_annual"), 200);
+  expect("another worker can't",
+    await fsReq("GET", m2, "leave_requests/l_annual"), 403);
+  expect("HR can",
+    await fsReq("GET", hr, "leave_requests/l_annual"), 200);
+  expect("a worker can't approve their own leave",
+    await fsReq("PATCH", m1, "leave_requests/l_annual", { status: "approved" }, ["status"]), 403);
+  expect("HR approves it as paid",
+    await fsReq("PATCH", hr, "leave_requests/l_annual",
+      { status: "approved", paid: true, byName: "Hana HR" }, ["status", "paid", "byName"]), 200);
+  expect("the worker can't cancel approved leave",
+    await fsReq("PATCH", m1, "leave_requests/l_annual", { status: "cancelled" }, ["status"]), 403);
+  expect("the worker cancels a pending one",
+    await fsReq("PATCH", m1, "leave_requests/l_sick", { status: "cancelled", at: new Date() },
+      ["status", "at"]), 200);
+  expect("HR records leave for a worker",
+    await fsReq("PATCH", hr, "leave_requests/l_hr", leave({ status: "approved", paid: false })), 200);
+  // Mason Two's current month was approved and locked above.
+  expect("no leave in a locked month",
+    await fsReq("PATCH", hr, "leave_requests/l_locked", leave({ uid: m2Id, from: day(now.getFullYear(),
+      now.getMonth() + 1, 1), to: day(now.getFullYear(), now.getMonth() + 1, 1),
+    months: [`${now.getMonth() + 1}-${now.getFullYear()}`] })), 403);
+  expect("nobody deletes a leave request (admin)",
+    await fsReq("DELETE", adm, "leave_requests/l_annual"), 403);
+
+  // Hospital reports in Storage.
+  const ST = "http://127.0.0.1:9199/v0/b/royal-marble.appspot.com/o";
+  // Multipart on the Firebase API, as the SDK sends it: a plain POST arrives
+  // without a content type, and the GCS-style /upload API skips the rules.
+  const upload = async (idToken, path, type = "application/pdf") => {
+    const meta = JSON.stringify({ name: path, contentType: type });
+    const body = `--B\r\nContent-Type: application/json\r\n\r\n${meta}\r\n` +
+      `--B\r\nContent-Type: ${type}\r\n\r\n%PDF-1.4 test\r\n--B--`;
+    return (await fetch(`${ST}?name=${encodeURIComponent(path)}`, { method: "POST", body,
+      headers: { "Content-Type": "multipart/related; boundary=B", "X-Goog-Upload-Protocol": "multipart",
+        Authorization: `Firebase ${idToken}` },
+    })).status;
+  };
+  const read = async (idToken, path) => (await fetch(`${ST}/${encodeURIComponent(path)}`,
+    { headers: { Authorization: `Firebase ${idToken}` } })).status;
+  const own = `leave_reports/${m1Id}/${Date.now()}_report.pdf`;
+  expect("a worker uploads their own report", await upload(m1, own), 200);
+  expect("not into another worker's folder",
+    await upload(m1, `leave_reports/${m2Id}/${Date.now()}_x.pdf`), 403);
+  expect("only images or PDFs",
+    await upload(m1, `leave_reports/${m1Id}/${Date.now()}_x.txt`, "text/plain"), 403);
+  expect("it can't be replaced", await upload(m1, own), 403);
+  expect("the worker reads it", await read(m1, own), 200);
+  expect("HR reads it", await read(hr, own), 200);
+  expect("another worker can't", await read(m2, own), 403);
 
   console.log(failures ? `\n${failures} check(s) failed` : "\nAll checks passed");
   process.exit(failures ? 1 : 0);

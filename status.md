@@ -7,11 +7,15 @@ phase status, and add a line to the session log.**
 was made, the steps in order, and what was decided. Later changes to a plan are added
 under it, not overwritten.**
 
-_Last updated: 2026-10-12_
+_Last updated: 2026-10-17_
 
 ---
 
 ## 0. Next session — start here (written 2026-10-11)
+
+**Active plan (2026-10-17): vacation and leave requests** — section 6 → Plans log,
+"2026-10-17 — Vacation and leave requests"; L1–L6 done, L7 left: try the screens on the
+emulators (web as HR, phone as worker), then L8 deploy (user). Nothing committed yet.
 
 **Where we stopped (2026-10-11, paused by the user):** Block A (testing) is finished
 and everything is committed on `revive-2026` (last code commit `d2d07e9`), **not
@@ -228,6 +232,7 @@ supervisors see attendance, alerts and reports.
 | ✅ `payroll` rules (additive) — **deployed 2026-10-05** | `firebase deploy --only firestore:rules` | ✅ yes | no |
 | ✅ Functions `checkInOut`, `reportPresence`, `autoCheckout`, `correctAttendance`, `detectSilentDevices` + index — **deployed 2026-10-05** | `firebase deploy --only functions,firestore:indexes` | ✅ yes | yes (Blaze active) |
 | Assignment migration (`functions/scripts/migrate-assignments.js`: mason map → list, stale team entries) | dry run first, then `--project royal-marble --apply` | ❌ **only after every phone runs the new app** (old app reads a mason's assignment as a map) | no |
+| Leave: Firestore rules + **Storage rules (first time from the repo — compare with the console first)** + `notifyLeave` | `firebase deploy --only firestore:rules,storage,functions:notifyLeave` | ✅ yes (additive) | yes |
 | Strict role-based rules | copy `firestore.strict.rules` → `firestore.rules`, deploy | ❌ **only after every phone runs the new app** | no |
 
 The new app's check-in depends on `checkInOut`. Old app versions still write
@@ -356,6 +361,92 @@ independent and needs no billing, so it goes first.
 
 ### Plans log
 Newest first. Each plan: when, why, the steps, and decisions. Tick steps as they finish.
+
+#### 2026-10-17 — Vacation and leave requests (Phase 6, part 3)
+**Why:** the user asked to add vacation to pay: HR assigns each employee's allowed vacation
+days; employees request **annual** or **emergency** leave, or report **sick leave** with a
+hospital report.
+
+**Decisions (user, 2026-10-17):**
+- Two separate yearly balances per worker, set by HR/admin: annual days and emergency days.
+- Annual/emergency: when approving, HR picks **paid or unpaid**. A paid day adds one working
+  day of pay (weekly hours ÷ 6 × hourly rate), shown as its own line.
+- Sick leave: needs a hospital report (photo or PDF) and approval; doesn't use the
+  vacation balances; paid by **UAE law tiers** per calendar year: days 1–15 full pay,
+  16–45 half pay, 46–90 unpaid.
+- HR or admin approves or rejects (optional note); the worker gets a push either way.
+
+**Defaults Claude picked (tell the user; ask the client later):** balances run per calendar
+year, no carry-over; a request counts the days in its range except the worker's weekly day
+off (new pay-package setting, default Sunday); a day the worker also checked in on is paid
+as work, not as leave (no double pay); pending leave in a month blocks approving that
+month's payslip (like overtime waiting); decided requests can be changed until the month is
+locked; the worker can cancel a pending request; no sick pay rule for probation yet.
+
+- [x] **L1 Data + rules** (2026-10-17; both Firestore files and `storage.rules` dry-run compiled) — package fields `annualLeaveDays`, `emergencyLeaveDays`,
+      `weeklyOffDay`; `leave_requests/{auto}` (uid, name, type, from, to, days, reason,
+      report {path, name, contentType}, status pending/approved/rejected/cancelled, paid,
+      note, byName, at, createdAt, month keys). Rules (both files): worker creates own
+      pending and cancels own pending; HR/admin decide; refused when a touched month is
+      locked; worker reads own. Storage: `leave_reports/{uid}/…` — worker uploads own
+      (≤ 10 MB, image or PDF, never replaced), HR/admin read. Storage rules weren't in the
+      repo: new `storage.rules` (also `profile_images`: signed-in read/write — a guess) +
+      `storage` in `firebase.json` and the emulator script. **Before deploying, compare
+      with the live rules in the console** so nothing the old app needs is lost.
+- [x] **L2 Calculation** (2026-10-17; `test/leave_test.dart`, 11 tests) — `lib/models/leave.dart`: day count, balances (allowance,
+      approved, pending, left), sick tiers, leave pay per day; `PaySoFar` gets paid-leave
+      and sick-pay lines; payslip snapshot gets leave lines.
+- [x] **L3 Worker screens** (2026-10-17, `lib/screens/leave_screens.dart`; PDF via new
+      `file_picker` 13.1) — "Leave" in the menu: balances, request form (type, dates,
+      reason; sick needs the report from the camera, gallery or a PDF), my requests with
+      status, cancel pending.
+- [x] **L4 HR screens** (2026-10-17; HR list shows every pending request plus decided ones
+      from the start of last month; approved annual/emergency can be switched paid ↔ unpaid) — "Leave requests" (Waiting / Approved / Rejected, this/last month):
+      open the report, approve (paid/unpaid for annual/emergency), reject with note; HR
+      home card "Leave waiting: N"; allowances in the pay editor; leave card on the
+      worker page; payroll status "Leave waiting"; leave lines on payslip and Excel.
+- [x] **L5 Push** (2026-10-17; taps open Leave requests / My leave) — `notifyLeave` function: new request → HR and admins; decision → worker.
+- [x] **L6 Texts** (2026-10-17, 58 keys) — all new texts in English, Arabic, Hindi, Urdu.
+- [ ] **L7 Tests** — done: 11 unit tests (69 pass); 25 new emulator scenarios (72 pass:
+      18 leave rules, 7 Storage report rules; the suite now also unlocks Mason Two's month
+      at the start so it can be rerun); web build OK; iOS camera/photo texts now mention
+      hospital reports. **Left:** web as HR and app as worker on the emulators (not run).
+      Test-script note: Storage uploads must be multipart on `/v0` (the `/upload/storage/v1`
+      API skips the rules in the emulator).
+- [ ] **L8 Deploy (user)** — firestore + storage rules, `notifyLeave`, hosting, new app build.
+
+**Change (user, 2026-10-17, after first look on a phone):**
+- [x] **L9 Several report files** (2026-10-17; gallery picks several photos, PDF picker several files) — sick leave takes 1–5 files (photos or PDFs, 10 MB each);
+      stored as `reports: [{path, name, contentType}]` (an old single `report` still reads).
+- [x] **L10 Travel details** (2026-10-17; both rule files compiled; 2 unit tests (71 pass), 5 new emulator checks (77 pass)) — annual and emergency must answer "Do you need to travel?";
+      if yes: from, to, and "Does the company need to provide the ticket?". Stored as
+      `travel: {from, to, companyTicket}` or `null` (no travel). Shown to HR on the request.
+      Rules check both. (Claude's defaults: 5 files at most; all travel answers required.)
+
+**Change (user, 2026-10-17, after checking the HR web pages):** HR assigns each worker's annual
+and sick leave entitlement "as per the law"; deploy to the web directly.
+- [x] **L11 Leave entitlement** (2026-10-17; 2 unit tests, 73 pass) — own screen from the worker page's Leave card ("Set
+      entitlement"), moved out of the pay editor: start date (new, `joinDate` on the
+      package), annual, emergency, sick days at full / half / no pay (new; defaults 15 / 30 /
+      45 = UAE law), weekly day off. "Use UAE law" fills annual from the start date (under 6
+      months 0; 6–12 months 2 days per full month; 1 year or more 30) and sick 15/30/45. Sick
+      tiers and the sick balance (left of 90) use these numbers. A package with leave settings
+      but no pay counts as "no pay details" on Payroll. Not modelled: no paid sick leave in
+      probation (shown as a note).
+- [x] **L12 Deploy web** (2026-10-17, by Claude at the user's request; live site checked: new build served).
+
+#### 2026-10-14 — Account deletion web page (Play Data safety)
+**Why:** Play's Data safety form needs a URL where users can delete their account.
+- [x] `web/delete-account.html` (static, no Flutter): sign in with email/password or Google,
+      then delete profile doc, `location/current`, profile photo, and the Auth account (same
+      as the in-app "Delete my account", plus the location doc and photo). Lists what is
+      kept (attendance, payroll, visit logs) and an email fallback (royalmarble.uae@gmail.com,
+      30 days). Firebase config comes from Hosting's `/__/firebase/init.js` (no key in git).
+- [x] `firebase.json`: rewrite `/delete-account` → `/delete-account.html`. Web rebuilt;
+      checked with `firebase serve` on port 5055 (5000 is macOS AirPlay).
+- [ ] Deploy hosting (user's OK) → https://royal-marble.web.app/delete-account
+- [ ] User: confirm the contact email and the "what is kept" text with the client.
+- Later (next app build): the in-app deletion leaves `location/current` and the photo.
 
 #### 2026-10-13 — Release 11.0.0 (build 11) for Google Play and the App Store
 **Why:** the user asked to prepare an update for both stores (the app is already on Google
@@ -1146,3 +1237,20 @@ Workers come from different countries; each user picks a language.
   `functions/scripts/set-test-password.js` (@royalmarble.test only; hidden prompt; tested on the
   Auth emulator; key file deleted after). **H6 and P6 done** on the Xiaomi (production). Left:
   hosting deploy for "No attendance" + no-cache headers (user), then Block B (Play update).
+- **2026-10-15** — App-wide tap-to-dismiss: tapping empty space anywhere closes the keyboard
+  (one `GestureDetector` in `MaterialApp.builder`, `lib/main.dart`; buttons and fields still
+  get their taps). Not yet checked on a device; not committed.
+- **2026-10-15 (cont.)** — Version bumped to `11.0.1+12`; release AAB built
+  (`build/app/outputs/bundle/release/app-release.aab`, 74.4 MB, signed with the Play key)
+  with the tap-to-dismiss change. User uploads it to Play internal testing. Not committed.
+- **2026-10-17** — User asked for vacation in pay: HR sets allowances, workers request annual
+  or emergency leave or report sick leave with a hospital report. Decisions asked and logged
+  (plan "Vacation and leave requests", L1–L8). L1–L6 built; L7 unit + emulator tests pass
+  (69 unit, 72 emulator). Not checked in the UI yet, not committed, nothing deployed.
+  `build/web` now holds this build: don't deploy hosting before the leave rules.
+- **2026-10-17 (cont.)** — User's changes after a first look: L9 (sick leave takes up to 5 files)
+  and L10 (annual/emergency ask about travel: from, to, company ticket) done. Firestore rules
+  changed again: if the earlier version was already published, publish again.
+- **2026-10-17 (cont.)** — L11 leave entitlement (start date, annual/emergency, sick tiers, "Use UAE
+  law") on its own screen from the worker page's Leave card; hosting deployed (L12). Phones still
+  need a new app build for all leave changes. Storage rules still wait on the console comparison.

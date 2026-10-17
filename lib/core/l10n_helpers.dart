@@ -1,4 +1,5 @@
 import '../l10n/app_localizations.dart';
+import '../models/leave.dart';
 import '../models/salary.dart';
 import 'roles.dart';
 
@@ -33,5 +34,29 @@ extension LocalizedPayType on PayType {
         PayType.monthly => l.perMonth,
         PayType.daily => l.perDay,
         PayType.hourly => l.perHour,
+      };
+}
+
+extension LocalizedLeaveType on LeaveType {
+  String localized(AppLocalizations l) => switch (this) {
+        LeaveType.annual => l.leaveAnnual,
+        LeaveType.emergency => l.leaveEmergency,
+        LeaveType.sick => l.leaveSick,
+      };
+
+  /// For tight spots (the type picker, balance tiles).
+  String short(AppLocalizations l) => switch (this) {
+        LeaveType.annual => l.leaveAnnualShort,
+        LeaveType.emergency => l.leaveEmergencyShort,
+        LeaveType.sick => l.leaveSickShort,
+      };
+}
+
+extension LocalizedLeaveStatus on LeaveStatus {
+  String localized(AppLocalizations l) => switch (this) {
+        LeaveStatus.pending => l.overtimeWaiting,
+        LeaveStatus.approved => l.overtimeApproved,
+        LeaveStatus.rejected => l.overtimeRejected,
+        LeaveStatus.cancelled => l.leaveCancelled,
       };
 }

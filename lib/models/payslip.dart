@@ -39,6 +39,13 @@ class Payslip {
   final int overtimeMinutes;
   final double overtimePay;
   final int rejectedOvertimeMinutes;
+  final int paidLeaveDays;
+  final double paidLeavePay;
+  final int unpaidLeaveDays;
+  final int sickFullDays;
+  final int sickHalfDays;
+  final int sickUnpaidDays;
+  final double sickPay;
   final double total;
   final String? approvedByName;
   final DateTime? approvedAt;
@@ -60,6 +67,13 @@ class Payslip {
     required this.overtimeMinutes,
     required this.overtimePay,
     required this.rejectedOvertimeMinutes,
+    this.paidLeaveDays = 0,
+    this.paidLeavePay = 0,
+    this.unpaidLeaveDays = 0,
+    this.sickFullDays = 0,
+    this.sickHalfDays = 0,
+    this.sickUnpaidDays = 0,
+    this.sickPay = 0,
     required this.total,
     this.approvedByName,
     this.approvedAt,
@@ -88,6 +102,13 @@ class Payslip {
         overtimeMinutes: _i(m['overtimeMinutes']),
         overtimePay: _d(m['overtimePay']),
         rejectedOvertimeMinutes: _i(m['rejectedOvertimeMinutes']),
+        paidLeaveDays: _i(m['paidLeaveDays']),
+        paidLeavePay: _d(m['paidLeavePay']),
+        unpaidLeaveDays: _i(m['unpaidLeaveDays']),
+        sickFullDays: _i(m['sickFullDays']),
+        sickHalfDays: _i(m['sickHalfDays']),
+        sickUnpaidDays: _i(m['sickUnpaidDays']),
+        sickPay: _d(m['sickPay']),
         total: _d(m['total']),
         approvedByName: m['approvedByName'] as String?,
         approvedAt: (m['approvedAt'] as Timestamp?)?.toDate(),
@@ -101,7 +122,7 @@ class Payslip {
 double _r2(double v) => (v * 100).roundToDouble() / 100;
 
 /// The fields HR's approval writes for [pay] (the whole of [month]).
-/// Approved overtime is its own line and part of the total; amounts are
+/// Approved overtime and leave are their own lines and part of the total; amounts are
 /// rounded to fils so the parts add up to the total.
 Map<String, dynamic> payslipFields({
   required String uid,
@@ -112,6 +133,8 @@ Map<String, dynamic> payslipFields({
 }) {
   final regular = _r2(pay.regularPay);
   final overtime = _r2(pay.overtimePay);
+  final leave = _r2(pay.paidLeavePay);
+  final sick = _r2(pay.sickPay);
   return {
     'uid': uid,
     'name': name,
@@ -128,7 +151,14 @@ Map<String, dynamic> payslipFields({
     'overtimeMinutes': pay.approvedOvertimeMinutes,
     'overtimePay': overtime,
     'rejectedOvertimeMinutes': pay.rejectedOvertimeMinutes,
-    'total': _r2(regular + overtime),
+    'paidLeaveDays': pay.paidLeaveDays,
+    'paidLeavePay': leave,
+    'unpaidLeaveDays': pay.unpaidLeaveDays,
+    'sickFullDays': pay.sickDays(1),
+    'sickHalfDays': pay.sickDays(0.5),
+    'sickUnpaidDays': pay.sickDays(0),
+    'sickPay': sick,
+    'total': _r2(regular + overtime + leave + sick),
   };
 }
 
@@ -145,6 +175,9 @@ enum PayrollState {
 
   /// Overtime still waiting for approve or reject.
   overtimeWaiting,
+
+  /// A leave request in the month still waiting for approve or reject.
+  leaveWaiting,
 
   /// A stay with no check-out; correct it first.
   unclosedStay,
@@ -169,7 +202,8 @@ PayrollState payrollState({
     return PayrollState.monthNotOver;
   }
   if (pay.pendingOvertimeMinutes > 0) return PayrollState.overtimeWaiting;
+  if (pay.pendingLeave > 0) return PayrollState.leaveWaiting;
   if (pay.unclosedStays > 0) return PayrollState.unclosedStay;
-  if (pay.daysWorked == 0) return PayrollState.noAttendance;
+  if (pay.daysWorked == 0 && pay.leave.isEmpty) return PayrollState.noAttendance;
   return PayrollState.ready;
 }

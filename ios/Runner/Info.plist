@@ -50,7 +50,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Royal Marble uses the camera so you can take your profile photo.</string>
+	<string>Royal Marble uses the camera so you can take your profile photo or a photo of a hospital report for sick leave.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>While you are checked in at a work site, Royal Marble uses your location in the background to record when you arrive and leave, so your working hours and pay are correct. Tracking stops when you sign out.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
@@ -62,7 +62,7 @@
 	<key>NSMotionUsageDescription</key>
 	<string>Royal Marble uses motion detection to save battery: location is only tracked while you are moving.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Royal Marble lets you choose a profile photo from your photo library.</string>
+	<string>Royal Marble lets you choose a profile photo, or a hospital report for sick leave, from your photo library.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>

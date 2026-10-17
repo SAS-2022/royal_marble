@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'attendance.dart';
+import 'leave.dart';
 import 'salary.dart';
 
 /// HR's answer about one worker's overtime on one day.
@@ -44,6 +45,10 @@ String overtimeDocId(String uid, DateTime day) =>
 
 /// Contracted hours in an average month: 48 h a week → 208 h.
 double monthlyHours(SalaryPackage p) => p.weeklyHours * 52 / 12;
+
+/// Hours in one working day (a sixth of the week), what a paid leave day
+/// is worth in time.
+double dayHours(SalaryPackage p) => p.weeklyHours / 6;
 
 /// What one regular hour is worth, allowances included (they are monthly
 /// amounts, spread over the month's hours).
@@ -118,13 +123,23 @@ DayPay dayPay(DateTime day, DayEntry entry, SalaryPackage p,
 }
 
 /// Pay earned over a period (the month so far): regular hours at the hourly
-/// rate plus approved overtime at the rate HR approved it with.
+/// rate, approved overtime at the rate HR approved it with, and approved
+/// leave (paid annual/emergency days, sick days by tier) at a working day
+/// each.
 class PaySoFar {
   final double hourlyRate;
   final List<DayPay> days;
   final double overtimeRate;
+  final List<LeaveDay> leave;
 
-  PaySoFar(this.hourlyRate, this.days, this.overtimeRate);
+  /// Leave requests in the period still waiting for HR.
+  final int pendingLeave;
+
+  /// Hours one paid leave day is worth.
+  final double leaveDayHours;
+
+  PaySoFar(this.hourlyRate, this.days, this.overtimeRate,
+      {this.leave = const [], this.pendingLeave = 0, this.leaveDayHours = 8});
 
   int _sum(int Function(DayPay d) f) => days.fold(0, (t, d) => t + f(d));
   int _overtime(OvertimeStatus s) =>
@@ -146,14 +161,36 @@ class PaySoFar {
   /// What pending overtime would add if HR approves it at today's rate.
   double get pendingOvertimePay => overtimeRate * pendingOvertimeMinutes / 60;
 
-  double get total => regularPay + overtimePay;
+  Iterable<LeaveDay> _leave(bool Function(LeaveDay d) f) =>
+      leave.where((d) => !d.worked && f(d));
+  bool _vacation(LeaveDay d) => d.type != LeaveType.sick;
+
+  int get paidLeaveDays => _leave((d) => _vacation(d) && d.factor > 0).length;
+  int get unpaidLeaveDays => _leave((d) => _vacation(d) && d.factor == 0).length;
+  int sickDays(double factor) =>
+      _leave((d) => d.type == LeaveType.sick && d.factor == factor).length;
+
+  double _leavePay(bool Function(LeaveDay d) f) =>
+      _leave(f).fold(0.0, (t, d) => t + hourlyRate * leaveDayHours * d.factor);
+  double get paidLeavePay => _leavePay(_vacation);
+  double get sickPay => _leavePay((d) => d.type == LeaveType.sick);
+
+  double get total => regularPay + overtimePay + paidLeavePay + sickPay;
 }
 
+/// [leave] (the worker's requests) counts only with [from] and [to], the
+/// period [days] covers; see [leaveDaysFor] for what it should hold.
 PaySoFar paySoFar(SalaryPackage p, Map<DateTime, DayEntry> days,
-    Map<DateTime, OvertimeDecision> decisions, DateTime now) {
+    Map<DateTime, OvertimeDecision> decisions, DateTime now,
+    {List<LeaveRequest> leave = const [], DateTime? from, DateTime? to}) {
   final list = [
     for (final e in days.entries)
       dayPay(e.key, e.value, p, decisions[e.key], now)
   ]..sort((a, b) => a.day.compareTo(b.day));
-  return PaySoFar(hourlyRate(p), list, p.overtimeRate);
+  if (from == null || to == null) return PaySoFar(hourlyRate(p), list, p.overtimeRate);
+  final worked = {for (final d in list) if (d.workedMinutes > 0) d.day};
+  return PaySoFar(hourlyRate(p), list, p.overtimeRate,
+      leave: leaveDaysFor(leave, p, from, to, workedDays: worked),
+      pendingLeave: leave.where((r) => r.isPending && r.overlaps(from, to)).length,
+      leaveDayHours: dayHours(p));
 }

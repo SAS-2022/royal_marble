@@ -13,15 +13,17 @@ import '../models/payslip.dart';
 import '../models/salary.dart';
 import '../models/user_model.dart';
 import '../reports/report_export.dart';
+import '../services/leave_service.dart';
 import '../services/pay_service.dart';
 import '../shared/loading.dart';
 import '../shared/save_launch_file.dart';
 import '../widgets/payslip_card.dart';
 import '../widgets/status_widgets.dart';
+import 'leave_screens.dart';
 import 'overtime_screen.dart';
 
 /// HR and admins: what everyone earned this month (or last month) from their
-/// hours and approved overtime. Once a month has ended each worker's pay is
+/// hours, approved overtime and approved leave. Once a month has ended each worker's pay is
 /// approved and locked (a payslip); an admin can reopen it. Excel export.
 class PayrollScreen extends StatefulWidget {
   const PayrollScreen({super.key, required this.users, required this.viewer});
@@ -64,6 +66,7 @@ extension on PayrollState {
         PayrollState.ready => l.payStateReady,
         PayrollState.monthNotOver => l.payStateMonthNotOver,
         PayrollState.overtimeWaiting => l.payStateOvertimeWaiting,
+        PayrollState.leaveWaiting => l.payStateLeaveWaiting,
         PayrollState.unclosedStay => l.payStateUnclosedStay,
         PayrollState.noPayDetails => l.noPayDetails,
         PayrollState.noAttendance => l.payStateNoAttendance,
@@ -101,11 +104,13 @@ class _PayrollScreenState extends State<PayrollScreen> {
     final now = DateTime.now();
     final month = _month;
     final range = PayService.month(month, now);
-    final (workers, packages, decisions, slips) = await (
+    final (workers, packages, decisions, slips, leave) = await (
       PayService.loadDays(range),
       PayService.packages(),
       PayService.decisionsIn(range),
       PayService.payslipsIn(month),
+      // From the 1st of January, so sick days earlier in the year set the tier.
+      LeaveService.everyoneSince(DateTime(month.year)),
     ).wait;
     final lines = <_Line>[];
     for (final u in widget.users) {
@@ -117,10 +122,12 @@ class _PayrollScreenState extends State<PayrollScreen> {
               primaryRole(u.roles).isTracked &&
               (packages.containsKey(uid) || workers.containsKey(uid)));
       if (!listed) continue;
-      final package = packages[uid];
+      // Leave settings alone (no pay set) don't make a pay package.
+      final package = packages[uid]?.isEmpty == true ? null : packages[uid];
       final pay = package == null
           ? null
-          : paySoFar(package, workers[uid]?.days ?? const {}, decisions[uid] ?? const {}, now);
+          : paySoFar(package, workers[uid]?.days ?? const {}, decisions[uid] ?? const {}, now,
+              leave: leave[uid] ?? const [], from: range.start, to: range.end);
       lines.add(
           _Line(u, package, pay, slip, payrollState(month: month, now: now, pay: pay, slip: slip)));
     }
@@ -146,6 +153,7 @@ class _PayrollScreenState extends State<PayrollScreen> {
               PayrollState.ready => 'Ready to approve',
               PayrollState.monthNotOver => 'Month not over',
               PayrollState.overtimeWaiting => 'Overtime waiting',
+              PayrollState.leaveWaiting => 'Leave waiting',
               PayrollState.unclosedStay => 'Stay without check-out',
               PayrollState.noPayDetails => 'No pay details',
               PayrollState.noAttendance => 'No attendance',
@@ -437,6 +445,20 @@ class _PayslipScreenState extends State<_PayslipScreen> {
                         MaterialPageRoute(builder: (_) => OvertimeScreen(viewer: widget.viewer))),
                     icon: const Icon(Icons.more_time),
                     label: Text(l.overtime),
+                  ),
+                ],
+              ),
+            PayrollState.leaveWaiting => Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  note(l.decideLeaveFirst, color: AppColors.warn),
+                  OutlinedButton.icon(
+                    onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => LeaveRequestsScreen(viewer: widget.viewer))),
+                    icon: const Icon(Icons.beach_access_outlined),
+                    label: Text(l.leaveRequests),
                   ),
                 ],
               ),
