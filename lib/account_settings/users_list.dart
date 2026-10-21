@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:royal_marble/account_settings/add_user_screen.dart';
 import 'package:royal_marble/core/l10n_helpers.dart';
 import 'package:royal_marble/core/locale_controller.dart';
 import 'package:provider/provider.dart';
@@ -46,6 +47,18 @@ class _UserListState extends State<UserList> {
       // Land on pending approvals when there are any waiting.
       initialIndex: pending.isNotEmpty ? 1 : 0,
       child: Scaffold(
+        // Admins and HR add people who sign in with a username.
+        floatingActionButton: switch (primaryRole(widget.currentUser.roles)) {
+          AppRole.admin || AppRole.hr => FloatingActionButton.extended(
+              onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => AddUserScreen(viewer: widget.currentUser))),
+              icon: const Icon(Icons.person_add_alt_1),
+              label: Text(context.l10n.addUser),
+            ),
+          _ => null,
+        },
         appBar: AppBar(
           title: Text(context.l10n.users),
           bottom: TabBar(

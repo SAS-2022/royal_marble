@@ -573,7 +573,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get salesActivity => 'Sales activity';
 
   @override
-  String get webAdminsOnlyTitle => 'The web dashboard is for admins and HR';
+  String get webAdminsOnlyTitle =>
+      'The web dashboard is for admins, HR and coordinators';
 
   @override
   String get webAdminsOnlyBody =>
@@ -2482,4 +2483,109 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get sickLawNote =>
       'UAE law: up to 90 sick days a year (15 full pay, 30 half pay, 45 unpaid); no paid sick leave during probation.';
+
+  @override
+  String get roleCoordinator => 'Coordinator';
+
+  @override
+  String get rolesCoordinators => 'Coordinators';
+
+  @override
+  String get pageAccess => 'Page access';
+
+  @override
+  String get pageAccessIntro =>
+      'Choose which pages each role sees in the menu. Admins always see every page. My profile, My pay, My leave and Settings are always on.';
+
+  @override
+  String get pageAccessDefault => 'Default';
+
+  @override
+  String get pageAccessReset => 'Reset to default';
+
+  @override
+  String get pageAccessSaveFailed =>
+      'Couldn\'t save the change. Please try again.';
+
+  @override
+  String get emailOrUsername => 'Email or username';
+
+  @override
+  String get enterEmailOrUsername => 'Enter your email or username';
+
+  @override
+  String get usernameResetBody =>
+      'Accounts with a username don\'t get reset emails. Ask your admin or HR to set a new password for you.';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get addUser => 'Add user';
+
+  @override
+  String get mobileNumberOptional => 'Mobile number (optional)';
+
+  @override
+  String get sectionSignIn => 'Sign-in';
+
+  @override
+  String get username => 'Username';
+
+  @override
+  String get usernameHelp =>
+      'Suggested from the name, e.g. ravi.kumar. If it\'s taken, a number is added. You can type your own.';
+
+  @override
+  String get usernameInvalid =>
+      'Use 3–30 lowercase letters or numbers, with dots between parts';
+
+  @override
+  String get errUsernameNeeded => 'Type a username';
+
+  @override
+  String get errUsernameTaken => 'That username is taken. Try another one.';
+
+  @override
+  String get errRoleAdminOnly => 'Only an admin can do this for this role.';
+
+  @override
+  String get errAccountGeneric => 'Couldn\'t save. Please try again.';
+
+  @override
+  String get accountCreatedTitle => 'Account created';
+
+  @override
+  String accountCreatedBody(String name) {
+    return 'Give these sign-in details to $name. They can change the password later in Settings.';
+  }
+
+  @override
+  String get copy => 'Copy';
+
+  @override
+  String get copied => 'Copied';
+
+  @override
+  String get setNewPassword => 'Set new password';
+
+  @override
+  String get newPassword => 'New password';
+
+  @override
+  String passwordSetFor(String name) {
+    return 'New password saved. Give it to $name.';
+  }
+
+  @override
+  String get changePassword => 'Change password';
+
+  @override
+  String get currentPassword => 'Current password';
+
+  @override
+  String get errCurrentPasswordWrong => 'The current password is wrong';
+
+  @override
+  String get passwordChanged => 'Password changed';
 }

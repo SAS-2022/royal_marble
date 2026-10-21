@@ -7,6 +7,7 @@ extension LocalizedRole on AppRole {
   String localized(AppLocalizations l) => switch (this) {
         AppRole.admin => l.roleAdmin,
         AppRole.hr => l.roleHR,
+        AppRole.coordinator => l.roleCoordinator,
         AppRole.supervisor => l.roleSupervisor,
         AppRole.sales => l.roleSales,
         AppRole.siteEngineer => l.roleSiteEngineer,

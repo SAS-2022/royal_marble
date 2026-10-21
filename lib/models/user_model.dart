@@ -3,6 +3,9 @@ class UserData {
   String? firstName;
   String? lastName;
   String? emailAddress;
+
+  /// Set for people added by an admin or HR who sign in with a username.
+  String? username;
   String? phoneNumber;
   Map<String, dynamic>? homeAddress;
   Map<String, dynamic>? currentLocation;
@@ -26,6 +29,7 @@ class UserData {
     this.firstName,
     this.lastName,
     this.emailAddress,
+    this.username,
     this.phoneNumber,
     this.homeAddress,
     this.currentLocation,

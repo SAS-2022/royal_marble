@@ -25,6 +25,7 @@ String _rolePlural(AppLocalizations l, AppRole? r) => switch (r) {
       AppRole.worker => l.rolesMasons,
       AppRole.siteEngineer => l.rolesSiteEngineers,
       AppRole.supervisor => l.rolesSupervisors,
+      AppRole.coordinator => l.rolesCoordinators,
       _ => r.localized(l),
     };
 
@@ -95,6 +96,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     AppRole.worker,
     AppRole.siteEngineer,
     AppRole.supervisor,
+    AppRole.coordinator,
     null,
   ];
 

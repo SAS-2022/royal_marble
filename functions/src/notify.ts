@@ -261,12 +261,13 @@ export async function pushWorkerAlert(
   const db = getFirestore();
   const worker = (await db.collection("users").doc(uid).get()).data();
   const workerSites = siteIds(worker);
-  const [admins, supervisors] = await Promise.all([
-    db.collection("users").where("roles", "array-contains", "isAdmin").get(),
+  // Admins and coordinators look after every site; supervisors their own.
+  const [allSites, supervisors] = await Promise.all([
+    db.collection("users").where("roles", "array-contains-any", ["isAdmin", "isCoordinator"]).get(),
     db.collection("users").where("roles", "array-contains", "isSupervisor").get(),
   ]);
   const recipients = new Map<string, FirebaseFirestore.DocumentSnapshot>();
-  for (const a of admins.docs) recipients.set(a.id, a);
+  for (const a of allSites.docs) recipients.set(a.id, a);
   for (const s of supervisors.docs) {
     if ([...siteIds(s.data())].some((id) => workerSites.has(id))) recipients.set(s.id, s);
   }
@@ -329,6 +330,28 @@ const shortDate = (t: unknown) => {
 };
 
 /**
+ * What each role sees until an admin changes it on the Page access screen.
+ * Keep in step with `defaultPages` in lib/core/page_access.dart.
+ */
+const DEFAULT_PAGES: Record<string, string[]> = {
+  isHR: ["users", "visits", "reports", "overtime", "payroll", "leaveRequests"],
+  isCoordinator: ["teamStatus", "liveMap", "users", "sites", "reports", "overtime"],
+  isSupervisor: ["teamStatus", "liveMap", "users", "sites", "reports"],
+  isSales: ["sites", "clients", "visits"],
+  isSiteEngineer: [],
+  isNormalUser: [],
+};
+
+/** Role keys that see [page] (`settings/page_access`); admins always do. */
+export async function rolesWithPage(page: string): Promise<string[]> {
+  const stored = (await getFirestore().doc("settings/page_access").get()).get("roles") ?? {};
+  return ["isAdmin", ...Object.keys(DEFAULT_PAGES).filter((r) => {
+    const pages = Array.isArray(stored[r]) ? stored[r] : DEFAULT_PAGES[r];
+    return pages.includes(page);
+  })];
+}
+
+/**
  * Leave requests (`leave_requests/{id}`): a new pending request goes to every
  * active admin and HR; HR's answer (approved or rejected) goes to the worker.
  */
@@ -340,7 +363,7 @@ export const notifyLeave = onDocumentWritten("leave_requests/{id}", async (event
 
   if (!before && after.status === "pending") {
     const staff = await db.collection("users")
-      .where("roles", "array-contains-any", ["isAdmin", "isHR"]).get();
+      .where("roles", "array-contains-any", await rolesWithPage("leaveRequests")).get();
     let sent = 0;
     for (const u of staff.docs) {
       if (u.get("isActive") !== true || u.id === after.uid) continue;

@@ -143,8 +143,9 @@ class _LiveMapScreenState extends State<LiveMapScreen> {
         .catchError((_) => false);
   }
 
-  /// Ids of the supervisor's own sites; null for admins (all sites).
-  Set<String>? get _mySites => _role == AppRole.admin
+  /// Ids of the supervisor's own sites; null for admins and coordinators
+  /// (all sites).
+  Set<String>? get _mySites => _role.allSites
       ? null
       : {
           for (final a in siteAssignments(widget.currentUser.assignedProject)) '${a['id']}',
@@ -236,8 +237,9 @@ class _LiveMapScreenState extends State<LiveMapScreen> {
     if (kind == null) return;
     var name = '';
     try {
-      final marks = await Geocoding(locale: const Locale('en'))
-          .placemarkFromCoordinates(p.latitude, p.longitude);
+      // Throws on the web (no geocoder there); the admin types the address.
+      final marks = await Geocoding().placemarkFromCoordinates(
+          p.latitude, p.longitude, locale: const Locale('en'));
       if (marks.isNotEmpty) name = addressFromPlacemark(marks.first);
     } catch (_) {
       // Offline: the admin can type the address on the form.
@@ -366,7 +368,8 @@ class _LiveMapScreenState extends State<LiveMapScreen> {
                     zoomControlsEnabled: false,
                     mapToolbarEnabled: false,
                     padding: const EdgeInsets.only(top: 56, bottom: 72),
-                    onLongPress: _newSiteAt,
+                    // Coordinators staff sites but don't create them.
+                    onLongPress: _role == AppRole.coordinator ? null : _newSiteAt,
                     circles: {
                       for (final s in sites)
                         Circle(

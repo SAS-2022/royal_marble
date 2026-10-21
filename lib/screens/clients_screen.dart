@@ -29,11 +29,12 @@ class ClientsScreen extends StatefulWidget {
 }
 
 class _ClientsScreenState extends State<ClientsScreen> {
-  late final bool _admin = primaryRole(widget.currentUser.roles) == AppRole.admin;
+  /// Everyone but salespeople sees every client and who owns it.
+  late final bool _team = primaryRole(widget.currentUser.roles) != AppRole.sales;
   late final _db = DatabaseService();
   late final _clients =
-      _db.streamClients(ownerId: _admin ? null : widget.currentUser.uid);
-  late final Stream<List<UserData>>? _users = _admin ? _db.getAllUsers() : null;
+      _db.streamClients(ownerId: _team ? null : widget.currentUser.uid);
+  late final Stream<List<UserData>>? _users = _team ? _db.getAllUsers() : null;
   String _query = '';
 
   @override
@@ -134,7 +135,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        trailing: _admin && owners[c.userId] != null
+                        trailing: _team && owners[c.userId] != null
                             ? StatusPill(owners[c.userId]!, icon: Icons.badge_outlined)
                             : null,
                       ),

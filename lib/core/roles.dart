@@ -2,11 +2,12 @@
 ///
 /// A user can hold several role strings; [primaryRole] picks the one that
 /// decides which home screen and permissions they get.
-enum AppRole { admin, hr, supervisor, sales, siteEngineer, worker }
+enum AppRole { admin, hr, coordinator, supervisor, sales, siteEngineer, worker }
 
 const _roleKeys = {
   AppRole.admin: 'isAdmin',
   AppRole.hr: 'isHR',
+  AppRole.coordinator: 'isCoordinator',
   AppRole.supervisor: 'isSupervisor',
   AppRole.sales: 'isSales',
   AppRole.siteEngineer: 'isSiteEngineer',
@@ -19,6 +20,7 @@ extension AppRoleKey on AppRole {
   String get label => switch (this) {
         AppRole.admin => 'Admin',
         AppRole.hr => 'HR',
+        AppRole.coordinator => 'Coordinator',
         AppRole.supervisor => 'Supervisor',
         AppRole.sales => 'Sales',
         AppRole.siteEngineer => 'Site Engineer',
@@ -26,7 +28,17 @@ extension AppRoleKey on AppRole {
       };
 
   /// Roles that can see other people's locations, device alerts and reports.
-  bool get canMonitor => this == AppRole.admin || this == AppRole.supervisor;
+  bool get canMonitor =>
+      this == AppRole.admin || this == AppRole.supervisor || this == AppRole.coordinator;
+
+  /// Roles that look after every site, not only the ones they're assigned to.
+  bool get allSites => this == AppRole.admin || this == AppRole.coordinator;
+
+  /// Roles that can change who works at a site.
+  bool get managesTeams => allSites || this == AppRole.supervisor;
+
+  /// Roles that can use the web dashboard; everyone else uses the phone app.
+  bool get usesWeb => this == AppRole.admin || this == AppRole.hr || this == AppRole.coordinator;
 
   /// Admins and HR see everyone's pay, set it and approve overtime.
   bool get managesPay => this == AppRole.admin || this == AppRole.hr;
@@ -44,6 +56,7 @@ AppRole primaryRole(List<dynamic>? roles) {
   for (final role in [
     AppRole.admin,
     AppRole.hr,
+    AppRole.coordinator,
     AppRole.supervisor,
     AppRole.sales,
     AppRole.siteEngineer,

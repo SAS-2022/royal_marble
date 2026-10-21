@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:royal_marble/account_settings/password_dialogs.dart';
 import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/core/locale_controller.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/screens/notification_settings_screen.dart';
+import 'package:royal_marble/services/account_service.dart';
 import 'package:royal_marble/widgets/language_picker.dart';
 
 /// App settings behind one drawer entry: language for everyone, and the
@@ -30,6 +32,16 @@ class SettingsScreen extends StatelessWidget {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => showLanguagePicker(context),
               ),
+              // Anyone who signs in with a password (not only Google/Apple).
+              if (AccountService.hasPassword) ...[
+                const Divider(indent: 16, endIndent: 16),
+                ListTile(
+                  leading: const Icon(Icons.password, color: AppColors.goldDeep),
+                  title: Text(l.changePassword),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => showChangePasswordDialog(context),
+                ),
+              ],
               if (getsAlerts) ...[
                 const Divider(indent: 16, endIndent: 16),
                 ListTile(

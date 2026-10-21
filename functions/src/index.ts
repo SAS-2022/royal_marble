@@ -12,6 +12,8 @@ import {
 import { pushWorkerAlert } from "./notify";
 
 export { notifyAlert, notifyLeave, notifyNewUser } from "./notify";
+export { fillOvertimeRate, mirrorWorkHours } from "./pay";
+export { createUserAccount, releaseUsername, setUserPassword } from "./accounts";
 
 initializeApp();
 const db = getFirestore();

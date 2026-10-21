@@ -7,6 +7,8 @@ rules_version = '2';
 //   - adds `device_events` for the new phone-status alerts
 //   - adds `payroll`, `overtime` and `payslips` (HR/admin, plus each worker's own read)
 //   - adds `leave_requests` (workers ask for their own; HR/admin decide)
+//   - pay, overtime, leave and phone alerts follow the admin's Page access
+//     settings (`settings/page_access`); adds `work_hours`
 // Switch to firestore.strict.rules once every phone runs the new app.
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -15,7 +17,24 @@ service cloud.firestore {
     function hasRole(r) {
       return signedIn() && r in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('roles', []);
     }
-    function managesPay() { return hasRole('isAdmin') || hasRole('isHR'); }
+    // Which pages each role sees (`settings/page_access` → `roles.{roleKey}`,
+    // set on the admin's Page access screen). A role with no list there gets
+    // its default; keep these in step with `defaultPages` in
+    // lib/core/page_access.dart. Admins see every page.
+    function pageAccess() {
+      let p = /databases/$(database)/documents/settings/page_access;
+      return exists(p) ? get(p).data.get('roles', {}) : {};
+    }
+    function roleSees(r, page, dflt) { return hasRole(r) && page in pageAccess().get(r, dflt); }
+    function sees(page) {
+      return hasRole('isAdmin')
+        || roleSees('isHR', page, ['users', 'visits', 'reports', 'overtime', 'payroll', 'leaveRequests'])
+        || roleSees('isCoordinator', page, ['teamStatus', 'liveMap', 'users', 'sites', 'reports', 'overtime'])
+        || roleSees('isSupervisor', page, ['teamStatus', 'liveMap', 'users', 'sites', 'reports'])
+        || roleSees('isSales', page, ['sites', 'clients', 'visits'])
+        || roleSees('isSiteEngineer', page, [])
+        || roleSees('isNormalUser', page, []);
+    }
     // `{uid}_{d-m-yyyy}` (an overtime day) → `{uid}_{m-yyyy}` (its payslip).
     function overtimeSlipId(id) {
       let parts = id.split('_');
@@ -77,34 +96,51 @@ service cloud.firestore {
     match /time_sheet/{id} { allow read, write: if signedIn(); }
     match /helper/{id}     { allow read, write: if signedIn(); }
 
-    // Pay packages: admins and HR manage them; each worker can read only their own.
+    // Pay packages: roles with the Payroll page manage them; each worker can
+    // read only their own.
     match /payroll/{uid} {
-      allow read: if managesPay() || (signedIn() && request.auth.uid == uid);
-      allow write: if managesPay();
+      allow read: if sees('payroll') || (signedIn() && request.auth.uid == uid);
+      allow write: if sees('payroll');
       match /history/{doc} {
-        allow read: if managesPay() || (signedIn() && request.auth.uid == uid);
-        allow write: if managesPay();
+        allow read: if sees('payroll') || (signedIn() && request.auth.uid == uid);
+        allow write: if sees('payroll');
       }
     }
 
-    // Overtime decisions (`{uid}_{day}`): HR and admins approve or reject;
-    // each worker can read their own.
-    match /overtime/{id} {
-      // By id, so a worker can also look up a day that has no decision yet.
-      allow read: if managesPay() || (signedIn() && id.matches(request.auth.uid + '_.*'));
-      // Not once that worker's month is approved (payslip locked).
-      allow create, update: if managesPay() && !slipLocked(overtimeSlipId(id))
-        && request.resource.data.uid == id.split('_')[0];
-      allow delete: if managesPay() && !slipLocked(overtimeSlipId(id));
+    // Working hours only (no pay), copied from `payroll` by the server, for
+    // people who decide on overtime without seeing pay.
+    match /work_hours/{uid} {
+      allow read: if sees('overtime') || sees('payroll') || (signedIn() && request.auth.uid == uid);
+      allow write: if false;
     }
 
-    // Approved months (`{uid}_{m-yyyy}`): HR and admins approve and lock;
+    // Page access by role: everyone reads it (the menu), only admins change it.
+    match /settings/page_access {
+      allow read: if signedIn();
+      allow write: if hasRole('isAdmin');
+    }
+
+    // Overtime decisions (`{uid}_{day}`): roles with the Overtime page approve
+    // or reject (Payroll reads them too); each worker can read their own.
+    // Approvers who can't see pay leave `rate` empty and the server fills it.
+    match /overtime/{id} {
+      // By id, so a worker can also look up a day that has no decision yet.
+      allow read: if sees('overtime') || sees('payroll')
+        || (signedIn() && id.matches(request.auth.uid + '_.*'));
+      // Not once that worker's month is approved (payslip locked).
+      allow create, update: if sees('overtime') && !slipLocked(overtimeSlipId(id))
+        && request.resource.data.uid == id.split('_')[0]
+        && (sees('payroll') || request.resource.data.get('rate', null) == null);
+      allow delete: if sees('overtime') && !slipLocked(overtimeSlipId(id));
+    }
+
+    // Approved months (`{uid}_{m-yyyy}`): roles with the Payroll page approve and lock;
     // only an admin reopens a locked one; never deleted. Workers read their own.
     match /payslips/{id} {
-      allow read: if managesPay() || (signedIn() && id.matches(request.auth.uid + '_.*'));
-      allow create: if managesPay() && request.resource.data.status == 'locked'
+      allow read: if sees('payroll') || (signedIn() && id.matches(request.auth.uid + '_.*'));
+      allow create: if sees('payroll') && request.resource.data.status == 'locked'
         && request.resource.data.uid == id.split('_')[0];
-      allow update: if managesPay() && request.resource.data.uid == resource.data.uid && (
+      allow update: if sees('payroll') && request.resource.data.uid == resource.data.uid && (
         (resource.data.status == 'reopened' && request.resource.data.status == 'locked') ||
         (resource.data.status == 'locked' && request.resource.data.status == 'reopened'
           && hasRole('isAdmin')));
@@ -113,28 +149,29 @@ service cloud.firestore {
 
     // Leave requests: a worker asks for their own (pending; sick leave with the
     // reports they uploaded, annual/emergency with travel details) and can
-    // cancel it while pending; HR and admins
+    // cancel it while pending; roles with the Leave requests page
     // approve or reject. Nothing changes in a month whose payslip is locked.
     match /leave_requests/{id} {
-      allow read: if managesPay() || (signedIn() && resource.data.uid == request.auth.uid);
-      allow create: if leaveValid(request.resource.data) && (managesPay() || (
+      allow read: if sees('leaveRequests') || (signedIn() && resource.data.uid == request.auth.uid);
+      allow create: if leaveValid(request.resource.data) && (sees('leaveRequests') || (
         signedIn() && request.resource.data.uid == request.auth.uid
           && request.resource.data.status == 'pending' && request.resource.data.paid == false
           && (request.resource.data.type != 'sick'
                 || reportsOwn(request.resource.data.reports, request.auth.uid))
           && travelValid(request.resource.data)));
       allow update: if leaveValid(request.resource.data) && leaveMonthsOpen(resource.data)
-        && request.resource.data.uid == resource.data.uid && (managesPay() || (
+        && request.resource.data.uid == resource.data.uid && (sees('leaveRequests') || (
           signedIn() && resource.data.uid == request.auth.uid
             && resource.data.status == 'pending' && request.resource.data.status == 'cancelled'
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'at'])));
       allow delete: if false;
     }
 
-    // Phones append their own status changes; admins and supervisors read them.
+    // Phones append their own status changes; roles with Team status or the
+    // Live map read them.
     match /device_events/{id} {
       allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
-      allow read: if hasRole('isAdmin') || hasRole('isSupervisor');
+      allow read: if sees('teamStatus') || sees('liveMap');
       allow update, delete: if hasRole('isAdmin');
     }
   }

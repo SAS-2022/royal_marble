@@ -339,7 +339,7 @@
   "sectionReports": "Reports",
   "attendance": "Attendance",
   "salesActivity": "Sales activity",
-  "webAdminsOnlyTitle": "The web dashboard is for admins and HR",
+  "webAdminsOnlyTitle": "The web dashboard is for admins, HR and coordinators",
   "webAdminsOnlyBody": "Please use the Royal Marble app on your phone.",
   "mapUnavailable": "Map not available here yet",
   "dashboard": "Dashboard",
@@ -1386,5 +1386,51 @@
   "sickFullPayDays": "Sick days at full pay",
   "sickHalfPayDays": "Sick days at half pay",
   "sickUnpaidDays": "Sick days unpaid",
-  "sickLawNote": "UAE law: up to 90 sick days a year (15 full pay, 30 half pay, 45 unpaid); no paid sick leave during probation."
+  "sickLawNote": "UAE law: up to 90 sick days a year (15 full pay, 30 half pay, 45 unpaid); no paid sick leave during probation.",
+  "roleCoordinator": "Coordinator",
+  "rolesCoordinators": "Coordinators",
+  "pageAccess": "Page access",
+  "pageAccessIntro": "Choose which pages each role sees in the menu. Admins always see every page. My profile, My pay, My leave and Settings are always on.",
+  "pageAccessDefault": "Default",
+  "pageAccessReset": "Reset to default",
+  "pageAccessSaveFailed": "Couldn't save the change. Please try again.",
+  "emailOrUsername": "Email or username",
+  "enterEmailOrUsername": "Enter your email or username",
+  "usernameResetBody": "Accounts with a username don't get reset emails. Ask your admin or HR to set a new password for you.",
+  "ok": "OK",
+  "addUser": "Add user",
+  "mobileNumberOptional": "Mobile number (optional)",
+  "sectionSignIn": "Sign-in",
+  "username": "Username",
+  "usernameHelp": "Suggested from the name, e.g. ravi.kumar. If it's taken, a number is added. You can type your own.",
+  "usernameInvalid": "Use 3–30 lowercase letters or numbers, with dots between parts",
+  "errUsernameNeeded": "Type a username",
+  "errUsernameTaken": "That username is taken. Try another one.",
+  "errRoleAdminOnly": "Only an admin can do this for this role.",
+  "errAccountGeneric": "Couldn't save. Please try again.",
+  "accountCreatedTitle": "Account created",
+  "accountCreatedBody": "Give these sign-in details to {name}. They can change the password later in Settings.",
+  "@accountCreatedBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "copy": "Copy",
+  "copied": "Copied",
+  "setNewPassword": "Set new password",
+  "newPassword": "New password",
+  "passwordSetFor": "New password saved. Give it to {name}.",
+  "@passwordSetFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "changePassword": "Change password",
+  "currentPassword": "Current password",
+  "errCurrentPasswordWrong": "The current password is wrong",
+  "passwordChanged": "Password changed"
 }

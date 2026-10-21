@@ -59,6 +59,13 @@ class PayService {
     return {for (final d in snap.docs) d.id: SalaryPackage.fromMap(d.data())};
   }
 
+  /// Everyone's working hours (no pay), for people who decide on overtime
+  /// without seeing pay. A server function copies them from `payroll`.
+  static Future<Map<String, SalaryPackage>> workHours() async {
+    final snap = await _db.collection('work_hours').get();
+    return {for (final d in snap.docs) d.id: SalaryPackage.fromMap(d.data())};
+  }
+
   /// Decisions in [range], by worker then day (HR and admins).
   static Future<Map<String, Map<DateTime, OvertimeDecision>>> decisionsIn(
       DateTimeRange range) async {
@@ -171,12 +178,13 @@ class PayService {
   }
 
   /// Saves HR's decision; returns null on success, or a message to show.
+  /// [rate] is null when the approver can't see pay: the server fills it in.
   static Future<String?> decide({
     required String uid,
     required DateTime day,
     required OvertimeStatus status,
     required int minutes,
-    required double rate,
+    required double? rate,
     required String byName,
     String? note,
   }) async {

@@ -59,6 +59,9 @@ async function main() {
   const admin = await user("admin@test.local",
     { firstName: "Test", lastName: "Admin", roles: ["isAdmin"] });
   await user("hr@test.local", { firstName: "Hana", lastName: "HR", roles: ["isHR"] });
+  await user("coordinator@test.local",
+    { firstName: "Cora", lastName: "Coordinator", roles: ["isCoordinator"],
+      assignedProject: [site("p_marina", "Test Villa", MARINA, 150)] });
   const supervisor = await user("supervisor@test.local",
     { firstName: "Sam", lastName: "Supervisor", roles: ["isSupervisor"],
       assignedProject: [site("p_marina", "Test Villa", MARINA, 150)] });
@@ -148,7 +151,8 @@ async function main() {
   console.log(`Seeded. Password for every account: ${PASSWORD}`);
   console.log("  admin@test.local, supervisor@test.local, mason1@test.local (Test Villa + Marina Tower),");
   console.log("  mason2@test.local (assigned to Far Site), pending@test.local (inactive),");
-  console.log("  sales@test.local (2 clients, 3 visits this week), hr@test.local (HR)");
+  console.log("  sales@test.local (2 clients, 3 visits this week), hr@test.local (HR),");
+  console.log("  coordinator@test.local (Coordinator, checks in at Test Villa)");
 }
 
 main().catch((e) => {

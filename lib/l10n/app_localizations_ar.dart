@@ -567,7 +567,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get webAdminsOnlyTitle =>
-      'لوحة التحكم على الويب مخصصة للمشرفين والموارد البشرية';
+      'لوحة التحكم على الويب مخصصة للمشرفين والموارد البشرية والمنسقين';
 
   @override
   String get webAdminsOnlyBody => 'يرجى استخدام تطبيق Royal Marble على هاتفك.';
@@ -2475,4 +2475,109 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get sickLawNote =>
       'قانون الإمارات: حتى 90 يوماً مرضياً في السنة (15 براتب كامل، 30 بنصف الراتب، 45 بدون راتب)؛ لا إجازة مرضية مدفوعة خلال فترة التجربة.';
+
+  @override
+  String get roleCoordinator => 'منسق';
+
+  @override
+  String get rolesCoordinators => 'المنسقون';
+
+  @override
+  String get pageAccess => 'الوصول إلى الصفحات';
+
+  @override
+  String get pageAccessIntro =>
+      'اختر الصفحات التي يراها كل دور في القائمة. يرى المشرفون جميع الصفحات دائماً. ملفي وراتبي وإجازتي والإعدادات متاحة دائماً.';
+
+  @override
+  String get pageAccessDefault => 'افتراضي';
+
+  @override
+  String get pageAccessReset => 'إعادة إلى الافتراضي';
+
+  @override
+  String get pageAccessSaveFailed =>
+      'تعذر حفظ التغيير. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get emailOrUsername => 'البريد الإلكتروني أو اسم المستخدم';
+
+  @override
+  String get enterEmailOrUsername => 'أدخل بريدك الإلكتروني أو اسم المستخدم';
+
+  @override
+  String get usernameResetBody =>
+      'الحسابات التي تستخدم اسم مستخدم لا تصلها رسائل إعادة التعيين. اطلب من المشرف أو الموارد البشرية تعيين كلمة مرور جديدة لك.';
+
+  @override
+  String get ok => 'حسناً';
+
+  @override
+  String get addUser => 'إضافة مستخدم';
+
+  @override
+  String get mobileNumberOptional => 'رقم الجوال (اختياري)';
+
+  @override
+  String get sectionSignIn => 'تسجيل الدخول';
+
+  @override
+  String get username => 'اسم المستخدم';
+
+  @override
+  String get usernameHelp =>
+      'مقترح من الاسم، مثل ravi.kumar. إذا كان مستخدماً يُضاف رقم. يمكنك كتابة اسم آخر.';
+
+  @override
+  String get usernameInvalid =>
+      'استخدم من 3 إلى 30 حرفاً لاتينياً صغيراً أو رقماً، مع نقاط بين الأجزاء';
+
+  @override
+  String get errUsernameNeeded => 'اكتب اسم مستخدم';
+
+  @override
+  String get errUsernameTaken => 'اسم المستخدم هذا مستخدم. جرّب اسماً آخر.';
+
+  @override
+  String get errRoleAdminOnly => 'المشرف فقط يمكنه فعل ذلك لهذا الدور.';
+
+  @override
+  String get errAccountGeneric => 'تعذر الحفظ. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get accountCreatedTitle => 'تم إنشاء الحساب';
+
+  @override
+  String accountCreatedBody(String name) {
+    return 'أعطِ بيانات الدخول هذه إلى $name. يمكنه تغيير كلمة المرور لاحقاً من الإعدادات.';
+  }
+
+  @override
+  String get copy => 'نسخ';
+
+  @override
+  String get copied => 'تم النسخ';
+
+  @override
+  String get setNewPassword => 'تعيين كلمة مرور جديدة';
+
+  @override
+  String get newPassword => 'كلمة المرور الجديدة';
+
+  @override
+  String passwordSetFor(String name) {
+    return 'تم حفظ كلمة المرور الجديدة. أعطها إلى $name.';
+  }
+
+  @override
+  String get changePassword => 'تغيير كلمة المرور';
+
+  @override
+  String get currentPassword => 'كلمة المرور الحالية';
+
+  @override
+  String get errCurrentPasswordWrong => 'كلمة المرور الحالية غير صحيحة';
+
+  @override
+  String get passwordChanged => 'تم تغيير كلمة المرور';
 }

@@ -6,6 +6,7 @@ import 'package:royal_marble/auth/register.dart';
 import 'package:royal_marble/auth/sign_in.dart';
 import 'package:royal_marble/core/error_reporter.dart';
 import 'package:royal_marble/core/locale_controller.dart';
+import 'package:royal_marble/core/page_access.dart';
 import 'package:royal_marble/core/roles.dart';
 import 'package:royal_marble/models/business_model.dart';
 import 'package:royal_marble/services/auth.dart';
@@ -42,7 +43,7 @@ class Wrapper extends StatelessWidget {
                   key: ValueKey(firebaseUser.uid), socialUser: firebaseUser);
         }
         final role = primaryRole(user.roles);
-        if (kIsWeb && (!role.managesPay || user.isActive != true)) {
+        if (kIsWeb && (!role.usesWeb || user.isActive != true)) {
           return const _WebAdminsOnly();
         }
         ErrorReporter.setUser(uid: user.uid, role: role.name);
@@ -56,6 +57,10 @@ class Wrapper extends StatelessWidget {
           key: ValueKey('${user.uid}|${role.name}'),
           providers: [
             Provider<UserData?>.value(value: user),
+            StreamProvider<PageAccess>.value(
+              value: PageAccess.watch(),
+              initialData: PageAccess.latest,
+            ),
             StreamProvider<List<ProjectData>>.value(
               value: seesTeam ? db.getAllProjects() : Stream.value(const []),
               initialData: const [],
@@ -86,7 +91,8 @@ class Wrapper extends StatelessWidget {
   }
 }
 
-/// The browser build is for admins and HR; everyone else uses the phone app.
+/// The browser build is for office roles ([AppRoleKey.usesWeb]); everyone
+/// else uses the phone app.
 class _WebAdminsOnly extends StatelessWidget {
   const _WebAdminsOnly();
 

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' hide TextDirection;
@@ -9,6 +10,7 @@ import 'package:royal_marble/account_settings/admin_user_view.dart';
 import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/core/format.dart';
 import 'package:royal_marble/core/locale_controller.dart';
+import 'package:royal_marble/core/page_access.dart';
 import 'package:royal_marble/core/roles.dart';
 import 'package:royal_marble/models/attendance.dart';
 import 'package:royal_marble/models/business_model.dart';
@@ -94,7 +96,8 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Royal Marble'),
         actions: [
-          if (role.canMonitor) _AlertsAction(users: allUsers, viewer: user),
+          if (role.canMonitor && context.watch<PageAccess>().sees(role, AppPage.teamStatus))
+            _AlertsAction(users: allUsers, viewer: user),
         ],
       ),
       drawer: wide ? null : ProfileDrawer(currentUser: user, allUsers: allUsers),
@@ -120,6 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 : switch (role) {
                     AppRole.admin => _AdminHome(user: user),
                     AppRole.hr => _HrHome(user: user),
+                    AppRole.coordinator => _CoordinatorHome(user: user),
                     AppRole.sales => _SalesHome(user: user),
                     AppRole.supervisor => _SupervisorHome(user: user),
                     _ => _WorkerHome(user: user),
@@ -596,68 +600,150 @@ class _AdminHomeState extends State<_AdminHome> {
   }
 }
 
-/// HR: overtime waiting for a decision, and who is at work today.
-class _HrHome extends StatefulWidget {
-  const _HrHome({required this.user});
+/// Overtime days waiting for a decision; opens the overtime review.
+class _OvertimeCard extends StatefulWidget {
+  const _OvertimeCard({required this.user});
   final UserData user;
 
   @override
-  State<_HrHome> createState() => _HrHomeState();
+  State<_OvertimeCard> createState() => _OvertimeCardState();
 }
 
-class _HrHomeState extends State<_HrHome> {
-  late Future<int> _waiting = countWaitingOvertime();
+class _OvertimeCardState extends State<_OvertimeCard> {
+  late Future<int> _waiting = countWaitingOvertime(widget.user);
 
   Future<void> _openOvertime() async {
     await Navigator.push(context,
         MaterialPageRoute(builder: (_) => OvertimeScreen(viewer: widget.user)));
     if (!mounted) return;
     setState(() {
-      _waiting = countWaitingOvertime();
+      _waiting = countWaitingOvertime(widget.user);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    return FutureBuilder<int>(
+      future: _waiting,
+      builder: (context, snap) {
+        final n = snap.data;
+        return Card(
+          child: ListTile(
+            onTap: _openOvertime,
+            leading: Icon(Icons.more_time,
+                color: (n ?? 0) > 0 ? AppColors.warn : AppColors.muted),
+            title: Text(n == null ? l.overtime : l.overtimeWaitingCount(n)),
+            trailing: const Icon(Icons.chevron_right),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Leave requests waiting for a decision.
+class _LeaveCard extends StatelessWidget {
+  const _LeaveCard({required this.user});
+  final UserData user;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return StreamBuilder<int>(
+      stream: LeaveService.watchPendingCount(),
+      builder: (context, snap) {
+        final n = snap.data;
+        return Card(
+          child: ListTile(
+            onTap: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => LeaveRequestsScreen(viewer: user))),
+            leading: Icon(Icons.beach_access_outlined,
+                color: (n ?? 0) > 0 ? AppColors.warn : AppColors.muted),
+            title: Text(n == null ? l.leaveRequests : l.leaveWaitingCount(n)),
+            trailing: const Icon(Icons.chevron_right),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// HR: overtime and leave waiting for a decision, and who is at work today.
+class _HrHome extends StatelessWidget {
+  const _HrHome({required this.user});
+  final UserData user;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
     final timesheet = Provider.of<Map<String, dynamic>>(context);
+    final access = context.watch<PageAccess>();
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       children: [
-        _Greeting(widget.user),
-        FutureBuilder<int>(
-          future: _waiting,
-          builder: (context, snap) {
-            final n = snap.data;
-            return Card(
-              child: ListTile(
-                onTap: _openOvertime,
-                leading: Icon(Icons.more_time,
-                    color: (n ?? 0) > 0 ? AppColors.warn : AppColors.muted),
-                title: Text(n == null ? l.overtime : l.overtimeWaitingCount(n)),
-                trailing: const Icon(Icons.chevron_right),
-              ),
-            );
-          },
-        ),
-        StreamBuilder<int>(
-          stream: LeaveService.watchPendingCount(),
-          builder: (context, snap) {
-            final n = snap.data;
-            return Card(
-              child: ListTile(
-                onTap: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => LeaveRequestsScreen(viewer: widget.user))),
-                leading: Icon(Icons.beach_access_outlined,
-                    color: (n ?? 0) > 0 ? AppColors.warn : AppColors.muted),
-                title: Text(n == null ? l.leaveRequests : l.leaveWaitingCount(n)),
-                trailing: const Icon(Icons.chevron_right),
-              ),
-            );
-          },
-        ),
+        _Greeting(user),
+        if (access.sees(AppRole.hr, AppPage.overtime)) _OvertimeCard(user: user),
+        if (access.sees(AppRole.hr, AppPage.leaveRequests)) _LeaveCard(user: user),
         SectionTitle(l.todaysAttendance),
         _Attendance(timesheet: timesheet),
+      ],
+    );
+  }
+}
+
+// ───────────────────────── coordinator ─────────────────────────
+
+/// Coordinator: their own check-in, overtime waiting, and who is at work
+/// across every site.
+class _CoordinatorHome extends StatelessWidget {
+  const _CoordinatorHome({required this.user});
+  final UserData user;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final timesheet = Provider.of<Map<String, dynamic>>(context);
+    final projects = Provider.of<List<ProjectData>>(context);
+    final mockups = Provider.of<List<MockupData>>(context);
+    final access = context.watch<PageAccess>();
+    bool sees(AppPage p) => access.sees(AppRole.coordinator, p);
+    final mine = siteAssignments(user.assignedProject);
+    final myMockups = siteAssignments(user.assignedMockups);
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+      children: [
+        _Greeting(user),
+        // Check-in and phone health are for the phone app.
+        if (!kIsWeb) ...[
+          const DeviceStatusBanner(),
+          if (mine.isNotEmpty || myMockups.isNotEmpty) ...[
+            SectionTitle(l.yourSites),
+            for (final p in mine) _cardFor(context, user, p, SiteKind.project),
+            for (final m in myMockups) _cardFor(context, user, m, SiteKind.mockup),
+          ],
+        ],
+        if (sees(AppPage.overtime)) _OvertimeCard(user: user),
+        if (sees(AppPage.leaveRequests)) _LeaveCard(user: user),
+        SectionTitle(l.todaysAttendance,
+            trailing: sees(AppPage.teamStatus)
+                ? TextButton(
+                    onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => TeamStatusScreen(
+                                users: Provider.of<List<UserData>>(context, listen: false),
+                                viewer: user,
+                                initialTab: 1))),
+                    child: Text(l.alertLog))
+                : null),
+        _Attendance(timesheet: timesheet),
+        ActiveSitesOverview(user: user, sites: [
+          for (final p in projects)
+            if (p.projectStatus == 'active') SiteRef.project(p),
+          for (final m in mockups)
+            if (m.mockupStatus == 'active') SiteRef.mockup(m),
+        ]),
       ],
     );
   }

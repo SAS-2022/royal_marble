@@ -2,6 +2,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:royal_marble/auth/forgot_pass.dart';
+import 'package:royal_marble/core/usernames.dart';
 import 'package:royal_marble/auth/register.dart';
 import 'package:royal_marble/auth/social_buttons.dart';
 import 'package:royal_marble/core/app_theme.dart';
@@ -40,13 +41,34 @@ class _SignInState extends State<SignInScreen> {
       _error = null;
     });
     // On success the auth stream swaps this screen for the home screen.
-    final error = await _auth.signIn(_email.text, _password.text);
+    final error = await _auth.signIn(signInEmail(_email.text), _password.text);
     if (mounted) {
       setState(() {
         _loading = false;
         _error = error;
       });
     }
+  }
+
+  /// Username accounts get no reset emails: admins and HR set a new one.
+  void _forgotPassword() {
+    final typed = _email.text.trim();
+    if (typed.isNotEmpty && !typed.contains('@')) {
+      showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(context.l10n.resetPassword),
+          content: Text(context.l10n.usernameResetBody),
+          actions: [
+            FilledButton(
+                onPressed: () => Navigator.pop(context), child: Text(context.l10n.ok)),
+          ],
+        ),
+      );
+      return;
+    }
+    Navigator.push(context,
+        MaterialPageRoute(builder: (_) => ForgotPassScreen(emailAddress: typed)));
   }
 
   @override
@@ -101,16 +123,20 @@ class _SignInState extends State<SignInScreen> {
                         TextFormField(
                           controller: _email,
                           keyboardType: TextInputType.emailAddress,
-                          autofillHints: const [AutofillHints.email],
+                          autofillHints: const [AutofillHints.email, AutofillHints.username],
                           textInputAction: TextInputAction.next,
                           decoration: InputDecoration(
-                            labelText: l10n.email,
-                            prefixIcon: Icon(Icons.mail_outline),
+                            labelText: l10n.emailOrUsername,
+                            prefixIcon: Icon(Icons.person_outline),
                           ),
-                          validator: (v) => EmailValidator.validate(
-                                  (v ?? '').trim())
-                              ? null
-                              : l10n.enterValidEmail,
+                          // People added by an admin or HR have a username.
+                          validator: (v) {
+                            final t = (v ?? '').trim();
+                            return EmailValidator.validate(t) ||
+                                    validUsername(t.toLowerCase())
+                                ? null
+                                : l10n.enterEmailOrUsername;
+                          },
                         ),
                         const SizedBox(height: 14),
                         TextFormField(
@@ -136,13 +162,7 @@ class _SignInState extends State<SignInScreen> {
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton(
-                            onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ForgotPassScreen(
-                                    emailAddress: _email.text.trim()),
-                              ),
-                            ),
+                            onPressed: _forgotPassword,
                             child: Text(l10n.forgotPassword),
                           ),
                         ),

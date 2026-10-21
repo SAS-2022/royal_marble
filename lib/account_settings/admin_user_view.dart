@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:royal_marble/account_settings/password_dialogs.dart';
 import 'package:royal_marble/core/l10n_helpers.dart';
 import 'package:royal_marble/core/locale_controller.dart';
 import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/core/format.dart';
+import 'package:royal_marble/core/page_access.dart';
 import 'package:royal_marble/core/roles.dart';
 import 'package:royal_marble/models/attendance.dart';
 import 'package:royal_marble/models/device_status.dart';
@@ -128,8 +130,20 @@ class AdminUserView extends StatelessWidget {
     final role = primaryRole(user.roles);
     final viewerRole = primaryRole(viewer.roles);
     final viewerIsAdmin = viewerRole == AppRole.admin;
-    // HR handles pay and attendance, not accounts or roles.
-    final managesAccounts = viewerRole != AppRole.hr;
+    // HR and coordinators handle pay, attendance and site teams, not
+    // accounts or roles.
+    final managesAccounts =
+        viewerIsAdmin || viewerRole == AppRole.supervisor;
+    final access = PageAccess.latest;
+    final hasContact = user.phoneNumber?.isNotEmpty == true ||
+        user.emailAddress?.isNotEmpty == true ||
+        user.nationality?['countryName'] != null ||
+        user.company?.isNotEmpty == true ||
+        user.homeAddress?['addressName'] != null;
+    final setsPasswords = user.uid != viewer.uid &&
+        (viewerIsAdmin ||
+            (viewerRole == AppRole.hr &&
+                !{AppRole.admin, AppRole.hr, AppRole.coordinator}.contains(role)));
     final status = DeviceStatus.fromMap(user.deviceStatus);
     final active = user.isActive == true;
     final hasImage = user.imageUrl?.startsWith('http') == true;
@@ -203,7 +217,8 @@ class AdminUserView extends StatelessWidget {
             ),
           ],
 
-          // Contact
+          // Contact (people added with a username may have none)
+          if (hasContact) ...[
           SectionTitle(context.l10n.sectionContact),
           Card(
             child: Column(children: [
@@ -239,6 +254,7 @@ class AdminUserView extends StatelessWidget {
                 ),
             ]),
           ),
+          ],
 
           // Work and phone health
           if (active && role.inField) ...[
@@ -271,7 +287,7 @@ class AdminUserView extends StatelessWidget {
                 ),
               ]),
             ),
-            if (viewerRole.canMonitor) ...[
+            if (viewerRole.canMonitor && access.sees(viewerRole, AppPage.teamStatus)) ...[
               SectionTitle(context.l10n.recentAlerts),
               Card(
                 child: SizedBox(
@@ -288,10 +304,36 @@ class AdminUserView extends StatelessWidget {
           if (active && role == AppRole.worker)
             HelpersCard(mason: user, canManage: managesAccounts),
 
-          // Pay (admins and HR; supervisors don't see salaries)
-          if (viewerRole.managesPay && active) ...[
+          // Sign-in: admins and HR set passwords (username accounts get no
+          // reset emails); HR not for admin, HR or coordinator accounts.
+          if (setsPasswords) ...[
+            SectionTitle(context.l10n.sectionSignIn),
+            Card(
+              child: Column(children: [
+                ListTile(
+                  leading: const Icon(Icons.alternate_email),
+                  title: Text(user.username ?? user.emailAddress ?? '—',
+                      textDirection: TextDirection.ltr),
+                  subtitle: Text(user.username != null
+                      ? context.l10n.username
+                      : context.l10n.email),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.password),
+                  title: Text(context.l10n.setNewPassword),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => showSetPasswordDialog(context, user),
+                ),
+              ]),
+            ),
+          ],
+
+          // Pay and leave follow the Payroll and Leave requests pages.
+          if (active && access.sees(viewerRole, AppPage.payroll)) ...[
             SectionTitle(context.l10n.sectionPay),
             SalaryCard(user: user, canEdit: true),
+          ],
+          if (active && access.sees(viewerRole, AppPage.leaveRequests)) ...[
             SectionTitle(context.l10n.sectionLeave),
             WorkerLeaveCard(user: user),
           ],
@@ -301,7 +343,8 @@ class AdminUserView extends StatelessWidget {
             SectionTitle(context.l10n.sectionRole),
             Wrap(spacing: 8, runSpacing: 8, children: [
               for (final r in AppRole.values)
-                if (viewerIsAdmin || (r != AppRole.admin && r != AppRole.hr))
+                if (viewerIsAdmin ||
+                    (r != AppRole.admin && r != AppRole.hr && r != AppRole.coordinator))
                   ChoiceChip(
                     label: Text(r.localized(context.l10n)),
                     selected: role == r,

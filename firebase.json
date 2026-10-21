@@ -21,12 +21,24 @@
       {
         "source": "**/*.@(html|js|json)",
         "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+      },
+      {
+        "source": "/@(privacy|privacy-policy|delete-account)",
+        "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
       }
     ],
     "rewrites": [
       {
         "source": "/delete-account",
         "destination": "/delete-account.html"
+      },
+      {
+        "source": "/privacy",
+        "destination": "/privacy.html"
+      },
+      {
+        "source": "/privacy-policy",
+        "destination": "/privacy.html"
       },
       {
         "source": "**",

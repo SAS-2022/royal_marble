@@ -68,7 +68,7 @@ class SiteDetailsLoader extends StatelessWidget {
   Widget build(BuildContext context) {
     final db = DatabaseService();
     final role = primaryRole(currentUser.roles);
-    final manages = role == AppRole.admin || role == AppRole.supervisor;
+    final manages = role.managesTeams;
     final Stream<SiteRef> site = kind == SiteKind.project
         ? db.getProjectById(projectId: id).map(SiteRef.project)
         : db.getMockupById(mockupId: id).map(SiteRef.mockup);
@@ -95,8 +95,8 @@ class SiteDetailsLoader extends StatelessWidget {
   }
 }
 
-/// Read-only overview of a project or mock-up with its team. Admins and
-/// supervisors can manage the team; workers get their check-in card.
+/// Read-only overview of a project or mock-up with its team. Admins,
+/// coordinators and supervisors can manage the team; workers get their check-in card.
 class SiteDetailsScreen extends StatelessWidget {
   const SiteDetailsScreen(
       {super.key,
@@ -158,7 +158,7 @@ class SiteDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final role = primaryRole(currentUser.roles);
-    final manages = role == AppRole.admin || role == AppRole.supervisor;
+    final manages = role.managesTeams;
     final team = allWorkers.where((u) => site.workerIds.contains(u.uid)).toList();
     final lat = (site.address?['Lat'] as num?)?.toDouble();
     final lng = (site.address?['Lng'] as num?)?.toDouble();

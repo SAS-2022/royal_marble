@@ -7,15 +7,23 @@ phase status, and add a line to the session log.**
 was made, the steps in order, and what was decided. Later changes to a plan are added
 under it, not overwritten.**
 
-_Last updated: 2026-10-17_
+_Last updated: 2026-10-21_
 
 ---
 
 ## 0. Next session — start here (written 2026-10-11)
 
-**Active plan (2026-10-17): vacation and leave requests** — section 6 → Plans log,
+**Urgent (2026-10-21): Google Play rejection** — section 6 → Plans log, "2026-10-21 —
+Google Play rejection fixes"; issues G1… fixed one at a time as the user sends them.
+
+**Active plan (2026-10-21): Coordinator role + page access by role** — section 6 →
+Plans log, "2026-10-21 — Coordinator role and page access by role"; steps R1–R8, resume
+at the first unticked one.
+
+**Previous plan (2026-10-17): vacation and leave requests** — section 6 → Plans log,
 "2026-10-17 — Vacation and leave requests"; L1–L6 done, L7 left: try the screens on the
-emulators (web as HR, phone as worker), then L8 deploy (user). Nothing committed yet.
+emulators (web as HR, phone as worker), then L8 deploy (user). Committed and pushed as
+`776f4aa` (checked 2026-10-18).
 
 **Where we stopped (2026-10-11, paused by the user):** Block A (testing) is finished
 and everything is committed on `revive-2026` (last code commit `d2d07e9`), **not
@@ -147,6 +155,11 @@ supervisors see attendance, alerts and reports.
 | `isSales` | Sales | Visits shortcuts + projects |
 | `isSiteEngineer` | Site Engineer | Same as worker |
 | `isNormalUser` | **Mason** (worker) | Status banner + check-in cards |
+| `isHR` | HR | Overtime / leave cards + today's attendance |
+| `isCoordinator` | Coordinator | Check-in + overtime waiting + who is on site (all sites) |
+
+Which pages each role sees (besides admin, who sees all) is set by the admin on the
+**Page access** screen, stored in `settings/page_access` (plan 2026-10-21).
 
 ### Stack
 - Flutter 3.47 / Dart 3.13, Android Gradle 9.3 / AGP 9.1 / Kotlin 2.4 (Kotlin DSL)
@@ -233,6 +246,7 @@ supervisors see attendance, alerts and reports.
 | ✅ Functions `checkInOut`, `reportPresence`, `autoCheckout`, `correctAttendance`, `detectSilentDevices` + index — **deployed 2026-10-05** | `firebase deploy --only functions,firestore:indexes` | ✅ yes | yes (Blaze active) |
 | Assignment migration (`functions/scripts/migrate-assignments.js`: mason map → list, stale team entries) | dry run first, then `--project royal-marble --apply` | ❌ **only after every phone runs the new app** (old app reads a mason's assignment as a map) | no |
 | Leave: Firestore rules + **Storage rules (first time from the repo — compare with the console first)** + `notifyLeave` | `firebase deploy --only firestore:rules,storage,functions:notifyLeave` | ✅ yes (additive) | yes |
+| Coordinator + page access: Firestore rules, **all functions** (worker alerts are sent from several of them; new `mirrorWorkHours`, `fillOvertimeRate`), then the backfill script, then hosting. The rules file also carries the Leave rules above | `firebase deploy --only firestore:rules,functions`; `node functions/scripts/backfill-work-hours.js --project royal-marble` (dry run) then `--apply`; `flutter build web` + `firebase deploy --only hosting` | ✅ yes (old app reads nothing new; defaults match today's access) | yes |
 | Strict role-based rules | copy `firestore.strict.rules` → `firestore.rules`, deploy | ❌ **only after every phone runs the new app** | no |
 
 The new app's check-in depends on `checkInOut`. Old app versions still write
@@ -362,6 +376,106 @@ independent and needs no billing, so it goes first.
 ### Plans log
 Newest first. Each plan: when, why, the steps, and decisions. Tick steps as they finish.
 
+#### 2026-10-21 — Add users manually, with usernames instead of email
+**Why:** the user wants to add people from Users themselves, and to give them a unique
+**username** instead of an email (many workers have no email).
+
+**Decisions (user, 2026-10-21):**
+- Username style **first.last** (lowercase, dots), suggested by the system from the name
+  (`ravi.kumar`, then `ravi.kumar2`…) or typed by hand; unique.
+- **Admin and HR** add users (HR can't create Admin, HR or Coordinator accounts, same as the
+  role chips). New accounts are active straight away.
+- The admin/HR sets the starting password; the worker **may** change it later (not forced).
+- How (Claude's design): Firebase needs an email behind a password account, so a username
+  is stored as `<username>@staff.royalmarble.test` (`.test` can never receive mail;
+  production already accepts `@royalmarble.test` test accounts). The sign-in field takes
+  "Email or username". No reset emails for these accounts: admin/HR use **Set new
+  password** on the person's page. Accounts are created by a server function (creating
+  them in the app would sign the admin out). `usernames/{name}` reserves each name.
+
+- [x] **U1 Server** (2026-10-21) — `functions/src/accounts.ts`: `createUserAccount`,
+      `setUserPassword` (callables, admin/HR; HR not for admin/HR/coordinator),
+      `releaseUsername` (profile deleted → name freed, login removed).
+- [x] **U2 Rules** (2026-10-21) — `usernames` closed by the catch-all; strict: no self-edit
+      of `username`. Interim file unchanged.
+- [x] **U3 Sign-in** (2026-10-21) — `lib/core/usernames.dart`; "Email or username";
+      Forgot password with a username explains to ask admin/HR.
+- [x] **U4 Add user** (2026-10-21) — `lib/account_settings/add_user_screen.dart`, Users →
+      "Add user" (admin, HR); handover dialog with Copy. `UserData.username`.
+- [x] **U5 Passwords** (2026-10-21) — `password_dialogs.dart`: person's page → Sign-in
+      section (username/email + Set new password); Settings → Change password. Empty
+      Contact section now hidden.
+- [ ] **U6 Tests and deploy** — done: `test/usernames_test.dart` (85 pass); 21 emulator
+      checks of the functions; web on the emulators as HR: add user → `ahmed.rashid`, sign
+      in by username, person's page, change password and back. **Left:** deploy (rules +
+      hosting by the standing rule; functions `createUserAccount`, `setUserPassword`,
+      `releaseUsername` need the user's go-ahead — until then Add user fails); new phone build.
+
+#### 2026-10-21 — Coordinator role and page access by role
+**Why:** the user asked for (1) a new **Coordinator** role, (2) an **admin-only page** that
+sets which pages of the app each role can see, (3) HR by default seeing most of the app
+except Sites, Clients, Team status and Live map, and (4) the coordinator assigning workers
+to sites, watching their presence at work and approving/rejecting overtime.
+
+**Decisions (user, 2026-10-21):**
+- Coordinator covers **all sites** (like the admin): assigns workers to any site, sees
+  every worker on Team status / Live map. Cannot create, edit or delete sites, change
+  roles or approve sign-ups (admin only). Role key `isCoordinator`; only admins give it.
+- Coordinator is a **field role**: phone tracked, checks in at the sites they are
+  assigned to (like a supervisor), gets push alerts for every site. Web dashboard too.
+- The access page is enforced by the **server rules** as well as the menu: rules read
+  `settings/page_access` for payroll, overtime, payslips, leave requests and phone
+  alerts. Admin always sees every page (not editable). Personal pages (My profile,
+  My pay, My leave, Settings) are always on.
+- Coordinator sees overtime **hours only**; AED amounts only for roles with Payroll.
+  Because the coordinator can't read pay packages, a function copies each package's
+  working hours (weekly hours, day end) to `work_hours/{uid}`, and fills the overtime
+  rate on the server when the approver couldn't (rules: such approvers must leave
+  `rate` empty).
+- Pages on the access page: Team status, Live map, Users, Sites, Clients, Visits,
+  Reports, Overtime, Payroll, Leave requests. Defaults: HR = Users, Visits, Reports,
+  Overtime, Payroll, Leave requests; Coordinator = Team status, Live map, Users, Sites,
+  Reports, Overtime; Supervisor / Sales unchanged from today; Mason / Site engineer none.
+- Kept fixed (not on the access page): attendance correction (admin + HR), reopening an
+  approved month (admin), account and role changes (admin; supervisors as today).
+
+- [x] **R1 Coordinator role** (2026-10-21) — `AppRole.coordinator` (`isCoordinator`), label
+      in 4 languages, role chip (admin only), assignable to sites (`getAllWorkers`), in the
+      reports role filter; Users list now also shows HR and coordinators. New getters in
+      `roles.dart`: `allSites`, `managesTeams`, `usesWeb`; `canMonitor` includes coordinator.
+- [x] **R2 Access model** (2026-10-21) — `lib/core/page_access.dart` (`AppPage`,
+      `defaultPages`, `PageAccess`): StreamProvider in the wrapper, plus
+      `PageAccess.latest` for pages opened with the Navigator.
+- [x] **R3 Access page (admin)** (2026-10-21) — `lib/screens/page_access_screen.dart`, menu
+      "Page access" (admin only): a chip per page for each role, saved on tap, "Default" or
+      "Reset to default" per role.
+- [x] **R4 App follows access** (2026-10-21) — menu, HR home cards, alert bell (Team
+      status), user page (alerts ↔ Team status, pay ↔ Payroll, leave ↔ Leave requests;
+      accounts/roles: admin + supervisor only), web dashboard for admin/HR/coordinator.
+      Visits and Clients: every non-sales role with the page browses the sales team
+      (was admin only; HR gets Visits by default). Attendance correction still admin + HR.
+- [x] **R5 Coordinator home and powers** (2026-10-21) — home: own check-in cards (phone
+      only), overtime waiting, today's attendance, all active sites; "Manage" on every
+      site's team (no edit/status/new site, no new-site long-press on the map); all
+      sites on the live map; overtime hours only (reads `work_hours`, saves `rate: null`).
+- [x] **R6 Server** (2026-10-21) — rules (both files): `sees(page)` for payroll,
+      overtime (no `rate` without Payroll), payslips, leave requests, device_events;
+      `work_hours` (read: Overtime/Payroll/own); `settings/page_access` (read: signed in,
+      write: admin). Strict also: coordinator = manager, edits only `assignedWorkers` on
+      sites and assignments on users; visits/clients readable with the page. Functions
+      (`functions/src/pay.ts`): `mirrorWorkHours`, `fillOvertimeRate`; `notify.ts`:
+      worker alerts to coordinators (all sites), leave pushes to roles with Leave requests
+      (`rolesWithPage`). Script `functions/scripts/backfill-work-hours.js`. Seed has
+      `coordinator@test.local` ("Cora Coordinator", Test Villa).
+- [x] **R7 Tests** (2026-10-21, local) — `test/page_access_test.dart` (9; all 82 pass);
+      32 rules/function checks on the emulators (mirror, rate fill, every role's access,
+      admin changing access); `npm run test:checkin` all pass; both rules files dry-run
+      compiled; web build on the emulators: coordinator home/overtime/site team, HR menu
+      and home, admin Page access (toggle → coordinator's menu updates). **Not tried:**
+      the phone app as coordinator (check-in, push alerts) and overtime with real
+      after-hours data in the hours-only view.
+- [ ] **R8 Deploy (user's approval)** — rules, functions, backfill, hosting; new app build.
+
 #### 2026-10-17 — Vacation and leave requests (Phase 6, part 3)
 **Why:** the user asked to add vacation to pay: HR assigns each employee's allowed vacation
 days; employees request **annual** or **emergency** leave, or report **sick leave** with a
@@ -434,6 +548,51 @@ and sick leave entitlement "as per the law"; deploy to the web directly.
       but no pay counts as "no pay details" on Payroll. Not modelled: no paid sick leave in
       probation (shown as a note).
 - [x] **L12 Deploy web** (2026-10-17, by Claude at the user's request; live site checked: new build served).
+
+#### 2026-10-21 — Google Play rejection fixes (one issue at a time)
+**Why:** Play sent a policy rejection (enforced 21 Oct; previous version stays on Play).
+The user is sending the issues one by one; each gets fixed in order.
+- [x] **G1 Privacy policy requires login** — the policy link opened the Flutter sign-in
+      screen. New static `web/privacy.html` (no sign-in, no Flutter; same look as
+      delete-account): data collected (account, background location while signed in as a
+      worker, motion on device only, work/pay records, uploaded photos/reports, device +
+      crash data), uses, who sees it (roles, Firebase/Google Maps/Sign-In), retention,
+      rights, deletion links, contact royalmarble.uae@gmail.com. `firebase.json`: `/privacy`
+      and `/privacy-policy` → `/privacy.html`. Web rebuilt; rules dry run OK.
+- [x] G1 deploy hosting + rules (user, 2026-10-21) — server serves the policy at /privacy.
+- [x] G1 the user's browser still opened `/privacy#/home` (old cached Flutter page:
+      extensionless paths got `max-age=3600`). `firebase.json`: no-cache header for
+      `/privacy`, `/privacy-policy`, `/delete-account`. Needs another hosting deploy.
+- [ ] G1 user: Play Console → App content → Privacy policy = `https://royal-marble.web.app/privacy`
+      (and the same URL in App Store Connect); then resubmit.
+- [ ] User: confirm the policy text with the client (retention, contact email).
+- [ ] **G2 Broken Functionality** (details page not yet seen). Release APK tested on the
+      Pixel_3A emulator 2026-10-21: starts, signed-in worker home works, fresh install shows
+      sign-in; no crash in logcat. Two likely causes found:
+      (a) Firebase Android app only has the upload SHA-1 `75:E5:33…` and the debug SHA-1
+      `80:12:22…`; Play-installed builds are signed with the Play App Signing key, so
+      "Continue with Google" fails there (DEVELOPER_ERROR). Fix (user): Play Console → App
+      integrity → copy App signing key SHA-1 + SHA-256 → Firebase → Project settings →
+      Android app → Add fingerprint; then re-download `google-services.json` for Claude.
+      (b) Self-registered accounts stay on "Pending approval" (`lib/home.dart` _PendingApproval),
+      a dead end for reviewers. Fix (user): Play Console → App content → App access → "All or
+      some functionality is restricted" + an active, site-assigned test login (e.g.
+      `mason.test@royalmarble.test`, password via `functions/scripts/set-test-password.js`).
+- [x] **G2 cause found (2026-10-21): "Crashes after opening".** Reproduced by splitting the
+      uploaded AAB (11.0.1+12) with bundletool on the Pixel_3A: crash at start,
+      `Failed to create an instance of class androidx.work.impl.WorkDatabase` (R8 in AGP 9.1
+      renamed WorkManager's Room database classes; a plain `flutter build apk` did not crash,
+      only the bundle). Fix: new `android/app/proguard-rules.pro` (keep RoomDatabase
+      subclasses + `WorkDatabase_Impl`), added to `proguardFiles` in `build.gradle.kts`.
+      Version 11.0.2+13; AAB rebuilt, split + installed: opens to sign-in, no FATAL.
+      Not tested from the bundle: signing in and tracking (no test password at hand).
+- [x] G2 (a) done (user, 2026-10-21): Play App Signing key added to Firebase — SHA-1
+      `ec97600f…a83e5`, SHA-256 `76a46b3e…1e00a` (checked with `apps:android:sha:list`).
+      Local `google-services.json` not refreshed (not needed for the build).
+- [ ] User: upload `build/app/outputs/bundle/release/app-release.aab` (11.0.2, build 13), plus
+      G2 (b) App access login, then send for review.
+- Always test a release **bundle** through bundletool before uploading, not only an APK.
+- G3 target API 35+ warning: about the live build 10; build 11 targets 36, clears on approval.
 
 #### 2026-10-14 — Account deletion web page (Play Data safety)
 **Why:** Play's Data safety form needs a URL where users can delete their account.
@@ -1254,3 +1413,30 @@ Workers come from different countries; each user picks a language.
 - **2026-10-17 (cont.)** — L11 leave entitlement (start date, annual/emergency, sick tiers, "Use UAE
   law") on its own screen from the worker page's Leave card; hosting deployed (L12). Phones still
   need a new app build for all leave changes. Storage rules still wait on the console comparison.
+- **2026-10-18** — Review only: the user asked for a summary of what is built, what is left and how
+  the app can grow. Found the leave work already committed and pushed (`776f4aa`). No code changes.
+- **2026-10-20** — Fixed: on the web dashboard, New project → Set pin crashed (geocoding has no web
+  version; creating `Geocoding()` throws there). The pin picker now skips the geocoder on the web
+  (no address search box; the address is the coordinates, editable on the form). Also: geocoding
+  5.0.0 ignores the constructor's locale, so English is now passed on each call (phones were
+  storing addresses in the phone's language). `build/web` rebuilt, hosting dry run clean;
+  **hosting deploy pending (user runs it)**. Phones get the locale fix with the next app build.
+  Same day: the user still saw the grey screen — the live site was still the 17 Oct bundle (not
+  deployed yet). Checked in headless Chromium with a one-screen harness: old code → "Null check
+  operator used on a null value" (grey screen); fixed code → picker opens, "Use this location"
+  returns to the form with the map and coordinates. Deploy still pending (user).
+- **2026-10-21** — New plan "Coordinator role and page access by role" (R1–R8). User's choices:
+  coordinator covers all sites, field role (tracked, checks in), access enforced by the rules
+  too, overtime hours only for the coordinator. R1–R7 done locally (see the plan); uncommitted.
+  Note: `live_map_screen.dart` and `site_form_screen.dart` also hold the 2026-10-20 web pin
+  fix (uncommitted), so commit that first or together. **Next: R8** — user deploys (rules,
+  all functions, backfill, hosting) and builds a new app version; then try a coordinator on a phone.
+- **2026-10-21 (cont.)** — User rule: after any change, always deploy Firestore rules + hosting.
+  Production `build/web` rebuilt with the coordinator work, dry run clean; the deploy itself is
+  blocked by Claude Code's permission check, so the user runs
+  `firebase deploy --only firestore:rules,hosting --project royal-marble --account royalmarble.uae@gmail.com`.
+  Functions still need the user's go-ahead (coordinator overtime rate and `work_hours` depend on them).
+- **2026-10-21 (cont.)** — New plan "Add users manually, with usernames" (U1–U6): first.last
+  usernames, admin + HR add users, admin/HR set passwords, workers may change their own.
+  Hidden login domain `staff.royalmarble.test`. U1–U5 done and tested locally (see plan);
+  uncommitted. Deploy: rules + hosting (standing rule), functions need the go-ahead.

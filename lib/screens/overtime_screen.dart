@@ -5,7 +5,10 @@ import '../core/app_theme.dart';
 import '../core/format.dart';
 import '../core/l10n_helpers.dart';
 import '../core/locale_controller.dart';
+import '../core/page_access.dart';
+import '../core/roles.dart';
 import '../models/pay_calc.dart';
+import '../models/payslip.dart';
 import '../models/salary.dart';
 import '../models/user_model.dart';
 import '../services/pay_service.dart';
@@ -25,16 +28,18 @@ class _Row {
   const _Row(this.uid, this.name, this.day, this.lastOut, this.package, this.locked);
 }
 
-/// Every worker's days with overtime in this month (or the last), newest first.
-Future<List<_Row>> _loadOvertime({bool lastMonth = false}) async {
+/// Every worker's days with overtime in this month (or the last), newest
+/// first. Without [withPay] (no Payroll page) only working hours are read:
+/// no rates, and no payslips to show which months are approved.
+Future<List<_Row>> _loadOvertime({bool lastMonth = false, required bool withPay}) async {
   final now = DateTime.now();
   final month = DateTime(now.year, now.month - (lastMonth ? 1 : 0));
   final range = PayService.month(month, now);
   final (workers, packages, decisions, slips) = await (
     PayService.loadDays(range),
-    PayService.packages(),
+    withPay ? PayService.packages() : PayService.workHours(),
     PayService.decisionsIn(range),
-    PayService.payslipsIn(month),
+    withPay ? PayService.payslipsIn(month) : Future.value(const <String, Payslip>{}),
   ).wait;
   final rows = <_Row>[];
   for (final MapEntry(key: uid, value: w) in workers.entries) {
@@ -54,13 +59,19 @@ Future<List<_Row>> _loadOvertime({bool lastMonth = false}) async {
   return rows;
 }
 
-/// Overtime days this month still waiting for HR (for the home screen).
-Future<int> countWaitingOvertime() async => (await _loadOvertime())
-    .where((r) => r.day.overtimeStatus == OvertimeStatus.pending)
-    .length;
+/// Whether [viewer] sees overtime amounts (has the Payroll page).
+bool _seesPay(UserData viewer) =>
+    PageAccess.latest.sees(primaryRole(viewer.roles), AppPage.payroll);
 
-/// HR and admins: overtime (time after each worker's day end) to approve or
-/// reject. Only approved overtime is paid.
+/// Overtime days this month still waiting for a decision (for the home screen).
+Future<int> countWaitingOvertime(UserData viewer) async =>
+    (await _loadOvertime(withPay: _seesPay(viewer)))
+        .where((r) => r.day.overtimeStatus == OvertimeStatus.pending)
+        .length;
+
+/// Overtime (time after each worker's day end) to approve or reject, for
+/// roles with the Overtime page. Only approved overtime is paid; amounts
+/// show only to roles that also have the Payroll page.
 class OvertimeScreen extends StatefulWidget {
   const OvertimeScreen({super.key, required this.viewer});
   final UserData viewer;
@@ -71,9 +82,10 @@ class OvertimeScreen extends StatefulWidget {
 
 class _OvertimeScreenState extends State<OvertimeScreen> {
   bool _lastMonth = false;
+  late final bool _withPay = _seesPay(widget.viewer);
   late Future<List<_Row>> _rows = _load();
 
-  Future<List<_Row>> _load() => _loadOvertime(lastMonth: _lastMonth);
+  Future<List<_Row>> _load() => _loadOvertime(lastMonth: _lastMonth, withPay: _withPay);
 
   void _reload() => setState(() {
         _rows = _load();
@@ -107,7 +119,7 @@ class _OvertimeScreenState extends State<OvertimeScreen> {
       day: r.day.day,
       status: status,
       minutes: r.day.overtimeMinutes,
-      rate: r.package.overtimeRate,
+      rate: _withPay ? r.package.overtimeRate : null,
       note: note,
       byName: '${v.firstName ?? ''} ${v.lastName ?? ''}'.trim(),
     );
@@ -174,6 +186,7 @@ class _OvertimeScreenState extends State<OvertimeScreen> {
                     _List(
                       rows: rows.where((r) => r.day.overtimeStatus == s).toList(),
                       onDecide: _decide,
+                      showPay: _withPay,
                     ),
                 ]);
               },
@@ -186,9 +199,10 @@ class _OvertimeScreenState extends State<OvertimeScreen> {
 }
 
 class _List extends StatelessWidget {
-  const _List({required this.rows, required this.onDecide});
+  const _List({required this.rows, required this.onDecide, required this.showPay});
   final List<_Row> rows;
   final void Function(_Row, OvertimeStatus) onDecide;
+  final bool showPay;
 
   @override
   Widget build(BuildContext context) {
@@ -225,13 +239,15 @@ class _List extends StatelessWidget {
                   localizedDuration(l, Duration(minutes: d.overtimeMinutes)),
                   dayEnd,
                   r.lastOut == null ? '—' : hm.format(r.lastOut!))),
-              const SizedBox(height: 4),
-              Text(
-                  rate > 0
-                      ? l.overtimeWorth(money(rate * d.overtimeMinutes / 60, r.package.currency),
-                          money(rate, r.package.currency))
-                      : l.noOvertimeRate,
-                  style: TextStyle(color: rate > 0 ? AppColors.ink : AppColors.warn)),
+              if (showPay) ...[
+                const SizedBox(height: 4),
+                Text(
+                    rate > 0
+                        ? l.overtimeWorth(money(rate * d.overtimeMinutes / 60, r.package.currency),
+                            money(rate, r.package.currency))
+                        : l.noOvertimeRate,
+                    style: TextStyle(color: rate > 0 ? AppColors.ink : AppColors.warn)),
+              ],
               if (r.locked) ...[
                 const SizedBox(height: 8),
                 StatusPill(l.payslipApproved, tone: Tone.ok, icon: Icons.lock_outline),

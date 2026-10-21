@@ -574,7 +574,8 @@ class AppLocalizationsUr extends AppLocalizations {
   String get salesActivity => 'سیلز سرگرمی';
 
   @override
-  String get webAdminsOnlyTitle => 'ویب ڈیش بورڈ ایڈمنز اور ایچ آر کے لیے ہے';
+  String get webAdminsOnlyTitle =>
+      'ویب ڈیش بورڈ ایڈمنز، ایچ آر اور کوآرڈینیٹرز کے لیے ہے';
 
   @override
   String get webAdminsOnlyBody =>
@@ -2475,4 +2476,111 @@ class AppLocalizationsUr extends AppLocalizations {
   @override
   String get sickLawNote =>
       'یو اے ای قانون: سال میں 90 دن تک بیماری کی چھٹی (15 پوری تنخواہ، 30 آدھی تنخواہ، 45 بغیر تنخواہ)؛ پروبیشن میں تنخواہ والی بیماری کی چھٹی نہیں۔';
+
+  @override
+  String get roleCoordinator => 'کوآرڈینیٹر';
+
+  @override
+  String get rolesCoordinators => 'کوآرڈینیٹرز';
+
+  @override
+  String get pageAccess => 'صفحات تک رسائی';
+
+  @override
+  String get pageAccessIntro =>
+      'منتخب کریں کہ ہر کردار مینو میں کون سے صفحات دیکھے۔ ایڈمنز ہمیشہ تمام صفحات دیکھتے ہیں۔ میری پروفائل، میری تنخواہ، میری چھٹی اور سیٹنگز ہمیشہ آن رہتی ہیں۔';
+
+  @override
+  String get pageAccessDefault => 'ڈیفالٹ';
+
+  @override
+  String get pageAccessReset => 'ڈیفالٹ پر واپس';
+
+  @override
+  String get pageAccessSaveFailed =>
+      'تبدیلی محفوظ نہیں ہو سکی۔ براہ کرم دوبارہ کوشش کریں۔';
+
+  @override
+  String get emailOrUsername => 'ای میل یا یوزر نیم';
+
+  @override
+  String get enterEmailOrUsername => 'اپنا ای میل یا یوزر نیم درج کریں';
+
+  @override
+  String get usernameResetBody =>
+      'یوزر نیم والے اکاؤنٹس کو ری سیٹ ای میل نہیں ملتی۔ نیا پاس ورڈ سیٹ کرنے کے لیے اپنے ایڈمن یا ایچ آر سے کہیں۔';
+
+  @override
+  String get ok => 'ٹھیک ہے';
+
+  @override
+  String get addUser => 'یوزر شامل کریں';
+
+  @override
+  String get mobileNumberOptional => 'موبائل نمبر (اختیاری)';
+
+  @override
+  String get sectionSignIn => 'سائن اِن';
+
+  @override
+  String get username => 'یوزر نیم';
+
+  @override
+  String get usernameHelp =>
+      'نام سے تجویز کردہ، جیسے ravi.kumar۔ اگر یہ پہلے سے لیا گیا ہو تو ایک نمبر لگایا جاتا ہے۔ آپ اپنا بھی لکھ سکتے ہیں۔';
+
+  @override
+  String get usernameInvalid =>
+      '3–30 چھوٹے انگریزی حروف یا اعداد لکھیں، حصوں کے درمیان نقطے کے ساتھ';
+
+  @override
+  String get errUsernameNeeded => 'یوزر نیم لکھیں';
+
+  @override
+  String get errUsernameTaken =>
+      'یہ یوزر نیم پہلے سے لیا گیا ہے۔ کوئی اور آزمائیں۔';
+
+  @override
+  String get errRoleAdminOnly => 'اس کردار کے لیے یہ صرف ایڈمن کر سکتا ہے۔';
+
+  @override
+  String get errAccountGeneric =>
+      'محفوظ نہیں ہو سکا۔ براہ کرم دوبارہ کوشش کریں۔';
+
+  @override
+  String get accountCreatedTitle => 'اکاؤنٹ بن گیا';
+
+  @override
+  String accountCreatedBody(String name) {
+    return 'یہ سائن اِن تفصیلات $name کو دیں۔ وہ بعد میں سیٹنگز میں پاس ورڈ بدل سکتے ہیں۔';
+  }
+
+  @override
+  String get copy => 'کاپی کریں';
+
+  @override
+  String get copied => 'کاپی ہو گیا';
+
+  @override
+  String get setNewPassword => 'نیا پاس ورڈ سیٹ کریں';
+
+  @override
+  String get newPassword => 'نیا پاس ورڈ';
+
+  @override
+  String passwordSetFor(String name) {
+    return 'نیا پاس ورڈ محفوظ ہو گیا۔ یہ $name کو دیں۔';
+  }
+
+  @override
+  String get changePassword => 'پاس ورڈ بدلیں';
+
+  @override
+  String get currentPassword => 'موجودہ پاس ورڈ';
+
+  @override
+  String get errCurrentPasswordWrong => 'موجودہ پاس ورڈ غلط ہے';
+
+  @override
+  String get passwordChanged => 'پاس ورڈ بدل گیا';
 }

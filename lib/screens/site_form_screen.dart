@@ -1,4 +1,5 @@
 import 'package:email_validator/email_validator.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -443,8 +444,13 @@ class _SitePinPickerState extends State<SitePinPicker> {
   /// Dubai, when there is no pin and no GPS fix yet.
   static const _dubai = LatLng(25.2048, 55.2708);
 
+  /// The phone's geocoder. The web has none (creating one throws there), so
+  /// the browser places pins by moving the map only.
+  final _geocoder = kIsWeb ? null : Geocoding();
+
   /// Stored addresses stay in English, whatever the admin's phone language.
-  final _geocoder = Geocoding(locale: const Locale('en'));
+  /// Passed on each call: geocoding 5.0.0 ignores the constructor's locale.
+  static const _en = Locale('en');
   GoogleMapController? _map;
   late LatLng _center = widget.initial ?? _dubai;
   final _search = TextEditingController();
@@ -497,7 +503,7 @@ class _SitePinPickerState extends State<SitePinPicker> {
       _error = null;
     });
     try {
-      final found = await _geocoder.locationFromAddress(q);
+      final found = await _geocoder!.locationFromAddress(q, locale: _en);
       if (found.isEmpty) throw StateError('none');
       await _moveTo(LatLng(found.first.latitude, found.first.longitude),
           zoom: siteZoomFor(widget.radius));
@@ -511,8 +517,9 @@ class _SitePinPickerState extends State<SitePinPicker> {
     setState(() => _busy = true);
     var name = '';
     try {
-      final marks = await _geocoder.placemarkFromCoordinates(
-          _center.latitude, _center.longitude);
+      final marks = await _geocoder?.placemarkFromCoordinates(
+              _center.latitude, _center.longitude, locale: _en) ??
+          const <Placemark>[];
       if (marks.isNotEmpty) name = addressFromPlacemark(marks.first);
     } catch (e) {
       // Offline or no geocoder: keep the coordinates as the address.
@@ -553,7 +560,8 @@ class _SitePinPickerState extends State<SitePinPicker> {
             ),
           ),
         ),
-        Positioned(
+        if (_geocoder != null)
+          Positioned(
           top: 12,
           left: 12,
           right: 12,

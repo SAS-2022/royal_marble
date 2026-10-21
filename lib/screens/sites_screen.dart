@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/app_theme.dart';
 import '../core/format.dart';
 import '../core/locale_controller.dart';
+import '../core/roles.dart';
 import '../models/user_model.dart';
 import '../services/checkin_service.dart' show SiteKind;
 import '../services/database.dart';
@@ -73,11 +74,15 @@ class _SitesScreenState extends State<SitesScreen> {
     final l = context.l10n;
     return Scaffold(
       appBar: AppBar(title: Text(l.allSites)),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _add,
-        icon: const Icon(Icons.add),
-        label: Text(l.newSite),
-      ),
+      // Coordinators and HR staff sites but don't create them.
+      floatingActionButton: switch (primaryRole(widget.currentUser.roles)) {
+        AppRole.coordinator || AppRole.hr => null,
+        _ => FloatingActionButton.extended(
+            onPressed: _add,
+            icon: const Icon(Icons.add),
+            label: Text(l.newSite),
+          ),
+      },
       body: StreamBuilder(
         stream: _projects,
         builder: (context, p) => StreamBuilder(

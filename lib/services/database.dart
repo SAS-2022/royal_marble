@@ -151,6 +151,9 @@ class DatabaseService {
       case 'HR':
         roles = 'isHR';
         break;
+      case 'Coordinator':
+        roles = 'isCoordinator';
+        break;
     }
     try {
       return await userCollection.doc(uid).update({
@@ -240,7 +243,9 @@ class DatabaseService {
           'isSales',
           'isNormalUser',
           'isSupervisor',
-          'isSiteEngineer'
+          'isSiteEngineer',
+          'isHR',
+          'isCoordinator'
         ])
         .snapshots()
         .map(_allUserDataFromSnapshot);
@@ -273,7 +278,8 @@ class DatabaseService {
         .where('roles', arrayContainsAny: [
           'isNormalUser',
           'isSupervisor',
-          'isSiteEngineer'
+          'isSiteEngineer',
+          'isCoordinator'
         ])
         .orderBy('firstName', descending: false)
         .snapshots()
@@ -321,6 +327,7 @@ class DatabaseService {
     return UserData(
       uid: snapshot.id,
       emailAddress: data['emailAddress'],
+      username: data['username'],
       firstName: data['firstName'],
       lastName: data['lastName'],
       phoneNumber: data['phoneNumber'],
@@ -347,6 +354,7 @@ class DatabaseService {
       return UserData(
         uid: snapshot.id,
         emailAddress: data['emailAddress'],
+        username: data['username'],
         firstName: data['firstName'],
         lastName: data['lastName'],
         phoneNumber: data['phoneNumber'],

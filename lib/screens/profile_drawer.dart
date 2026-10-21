@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:royal_marble/core/l10n_helpers.dart';
 import 'package:royal_marble/core/locale_controller.dart';
 import 'package:royal_marble/account_settings/users_grid.dart';
 import 'package:royal_marble/core/app_theme.dart';
 import 'package:royal_marble/core/error_reporter.dart';
+import 'package:royal_marble/core/page_access.dart';
 import 'package:royal_marble/core/roles.dart';
 import 'package:royal_marble/models/user_model.dart';
 import 'package:royal_marble/reports/reports_screen.dart';
@@ -11,6 +13,7 @@ import 'package:royal_marble/screens/clients_screen.dart';
 import 'package:royal_marble/screens/leave_screens.dart';
 import 'package:royal_marble/screens/live_map_screen.dart';
 import 'package:royal_marble/screens/my_profile_screen.dart';
+import 'package:royal_marble/screens/page_access_screen.dart';
 import 'package:royal_marble/screens/overtime_screen.dart';
 import 'package:royal_marble/screens/payroll_screen.dart';
 import 'package:royal_marble/screens/settings_screen.dart';
@@ -42,9 +45,8 @@ class ProfileDrawer extends StatelessWidget {
     if (user == null || user.roles == null) return const Drawer();
     final role = primaryRole(user.roles);
     final admin = role == AppRole.admin;
-    final supervisor = role == AppRole.supervisor;
-    final sales = role == AppRole.sales;
-    final hr = role == AppRole.hr;
+    final access = context.watch<PageAccess>();
+    bool sees(AppPage page) => access.sees(role, page);
 
     void open(Widget page) {
       if (onOpen != null) return onOpen!(page);
@@ -71,46 +73,47 @@ class ProfileDrawer extends StatelessWidget {
                       selected: current == null, () => onOpen!(null)),
                 // Work first; the "new …" actions live as + buttons on
                 // each list, and Reports switches between attendance and sales.
-                if (admin || supervisor) ...[
+                if (sees(AppPage.teamStatus))
                   _Item(Icons.notifications_active_outlined, l.teamStatusAlerts,
                       selected: sidebar && current == TeamStatusScreen,
                       () => open(TeamStatusScreen(users: allUsers ?? const [], viewer: user))),
+                if (sees(AppPage.liveMap))
                   _Item(Icons.map_outlined, l.liveMap,
                       selected: sidebar && current == LiveMapScreen,
                       () => open(LiveMapScreen(currentUser: user))),
-                ],
-                if (admin || supervisor || hr)
+                if (sees(AppPage.users))
                   _Item(Icons.people_outline, l.users,
                       selected: sidebar && current == UserGrid,
                       () => open(UserGrid(currentUser: user))),
-                if (admin || sales || supervisor)
+                if (sees(AppPage.sites))
                   _Item(Icons.location_city_outlined, l.sectionSites,
                       selected: sidebar && current == SitesScreen,
                       () => open(SitesScreen(currentUser: user))),
-                if (admin || sales) ...[
+                if (sees(AppPage.clients))
                   _Item(Icons.storefront_outlined, l.clients,
                       selected: sidebar && current == ClientsScreen,
                       () => open(ClientsScreen(currentUser: user))),
+                if (sees(AppPage.visits))
                   _Item(Icons.event_note_outlined, l.visits,
                       selected: sidebar && current == VisitsScreen,
                       () => open(VisitsScreen(currentUser: user))),
-                ],
-                if (admin || supervisor || hr)
+                if (sees(AppPage.reports))
                   _Item(Icons.bar_chart_outlined, l.sectionReports,
                       selected: sidebar && current == ReportsScreen,
                       () => open(ReportsScreen(canCorrect: role.managesPay))),
-                if (role.managesPay) ...[
+                if (sees(AppPage.overtime))
                   _Item(Icons.more_time, l.overtime,
                       selected: sidebar && current == OvertimeScreen,
                       () => open(OvertimeScreen(viewer: user))),
+                if (sees(AppPage.payroll))
                   _Item(Icons.account_balance_wallet_outlined, l.payroll,
                       selected: sidebar && current == PayrollScreen,
                       () => open(PayrollScreen(users: allUsers ?? const [], viewer: user))),
+                if (sees(AppPage.leaveRequests))
                   _Item(Icons.beach_access_outlined, l.leaveRequests,
                       selected: sidebar && current == LeaveRequestsScreen,
                       () => open(LeaveRequestsScreen(viewer: user))),
-                ],
-                if (admin || supervisor || sales || hr) const Divider(height: 24),
+                if (access.pagesFor(role).isNotEmpty) const Divider(height: 24),
                 _Item(Icons.person_outline, l.myProfile,
                     selected: sidebar && current == MyProfileScreen,
                     () => open(MyProfileScreen(user: user))),
@@ -122,11 +125,15 @@ class ProfileDrawer extends StatelessWidget {
                   _Item(Icons.beach_access_outlined, l.myLeave,
                       selected: sidebar && current == MyLeaveScreen,
                       () => open(MyLeaveScreen(user: user))),
+                if (admin)
+                  _Item(Icons.admin_panel_settings_outlined, l.pageAccess,
+                      selected: sidebar && current == PageAccessScreen,
+                      () => open(PageAccessScreen(viewer: user))),
                 _Item(Icons.settings_outlined, l.settings,
                     selected: sidebar && current == SettingsScreen,
                     () => open(SettingsScreen(
                         user: user,
-                        getsAlerts: admin || supervisor,
+                        getsAlerts: role.canMonitor,
                         isAdmin: admin))),
               ],
             ),

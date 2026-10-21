@@ -161,7 +161,9 @@ class VisitsScreen extends StatefulWidget {
 }
 
 class _VisitsScreenState extends State<VisitsScreen> {
-  late final bool _admin = primaryRole(widget.currentUser.roles) == AppRole.admin;
+  /// Everyone but salespeople (admins, and roles an admin gave this page)
+  /// browses the sales team's visits.
+  late final bool _team = primaryRole(widget.currentUser.roles) != AppRole.sales;
   late String _userId = widget.currentUser.uid!;
   late final _salesUsers = DatabaseService().getSalesUsers();
   bool _pickedPerson = false;
@@ -283,12 +285,12 @@ class _VisitsScreenState extends State<VisitsScreen> {
   Widget _list(List<SalesVisit>? all) {
     final l = context.l10n;
     final header = <Widget>[
-      if (_admin)
+      if (_team)
         StreamBuilder<List<UserData>>(
           stream: _salesUsers,
           builder: (context, s) {
             final sales = s.data ?? const <UserData>[];
-            // Admins mostly look at the sales team: start on the first one.
+            // They mostly look at the sales team: start on the first one.
             if (!_pickedPerson && sales.isNotEmpty && _own &&
                 !sales.any((u) => u.uid == widget.currentUser.uid)) {
               WidgetsBinding.instance.addPostFrameCallback((_) {

@@ -1101,7 +1101,7 @@ abstract class AppLocalizations {
   /// No description provided for @webAdminsOnlyTitle.
   ///
   /// In en, this message translates to:
-  /// **'The web dashboard is for admins and HR'**
+  /// **'The web dashboard is for admins, HR and coordinators'**
   String get webAdminsOnlyTitle;
 
   /// No description provided for @webAdminsOnlyBody.
@@ -4397,6 +4397,198 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'UAE law: up to 90 sick days a year (15 full pay, 30 half pay, 45 unpaid); no paid sick leave during probation.'**
   String get sickLawNote;
+
+  /// No description provided for @roleCoordinator.
+  ///
+  /// In en, this message translates to:
+  /// **'Coordinator'**
+  String get roleCoordinator;
+
+  /// No description provided for @rolesCoordinators.
+  ///
+  /// In en, this message translates to:
+  /// **'Coordinators'**
+  String get rolesCoordinators;
+
+  /// No description provided for @pageAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Page access'**
+  String get pageAccess;
+
+  /// No description provided for @pageAccessIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose which pages each role sees in the menu. Admins always see every page. My profile, My pay, My leave and Settings are always on.'**
+  String get pageAccessIntro;
+
+  /// No description provided for @pageAccessDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get pageAccessDefault;
+
+  /// No description provided for @pageAccessReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to default'**
+  String get pageAccessReset;
+
+  /// No description provided for @pageAccessSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save the change. Please try again.'**
+  String get pageAccessSaveFailed;
+
+  /// No description provided for @emailOrUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Email or username'**
+  String get emailOrUsername;
+
+  /// No description provided for @enterEmailOrUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email or username'**
+  String get enterEmailOrUsername;
+
+  /// No description provided for @usernameResetBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts with a username don\'t get reset emails. Ask your admin or HR to set a new password for you.'**
+  String get usernameResetBody;
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
+
+  /// No description provided for @addUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Add user'**
+  String get addUser;
+
+  /// No description provided for @mobileNumberOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile number (optional)'**
+  String get mobileNumberOptional;
+
+  /// No description provided for @sectionSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in'**
+  String get sectionSignIn;
+
+  /// No description provided for @username.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get username;
+
+  /// No description provided for @usernameHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested from the name, e.g. ravi.kumar. If it\'s taken, a number is added. You can type your own.'**
+  String get usernameHelp;
+
+  /// No description provided for @usernameInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Use 3–30 lowercase letters or numbers, with dots between parts'**
+  String get usernameInvalid;
+
+  /// No description provided for @errUsernameNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a username'**
+  String get errUsernameNeeded;
+
+  /// No description provided for @errUsernameTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'That username is taken. Try another one.'**
+  String get errUsernameTaken;
+
+  /// No description provided for @errRoleAdminOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Only an admin can do this for this role.'**
+  String get errRoleAdminOnly;
+
+  /// No description provided for @errAccountGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save. Please try again.'**
+  String get errAccountGeneric;
+
+  /// No description provided for @accountCreatedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account created'**
+  String get accountCreatedTitle;
+
+  /// No description provided for @accountCreatedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Give these sign-in details to {name}. They can change the password later in Settings.'**
+  String accountCreatedBody(String name);
+
+  /// No description provided for @copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get copy;
+
+  /// No description provided for @copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get copied;
+
+  /// No description provided for @setNewPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Set new password'**
+  String get setNewPassword;
+
+  /// No description provided for @newPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get newPassword;
+
+  /// No description provided for @passwordSetFor.
+  ///
+  /// In en, this message translates to:
+  /// **'New password saved. Give it to {name}.'**
+  String passwordSetFor(String name);
+
+  /// No description provided for @changePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get changePassword;
+
+  /// No description provided for @currentPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password'**
+  String get currentPassword;
+
+  /// No description provided for @errCurrentPasswordWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'The current password is wrong'**
+  String get errCurrentPasswordWrong;
+
+  /// No description provided for @passwordChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed'**
+  String get passwordChanged;
 }
 
 class _AppLocalizationsDelegate

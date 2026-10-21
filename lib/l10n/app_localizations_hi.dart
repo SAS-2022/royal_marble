@@ -571,7 +571,8 @@ class AppLocalizationsHi extends AppLocalizations {
   String get salesActivity => 'सेल्स गतिविधि';
 
   @override
-  String get webAdminsOnlyTitle => 'वेब डैशबोर्ड एडमिन और एचआर के लिए है';
+  String get webAdminsOnlyTitle =>
+      'वेब डैशबोर्ड एडमिन, एचआर और समन्वयकों के लिए है';
 
   @override
   String get webAdminsOnlyBody =>
@@ -2474,4 +2475,110 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get sickLawNote =>
       'UAE क़ानून: साल में 90 दिन तक बीमारी की छुट्टी (15 पूरा वेतन, 30 आधा वेतन, 45 बिना वेतन); प्रोबेशन में सवेतन बीमारी की छुट्टी नहीं।';
+
+  @override
+  String get roleCoordinator => 'समन्वयक';
+
+  @override
+  String get rolesCoordinators => 'समन्वयक';
+
+  @override
+  String get pageAccess => 'पेज एक्सेस';
+
+  @override
+  String get pageAccessIntro =>
+      'चुनें कि हर भूमिका मेनू में कौन से पेज देखे। एडमिन हमेशा सभी पेज देखते हैं। मेरी प्रोफ़ाइल, मेरा वेतन, मेरी छुट्टी और सेटिंग्स हमेशा चालू रहते हैं।';
+
+  @override
+  String get pageAccessDefault => 'डिफ़ॉल्ट';
+
+  @override
+  String get pageAccessReset => 'डिफ़ॉल्ट पर लौटाएँ';
+
+  @override
+  String get pageAccessSaveFailed =>
+      'बदलाव सहेजा नहीं जा सका। कृपया फिर से कोशिश करें।';
+
+  @override
+  String get emailOrUsername => 'ईमेल या यूज़रनेम';
+
+  @override
+  String get enterEmailOrUsername => 'अपना ईमेल या यूज़रनेम डालें';
+
+  @override
+  String get usernameResetBody =>
+      'यूज़रनेम वाले खातों को रीसेट ईमेल नहीं मिलते। नया पासवर्ड सेट करने के लिए अपने एडमिन या एचआर से कहें।';
+
+  @override
+  String get ok => 'ठीक है';
+
+  @override
+  String get addUser => 'यूज़र जोड़ें';
+
+  @override
+  String get mobileNumberOptional => 'मोबाइल नंबर (वैकल्पिक)';
+
+  @override
+  String get sectionSignIn => 'साइन-इन';
+
+  @override
+  String get username => 'यूज़रनेम';
+
+  @override
+  String get usernameHelp =>
+      'नाम से सुझाया गया, जैसे ravi.kumar। अगर यह पहले से लिया गया है तो एक संख्या जोड़ी जाती है। आप अपना भी लिख सकते हैं।';
+
+  @override
+  String get usernameInvalid =>
+      '3–30 छोटे अंग्रेज़ी अक्षर या अंक लिखें, हिस्सों के बीच बिंदु के साथ';
+
+  @override
+  String get errUsernameNeeded => 'एक यूज़रनेम लिखें';
+
+  @override
+  String get errUsernameTaken =>
+      'यह यूज़रनेम पहले से लिया गया है। कोई दूसरा आज़माएँ।';
+
+  @override
+  String get errRoleAdminOnly => 'इस भूमिका के लिए यह सिर्फ़ एडमिन कर सकता है।';
+
+  @override
+  String get errAccountGeneric => 'सहेजा नहीं जा सका। कृपया फिर से कोशिश करें।';
+
+  @override
+  String get accountCreatedTitle => 'खाता बन गया';
+
+  @override
+  String accountCreatedBody(String name) {
+    return 'ये साइन-इन विवरण $name को दें। वे बाद में सेटिंग्स में पासवर्ड बदल सकते हैं।';
+  }
+
+  @override
+  String get copy => 'कॉपी करें';
+
+  @override
+  String get copied => 'कॉपी हो गया';
+
+  @override
+  String get setNewPassword => 'नया पासवर्ड सेट करें';
+
+  @override
+  String get newPassword => 'नया पासवर्ड';
+
+  @override
+  String passwordSetFor(String name) {
+    return 'नया पासवर्ड सहेजा गया। इसे $name को दें।';
+  }
+
+  @override
+  String get changePassword => 'पासवर्ड बदलें';
+
+  @override
+  String get currentPassword => 'मौजूदा पासवर्ड';
+
+  @override
+  String get errCurrentPasswordWrong => 'मौजूदा पासवर्ड गलत है';
+
+  @override
+  String get passwordChanged => 'पासवर्ड बदल गया';
 }

@@ -59,7 +59,10 @@ android {
             // Required by flutter_background_geolocation.
             isShrinkResources = false
             signingConfig = signingConfigs.getByName("release")
-            proguardFiles("${backgroundGeolocation.projectDir}/proguard-rules.pro")
+            proguardFiles(
+                "${backgroundGeolocation.projectDir}/proguard-rules.pro",
+                "proguard-rules.pro",
+            )
         }
     }
 }
